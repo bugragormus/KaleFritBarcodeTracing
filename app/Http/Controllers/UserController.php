@@ -125,6 +125,7 @@ class UserController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
+            'registration_number' => $data['registration_number'],
             'password' => isset($data['password']) ? bcrypt($data['password']) : $user->password
         ]);
 

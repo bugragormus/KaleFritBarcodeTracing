@@ -532,7 +532,7 @@
                                 <td>{{ $history->barcode->stock->name}}</td>
                                 <td>{{ $history->barcode->party_number}}</td>
                                 <td>{{ $history->barcode->load_number}}</td>
-                                <td>{{ \App\Models\Barcode::EVENTS[$history->description] }}</td>
+                                <td>{{ \App\Models\Barcode::EVENTS[$history->description] ?? 'Bilinmiyor' }}</td>
                                 <td>{{ $history->user->name}}</td>
                                 <td>
                                     @php
@@ -566,12 +566,13 @@
                                                 $statusClass = 'status-waiting';
                                         }
                                     @endphp
-                                    <span class="status-badge {{ $statusClass }}">{{ \App\Models\Barcode::STATUSES[$history->status] }}</span>
+                                    <span class="status-badge {{ $statusClass }}">{{ \App\Models\Barcode::STATUSES[$history->status] ?? 'Bilinmiyor' }}</span>
                                 </td>
                                 <td> 
-                                    @if(!is_null($history->changes))
+                                    @if(!is_null($history->changes) && is_array($history->changes) && count($history->changes) > 0)
                                         <div class="changes-container">
                                             @foreach($history->changes as $key => $value)
+                                                @if(is_string($key) && !is_null($value))
                                                 @php
                                                     $fieldNames = [
                                                         'status' => 'Durum',
@@ -633,6 +634,7 @@
                                                     <i class="mdi mdi-arrow-right change-arrow"></i>
                                                     <span class="change-value">{{ $displayValue }}</span>
                                                 </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     @else

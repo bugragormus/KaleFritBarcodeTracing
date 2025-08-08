@@ -585,7 +585,7 @@ $(document).on('click', '.process-barcode-btn', function() {
                             </div>
                             <div class="alert alert-info mt-3">
                                 <i class="fas fa-info-circle"></i>
-                                <strong>Bilgi:</strong> Bu barkodu ${action === 'accept' ? 'kabul etmek' : 'reddetmek'} üzeresiniz. İşlem geri alınamaz.
+                                <strong>Bilgi:</strong> Bu barkodu ${action === 'reject' ? 'reddetmek' : (action === 'pre_approved' ? 'ön onaylı yapmak' : (action === 'control_repeat' ? 'kontrol tekrarı yapmak' : (action === 'shipment_approved' ? 'sevk onaylı yapmak' : 'işlemek')))} üzeresiniz. İşlem geri alınamaz.
                             </div>
                         </div>
                         <div class="modal-footer">

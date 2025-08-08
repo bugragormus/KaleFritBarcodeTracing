@@ -333,15 +333,16 @@
                                         }
                                     @endphp
                                     <div class="d-flex justify-content-center">
-                                        <span class="status-badge {{ $statusClass }}">{{ \App\Models\Barcode::STATUSES[$history->status] }}</span>
+                                        <span class="status-badge {{ $statusClass }}">{{ \App\Models\Barcode::STATUSES[$history->status] ?? 'Bilinmiyor' }}</span>
                                     </div>
                                 </td>
                                 <td>{{ $history->user->name}}</td>
                                 <td>{{ $history->description}}</td>
                                 <td>
-                                    @if(!is_null($history->changes))
+                                    @if(!is_null($history->changes) && is_array($history->changes) && count($history->changes) > 0)
                                         <div class="changes-container">
                                             @foreach($history->changes as $key => $value)
+                                                @if(is_string($key) && !is_null($value))
                                                 @php
                                                     $fieldNames = [
                                                         'status' => 'Durum',
@@ -389,6 +390,7 @@
                                                     <i class="mdi mdi-arrow-right change-arrow"></i>
                                                     <span class="change-value">{{ $displayValue }}</span>
                                                 </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     @else

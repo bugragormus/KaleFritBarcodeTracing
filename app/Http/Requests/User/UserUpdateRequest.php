@@ -40,6 +40,11 @@ class UserUpdateRequest extends FormRequest
                 'email',
                 Rule::unique('users','email')->ignore($this->user)
             ],
+            'registration_number' => [
+                'required',
+                'string',
+                Rule::unique('users','registration_number')->ignore($this->user)
+            ],
             'password' => [
                 'nullable',
                 'min:6',
