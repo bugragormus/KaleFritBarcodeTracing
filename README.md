@@ -1,7 +1,7 @@
 # Kalefrit - Yönetim Sistemi
 
 <p align="center">
-  <img src="public/images/kale-logo-white.png" alt="Kalefrit Logo" width="200">
+  <img src="public/assets/images/kale-logo.png" alt="Kalefrit Logo" width="200">
 </p>
 
 <p align="center">
