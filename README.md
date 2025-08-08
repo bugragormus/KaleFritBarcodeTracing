@@ -1,63 +1,307 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Kalefrit - Yönetim Sistemi
 
 <p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/images/kale-logo-white.png" alt="Kalefrit Logo" width="200">
 </p>
 
-## About Laravel
+<p align="center">
+  <strong>Modern ve Kullanıcı Dostu Yönetim Sistemi</strong>
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 Proje Hakkında
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Kalefrit, işletmeler için geliştirilmiş kapsamlı bir yönetim sistemidir. Bu sistem, işletme operasyonlarını dijitalleştirerek verimliliği artırır ve hata riskini minimize eder.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Özellikler
 
-## Learning Laravel
+### 🏢 Şirket Yönetimi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   Çoklu şirket desteği
+-   Şirket profil yönetimi
+-   Kullanıcı yetkilendirme sistemi
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📦 Stok Yönetimi
 
-## Laravel Sponsors
+-   Ürün stok takibi
+-   Barkod sistemi entegrasyonu
+-   Stok giriş/çıkış işlemleri
+-   Minimum stok uyarıları
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### 🏭 Üretim Yönetimi
 
-### Premium Partners
+-   Fırın (Kiln) yönetimi
+-   Üretim planlaması
+-   Kalite kontrol süreçleri
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
+### 📊 Raporlama
 
-## Contributing
+-   Detaylı stok raporları
+-   Şirket bazlı raporlar
+-   Excel/PDF export özellikleri
+-   Barkod raporları
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🔍 Barkod Sistemi
 
-## Code of Conduct
+-   QR kod üretimi
+-   Barkod tarama
+-   Ürün takibi
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 🏪 Depo Yönetimi
 
-## Security Vulnerabilities
+-   Çoklu depo desteği
+-   Depo transfer işlemleri
+-   Konum bazlı stok takibi
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 🚚 Sevkiyat Noktaları
 
-## License
+-   Sevkiyat noktası yönetimi
+-   Teslimat takibi
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# eczane
-# kalefrit
+## 🛠️ Teknolojiler
+
+-   **Backend**: Laravel 8+
+-   **Frontend**: Bootstrap, jQuery
+-   **Veritabanı**: MySQL
+-   **Barkod**: QR Code Generator
+-   **Export**: Laravel Excel
+
+## 📦 Kurulum
+
+### Gereksinimler
+
+-   PHP 8.0+
+-   Composer
+-   MySQL 5.7+
+-   Apache/Nginx
+
+### Adımlar
+
+1. **Projeyi klonlayın**
+
+```bash
+git clone [repository-url]
+cd kalefrit
+```
+
+2. **Bağımlılıkları yükleyin**
+
+```bash
+composer install
+```
+
+3. **Environment dosyasını oluşturun**
+
+```bash
+cp .env.example .env
+```
+
+4. **Uygulama anahtarını oluşturun**
+
+```bash
+php artisan key:generate
+```
+
+5. **Veritabanını yapılandırın**
+
+```bash
+# .env dosyasında veritabanı bilgilerini güncelleyin
+php artisan migrate
+php artisan db:seed
+```
+
+6. **Storage linkini oluşturun**
+
+```bash
+php artisan storage:link
+```
+
+7. **Uygulamayı çalıştırın**
+
+```bash
+php artisan serve
+```
+
+## 🔐 Güvenlik
+
+-   Kullanıcı kimlik doğrulama sistemi
+-   Rol tabanlı yetkilendirme
+-   Veri bütünlüğü kontrolleri
+-   Güvenli API endpoints
+
+## 📱 Kullanım
+
+1. **Giriş Yapın**: Admin paneline giriş yapın
+2. **Şirket Seçin**: Çalışacağınız şirketi seçin
+3. **Modülleri Kullanın**: İhtiyacınız olan modülü seçin
+4. **İşlemleri Gerçekleştirin**: Stok, üretim, raporlama işlemlerini yapın
+
+## 🤝 Katkıda Bulunma
+
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some AmazingFeature'`)
+4. Branch'inizi push edin (`git push origin feature/AmazingFeature`)
+5. Pull Request oluşturun
+
+## 📄 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosyasına bakın.
+
+---
+
+**Kalefrit** - İşletme yönetiminde dijital dönüşüm 🚀
+
+---
+
+# Kalefrit - Management System
+
+<p align="center">
+  <img src="public/images/kale-logo-white.png" alt="Kalefrit Logo" width="200">
+</p>
+
+<p align="center">
+  <strong>Modern and User-Friendly Management System</strong>
+</p>
+
+## 📋 About the Project
+
+Kalefrit is a comprehensive management system developed for businesses. This system digitizes business operations to increase efficiency and minimize error risk.
+
+## ✨ Features
+
+### 🏢 Company Management
+
+-   Multi-company support
+-   Company profile management
+-   User authorization system
+
+### 📦 Inventory Management
+
+-   Product stock tracking
+-   Barcode system integration
+-   Stock in/out operations
+-   Minimum stock alerts
+
+### 🏭 Production Management
+
+-   Kiln management
+-   Production planning
+-   Quality control processes
+
+### 📊 Reporting
+
+-   Detailed inventory reports
+-   Company-based reports
+-   Excel/PDF export features
+-   Barcode reports
+
+### 🔍 Barcode System
+
+-   QR code generation
+-   Barcode scanning
+-   Product tracking
+
+### 🏪 Warehouse Management
+
+-   Multi-warehouse support
+-   Warehouse transfer operations
+-   Location-based stock tracking
+
+### 🚚 Shipping Points
+
+-   Shipping point management
+-   Delivery tracking
+
+## 🛠️ Technologies
+
+-   **Backend**: Laravel 8+
+-   **Frontend**: Bootstrap, jQuery
+-   **Database**: MySQL
+-   **Barcode**: QR Code Generator
+-   **Export**: Laravel Excel
+
+## 📦 Installation
+
+### Requirements
+
+-   PHP 8.0+
+-   Composer
+-   MySQL 5.7+
+-   Apache/Nginx
+
+### Steps
+
+1. **Clone the project**
+
+```bash
+git clone [repository-url]
+cd kalefrit
+```
+
+2. **Install dependencies**
+
+```bash
+composer install
+```
+
+3. **Create environment file**
+
+```bash
+cp .env.example .env
+```
+
+4. **Generate application key**
+
+```bash
+php artisan key:generate
+```
+
+5. **Configure database**
+
+```bash
+# Update database information in .env file
+php artisan migrate
+php artisan db:seed
+```
+
+6. **Create storage link**
+
+```bash
+php artisan storage:link
+```
+
+7. **Run the application**
+
+```bash
+php artisan serve
+```
+
+## 🔐 Security
+
+-   User authentication system
+-   Role-based authorization
+-   Data integrity checks
+-   Secure API endpoints
+
+## 📱 Usage
+
+1. **Login**: Access the admin panel
+2. **Select Company**: Choose the company you will work with
+3. **Use Modules**: Select the module you need
+4. **Perform Operations**: Execute inventory, production, and reporting operations
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+---
+
+**Kalefrit** - Digital transformation in business management 🚀
