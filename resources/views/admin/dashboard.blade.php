@@ -97,6 +97,236 @@
     .btn-success i {
         margin-right: 0.5rem;
     }
+
+    /* New Dashboard Components Styles */
+    .shift-efficiency-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .shift-efficiency-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .shift-header h5 {
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .shift-header small {
+        opacity: 0.8;
+        font-size: 0.9rem;
+    }
+
+    .shift-metrics {
+        margin-top: 1rem;
+    }
+
+    .metric {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .metric:last-child {
+        border-bottom: none;
+    }
+
+    .metric-label {
+        font-weight: 500;
+    }
+
+    .metric-value {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .comparison-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .comparison-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+
+    .comparison-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .comparison-value {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .detailed-numbers {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .number-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: rgba(118, 75, 162, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #764ba2;
+    }
+
+    .number-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .number-value {
+        font-weight: 700;
+        color: #764ba2;
+    }
+
+    .kpi-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .kpi-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(40, 167, 69, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #28a745;
+    }
+
+    .kpi-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .kpi-value {
+        font-weight: 700;
+        color: #28a745;
+    }
+
+    .kpi-achievement {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .actual-values {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .actual-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: rgba(255, 193, 7, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #ffc107;
+    }
+
+    .actual-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .actual-value {
+        font-weight: 700;
+        color: #ffc107;
+    }
+
+    .activity-summary {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .activity-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: rgba(220, 53, 69, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #dc3545;
+    }
+
+    .activity-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .activity-value {
+        font-weight: 700;
+        color: #dc3545;
+    }
+
+    .recent-activities {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .activity-log {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        background: rgba(23, 162, 184, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #17a2b8;
+        font-size: 0.9rem;
+    }
+
+    .activity-user {
+        font-weight: 600;
+        color: #17a2b8;
+        min-width: 100px;
+    }
+
+    .activity-action {
+        color: #333;
+        flex: 1;
+        margin: 0 1rem;
+    }
+
+    .activity-time {
+        font-weight: 600;
+        color: #6c757d;
+        min-width: 60px;
+        text-align: right;
+    }
+
+    /* Progress Bar Enhancements */
+    .progress {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        line-height: 20px;
+    }
     
     .card-modern {
         background: #ffffff;
@@ -664,6 +894,321 @@
                                 </div>
                                 <div class="stat-label">Miktar Değişimi</div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production Efficiency - Kiln Capacity Utilization -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Üretim Verimliliği - Fırın Kapasite Kullanımı
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Fırın Adı</th>
+                                <th>Teorik Kapasite</th>
+                                <th>Gerçek Üretim</th>
+                                <th>Kapasite Kullanımı (%)</th>
+                                <th>Miktar Kullanımı (%)</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($productionEfficiency as $kiln)
+                            <tr>
+                                <td><strong>{{ $kiln->kiln_name }}</strong></td>
+                                <td>{{ number_format($kiln->theoretical_capacity) }}</td>
+                                <td>{{ number_format($kiln->actual_production) }}</td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {{ $kiln->capacity_utilization >= 80 ? 'bg-success' : ($kiln->capacity_utilization >= 60 ? 'bg-warning' : 'bg-danger') }}" 
+                                             style="width: {{ min($kiln->capacity_utilization, 100) }}%">
+                                            {{ $kiln->capacity_utilization }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar {{ $kiln->quantity_utilization >= 80 ? 'bg-success' : ($kiln->quantity_utilization >= 60 ? 'bg-warning' : 'bg-danger') }}" 
+                                             style="width: {{ min($kiln->quantity_utilization, 100) }}%">
+                                            {{ $kiln->quantity_utilization }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if($kiln->capacity_utilization >= 80)
+                                        <span class="badge badge-success">Yüksek</span>
+                                    @elseif($kiln->capacity_utilization >= 60)
+                                        <span class="badge badge-warning">Orta</span>
+                                    @else
+                                        <span class="badge badge-danger">Düşük</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock ABC Analysis -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-chart-pie"></i>
+                    Stok ABC Analizi (Son 30 Gün)
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Kullanım Sıklığı</th>
+                                <th>Toplam Miktar</th>
+                                <th>Kullanım Yüzdesi</th>
+                                <th>Kategori</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($stockABC as $stock)
+                            <tr>
+                                <td>
+                                    <strong>{{ $stock->name }}</strong><br>
+                                    <small>{{ $stock->code }}</small>
+                                </td>
+                                <td>{{ number_format($stock->usage_frequency) }}</td>
+                                <td>{{ number_format($stock->total_quantity) }}</td>
+                                <td>{{ $stock->usage_percentage }}%</td>
+                                <td>
+                                    @if($stock->usage_percentage >= 20)
+                                        <span class="badge badge-danger">A (Kritik)</span>
+                                    @elseif($stock->usage_percentage >= 5)
+                                        <span class="badge badge-warning">B (Önemli)</span>
+                                    @else
+                                        <span class="badge badge-success">C (Normal)</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shift Efficiency Analysis -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-users"></i>
+                    Vardiya Verimlilik Analizi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    @foreach($shiftEfficiency as $shiftKey => $shift)
+                    <div class="col-md-4">
+                        <div class="shift-efficiency-card">
+                            <div class="shift-header">
+                                <h5>{{ $shift['name'] }}</h5>
+                                <small>{{ $shift['start'] }} - {{ $shift['end'] }}</small>
+                            </div>
+                            <div class="shift-metrics">
+                                <div class="metric">
+                                    <span class="metric-label">Barkod Sayısı:</span>
+                                    <span class="metric-value">{{ number_format($shift['total_barcodes']) }}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Toplam Miktar:</span>
+                                    <span class="metric-value">{{ number_format($shift['total_quantity']) }}</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Kabul Oranı:</span>
+                                    <span class="metric-value {{ $shift['acceptance_rate'] >= 90 ? 'text-success' : ($shift['acceptance_rate'] >= 75 ? 'text-warning' : 'text-danger') }}">
+                                        {{ $shift['acceptance_rate'] }}%
+                                    </span>
+                                </div>
+                                <div class="metric">
+                                    <span class="metric-label">Red Oranı:</span>
+                                    <span class="metric-value {{ $shift['rejection_rate'] <= 5 ? 'text-success' : ($shift['rejection_rate'] <= 15 ? 'text-warning' : 'text-danger') }}">
+                                        {{ $shift['rejection_rate'] }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Comparison -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-balance-scale"></i>
+                    Günlük Karşılaştırma
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Bugün vs Dün</h6>
+                        <div class="comparison-grid">
+                            <div class="comparison-item">
+                                <span class="comparison-label">Barkod Sayısı:</span>
+                                <span class="comparison-value {{ $timeComparison['changes']['barcodes'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $timeComparison['changes']['barcodes'] >= 0 ? '+' : '' }}{{ $timeComparison['changes']['barcodes'] }}%
+                                </span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="comparison-label">Toplam Miktar:</span>
+                                <span class="comparison-value {{ $timeComparison['changes']['quantity'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $timeComparison['changes']['quantity'] >= 0 ? '+' : '' }}{{ $timeComparison['changes']['quantity'] }}%
+                                </span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="comparison-label">Kabul Edilen:</span>
+                                <span class="comparison-value {{ $timeComparison['changes']['accepted'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $timeComparison['changes']['accepted'] >= 0 ? '+' : '' }}{{ $timeComparison['changes']['accepted'] }}%
+                                </span>
+                            </div>
+                            <div class="comparison-item">
+                                <span class="comparison-label">Reddedilen:</span>
+                                <span class="comparison-value {{ $timeComparison['changes']['rejected'] <= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $timeComparison['changes']['rejected'] <= 0 ? '' : '+' }}{{ $timeComparison['changes']['rejected'] }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Detaylı Sayılar</h6>
+                        <div class="detailed-numbers">
+                            <div class="number-item">
+                                <span class="number-label">Bugün:</span>
+                                <span class="number-value">{{ number_format($timeComparison['current']['total_barcodes']) }} barkod, {{ number_format($timeComparison['current']['total_quantity']) }} miktar</span>
+                            </div>
+                            <div class="number-item">
+                                <span class="number-label">Dün:</span>
+                                <span class="number-value">{{ number_format($timeComparison['previous']['total_barcodes']) }} barkod, {{ number_format($timeComparison['previous']['total_quantity']) }} miktar</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Metrics -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-bullseye"></i>
+                    KPI ve Hedef Takibi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Aylık Hedefler</h6>
+                        <div class="kpi-grid">
+                            <div class="kpi-item">
+                                <span class="kpi-label">Barkod Hedefi:</span>
+                                <span class="kpi-value">{{ number_format($kpiMetrics['targets']['monthly_barcodes']) }}</span>
+                                <span class="kpi-achievement {{ $kpiMetrics['achievement']['barcodes'] >= 100 ? 'text-success' : 'text-warning' }}">
+                                    {{ $kpiMetrics['achievement']['barcodes'] }}%
+                                </span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">Miktar Hedefi:</span>
+                                <span class="kpi-value">{{ number_format($kpiMetrics['targets']['monthly_quantity']) }}</span>
+                                <span class="kpi-achievement {{ $kpiMetrics['achievement']['quantity'] >= 100 ? 'text-success' : 'text-warning' }}">
+                                    {{ $kpiMetrics['achievement']['quantity'] }}%
+                                </span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">Kabul Oranı Hedefi:</span>
+                                <span class="kpi-value">{{ $kpiMetrics['targets']['acceptance_rate'] }}%</span>
+                                <span class="kpi-achievement {{ $kpiMetrics['achievement']['acceptance'] >= 100 ? 'text-success' : 'text-warning' }}">
+                                    {{ $kpiMetrics['achievement']['acceptance'] }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Gerçekleşen Değerler</h6>
+                        <div class="actual-values">
+                            <div class="actual-item">
+                                <span class="actual-label">Aylık Barkod:</span>
+                                <span class="actual-value">{{ number_format($kpiMetrics['actual']['monthly_barcodes']) }}</span>
+                            </div>
+                            <div class="actual-item">
+                                <span class="actual-label">Aylık Miktar:</span>
+                                <span class="actual-value">{{ number_format($kpiMetrics['actual']['monthly_quantity']) }}</span>
+                            </div>
+                            <div class="actual-item">
+                                <span class="actual-label">Kabul Oranı:</span>
+                                <span class="actual-value {{ $kpiMetrics['actual']['acceptance_rate'] >= 95 ? 'text-success' : 'text-warning' }}">
+                                    {{ $kpiMetrics['actual']['acceptance_rate'] }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Activity Logs -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-shield-alt"></i>
+                    Güvenlik ve Audit - Kullanıcı Aktiviteleri
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Günlük Aktivite Özeti</h6>
+                        <div class="activity-summary">
+                            <div class="activity-item">
+                                <span class="activity-label">Toplam Aktivite:</span>
+                                <span class="activity-value">{{ number_format($userActivityLogs['total_activities']) }}</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-label">Giriş Sayısı:</span>
+                                <span class="activity-value">{{ number_format($userActivityLogs['login_count']) }}</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-label">Veri Değişikliği:</span>
+                                <span class="activity-value">{{ number_format($userActivityLogs['data_changes']) }}</span>
+                            </div>
+                            <div class="activity-item">
+                                <span class="activity-label">Export İşlemleri:</span>
+                                <span class="activity-value">{{ number_format($userActivityLogs['export_activities']) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Son Aktiviteler</h6>
+                        <div class="recent-activities">
+                            @foreach($userActivityLogs['recent_activities'] as $activity)
+                            <div class="activity-log">
+                                <span class="activity-user">{{ $activity['user'] }}</span>
+                                <span class="activity-action">{{ $activity['action'] }}</span>
+                                <span class="activity-time">{{ $activity['time'] }}</span>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
