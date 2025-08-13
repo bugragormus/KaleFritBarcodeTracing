@@ -40,19 +40,42 @@
     }
 
     .date-selector {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 1rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 1.5rem;
         margin-top: 1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .date-selector label {
+        color: white;
+        font-weight: 600;
+        margin-right: 1rem;
+        font-size: 1.1rem;
     }
 
     .date-selector input {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
         color: #333;
         font-weight: 500;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        min-width: 200px;
+    }
+
+    .date-selector input:focus {
+        outline: none;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .date-selector input:hover {
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
     }
     
     .card-modern {
@@ -135,36 +158,59 @@
         border-radius: 15px;
         padding: 1.5rem;
         text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .shift-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
     }
 
     .shift-name {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
         text-transform: uppercase;
+        letter-spacing: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.8rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .shift-stats {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        gap: 1.2rem;
     }
 
     .shift-stat {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        padding: 0.8rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .shift-stat:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
     }
 
     .shift-stat-value {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 0.3rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .shift-stat-label {
-        font-size: 0.8rem;
-        opacity: 0.9;
+        font-size: 0.9rem;
+        opacity: 0.95;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .warning-card {
@@ -259,7 +305,7 @@
                 <!-- Date Selector -->
                 <div class="date-selector">
                     <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
-                        <label for="date" class="text-white me-2">Tarih:</label>
+                        <label for="date">📅 Rapor Tarihi:</label>
                         <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
                                class="form-control" onchange="this.form.submit()">
                     </form>
@@ -311,9 +357,19 @@
             </div>
             <div class="card-body-modern">
                 <div class="shift-grid">
-                    @foreach($shiftReport as $shiftName => $shiftData)
-                    <div class="shift-card">
-                        <div class="shift-name">{{ ucfirst($shiftName) }} Vardiyası</div>
+                                         @foreach($shiftReport as $shiftName => $shiftData)
+                     <div class="shift-card">
+                         <div class="shift-name">
+                             @if($shiftName === 'gece')
+                                 00:00 - 08:00
+                             @elseif($shiftName === 'gündüz')
+                                 08:00 - 16:00
+                             @elseif($shiftName === 'akşam')
+                                 16:00 - 00:00
+                             @else
+                                 {{ ucfirst($shiftName) }}
+                             @endif
+                         </div>
                         <div class="shift-stats">
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
