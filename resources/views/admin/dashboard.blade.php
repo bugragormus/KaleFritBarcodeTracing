@@ -109,22 +109,41 @@
     
     .card-header-modern {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid #e9ecef;
+        padding: 2rem 2.5rem;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+    }
+
+    .card-header-modern::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+        opacity: 0.7;
     }
     
     .card-title-modern {
-        font-size: 1.3rem;
-        font-weight: 600;
+        font-size: 1.4rem;
+        font-weight: 700;
         color: #495057;
         margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
     }
     
     .card-title-modern i {
-        margin-right: 0.5rem;
+        margin-right: 0.8rem;
         color: #667eea;
+        font-size: 1.3rem;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.8rem;
+        border-radius: 12px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
     }
     
     .card-body-modern {
@@ -166,71 +185,104 @@
     }
 
     .shift-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
         margin-bottom: 2rem;
     }
 
     .shift-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         color: white;
-        border-radius: 15px;
-        padding: 1.5rem;
+        border-radius: 20px;
+        padding: 2.5rem;
         text-align: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .shift-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 5px 15px rgba(44, 62, 80, 0.2);
+        position: relative;
+        overflow: hidden;
+        min-height: 200px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .shift-name {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 1.5rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.8rem;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        letter-spacing: 1.5px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 1.2rem 2rem;
+        border-radius: 15px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        flex-shrink: 0;
+        min-width: 200px;
+        text-align: center;
+    }
+
+    .shift-name::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 2px;
     }
 
     .shift-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        gap: 1.5rem;
+        flex-grow: 1;
+        align-content: center;
+        margin-left: 2rem;
     }
 
     .shift-stat {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .shift-stat:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 15px;
+        padding: 1.5rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        position: relative;
+        overflow: hidden;
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-width: 120px;
     }
 
     .shift-stat-value {
         font-size: 1.8rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        color: #ffffff;
+        line-height: 1;
     }
 
     .shift-stat-label {
-        font-size: 0.9rem;
-        opacity: 0.95;
-        font-weight: 500;
+        font-size: 0.8rem;
+        opacity: 0.9;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        color: rgba(255, 255, 255, 0.95);
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .shift-card.gece,
+    .shift-card.gunduz,
+    .shift-card.aksam {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        box-shadow: 0 5px 15px rgba(44, 62, 80, 0.2);
     }
 
     .warning-card {
@@ -260,50 +312,81 @@
 
     .table-modern {
         background: white;
-        border-radius: 10px;
+        border-radius: 15px;
         overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
     }
 
     .table-modern th {
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border: none;
-        padding: 1rem;
+        padding: 1.5rem 1.5rem;
         font-weight: 600;
         color: #495057;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #dee2e6;
     }
 
     .table-modern td {
         border: none;
-        padding: 1rem;
-        border-bottom: 1px solid #e9ecef;
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f3f4;
+        font-size: 0.95rem;
+        vertical-align: middle;
+        transition: all 0.2s ease;
+    }
+
+    .table-modern tbody tr:hover {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        transform: scale(1.01);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .table-modern tbody tr:hover td {
+        border-bottom-color: #dee2e6;
     }
 
     .badge-modern {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .badge-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
     .badge-success {
-        background: #d4edda;
-        color: #155724;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
     .badge-danger {
-        background: #f8d7da;
-        color: #721c24;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
     .badge-warning {
-        background: #fff3cd;
-        color: #856404;
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #212529;
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
     .badge-info {
-        background: #d1ecf1;
-        color: #0c5460;
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
     }
 </style>
 @endsection
@@ -368,8 +451,8 @@
                         <div class="stat-label">Reddedilen (ton)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['pending_barcodes']) }}</div>
-                        <div class="stat-label">Bekleyen</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['testing_quantity'], 1) }}</div>
+                        <div class="stat-label">Bekleyen (ton)</div>
                     </div>
                 </div>
             </div>
@@ -385,46 +468,46 @@
             </div>
             <div class="card-body-modern">
                 <div class="shift-grid">
-                                         @foreach($shiftReport as $shiftName => $shiftData)
-                     <div class="shift-card">
-                         <div class="shift-name">
-                             @if($shiftName === 'gece')
-                                 00:00 - 08:00
-                             @elseif($shiftName === 'gündüz')
-                                 08:00 - 16:00
-                             @elseif($shiftName === 'akşam')
-                                 16:00 - 24:00
-                             @else
-                                 {{ ucfirst($shiftName) }}
-                             @endif
-                         </div>
-                        <div class="shift-stats">
-                            <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
-                                <div class="shift-stat-label">Barkod</div>
+                    @foreach($shiftReport as $shiftName => $shiftData)
+                        <div class="shift-card {{ $shiftName }}">
+                            <div class="shift-name">
+                                @if($shiftName === 'gece')
+                                    00:00 - 08:00
+                                @elseif($shiftName === 'gündüz')
+                                    08:00 - 16:00
+                                @elseif($shiftName === 'akşam')
+                                    16:00 - 24:00
+                                @else
+                                    {{ ucfirst($shiftName) }}
+                                @endif
                             </div>
-                            <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['total_quantity'], 1) }}</div>
-                                <div class="shift-stat-label">Toplam (ton)</div>
-                            </div>
-                            <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['accepted_quantity'], 1) }}</div>
-                                <div class="shift-stat-label">Kabul (ton)</div>
-                            </div>
-                            <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['testing_quantity'], 1) }}</div>
-                                <div class="shift-stat-label">Test (ton)</div>
-                            </div>
-                            <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['delivery_quantity'], 1) }}</div>
-                                <div class="shift-stat-label">Teslimat (ton)</div>
-                            </div>
-                            <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'], 1) }}</div>
-                                <div class="shift-stat-label">Red (ton)</div>
+                            <div class="shift-stats">
+                                <div class="shift-stat">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
+                                    <div class="shift-stat-label">Barkod</div>
+                                </div>
+                                <div class="shift-stat">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['total_quantity'], 1) }}</div>
+                                    <div class="shift-stat-label">Toplam (ton)</div>
+                                </div>
+                                <div class="shift-stat">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['accepted_quantity'], 1) }}</div>
+                                    <div class="shift-stat-label">Kabul (ton)</div>
+                                </div>
+                                <div class="shift-stat">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['testing_quantity'], 1) }}</div>
+                                    <div class="shift-stat-label">Test (ton)</div>
+                                </div>
+                                <div class="shift-stat">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['delivery_quantity'], 1) }}</div>
+                                    <div class="shift-stat-label">Teslimat (ton)</div>
+                                </div>
+                                <div class="shift-stat">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'], 1) }}</div>
+                                    <div class="shift-stat-label">Red (ton)</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @endforeach
                 </div>
             </div>

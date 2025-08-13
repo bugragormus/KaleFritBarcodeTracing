@@ -112,27 +112,27 @@ class DashboardController extends Controller
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
         
-        // Kabul edilen miktar (ton) - Final kabul edilen durumlar
+        // Kabul edilen miktar (ton) - Sadece sevk onaylı
         $acceptedQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.created_at BETWEEN ? AND ?
-            AND barcodes.status IN (?, ?, ?, ?)
+            AND barcodes.status = ?
             AND barcodes.deleted_at IS NULL
-        ', [$startDate, $endDate, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
+        ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
         
-        // Test sürecinde olan miktar (ton) - Henüz final karar verilmemiş
+        // Test sürecinde olan miktar (ton) - Beklemede, ön onaylı, kontrol tekrarı
         $testingQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.created_at BETWEEN ? AND ?
-            AND barcodes.status IN (?, ?)
+            AND barcodes.status IN (?, ?, ?)
             AND barcodes.deleted_at IS NULL
-        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
+        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
         
-        // Teslimat sürecinde olan miktar (ton) - Sevk onaylı ve müşteri transferde
+        // Teslimat sürecinde olan miktar (ton) - Müşteri transfer ve teslim edildi
         $deliveryQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
@@ -140,7 +140,7 @@ class DashboardController extends Controller
             WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
-        ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER])[0]->total_quantity ?? 0;
+        ', [$startDate, $endDate, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
         
         // Reddedilen miktar (ton)
         $rejectedQuantity = DB::select('
@@ -166,16 +166,16 @@ class DashboardController extends Controller
             'delivery_quantity' => $deliveryQuantity,
             'rejected_quantity' => $rejectedQuantity,
             'accepted_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
+                ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
                 ->count(),
             'rejected_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_REJECTED)
                 ->count(),
             'testing_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])
+                ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])
                 ->count(),
             'delivery_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->whereIn('status', [Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER])
+                ->whereIn('status', [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
                 ->count(),
             'pending_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_WAITING)
@@ -219,9 +219,9 @@ class DashboardController extends Controller
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.created_at BETWEEN ? AND ?
-                AND barcodes.status IN (?, ?, ?, ?)
+                AND barcodes.status = ?
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
+            ', [$startTime, $endTime, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
             
             $rejectedQuantity = DB::select('
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
@@ -238,9 +238,9 @@ class DashboardController extends Controller
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.created_at BETWEEN ? AND ?
-                AND barcodes.status IN (?, ?)
+                AND barcodes.status IN (?, ?, ?)
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
+            ', [$startTime, $endTime, Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
             
             // Teslimat sürecinde olan miktar (ton)
             $deliveryQuantity = DB::select('
@@ -250,7 +250,7 @@ class DashboardController extends Controller
                 WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER])[0]->total_quantity ?? 0;
+            ', [$startTime, $endTime, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
             
             $shiftData[$shiftName] = [
                 'barcode_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])->count(),
@@ -266,16 +266,16 @@ class DashboardController extends Controller
                 'delivery_quantity' => $deliveryQuantity,
                 'rejected_quantity' => $rejectedQuantity,
                 'accepted_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
-                    ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
+                    ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
                     ->count(),
                 'rejected_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
                     ->where('status', Barcode::STATUS_REJECTED)
                     ->count(),
                 'testing_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
-                    ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])
+                    ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])
                     ->count(),
                 'delivery_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
-                    ->whereIn('status', [Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER])
+                    ->whereIn('status', [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
                     ->count()
             ];
         }
