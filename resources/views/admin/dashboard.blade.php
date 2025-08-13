@@ -422,8 +422,8 @@
                         <i class="fas fa-fire"></i>
                         Fırın Performans Analizi
                     </h3>
-                    <button class="btn btn-success btn-sm" onclick="exportKilnPerformance()">
-                        <i class="fas fa-file-excel"></i> Excel İndir
+                    <button class="btn btn-success btn-sm" onclick="exportKilnPerformance(event)">
+                        <i class="fas fa-file-excel"></i> CSV İndir
                     </button>
                 </div>
             </div>
@@ -756,32 +756,86 @@ document.addEventListener('DOMContentLoaded', function() {
 function exportKilnPerformance() {
     const selectedDate = document.getElementById('date').value;
     
-    fetch(`/dashboard/export-kiln-performance?date=${selectedDate}`)
-        .then(response => response.json())
+    // Loading göster
+    const exportBtn = event.target;
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İndiriliyor...';
+    exportBtn.disabled = true;
+    
+    // CSRF token ve credentials ekle
+    fetch(`{{ route('dashboard.export-kiln-performance') }}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify({
+            date: selectedDate
+        })
+    })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            // Create CSV content
-            let csvContent = "data:text/csv;charset=utf-8,";
+            console.log('Response data:', data);
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Unknown error occurred');
+            }
+            
+            if (!data.data || !Array.isArray(data.data)) {
+                throw new Error('Invalid data format received');
+            }
+            
+            // Create CSV content with proper encoding
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             
             // Add headers
             csvContent += "Fırın Adı,Barkod Sayısı,Toplam Miktar,Ortalama Miktar,Kabul Edilen,Reddedilen\n";
             
-            // Add data rows
+            // Add data rows with proper escaping
             data.data.forEach(kiln => {
-                csvContent += `${kiln.kiln_name},${kiln.barcode_count},${kiln.total_quantity},${kiln.avg_quantity},${kiln.accepted_count},${kiln.rejected_count}\n`;
+                const row = [
+                    `"${kiln.kiln_name || ''}"`,
+                    kiln.barcode_count || 0,
+                    kiln.total_quantity || 0,
+                    parseFloat(kiln.avg_quantity || 0).toFixed(1),
+                    kiln.accepted_count || 0,
+                    kiln.rejected_count || 0
+                ].join(',');
+                csvContent += row + '\n';
             });
             
             // Create download link
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", data.filename.replace('.xlsx', '.csv'));
+            link.setAttribute("download", data.filename);
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            // Success message
+            alert('Fırın performans raporu başarıyla indirildi!');
         })
         .catch(error => {
             console.error('Export error:', error);
-            alert('Excel export sırasında bir hata oluştu.');
+            alert('Export sırasında bir hata oluştu: ' + error.message);
+        })
+        .finally(() => {
+            // Button'u eski haline getir
+            exportBtn.innerHTML = originalText;
+            exportBtn.disabled = false;
         });
 }
 </script>

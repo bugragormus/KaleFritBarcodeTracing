@@ -24,8 +24,8 @@ class DashboardController extends Controller
     public function index()
     {
         // Tarih seçimi (varsayılan: bugün)
-        $selectedDate = request('date', Carbon::today()->format('Y-m-d'));
-        $date = Carbon::parse($selectedDate);
+        $selectedDate = request('date', Carbon::today('Europe/Istanbul')->format('Y-m-d'));
+        $date = Carbon::parse($selectedDate)->setTimezone('Europe/Istanbul');
         
         // Günlük üretim raporu
         $dailyProduction = $this->getDailyProduction($date);
@@ -74,16 +74,34 @@ class DashboardController extends Controller
      */
     public function exportKilnPerformance(Request $request)
     {
-        $selectedDate = $request->get('date', Carbon::today()->format('Y-m-d'));
-        $date = Carbon::parse($selectedDate);
-        $kilnPerformance = $this->getKilnPerformance($date);
-        
-        $filename = 'firin_performans_' . $date->format('Y-m-d') . '.xlsx';
-        
-        return response()->json([
-            'data' => $kilnPerformance,
-            'filename' => $filename
-        ]);
+        try {
+            \Log::info('Export request received', ['request' => $request->all()]);
+            
+            $selectedDate = $request->input('date', Carbon::today('Europe/Istanbul')->format('Y-m-d'));
+            $date = Carbon::parse($selectedDate)->setTimezone('Europe/Istanbul');
+            
+            \Log::info('Date parsed', ['selectedDate' => $selectedDate, 'parsedDate' => $date->toDateTimeString()]);
+            
+            $kilnPerformance = $this->getKilnPerformance($date);
+            
+            \Log::info('Kiln performance data retrieved', ['count' => count($kilnPerformance)]);
+            
+            $filename = 'firin_performans_' . $date->format('Y-m-d') . '.csv';
+            
+            return response()->json([
+                'success' => true,
+                'data' => $kilnPerformance,
+                'filename' => $filename
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Export error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
