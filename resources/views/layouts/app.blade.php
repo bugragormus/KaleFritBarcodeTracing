@@ -288,6 +288,9 @@
             text-decoration: none;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
         }
 
         .user-dropdown-toggle:hover {
@@ -440,11 +443,23 @@
             display: none;
         }
 
+        /* Mobile Menu State */
+        .main-navbar.mobile-hidden {
+            display: none;
+        }
+
         .menu-toggle-btn {
-            background: none;
-            border: none;
-            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .menu-toggle-btn span {
@@ -464,6 +479,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.2);
             position: relative;
             z-index: 1;
+            transition: all 0.3s ease;
         }
 
         .nav-menu {
@@ -773,6 +789,16 @@
                 display: block;
             }
 
+            /* Hide main navbar by default on mobile */
+            .main-navbar {
+                display: none !important;
+            }
+
+            /* Show when not hidden */
+            .main-navbar:not(.mobile-hidden) {
+                display: block !important;
+            }
+
             /* Mobile User Menu Dropdown */
             .user-menu .dropdown-menu {
                 position: fixed;
@@ -786,10 +812,51 @@
                 max-height: 80vh;
                 overflow-y: auto;
                 display: none;
+                z-index: 9999;
+                background: white;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
             }
 
             .user-menu .dropdown.show .dropdown-menu {
                 display: block;
+            }
+
+            /* Improve mobile user dropdown toggle */
+            .user-dropdown-toggle {
+                position: relative;
+                z-index: 1000;
+            }
+
+            /* Mobile dropdown backdrop */
+            .user-menu .dropdown.show::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9998;
+            }
+
+            /* Ensure mobile menu is properly hidden by default */
+            .main-navbar.mobile-hidden {
+                display: none !important;
+            }
+
+            /* Mobile menu animation */
+            .main-navbar {
+                transform: translateY(-100%);
+                transition: all 0.3s ease;
+                position: relative;
+                z-index: 1000;
+                max-height: 0;
+                overflow: hidden;
+            }
+
+            .main-navbar:not(.mobile-hidden) {
+                transform: translateY(0);
+                max-height: 500px; /* Adjust based on your menu height */
             }
 
             .nav-menu-list {
@@ -1393,5 +1460,109 @@
 @toastr_render
 
 @yield('scripts')
+
+<script>
+// Mobile Menu Toggle Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggleBtn = document.querySelector('.menu-toggle-btn');
+    const mainNavbar = document.querySelector('.main-navbar');
+    const menuToggleSpans = document.querySelectorAll('.menu-toggle-btn span');
+    
+    if (menuToggleBtn && mainNavbar) {
+        // Ensure menu is hidden by default on mobile
+        if (window.innerWidth <= 768) {
+            mainNavbar.classList.add('mobile-hidden');
+        }
+        
+        menuToggleBtn.addEventListener('click', function() {
+            // Toggle menu visibility
+            mainNavbar.classList.toggle('mobile-hidden');
+            
+            // Toggle hamburger animation
+            menuToggleSpans.forEach((span, index) => {
+                if (index === 0) {
+                    span.style.transform = mainNavbar.classList.contains('mobile-hidden') ? 'rotate(0deg)' : 'rotate(45deg) translate(5px, 5px)';
+                } else if (index === 1) {
+                    span.style.opacity = mainNavbar.classList.contains('mobile-hidden') ? '1' : '0';
+                } else if (index === 2) {
+                    span.style.transform = mainNavbar.classList.contains('mobile-hidden') ? 'rotate(0deg)' : 'rotate(-45deg) translate(7px, -6px)';
+                }
+            });
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!menuToggleBtn.contains(event.target) && !mainNavbar.contains(event.target)) {
+                mainNavbar.classList.add('mobile-hidden');
+                // Reset hamburger animation
+                menuToggleSpans.forEach((span, index) => {
+                    if (index === 0) {
+                        span.style.transform = 'rotate(0deg)';
+                    } else if (index === 1) {
+                        span.style.opacity = '1';
+                    } else if (index === 2) {
+                        span.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+        });
+        
+        // Close menu when window is resized to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                mainNavbar.classList.remove('mobile-hidden');
+                // Reset hamburger animation
+                menuToggleSpans.forEach((span, index) => {
+                    if (index === 0) {
+                        span.style.transform = 'rotate(0deg)';
+                    } else if (index === 1) {
+                        span.style.opacity = '1';
+                    } else if (index === 2) {
+                        span.style.transform = 'rotate(0deg)';
+                    }
+                });
+            } else {
+                // Ensure menu is hidden on mobile resize
+                mainNavbar.classList.add('mobile-hidden');
+                // Reset hamburger animation
+                menuToggleSpans.forEach((span, index) => {
+                    if (index === 0) {
+                        span.style.transform = 'rotate(0deg)';
+                    } else if (index === 1) {
+                        span.style.opacity = '1';
+                    } else if (index === 2) {
+                        span.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+        });
+    }
+    
+    // Improve mobile user dropdown behavior
+    const userDropdownToggle = document.querySelector('.user-dropdown-toggle');
+    const userDropdown = document.querySelector('.user-menu .dropdown');
+    
+    if (userDropdownToggle && userDropdown) {
+        // Close dropdown when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768) {
+                if (!userDropdownToggle.contains(event.target) && !userDropdown.querySelector('.dropdown-menu').contains(event.target)) {
+                    userDropdown.classList.remove('show');
+                }
+            }
+        });
+        
+        // Close dropdown when clicking backdrop
+        document.addEventListener('click', function(event) {
+            if (window.innerWidth <= 768 && userDropdown.classList.contains('show')) {
+                if (event.target === document.querySelector('.user-menu .dropdown.show::before')) {
+                    userDropdown.classList.remove('show');
+                }
+            }
+        });
+    }
+});
+</script>
+
 </body>
 </html>

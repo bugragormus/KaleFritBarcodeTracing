@@ -207,6 +207,74 @@
         align-items: center;
     }
 
+    .shift-card.no-data {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.2);
+        opacity: 0.8;
+    }
+
+
+
+
+
+    .shift-card.no-data .btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .shift-summary {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        border: 1px solid #dee2e6;
+    }
+
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e9ecef;
+    }
+
+    .summary-item i {
+        font-size: 1.2rem;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.8rem;
+        border-radius: 10px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .summary-item span {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+
+    .shift-actions .btn {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 0.8rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+    }
+
+    .shift-actions .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .shift-name {
         font-size: 1.3rem;
         font-weight: 700;
@@ -219,6 +287,15 @@
         position: relative;
         margin-bottom: 1.5rem;
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .shift-name i {
+        font-size: 1.1rem;
+        opacity: 0.9;
     }
 
     .shift-name::after {
@@ -281,6 +358,145 @@
     .shift-card.aksam {
         background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         box-shadow: 0 5px 15px rgba(44, 62, 80, 0.2);
+    }
+
+    /* Responsive Design for Shift Report */
+    @media (max-width: 1200px) {
+        .shift-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .shift-card {
+            min-height: 180px;
+            padding: 1.5rem;
+        }
+        
+        .shift-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+        
+        .shift-stat {
+            min-height: 80px;
+            padding: 1rem 0.6rem;
+        }
+        
+        .shift-stat-value {
+            font-size: 1.3rem;
+        }
+        
+        .shift-stat-label {
+            font-size: 0.7rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .shift-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .shift-card {
+            min-height: auto;
+            padding: 1.5rem;
+        }
+        
+        .shift-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+        }
+        
+        .shift-stat {
+            min-height: 70px;
+            padding: 0.8rem 0.4rem;
+            min-width: 80px;
+        }
+        
+        .shift-stat-value {
+            font-size: 1.1rem;
+        }
+        
+        .shift-stat-label {
+            font-size: 0.65rem;
+            line-height: 1.1;
+        }
+        
+        .shift-name {
+            font-size: 1.1rem;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .shift-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .shift-stat {
+            min-height: 60px;
+            padding: 0.6rem 0.3rem;
+            min-width: 70px;
+        }
+        
+        .shift-stat-value {
+            font-size: 1rem;
+        }
+        
+        .shift-stat-label {
+            font-size: 0.6rem;
+        }
+        
+        .shift-name {
+            font-size: 1rem;
+            padding: 0.6rem 1rem;
+        }
+
+        .shift-name i {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Extra small devices */
+    @media (max-width: 480px) {
+        .shift-grid {
+            gap: 0.8rem;
+        }
+        
+        .shift-card {
+            padding: 1rem;
+        }
+        
+        .shift-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+        
+        .shift-stat {
+            min-height: 55px;
+            padding: 0.5rem 0.2rem;
+            min-width: 65px;
+        }
+        
+        .shift-stat-value {
+            font-size: 0.9rem;
+        }
+        
+        .shift-stat-label {
+            font-size: 0.55rem;
+        }
+        
+        .shift-name {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .shift-name i {
+            font-size: 0.8rem;
+        }
     }
 
     .warning-card {
@@ -598,6 +814,188 @@
         color: #667eea;
     }
 
+    /* General Responsive Design */
+    @media (max-width: 1200px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .shift-summary {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .card-header-modern {
+            padding: 1.5rem 2rem;
+        }
+        
+        .card-body-modern {
+            padding: 1.5rem;
+        }
+        
+        .page-header-modern {
+            padding: 1.5rem;
+        }
+        
+        .page-title-modern {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .modern-dashboard {
+            padding: 1rem 0;
+        }
+        
+        .page-header-modern {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .page-title-modern {
+            font-size: 1.8rem;
+        }
+        
+        .page-subtitle-modern {
+            font-size: 1rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .shift-summary {
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            padding: 1rem;
+        }
+        
+        .summary-item {
+            padding: 0.8rem;
+        }
+        
+        .summary-item i {
+            font-size: 1rem;
+            padding: 0.6rem;
+        }
+        
+        .summary-item span {
+            font-size: 0.9rem;
+        }
+        
+        .card-header-modern {
+            padding: 1rem 1.5rem;
+        }
+        
+        .card-body-modern {
+            padding: 1rem;
+        }
+        
+        .date-selector {
+            padding: 1rem;
+        }
+        
+        .date-selector input {
+            min-width: 150px;
+            padding: 0.5rem 1rem;
+        }
+        
+        .table-modern th,
+        .table-modern td {
+            padding: 1rem 0.8rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .page-header-modern {
+            padding: 0.8rem;
+            border-radius: 15px;
+        }
+        
+        .page-title-modern {
+            font-size: 1.5rem;
+        }
+        
+        .page-title-modern i {
+            font-size: 1.5rem;
+            margin-right: 0.8rem;
+        }
+        
+        .shift-summary {
+            padding: 0.8rem;
+            gap: 0.6rem;
+        }
+        
+        .summary-item {
+            padding: 0.6rem;
+        }
+        
+        .summary-item i {
+            font-size: 0.9rem;
+            padding: 0.5rem;
+        }
+        
+        .summary-item span {
+            font-size: 0.85rem;
+        }
+        
+        .shift-actions .btn {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+        }
+        
+        .card-modern {
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+        
+        .card-header-modern {
+            padding: 0.8rem 1rem;
+        }
+        
+        .card-title-modern {
+            font-size: 1.2rem;
+        }
+        
+        .card-title-modern i {
+            font-size: 1.1rem;
+            padding: 0.6rem;
+            margin-right: 0.6rem;
+        }
+        
+        .card-body-modern {
+            padding: 0.8rem;
+        }
+        
+        .date-selector {
+            padding: 0.8rem;
+        }
+        
+        .date-selector label {
+            font-size: 1rem;
+            margin-right: 0.8rem;
+        }
+        
+        .date-selector input {
+            min-width: 120px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+        
+        .table-modern th,
+        .table-modern td {
+            padding: 0.8rem 0.6rem;
+            font-size: 0.85rem;
+        }
+        
+        .table-modern th {
+            font-size: 0.9rem;
+        }
+    }
+
     .impact-low {
         color: #28a745;
     }
@@ -731,54 +1129,93 @@
         <!-- Shift Report -->
         <div class="card-modern">
             <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-clock"></i>
-                    Vardiya Raporu
-                </h3>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-clock"></i>
+                        Vardiya Raporu
+                    </h3>
+                    <div class="shift-actions">
+                        <button class="btn btn-info btn-sm" onclick="refreshShiftReport()" title="Yenile">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="card-body-modern">
+                <!-- Shift Summary -->
+                <div class="shift-summary">
+                    <div class="summary-item">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Tarih: {{ \Carbon\Carbon::parse($selectedDate)->format('d.m.Y') }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Toplam Vardiya: {{ count($shiftReport) }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-barcode"></i>
+                        <span>Toplam Barkod: {{ array_sum(array_column($shiftReport, 'barcode_count')) ?? 0 }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <i class="fas fa-weight-hanging"></i>
+                        <span>Toplam Miktar: {{ number_format(array_sum(array_column($shiftReport, 'total_quantity')) ?? 0, 1) }} ton</span>
+                    </div>
+                </div>
+                
                 <div class="shift-grid">
-                    @foreach($shiftReport as $shiftName => $shiftData)
-                        <div class="shift-card {{ $shiftName }}">
+                    @forelse($shiftReport as $shiftName => $shiftData)
+                        <div class="shift-card {{ $shiftName }}" title="{{ ucfirst($shiftName) }} Vardiyası - {{ \Carbon\Carbon::parse($selectedDate)->format('d.m.Y') }}">
                             <div class="shift-name">
                                 @if($shiftName === 'gece')
-                                    00:00 - 08:00
+                                    <i class="fas fa-moon"></i> 00:00 - 08:00
                                 @elseif($shiftName === 'gündüz')
-                                    08:00 - 16:00
+                                    <i class="fas fa-sun"></i> 08:00 - 16:00
                                 @elseif($shiftName === 'akşam')
-                                    16:00 - 24:00
+                                    <i class="fas fa-cloud-sun"></i> 16:00 - 24:00
                                 @else
-                                    {{ ucfirst($shiftName) }}
+                                    <i class="fas fa-clock"></i> {{ ucfirst($shiftName) }}
                                 @endif
                             </div>
                             <div class="shift-stats">
-                                <div class="shift-stat">
-                                    <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
+                                <div class="shift-stat" title="Toplam Barkod Sayısı">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['barcode_count'] ?? 0) }}</div>
                                     <div class="shift-stat-label">Barkod</div>
                                 </div>
-                                <div class="shift-stat">
-                                    <div class="shift-stat-value">{{ number_format($shiftData['total_quantity'], 1) }}</div>
+                                <div class="shift-stat" title="Toplam Miktar (ton)">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['total_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Toplam (ton)</div>
                                 </div>
-                                <div class="shift-stat">
-                                    <div class="shift-stat-value">{{ number_format($shiftData['accepted_quantity'], 1) }}</div>
+                                <div class="shift-stat" title="Kabul Edilen Miktar (ton)">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['accepted_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Kabul (ton)</div>
                                 </div>
-                                <div class="shift-stat">
-                                    <div class="shift-stat-value">{{ number_format($shiftData['testing_quantity'], 1) }}</div>
+                                <div class="shift-stat" title="Test Sürecinde Miktar (ton)">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['testing_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Test (ton)</div>
                                 </div>
-                                <div class="shift-stat">
-                                    <div class="shift-stat-value">{{ number_format($shiftData['delivery_quantity'], 1) }}</div>
+                                <div class="shift-stat" title="Teslimat Sürecinde Miktar (ton)">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['delivery_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Teslimat (ton)</div>
                                 </div>
-                                <div class="shift-stat">
-                                    <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'], 1) }}</div>
+                                <div class="shift-stat" title="Reddedilen Miktar (ton)">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Red (ton)</div>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="shift-card no-data" style="grid-column: 1 / -1; text-align: center;">
+                            <div class="shift-name">
+                                <i class="fas fa-info-circle"></i> Veri Bulunamadı
+                            </div>
+                            <div class="shift-stats">
+                                <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">Seçilen tarih için vardiya verisi bulunamadı.</p>
+                                <button class="btn btn-light btn-sm mt-2" onclick="refreshShiftReport()">
+                                    <i class="fas fa-sync-alt"></i> Yenile
+                                </button>
+                            </div>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -1329,6 +1766,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Refresh shift report function
+function refreshShiftReport() {
+    const refreshBtn = event.target;
+    const originalHTML = refreshBtn.innerHTML;
+    
+    // Show loading state
+    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    refreshBtn.disabled = true;
+    
+    // Reload the page to refresh data
+    setTimeout(() => {
+        window.location.reload();
+    }, 500);
+}
 
 // Excel export function for kiln performance
 function exportKilnPerformance() {

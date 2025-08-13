@@ -472,6 +472,12 @@
             background: linear-gradient(135deg, #6f42c1, #5a32a3);
             color: white;
         }
+
+        .status-unknown {
+            color: #6c757d;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
         
         /* Changes Display */
         .changes-container {
@@ -785,83 +791,260 @@
 @section('scripts')
     <script src="{{ asset('assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <script>
-        // DataTables initialization
-        var table = $('.yajra-datatable').DataTable({
-            processing: true,
-            serverSide: true,
-            order: [[ 0, "desc" ]],
-            pageLength: 25,
-            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/tr.json'
-            },
-            ajax: {
-                url: "{{ route('barcode.historyIndex') }}",
-                type: 'GET',
-                data: function (d) {
-                    // Filtreleri AJAX data'ya ekle
-                    var startDate = $('#start-date').val();
-                    var endDate = $('#end-date').val();
-                    var labStartDate = $('#lab-start-date').val();
-                    var labEndDate = $('#lab-end-date').val();
-                    
-                    if (startDate) d.start_date = startDate;
-                    if (endDate) d.end_date = endDate;
-                    if (labStartDate) d.lab_start_date = labStartDate;
-                    if (labEndDate) d.lab_end_date = labEndDate;
-                    
-                    // Dropdown filtreleri
-                    $('.filter-select').each(function() {
-                        var value = $(this).val();
-                        var column = $(this).data('column');
-                        
-                        if (value && value !== 'Tüm Stoklar' && value !== 'Tüm Partiler' && value !== 'Tüm Durumlar' && value !== 'Tüm Miktarlar' && value !== 'Tüm Firmalar' && value !== 'Tüm Depolar' && value !== 'Tüm Kullanıcılar' && value !== 'Tüm Lab Personeli') {
-                            // Column index'e göre filtreleme
-                            if (column === 0) d.stock_name = value;        // Stok
-                            else if (column === 2) d.party_number = value; // Parti No
-                            else if (column === 3) d.status = value;       // Durum
-                            else if (column === 4) d.quantity = value;     // Miktar
-                            else if (column === 5) d.company_name = value; // Firma
-                            else if (column === 6) d.warehouse_name = value; // Depo
-                            else if (column === 7) d.created_by = value;  // Oluşturan
-                            else if (column === 8) d.lab_by = value;      // Lab Personeli
-                        }
-                    });
-                    
-                    console.log('AJAX data gönderiliyor:', d);
-                    return d;
-                },
-                error: function (xhr, error, thrown) {
-                    console.error('DataTables AJAX Error:', error);
-                    console.error('Response:', xhr.responseText);
-                }
-            },
-            columns: [
-                {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
-                {data: 'stock', name: 'stock', orderable: false},
-                {data: 'party_number', name: 'party_number', orderable: false},
-                {data: 'load_number', name: 'load_number', orderable: false},
-                {data: 'description', name: 'description', orderable: false},
-                {data: 'user', name: 'user', orderable: false},
-                {data: 'status', name: 'status', orderable: false},
-                {data: 'changes', name: 'changes', orderable: false, searchable: false},
-                {data: 'created_at', name: 'created_at', orderable: true},
-            ],
-            columnDefs: [
-                {
-                    targets: [7], // changes column
-                    width: '300px'
-                }
-            ]
+        // Global değişkenler
+        var table;
+        
+        // Sayfa yüklendiğinde çalışacak fonksiyon
+        $(document).ready(function() {
+            console.log('Sayfa yüklendi, JavaScript başlatılıyor...');
+            
+            // Morris chart hatalarını önle
+            preventMorrisErrors();
+            
+            // Toastr güvenlik kontrolü
+            setupToastrFallback();
+            
+            // DataTables'ı başlat
+            initializeDataTable();
+            
+            // Datepicker'ları başlat
+            initializeDatepickers();
         });
-
+        
+        // Morris chart hatalarını önle
+        function preventMorrisErrors() {
+            if (typeof Morris !== 'undefined') {
+                // Morris chart elementlerini kontrol et
+                if (document.getElementById('morris-line-example') || document.getElementById('morris-donut-example')) {
+                    // Chart elementleri varsa normal şekilde çalıştır
+                    if (typeof $.Dashboard !== 'undefined') {
+                        try {
+                            $.Dashboard.init();
+                        } catch (e) {
+                            console.log('Dashboard init hatası:', e);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Toastr fallback kurulumu
+        function setupToastrFallback() {
+            if (typeof toastr === 'undefined') {
+                window.toastr = {
+                    success: function(msg, title) { console.log('Toastr Success:', msg, title); },
+                    error: function(msg, title) { console.log('Toastr Error:', msg, title); },
+                    warning: function(msg, title) { console.log('Toastr Warning:', msg, title); },
+                    info: function(msg, title) { console.log('Toastr Info:', msg, title); }
+                };
+            }
+        }
+        
+        // DataTables başlatma
+        function initializeDataTable() {
+            console.log('DataTables initialization başlatılıyor...');
+            
+            // DataTables element kontrolü
+            if ($('.yajra-datatable').length === 0) {
+                console.error('DataTables element bulunamadı!');
+                return;
+            }
+            
+            try {
+                table = $('.yajra-datatable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    order: [[ 0, "desc" ]],
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                    searching: true,
+                    info: true,
+                    responsive: true,
+                    deferRender: true,
+                    language: {
+                        processing: 'Veriler yükleniyor...',
+                        search: 'Ara:',
+                        lengthMenu: '_MENU_ kayıt göster',
+                        info: '_TOTAL_ kayıttan _START_ - _END_ arası gösteriliyor',
+                        infoEmpty: 'Kayıt bulunamadı',
+                        infoFiltered: '(_MAX_ kayıt arasından filtrelendi)',
+                        emptyTable: 'Tabloda veri bulunamadı',
+                        zeroRecords: 'Eşleşen kayıt bulunamadı',
+                        paginate: {
+                            first: 'İlk',
+                            previous: 'Önceki',
+                            next: 'Sonraki',
+                            last: 'Son'
+                        }
+                    },
+                    ajax: {
+                        url: "{{ route('barcode.historyIndex') }}",
+                        type: 'GET',
+                        timeout: 30000,
+                        data: function (d) {
+                            // Filtreleri AJAX data'ya ekle
+                            var startDate = $('#start-date').val();
+                            var endDate = $('#end-date').val();
+                            var labStartDate = $('#lab-start-date').val();
+                            var labEndDate = $('#lab-end-date').val();
+                            
+                            if (startDate) d.start_date = startDate;
+                            if (endDate) d.end_date = endDate;
+                            if (labStartDate) d.lab_start_date = labStartDate;
+                            if (labEndDate) d.lab_end_date = labEndDate;
+                            
+                            // Dropdown filtreleri
+                            $('.filter-select').each(function() {
+                                var value = $(this).val();
+                                var column = $(this).data('column');
+                                
+                                if (value && value !== 'Tüm Stoklar' && value !== 'Tüm Partiler' && value !== 'Tüm Durumlar' && value !== 'Tüm Miktarlar' && value !== 'Tüm Firmalar' && value !== 'Tüm Depolar' && value !== 'Tüm Kullanıcılar' && value !== 'Tüm Lab Personeli') {
+                                    // Column index'e göre filtreleme
+                                    if (column === 0) d.stock_name = value;
+                                    else if (column === 2) d.party_number = value;
+                                    else if (column === 3) d.status = value;
+                                    else if (column === 4) d.quantity = value;
+                                    else if (column === 5) d.company_name = value;
+                                    else if (column === 6) d.warehouse_name = value;
+                                    else if (column === 7) d.created_by = value;
+                                    else if (column === 8) d.lab_by = value;
+                                }
+                            });
+                            
+                            console.log('AJAX data gönderiliyor:', d);
+                            return d;
+                        },
+                        beforeSend: function() {
+                            console.log('AJAX isteği başlatılıyor...');
+                        },
+                        success: function(data, textStatus, xhr) {
+                            console.log('AJAX başarılı:', data);
+                            console.log('Veri sayısı:', data.data ? data.data.length : 'Veri yok');
+                            console.log('Toplam kayıt:', data.recordsTotal);
+                            console.log('Filtrelenmiş kayıt:', data.recordsFiltered);
+                            
+                            // Veri yoksa uyarı ver
+                            if (!data.data || data.data.length === 0) {
+                                console.warn('DataTables: Hiç veri döndürülmedi!');
+                            }
+                        },
+                        error: function (xhr, error, thrown) {
+                            console.error('DataTables AJAX Error:', error);
+                            console.error('Response:', xhr.responseText);
+                            console.error('Status:', xhr.status);
+                            console.error('StatusText:', xhr.statusText);
+                            
+                            // Hata durumunda kullanıcıya bilgi ver
+                            if (xhr.status === 404) {
+                                alert('Sayfa bulunamadı. Lütfen sayfayı yenileyin.');
+                            } else if (xhr.status === 500) {
+                                alert('Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.');
+                            } else {
+                                alert('Veri yüklenirken hata oluştu: ' + error);
+                            }
+                        },
+                        complete: function() {
+                            console.log('AJAX isteği tamamlandı');
+                        }
+                    },
+                    columns: [
+                        {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                        {data: 'stock', name: 'stock', orderable: false},
+                        {data: 'party_number', name: 'party_number', orderable: false},
+                        {data: 'load_number', name: 'load_number', orderable: false},
+                        {data: 'description', name: 'description', orderable: false},
+                        {data: 'user', name: 'user', orderable: false},
+                        {data: 'status', name: 'status', orderable: false},
+                        {data: 'changes', name: 'changes', orderable: false, searchable: false},
+                        {data: 'created_at', name: 'created_at', orderable: true},
+                    ],
+                    columnDefs: [
+                        {
+                            targets: [7], // changes column
+                            width: '300px'
+                        }
+                    ],
+                    initComplete: function(settings, json) {
+                        console.log('DataTables başarıyla yüklendi!');
+                        console.log('Yüklenen veri:', json);
+                    },
+                    drawCallback: function(settings) {
+                        console.log('DataTables draw callback çalıştı');
+                        console.log('Gösterilen satır sayısı:', settings._iDisplayLength);
+                        console.log('Toplam satır sayısı:', settings._iRecordsTotal);
+                    },
+                    preDrawCallback: function(settings) {
+                        console.log('DataTables pre-draw callback çalıştı');
+                    }
+                });
+                
+                console.log('DataTables başarıyla oluşturuldu');
+                
+            } catch (error) {
+                console.error('DataTables oluşturulurken hata:', error);
+                alert('Tablo yüklenirken hata oluştu: ' + error.message);
+            }
+        }
+        
+        // Datepicker'ları başlat
+        function initializeDatepickers() {
+            $('#start-date').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'bottom auto',
+                clearBtn: true,
+                todayBtn: 'linked',
+                keyboardNavigation: true,
+                forceParse: false
+            });
+            
+            $('#end-date').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'bottom auto',
+                clearBtn: true,
+                todayBtn: 'linked',
+                keyboardNavigation: true,
+                forceParse: false
+            });
+            
+            $('#lab-start-date').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'bottom auto',
+                clearBtn: true,
+                todayBtn: 'linked',
+                keyboardNavigation: true,
+                forceParse: false
+            });
+            
+            $('#lab-end-date').datepicker({
+                format: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'bottom auto',
+                clearBtn: true,
+                todayBtn: 'linked',
+                keyboardNavigation: true,
+                forceParse: false
+            });
+        }
+        
+        // Filtreleri uygula
         function applyFilters() {
             console.log('applyFilters fonksiyonu çağrıldı');
             
-            // DataTable'ı yeniden yükle
-            table.ajax.reload();
+            if (table) {
+                table.ajax.reload();
+            } else {
+                console.error('DataTable henüz başlatılmamış!');
+            }
         }
-
+        
+        // Filtreleri temizle
         function clearFilters() {
             console.log('clearFilters fonksiyonu çağrıldı');
             
@@ -869,49 +1052,11 @@
             $('.filter-select').val('');
             $('.filter-date').val('');
             
-            // DataTable'ı yeniden yükle
-            table.ajax.reload();
+            if (table) {
+                table.ajax.reload();
+            } else {
+                console.error('DataTable henüz başlatılmamış!');
+            }
         }
-
-        $('#start-date').datepicker({
-            format: 'dd/mm/yyyy',
-            autoclose: true,
-            todayHighlight: true,
-            orientation: 'bottom auto',
-            clearBtn: true,
-            todayBtn: 'linked',
-            keyboardNavigation: true,
-            forceParse: false
-        });
-        $('#end-date').datepicker({
-            format: 'dd/mm/yyyy',
-            autoclose: true,
-            todayHighlight: true,
-            orientation: 'bottom auto',
-            clearBtn: true,
-            todayBtn: 'linked',
-            keyboardNavigation: true,
-            forceParse: false
-        });
-        $('#lab-start-date').datepicker({
-            format: 'dd/mm/yyyy',
-            autoclose: true,
-            todayHighlight: true,
-            orientation: 'bottom auto',
-            clearBtn: true,
-            todayBtn: 'linked',
-            keyboardNavigation: true,
-            forceParse: false
-        });
-        $('#lab-end-date').datepicker({
-            format: 'dd/mm/yyyy',
-            autoclose: true,
-            todayHighlight: true,
-            orientation: 'bottom auto',
-            clearBtn: true,
-            todayBtn: 'linked',
-            keyboardNavigation: true,
-            forceParse: false
-        });
     </script>
 @endsection

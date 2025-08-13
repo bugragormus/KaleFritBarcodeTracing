@@ -744,10 +744,43 @@ class BarcodeController extends Controller
         // Filtreleme için tüm barkod geçmişlerini al
         $barcodeHistories = BarcodeHistory::with(['barcode'])->get();
         
+        // Eğer hiç veri yoksa, boş bir collection döndür
+        if ($barcodeHistories->isEmpty()) {
+            if ($request->ajax()) {
+                return DataTables::of(collect([]))
+                    ->addIndexColumn()
+                    ->addColumn('stock', function ($row) { return '-'; })
+                    ->addColumn('party_number', function ($row) { return '-'; })
+                    ->addColumn('load_number', function ($row) { return '-'; })
+                    ->addColumn('description', function ($row) { return '-'; })
+                    ->addColumn('user', function ($row) { return '-'; })
+                    ->addColumn('status', function ($row) { return '-'; })
+                    ->addColumn('changes', function ($row) { return '-'; })
+                    ->addColumn('created_at', function ($row) { return '-'; })
+                    ->rawColumns(['status', 'changes'])
+                    ->make(true);
+            }
+            
+            return view('admin.barcode.history-index', compact([
+                'histories' => collect([]),
+                'barcodeHistories' => collect([]),
+                'stocks',
+                'kilns',
+                'quantities',
+                'companies',
+                'wareHouses',
+                'users',
+                'descriptions'
+            ]));
+        }
+        
         $histories = BarcodeHistory::with([
             'user',
             'barcode',
-            'barcode.stock'
+            'barcode.stock',
+            'barcode.quantity',
+            'barcode.company',
+            'barcode.warehouse'
         ])
             ->orderByDesc('id')
             ->when($request->filled('stock_name'), function (Builder $query) use ($request) {
@@ -863,87 +896,149 @@ class BarcodeController extends Controller
             });
 
         if ($request->ajax()) {
-            return DataTables::of($histories)
-                ->addIndexColumn()
-                ->addColumn('stock', function ($row) {
-                    return $row->barcode && $row->barcode->stock ? $row->barcode->stock->name : '-';
-                })
-                ->addColumn('party_number', function ($row) {
-                    return $row->barcode ? $row->barcode->party_number : '-';
-                })
-                ->addColumn('load_number', function ($row) {
-                    return $row->barcode ? $row->barcode->load_number : '-';
-                })
-                ->addColumn('description', function ($row) {
-                    return $row->description ?? '-';
-                })
-                ->addColumn('user', function ($row) {
-                    return $row->user ? $row->user->name : '-';
-                })
-                ->addColumn('status', function ($row) {
-                    if (!$row->barcode) return '-';
-                    
-                    $status = $row->barcode->status;
-                    $statusName = Barcode::STATUSES[$status] ?? 'Bilinmiyor';
-                    
-                    $statusClass = '';
-                    switch($status) {
-                        case Barcode::STATUS_WAITING:
-                            $statusClass = 'status-waiting';
-                            break;
-                        case Barcode::STATUS_CONTROL_REPEAT:
-                            $statusClass = 'status-control-repeat';
-                            break;
-                        case Barcode::STATUS_PRE_APPROVED:
-                            $statusClass = 'status-pre-approved';
-                            break;
-                        case Barcode::STATUS_SHIPMENT_APPROVED:
-                            $statusClass = 'status-shipment-approved';
-                            break;
-                        case Barcode::STATUS_REJECTED:
-                            $statusClass = 'status-rejected';
-                            break;
-                        case Barcode::STATUS_CUSTOMER_TRANSFER:
-                            $statusClass = 'status-customer-transfer';
-                            break;
-                        case Barcode::STATUS_DELIVERED:
-                            $statusClass = 'status-delivered';
-                            break;
-                        case Barcode::STATUS_MERGED:
-                            $statusClass = 'status-merged';
-                            break;
-                    }
-                    
-                    return '<span class="status-badge ' . $statusClass . '">' . $statusName . '</span>';
-                })
-                ->addColumn('changes', function ($row) {
-                    if (!$row->changes) return '-';
-                    
-                    $changes = json_decode($row->changes, true);
-                    if (!$changes) return '-';
-                    
-                    $html = '<div class="changes-container">';
-                    foreach ($changes as $field => $change) {
-                        $html .= '<div class="change-item">';
-                        $html .= '<span class="change-field">' . $field . '</span>';
-                        if (isset($change['from']) && isset($change['to'])) {
-                            $html .= '<span class="change-value">' . ($change['from'] ?: 'Boş') . '</span>';
-                            $html .= '<span class="change-arrow">→</span>';
-                            $html .= '<span class="change-value">' . ($change['to'] ?: 'Boş') . '</span>';
-                        } else {
-                            $html .= '<span class="change-value">' . json_encode($change) . '</span>';
+            try {
+                return DataTables::of($histories)
+                    ->addIndexColumn()
+                    ->addColumn('stock', function ($row) {
+                        try {
+                            if (!$row->barcode || !$row->barcode->stock) return '-';
+                            return htmlspecialchars($row->barcode->stock->name);
+                        } catch (\Exception $e) {
+                            return '-';
                         }
-                        $html .= '</div>';
-                    }
-                    $html .= '</div>';
-                    
-                    return $html;
-                })
-                ->addColumn('created_at', function ($row) {
-                    return $row->created_at ? $row->created_at->format('d.m.Y H:i:s') : '-';
-                })
-                ->rawColumns(['status', 'changes'])
-                ->make(true);
+                    })
+                    ->addColumn('party_number', function ($row) {
+                        try {
+                            if (!$row->barcode || !$row->barcode->party_number) return '-';
+                            return htmlspecialchars($row->barcode->party_number);
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('load_number', function ($row) {
+                        try {
+                            if (!$row->barcode || !$row->barcode->load_number) return '-';
+                            return htmlspecialchars($row->barcode->load_number);
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('description', function ($row) {
+                        try {
+                            if (!$row->description) return '-';
+                            return htmlspecialchars($row->description);
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('user', function ($row) {
+                        try {
+                            if (!$row->user || !$row->user->name) return '-';
+                            return htmlspecialchars($row->user->name);
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('status', function ($row) {
+                        try {
+                            if (!$row->barcode) return '-';
+                            
+                            $status = $row->barcode->status;
+                            if (!isset($status)) return '-';
+                            
+                            $statusName = Barcode::STATUSES[$status] ?? 'Bilinmiyor';
+                            
+                            $statusClass = '';
+                            switch($status) {
+                                case Barcode::STATUS_WAITING:
+                                    $statusClass = 'status-waiting';
+                                    break;
+                                case Barcode::STATUS_CONTROL_REPEAT:
+                                    $statusClass = 'status-control-repeat';
+                                    break;
+                                case Barcode::STATUS_PRE_APPROVED:
+                                    $statusClass = 'status-pre-approved';
+                                    break;
+                                case Barcode::STATUS_SHIPMENT_APPROVED:
+                                    $statusClass = 'status-shipment-approved';
+                                    break;
+                                case Barcode::STATUS_REJECTED:
+                                    $statusClass = 'status-rejected';
+                                    break;
+                                case Barcode::STATUS_CUSTOMER_TRANSFER:
+                                    $statusClass = 'status-customer-transfer';
+                                    break;
+                                case Barcode::STATUS_DELIVERED:
+                                    $statusClass = 'status-delivered';
+                                    break;
+                                case Barcode::STATUS_MERGED:
+                                    $statusClass = 'status-merged';
+                                    break;
+                                default:
+                                    $statusClass = 'status-unknown';
+                                    break;
+                            }
+                            
+                            return '<span class="status-badge ' . $statusClass . '">' . htmlspecialchars($statusName) . '</span>';
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->addColumn('changes', function ($row) {
+                        try {
+                            // changes alanı null, boş array veya geçersiz olabilir
+                            if (!$row->changes || empty($row->changes) || !is_array($row->changes)) {
+                                return '-';
+                            }
+                            
+                            $html = '<div class="changes-container">';
+                            foreach ($row->changes as $field => $change) {
+                                if (empty($field)) continue; // Boş field'ları atla
+                                
+                                $html .= '<div class="change-item">';
+                                $html .= '<span class="change-field">' . htmlspecialchars($field) . '</span>';
+                                
+                                if (is_array($change) && isset($change['from']) && isset($change['to'])) {
+                                    $html .= '<span class="change-value">' . htmlspecialchars($change['from'] ?: 'Boş') . '</span>';
+                                    $html .= '<span class="change-arrow">→</span>';
+                                    $html .= '<span class="change-value">' . htmlspecialchars($change['to'] ?: 'Boş') . '</span>';
+                                } else {
+                                    $changeValue = is_array($change) ? json_encode($change) : (string)$change;
+                                    $html .= '<span class="change-value">' . htmlspecialchars($changeValue) . '</span>';
+                                }
+                                $html .= '</div>';
+                            }
+                            $html .= '</div>';
+                            
+                            return $html;
+                        } catch (\Exception $e) {
+                            \Log::warning('Error processing changes column:', [
+                                'row_id' => $row->id,
+                                'error' => $e->getMessage()
+                            ]);
+                            return '-';
+                        }
+                    })
+                    ->addColumn('created_at', function ($row) {
+                        try {
+                            if (!$row->created_at) return '-';
+                            return $row->created_at->format('d.m.Y H:i:s');
+                        } catch (\Exception $e) {
+                            return '-';
+                        }
+                    })
+                    ->rawColumns(['status', 'changes'])
+                    ->make(true);
+            } catch (\Exception $e) {
+                \Log::error('DataTables Error in historyIndex:', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                return response()->json([
+                    'error' => 'Veri yüklenirken hata oluştu: ' . $e->getMessage()
+                ], 500);
+            }
         }
 
         return view('admin.barcode.history-index', compact([
