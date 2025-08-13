@@ -38,6 +38,22 @@
         opacity: 0.9;
         margin-bottom: 0;
     }
+
+    .date-selector {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .date-selector input {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: #333;
+        font-weight: 500;
+    }
     
     .card-modern {
         background: #ffffff;
@@ -101,150 +117,127 @@
     }
     
     .stat-label {
-        font-size: 0.875rem;
         color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
-    
-    .chart-container {
-        height: 400px;
-        margin-bottom: 2rem;
-    }
-    
-    .table-modern {
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    }
-    
-    .table-modern thead th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 1rem;
-        font-weight: 600;
-        text-align: center;
-        font-size: 0.875rem;
-    }
-    
-    .table-modern tbody td {
-        padding: 1rem;
-        border: none;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
-        font-size: 0.875rem;
-    }
-    
-    .table-modern tbody tr:hover {
-        background: #f8f9fa;
-    }
-    
-    .btn-modern {
-        border-radius: 10px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .btn-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .btn-primary-modern {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-    }
-    
-    .btn-success-modern {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-    }
-    
-    .btn-warning-modern {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: white;
-    }
-    
-    .btn-info-modern {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-        color: white;
-    }
-    
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-waiting { background: #ffc107; color: #212529; }
-    .status-control-repeat { background: #fd7e14; color: white; }
-    .status-pre-approved { background: #28a745; color: white; }
-    .status-shipment-approved { background: #17a2b8; color: white; }
-    .status-customer-transfer { background: #6f42c1; color: white; }
-    .status-delivered { background: #20c997; color: white; }
-    .status-rejected { background: #dc3545; color: white; }
-    
-    .quick-actions {
+
+    .shift-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
+        gap: 1.5rem;
         margin-bottom: 2rem;
     }
-    
-    .quick-action-card {
+
+    .shift-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border-radius: 15px;
         padding: 1.5rem;
         text-align: center;
-        transition: all 0.3s ease;
-        text-decoration: none;
     }
-    
-    .quick-action-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        color: white;
-        text-decoration: none;
-    }
-    
-    .quick-action-icon {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-    
-    .quick-action-title {
-        font-size: 1.1rem;
+
+    .shift-name {
+        font-size: 1.2rem;
         font-weight: 600;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
     }
-    
-    .quick-action-desc {
-        font-size: 0.875rem;
+
+    .shift-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .shift-stat {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 0.8rem;
+    }
+
+    .shift-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .shift-stat-label {
+        font-size: 0.8rem;
         opacity: 0.9;
     }
-    
-    @media (max-width: 768px) {
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        
-        .quick-actions {
-            grid-template-columns: 1fr;
-        }
-        
-        .page-title-modern {
-            font-size: 2rem;
-        }
+
+    .warning-card {
+        border-left: 4px solid;
+        margin-bottom: 1rem;
+    }
+
+    .warning-critical {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+    }
+
+    .warning-warning {
+        border-left-color: #ffc107;
+        background: #fff3cd;
+    }
+
+    .warning-info {
+        border-left-color: #17a2b8;
+        background: #d1ecf1;
+    }
+
+    .chart-container {
+        height: 300px;
+        margin: 1rem 0;
+    }
+
+    .table-modern {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .table-modern th {
+        background: #f8f9fa;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .table-modern td {
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .badge-modern {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
     }
 </style>
 @endsection
@@ -252,198 +245,105 @@
 @section('content')
 <div class="modern-dashboard">
     <div class="container-fluid">
-        <!-- Modern Page Header -->
+        <!-- Page Header -->
         <div class="page-header-modern">
-            <div class="row align-items-center">
-                <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
                     <h1 class="page-title-modern">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                        <i class="fas fa-chart-bar"></i>
+                        Günlük Üretim Raporu
                     </h1>
                     <p class="page-subtitle-modern">Sistem geneli istatistikler ve performans göstergeleri</p>
                 </div>
-                <div class="col-md-4 text-right">
-                    <div class="d-flex gap-2 justify-content-end">
-                        <a href="{{ route('barcode.create') }}" class="btn-modern btn-success-modern">
-                            <i class="fas fa-plus"></i> Yeni Barkod
-                        </a>
-                        <a href="{{ route('stock.create') }}" class="btn-modern btn-warning-modern">
-                            <i class="fas fa-boxes"></i> Yeni Stok
-                        </a>
-                    </div>
+                
+                <!-- Date Selector -->
+                <div class="date-selector">
+                    <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
+                        <label for="date" class="text-white me-2">Tarih:</label>
+                        <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
+                               class="form-control" onchange="this.form.submit()">
+                    </form>
                 </div>
             </div>
         </div>
 
-        <!-- Hızlı Erişim -->
-        <div class="quick-actions">
-            <a href="{{ route('barcode.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-barcode"></i>
-                </div>
-                <div class="quick-action-title">Barkod Yönetimi</div>
-                <div class="quick-action-desc">Barkodları görüntüle ve yönet</div>
-            </a>
-            
-            <a href="{{ route('stock.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-boxes"></i>
-                </div>
-                <div class="quick-action-title">Stok Yönetimi</div>
-                <div class="quick-action-desc">Stokları analiz et ve raporla</div>
-            </a>
-            
-            <a href="{{ route('company.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="quick-action-title">Müşteri Yönetimi</div>
-                <div class="quick-action-desc">Müşteri bilgilerini yönet</div>
-            </a>
-            
-            <a href="{{ route('warehouse.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-warehouse"></i>
-                </div>
-                <div class="quick-action-title">Depo Yönetimi</div>
-                <div class="quick-action-desc">Depo stoklarını kontrol et</div>
-            </a>
-        </div>
-
-        <!-- Genel İstatistikler -->
+        <!-- Daily Production Stats -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
-                    <i class="fas fa-chart-bar"></i> Genel İstatistikler
+                    <i class="fas fa-calendar-day"></i>
+                    {{ $date->format('d.m.Y') }} Günlük Üretim Özeti
                 </h3>
             </div>
             <div class="card-body-modern">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['total_stocks']) }}</div>
-                        <div class="stat-label">Toplam Stok</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['total_barcodes']) }}</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['total_barcodes']) }}</div>
                         <div class="stat-label">Toplam Barkod</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['total_companies']) }}</div>
-                        <div class="stat-label">Toplam Müşteri</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['total_quantity']) }}</div>
+                        <div class="stat-label">Toplam Miktar</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['total_warehouses']) }}</div>
-                        <div class="stat-label">Toplam Depo</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['accepted_barcodes']) }}</div>
+                        <div class="stat-label">Kabul Edilen</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['today_production']) }}</div>
-                        <div class="stat-label">Bugün Üretim</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['month_production']) }}</div>
-                        <div class="stat-label">Bu Ay Üretim</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['total_delivered']) }}</div>
-                        <div class="stat-label">Teslim Edilen</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($generalStats['total_rejected']) }}</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['rejected_barcodes']) }}</div>
                         <div class="stat-label">Reddedilen</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['pending_barcodes']) }}</div>
+                        <div class="stat-label">Bekleyen</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Son 7 Günlük Üretim Grafiği -->
-        @if($weeklyProduction && count($weeklyProduction) > 0)
+        <!-- Shift Report -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
-                    <i class="fas fa-chart-line"></i> Son 7 Günlük Üretim Trendi
+                    <i class="fas fa-clock"></i>
+                    Vardiya Raporu
                 </h3>
             </div>
             <div class="card-body-modern">
-                <div class="chart-container">
-                    <canvas id="weeklyChart"></canvas>
+                <div class="shift-grid">
+                    @foreach($shiftReport as $shiftName => $shiftData)
+                    <div class="shift-card">
+                        <div class="shift-name">{{ ucfirst($shiftName) }} Vardiyası</div>
+                        <div class="shift-stats">
+                            <div class="shift-stat">
+                                <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
+                                <div class="shift-stat-label">Barkod</div>
+                            </div>
+                            <div class="shift-stat">
+                                <div class="shift-stat-value">{{ number_format($shiftData['total_quantity']) }}</div>
+                                <div class="shift-stat-label">Miktar</div>
+                            </div>
+                            <div class="shift-stat">
+                                <div class="shift-stat-value">{{ number_format($shiftData['accepted_count']) }}</div>
+                                <div class="shift-stat-label">Kabul</div>
+                            </div>
+                            <div class="shift-stat">
+                                <div class="shift-stat-value">{{ number_format($shiftData['rejected_count']) }}</div>
+                                <div class="shift-stat-label">Red</div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
-        @endif
 
-        <!-- En Çok Üretilen Stoklar -->
-        @if($topStocks && count($topStocks) > 0)
+        <!-- Kiln Performance -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
-                    <i class="fas fa-trophy"></i> En Çok Üretilen Stoklar
-                </h3>
-            </div>
-            <div class="card-body-modern">
-                <div class="table-responsive">
-                    <table class="table table-modern">
-                        <thead>
-                            <tr>
-                                <th>Stok Adı</th>
-                                <th>Stok Kodu</th>
-                                <th>Barkod Sayısı</th>
-                                <th>Toplam Miktar (KG)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topStocks as $stock)
-                            <tr>
-                                <td>{{ $stock->name }}</td>
-                                <td>{{ $stock->code }}</td>
-                                <td>{{ number_format($stock->barcode_count) }}</td>
-                                <td>{{ number_format($stock->total_quantity, 0) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        <!-- En Aktif Müşteriler -->
-        @if($topCustomers && count($topCustomers) > 0)
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-users"></i> En Aktif Müşteriler
-                </h3>
-            </div>
-            <div class="card-body-modern">
-                <div class="table-responsive">
-                    <table class="table table-modern">
-                        <thead>
-                            <tr>
-                                <th>Müşteri Adı</th>
-                                <th>Barkod Sayısı</th>
-                                <th>Toplam Miktar (KG)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topCustomers as $customer)
-                            <tr>
-                                <td>{{ $customer->name }}</td>
-                                <td>{{ number_format($customer->barcode_count) }}</td>
-                                <td>{{ number_format($customer->total_quantity, 0) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        @endif
-
-        <!-- Fırın Performansı -->
-        @if($kilnPerformance && count($kilnPerformance) > 0)
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-fire"></i> Fırın Performansı
+                    <i class="fas fa-fire"></i>
+                    Fırın Performans Analizi
                 </h3>
             </div>
             <div class="card-body-modern">
@@ -453,17 +353,21 @@
                             <tr>
                                 <th>Fırın Adı</th>
                                 <th>Barkod Sayısı</th>
-                                <th>Toplam Miktar (KG)</th>
-                                <th>Ortalama Miktar (KG)</th>
+                                <th>Toplam Miktar</th>
+                                <th>Ortalama Miktar</th>
+                                <th>Kabul Edilen</th>
+                                <th>Reddedilen</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($kilnPerformance as $kiln)
                             <tr>
-                                <td>{{ $kiln->name ?? 'Belirtilmemiş' }}</td>
+                                <td><strong>{{ $kiln->kiln_name }}</strong></td>
                                 <td>{{ number_format($kiln->barcode_count) }}</td>
-                                <td>{{ number_format($kiln->total_quantity, 0) }}</td>
-                                <td>{{ number_format($kiln->avg_quantity, 0) }}</td>
+                                <td>{{ number_format($kiln->total_quantity) }}</td>
+                                <td>{{ number_format($kiln->avg_quantity, 1) }}</td>
+                                <td><span class="badge badge-success">{{ number_format($kiln->accepted_count) }}</span></td>
+                                <td><span class="badge badge-danger">{{ number_format($kiln->rejected_count) }}</span></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -471,70 +375,251 @@
                 </div>
             </div>
         </div>
-        @endif
 
-        <!-- Durum Dağılımı -->
-        @if($statusDistribution && count($statusDistribution) > 0)
+        <!-- Kiln Rejection Rates -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
-                    <i class="fas fa-tasks"></i> Durum Dağılımı
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Fırın Red Oranları
                 </h3>
             </div>
             <div class="card-body-modern">
-                <div class="stats-grid">
-                    @foreach($statusDistribution as $status)
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($status->count) }}</div>
-                        <div class="stat-label">
-                            @if(isset(\App\Models\Barcode::STATUSES[$status->status]))
-                                {{ \App\Models\Barcode::STATUSES[$status->status] }}
-                            @else
-                                Bilinmeyen Durum
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Fırın Adı</th>
+                                <th>Toplam Barkod</th>
+                                <th>Reddedilen</th>
+                                <th>Red Oranı (%)</th>
+                                <th>Durum</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($kilnRejectionRates as $kiln)
+                            <tr>
+                                <td><strong>{{ $kiln->kiln_name }}</strong></td>
+                                <td>{{ number_format($kiln->total_barcodes) }}</td>
+                                <td>{{ number_format($kiln->rejected_count) }}</td>
+                                <td><strong>{{ $kiln->rejection_rate }}%</strong></td>
+                                <td>
+                                    @if($kiln->rejection_rate <= 5)
+                                        <span class="badge badge-success">Düşük</span>
+                                    @elseif($kiln->rejection_rate <= 15)
+                                        <span class="badge badge-warning">Orta</span>
+                                    @else
+                                        <span class="badge badge-danger">Yüksek</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+
+        <!-- Stock Age Warnings -->
+        @if(!empty($stockAgeWarnings))
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-clock"></i>
+                    Stok Yaşı Uyarıları
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                @if(isset($stockAgeWarnings['critical']))
+                <h5 class="text-danger mb-3">🚨 Kritik Uyarı (30+ gün)</h5>
+                @foreach($stockAgeWarnings['critical'] as $stock)
+                <div class="warning-card warning-critical p-3">
+                    <strong>{{ $stock->name }}</strong> ({{ $stock->code }}) - 
+                    Son üretim: {{ $stock->last_production_date ? \Carbon\Carbon::parse($stock->last_production_date)->format('d.m.Y') : 'Hiç üretilmemiş' }}
+                    @if($stock->last_production_date)
+                        - <span class="text-danger">{{ $stock->days_old }} gün önce</span>
+                    @endif
+                </div>
+                @endforeach
+                @endif
+
+                @if(isset($stockAgeWarnings['warning']))
+                <h5 class="text-warning mb-3 mt-4">⚠️ Uyarı (15+ gün)</h5>
+                @foreach($stockAgeWarnings['warning'] as $stock)
+                <div class="warning-card warning-warning p-3">
+                    <strong>{{ $stock->name }}</strong> ({{ $stock->code }}) - 
+                    Son üretim: {{ \Carbon\Carbon::parse($stock->last_production_date)->format('d.m.Y') }} 
+                    - <span class="text-warning">{{ $stock->days_old }} gün önce</span>
+                </div>
+                @endforeach
+                @endif
+
+                @if(isset($stockAgeWarnings['info']))
+                <h5 class="text-info mb-3 mt-4">ℹ️ Bilgi (7+ gün)</h5>
+                @foreach($stockAgeWarnings['info'] as $stock)
+                <div class="warning-card warning-info p-3">
+                    <strong>{{ $stock->name }}</strong> ({{ $stock->code }}) - 
+                    Son üretim: {{ \Carbon\Carbon::parse($stock->last_production_date)->format('d.m.Y') }} 
+                    - <span class="text-info">{{ $stock->days_old }} gün önce</span>
+                </div>
+                @endforeach
+                @endif
+            </div>
+        </div>
         @endif
+
+        <!-- Product Kiln Analysis -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-chart-line"></i>
+                    Ürün Özelinde Fırın Kapasite Analizi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Fırın</th>
+                                <th>Barkod Sayısı</th>
+                                <th>Toplam Miktar</th>
+                                <th>Kabul Edilen</th>
+                                <th>Reddedilen</th>
+                                <th>Kabul Oranı (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($productKilnAnalysis as $analysis)
+                            <tr>
+                                <td><strong>{{ $analysis->stock_name }}</strong><br><small>{{ $analysis->stock_code }}</small></td>
+                                <td>{{ $analysis->kiln_name }}</td>
+                                <td>{{ number_format($analysis->barcode_count) }}</td>
+                                <td>{{ number_format($analysis->total_quantity) }}</td>
+                                <td><span class="badge badge-success">{{ number_format($analysis->accepted_count) }}</span></td>
+                                <td><span class="badge badge-danger">{{ number_format($analysis->rejected_count) }}</span></td>
+                                <td>
+                                    <span class="badge badge-{{ $analysis->acceptance_rate >= 90 ? 'success' : ($analysis->acceptance_rate >= 75 ? 'warning' : 'danger') }}">
+                                        {{ $analysis->acceptance_rate }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Trend Chart -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-chart-area"></i>
+                    Haftalık Üretim Trendi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="chart-container">
+                    <canvas id="weeklyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Comparison -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-balance-scale"></i>
+                    Aylık Karşılaştırma
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Bu Ay</h5>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ number_format($monthlyComparison['current_month']['total_barcodes']) }}</div>
+                                <div class="stat-label">Barkod</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">{{ number_format($monthlyComparison['current_month']['total_quantity']) }}</div>
+                                <div class="stat-label">Miktar</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Geçen Ay</h5>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ number_format($monthlyComparison['previous_month']['total_barcodes']) }}</div>
+                                <div class="stat-label">Barkod</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">{{ number_format($monthlyComparison['previous_month']['total_quantity']) }}</div>
+                                <div class="stat-label">Miktar</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <h6>Değişim Oranları:</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-value {{ $monthlyComparison['change_percentage']['total_barcodes'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $monthlyComparison['change_percentage']['total_barcodes'] >= 0 ? '+' : '' }}{{ $monthlyComparison['change_percentage']['total_barcodes'] }}%
+                                </div>
+                                <div class="stat-label">Barkod Değişimi</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-value {{ $monthlyComparison['change_percentage']['total_quantity'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $monthlyComparison['change_percentage']['total_quantity'] >= 0 ? '+' : '' }}{{ $monthlyComparison['change_percentage']['total_quantity'] }}%
+                                </div>
+                                <div class="stat-label">Miktar Değişimi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 
 @section('scripts')
-@if($weeklyProduction && count($weeklyProduction) > 0)
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    // Weekly Trend Chart
+    const weeklyTrendCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+    const weeklyTrendData = @json($weeklyTrend);
     
-    const weeklyData = @json($weeklyProduction);
+    const labels = weeklyTrendData.map(item => item.date);
+    const barcodeData = weeklyTrendData.map(item => item.barcode_count);
+    const quantityData = weeklyTrendData.map(item => item.total_quantity);
     
-    const labels = weeklyData.map(item => {
-        const date = new Date(item.date);
-        return date.toLocaleDateString('tr-TR', { weekday: 'short', month: 'short', day: 'numeric' });
-    });
-    const quantities = weeklyData.map(item => item.total_quantity);
-    const counts = weeklyData.map(item => item.barcode_count);
-    
-    new Chart(ctx, {
+    new Chart(weeklyTrendCtx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Toplam Miktar (KG)',
-                data: quantities,
+                label: 'Barkod Sayısı',
+                data: barcodeData,
                 borderColor: '#667eea',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 tension: 0.4,
                 yAxisID: 'y'
             }, {
-                label: 'Barkod Sayısı',
-                data: counts,
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                label: 'Toplam Miktar',
+                data: quantityData,
+                borderColor: '#764ba2',
+                backgroundColor: 'rgba(118, 75, 162, 0.1)',
                 tension: 0.4,
                 yAxisID: 'y1'
             }]
@@ -560,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     position: 'left',
                     title: {
                         display: true,
-                        text: 'Miktar (KG)'
+                        text: 'Barkod Sayısı'
                     }
                 },
                 y1: {
@@ -569,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     position: 'right',
                     title: {
                         display: true,
-                        text: 'Barkod Sayısı'
+                        text: 'Miktar'
                     },
                     grid: {
                         drawOnChartArea: false,
@@ -577,9 +662,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             plugins: {
-                legend: {
-                    position: 'top',
-                },
                 title: {
                     display: true,
                     text: 'Haftalık Üretim Trendi'
@@ -589,5 +671,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-@endif
 @endsection

@@ -1144,8 +1144,8 @@
             <div class="nav-menu">
                 
                 <ul class="nav-menu-list">
-                    
-                    <li class="nav-item {{ request()->is('/') ? 'active' : ''}}">
+
+                    <li class="nav-item {{ request()->is('anasayfa') ? 'active' : ''}}">
                         <a href="{{ route('home') }}" class="nav-link">
                             <i class="fas fa-home"></i>
                             <span>Ana Sayfa</span>
@@ -1215,6 +1215,10 @@
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{{ route('barcode.historyIndex') }}">
                                 <i class="fas fa-history"></i> Barkod Hareket Geçmişi
+                            </a>
+                            <a class="dropdown-item" href="{{ route('dashboard') }}">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Günlük Rapor</span>
                             </a>
                         </div>
                     </li>
