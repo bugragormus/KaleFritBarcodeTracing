@@ -385,7 +385,7 @@
                              @elseif($shiftName === 'gündüz')
                                  08:00 - 16:00
                              @elseif($shiftName === 'akşam')
-                                 16:00 - 00:00
+                                 16:00 - 24:00
                              @else
                                  {{ ucfirst($shiftName) }}
                              @endif

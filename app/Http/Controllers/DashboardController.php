@@ -139,21 +139,29 @@ class DashboardController extends Controller
     private function getShiftReport($date)
     {
         $shifts = [
-            'gece' => ['start' => '22:00', 'end' => '06:00'],
-            'gündüz' => ['start' => '06:00', 'end' => '14:00'],
-            'akşam' => ['start' => '14:00', 'end' => '22:00']
+            'gece' => ['start' => '00:00', 'end' => '08:00'],
+            'gündüz' => ['start' => '08:00', 'end' => '16:00'],
+            'akşam' => ['start' => '16:00', 'end' => '24:00']
         ];
         
         $shiftData = [];
         
         foreach ($shifts as $shiftName => $shiftTime) {
             $startTime = $date->copy()->setTimeFromTimeString($shiftTime['start']);
-            $endTime = $date->copy()->setTimeFromTimeString($shiftTime['end']);
             
-            // Gece vardiyası için gün değişimi
-            if ($shiftName === 'gece') {
-                $endTime->addDay();
+            // Vardiya bitiş zamanını hesapla
+            if ($shiftTime['end'] === '24:00') {
+                $endTime = $date->copy()->addDay()->setTimeFromTimeString('00:00');
+            } else {
+                $endTime = $date->copy()->setTimeFromTimeString($shiftTime['end']);
             }
+            
+            // Debug için log ekle
+            \Log::info("Vardiya: {$shiftName}", [
+                'date' => $date->format('Y-m-d'),
+                'start_time' => $startTime->format('Y-m-d H:i:s'),
+                'end_time' => $endTime->format('Y-m-d H:i:s')
+            ]);
             
             // Vardiya için ton bazında veriler
             $acceptedQuantity = DB::select('
