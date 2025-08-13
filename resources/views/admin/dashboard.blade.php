@@ -77,6 +77,26 @@
     .date-selector input:hover {
         box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
     }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+    }
+
+    .btn-success i {
+        margin-right: 0.5rem;
+    }
     
     .card-modern {
         background: #ffffff;
@@ -305,7 +325,7 @@
                 <!-- Date Selector -->
                 <div class="date-selector">
                     <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
-                        <label for="date">📅 Rapor Tarihi:</label>
+                        <label for="date">📅 Rapor Tarihi (Bugün):</label>
                         <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
                                class="form-control" onchange="this.form.submit()">
                     </form>
@@ -397,10 +417,15 @@
         <!-- Kiln Performance -->
         <div class="card-modern">
             <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-fire"></i>
-                    Fırın Performans Analizi
-                </h3>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-fire"></i>
+                        Fırın Performans Analizi
+                    </h3>
+                    <button class="btn btn-success btn-sm" onclick="exportKilnPerformance()">
+                        <i class="fas fa-file-excel"></i> Excel İndir
+                    </button>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
@@ -726,5 +751,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Excel export function for kiln performance
+function exportKilnPerformance() {
+    const selectedDate = document.getElementById('date').value;
+    
+    fetch(`/dashboard/export-kiln-performance?date=${selectedDate}`)
+        .then(response => response.json())
+        .then(data => {
+            // Create CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add headers
+            csvContent += "Fırın Adı,Barkod Sayısı,Toplam Miktar,Ortalama Miktar,Kabul Edilen,Reddedilen\n";
+            
+            // Add data rows
+            data.data.forEach(kiln => {
+                csvContent += `${kiln.kiln_name},${kiln.barcode_count},${kiln.total_quantity},${kiln.avg_quantity},${kiln.accepted_count},${kiln.rejected_count}\n`;
+            });
+            
+            // Create download link
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", data.filename.replace('.xlsx', '.csv'));
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        })
+        .catch(error => {
+            console.error('Export error:', error);
+            alert('Excel export sırasında bir hata oluştu.');
+        });
+}
 </script>
 @endsection

@@ -23,8 +23,8 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // Tarih seçimi (varsayılan: dün)
-        $selectedDate = request('date', Carbon::yesterday()->format('Y-m-d'));
+        // Tarih seçimi (varsayılan: bugün)
+        $selectedDate = request('date', Carbon::today()->format('Y-m-d'));
         $date = Carbon::parse($selectedDate);
         
         // Günlük üretim raporu
@@ -67,6 +67,23 @@ class DashboardController extends Controller
             'weeklyTrend',
             'monthlyComparison'
         ));
+    }
+
+    /**
+     * Excel export for kiln performance
+     */
+    public function exportKilnPerformance(Request $request)
+    {
+        $selectedDate = $request->get('date', Carbon::today()->format('Y-m-d'));
+        $date = Carbon::parse($selectedDate);
+        $kilnPerformance = $this->getKilnPerformance($date);
+        
+        $filename = 'firin_performans_' . $date->format('Y-m-d') . '.xlsx';
+        
+        return response()->json([
+            'data' => $kilnPerformance,
+            'filename' => $filename
+        ]);
     }
 
     /**
@@ -164,7 +181,7 @@ class DashboardController extends Controller
                 AND barcodes.deleted_at IS NULL
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
-            ORDER BY total_quantity DESC
+            ORDER BY kilns.name ASC
         ', [
             Barcode::STATUS_PRE_APPROVED,
             Barcode::STATUS_SHIPMENT_APPROVED,
