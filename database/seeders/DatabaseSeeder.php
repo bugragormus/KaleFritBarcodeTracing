@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call(Permissionseeder::class);
         $this->call(UserSeeder::class);
         $this->call(KilnSeeder::class);
+        $this->call(UpdateKilnsDailyProductionAverageSeeder::class);
     }
 }

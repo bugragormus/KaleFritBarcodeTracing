@@ -29,8 +29,7 @@ class StockCalculationService
                     COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as on_delivery_in_warehouse_quantity
                 FROM stocks
                 LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
-                WHERE stocks.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 GROUP BY stocks.id, stocks.name, stocks.code
                 ORDER BY stocks.name
             ', [
@@ -63,8 +62,8 @@ class StockCalculationService
                         ELSE 0 
                     END), 0) as quantity
                 FROM barcodes
-                LEFT JOIN stocks ON barcodes.stock_id = stocks.id AND stocks.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN stocks ON barcodes.stock_id = stocks.id
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.warehouse_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY barcodes.warehouse_id, stocks.id, stocks.name
                 ORDER BY stocks.name
@@ -121,8 +120,8 @@ class StockCalculationService
                         ELSE 0 
                     END), 0) as total_quantity
                 FROM barcodes
-                LEFT JOIN stocks ON barcodes.stock_id = stocks.id AND stocks.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN stocks ON barcodes.stock_id = stocks.id
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.warehouse_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY barcodes.warehouse_id, stocks.id, stocks.name
                 ORDER BY stocks.name
@@ -152,7 +151,7 @@ class StockCalculationService
                 SELECT 
                     COALESCE(SUM(COALESCE(quantities.quantity, 0)), 0) as total_quantity
                 FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
             ', [$stockId])[0]->total_quantity ?? 0;
         });
@@ -168,7 +167,7 @@ class StockCalculationService
                 SELECT 
                     COALESCE(SUM(COALESCE(quantities.quantity, 0)), 0) as quantity
                 FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? AND (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL
             ', [$stockId, $status, $status])[0]->quantity ?? 0;
         });
@@ -264,8 +263,8 @@ class StockCalculationService
                     MAX(barcodes.created_at) as last_production_date
                 FROM stocks
                 LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
-                WHERE stocks.id = ? AND stocks.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+                WHERE stocks.id = ?
                 GROUP BY stocks.id, stocks.name, stocks.code
             ', [
                 Barcode::STATUS_WAITING,
@@ -293,7 +292,7 @@ class StockCalculationService
                     COUNT(barcodes.id) as barcode_count,
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? 
                 AND barcodes.deleted_at IS NULL
                 AND barcodes.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
@@ -315,7 +314,7 @@ class StockCalculationService
                     COUNT(barcodes.id) as count,
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY barcodes.status
                 ORDER BY barcodes.status
@@ -338,8 +337,8 @@ class StockCalculationService
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity,
                     AVG(quantities.quantity) as avg_quantity
                 FROM barcodes
-                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id AND kilns.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY kilns.id, kilns.name
                 ORDER BY total_quantity DESC
@@ -349,7 +348,7 @@ class StockCalculationService
             $total = DB::select('
                 SELECT COUNT(DISTINCT kilns.id) as total
                 FROM barcodes
-                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id AND kilns.deleted_at IS NULL
+                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
             ', [$stockId])[0]->total;
             
@@ -379,8 +378,8 @@ class StockCalculationService
                     MIN(barcodes.company_transferred_at) as first_sale_date,
                     MAX(barcodes.company_transferred_at) as last_sale_date
                 FROM barcodes
-                LEFT JOIN companies ON companies.id = barcodes.company_id AND companies.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN companies ON companies.id = barcodes.company_id
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? 
                 AND barcodes.deleted_at IS NULL
                 AND barcodes.company_id IS NOT NULL
@@ -392,7 +391,7 @@ class StockCalculationService
             $total = DB::select('
                 SELECT COUNT(DISTINCT companies.id) as total
                 FROM barcodes
-                LEFT JOIN companies ON companies.id = barcodes.company_id AND companies.deleted_at IS NULL
+                LEFT JOIN companies ON companies.id = barcodes.company_id
                 WHERE barcodes.stock_id = ? 
                 AND barcodes.deleted_at IS NULL
                 AND barcodes.company_id IS NOT NULL
@@ -423,7 +422,7 @@ class StockCalculationService
                     COUNT(barcodes.id) as barcode_count,
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY YEAR(barcodes.created_at), MONTH(barcodes.created_at)
                 ORDER BY year DESC, month DESC

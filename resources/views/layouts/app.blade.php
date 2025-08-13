@@ -1089,7 +1089,7 @@
                                     <i class="fas fa-user"></i>
                                 </div>
                                 <div class="user-info">
-                                    <span class="user-name">{{ auth()->user()->name }}</span>
+                                    <span class="user-name">{{ auth()->user() ? auth()->user()->name : 'Misafir' }}</span>
                                     <span class="user-role">Kullanıcı</span>
                                 </div>
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
@@ -1100,12 +1100,12 @@
                                         <i class="fas fa-user"></i>
                                     </div>
                                     <div class="user-details">
-                                        <h6>{{ auth()->user()->name }}</h6>
-                                        <small>{{ auth()->user()->email }}</small>
+                                        <h6>{{ auth()->user() ? auth()->user()->name : 'Misafir' }}</h6>
+                                        <small>{{ auth()->user() ? auth()->user()->email : 'misafir@example.com' }}</small>
                                     </div>
                                 </div>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ route('user.edit', ['user' => auth()->id()]) }}">
+                                <a class="dropdown-item" href="{{ auth()->user() ? route('user.edit', ['user' => auth()->id()]) : '#' }}">
                                     <i class="fas fa-user-edit"></i> Profili Düzenle
                                 </a>
                                 <a class="dropdown-item" href="{{ route('settings.show') }}">
@@ -1166,7 +1166,7 @@
                         </a>
                     </li>
 
-                    @if(auth()->user()->hasPermission(\App\Models\Permission::LAB_PROCESSES))
+                    @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::LAB_PROCESSES))
                     <li class="nav-item {{ request()->is('laboratuvar/*') ? 'active' : ''}}">
                         <a href="{{ route('laboratory.dashboard') }}" class="nav-link">
                             <i class="fas fa-flask"></i>
@@ -1284,7 +1284,7 @@
                         </li>
                         <li>
                             <i class="fas fa-user"></i>
-                            <span>Aktif Kullanıcı: {{ auth()->user()->name }}</span>
+                            <span>Aktif Kullanıcı: {{ auth()->user() ? auth()->user()->name : 'Misafir' }}</span>
                         </li>
                         <li>
                             <i class="fas fa-shield-alt"></i>

@@ -860,8 +860,91 @@ class BarcodeController extends Controller
                 } catch (\Exception $e) {
                     \Log::error('Invalid lab_end_date format:', ['date' => $request->input('lab_end_date'), 'error' => $e->getMessage()]);
                 }
-            })
-            ->paginate(25);
+            });
+
+        if ($request->ajax()) {
+            return DataTables::of($histories)
+                ->addIndexColumn()
+                ->addColumn('stock', function ($row) {
+                    return $row->barcode && $row->barcode->stock ? $row->barcode->stock->name : '-';
+                })
+                ->addColumn('party_number', function ($row) {
+                    return $row->barcode ? $row->barcode->party_number : '-';
+                })
+                ->addColumn('load_number', function ($row) {
+                    return $row->barcode ? $row->barcode->load_number : '-';
+                })
+                ->addColumn('description', function ($row) {
+                    return $row->description ?? '-';
+                })
+                ->addColumn('user', function ($row) {
+                    return $row->user ? $row->user->name : '-';
+                })
+                ->addColumn('status', function ($row) {
+                    if (!$row->barcode) return '-';
+                    
+                    $status = $row->barcode->status;
+                    $statusName = Barcode::STATUSES[$status] ?? 'Bilinmiyor';
+                    
+                    $statusClass = '';
+                    switch($status) {
+                        case Barcode::STATUS_WAITING:
+                            $statusClass = 'status-waiting';
+                            break;
+                        case Barcode::STATUS_CONTROL_REPEAT:
+                            $statusClass = 'status-control-repeat';
+                            break;
+                        case Barcode::STATUS_PRE_APPROVED:
+                            $statusClass = 'status-pre-approved';
+                            break;
+                        case Barcode::STATUS_SHIPMENT_APPROVED:
+                            $statusClass = 'status-shipment-approved';
+                            break;
+                        case Barcode::STATUS_REJECTED:
+                            $statusClass = 'status-rejected';
+                            break;
+                        case Barcode::STATUS_CUSTOMER_TRANSFER:
+                            $statusClass = 'status-customer-transfer';
+                            break;
+                        case Barcode::STATUS_DELIVERED:
+                            $statusClass = 'status-delivered';
+                            break;
+                        case Barcode::STATUS_MERGED:
+                            $statusClass = 'status-merged';
+                            break;
+                    }
+                    
+                    return '<span class="status-badge ' . $statusClass . '">' . $statusName . '</span>';
+                })
+                ->addColumn('changes', function ($row) {
+                    if (!$row->changes) return '-';
+                    
+                    $changes = json_decode($row->changes, true);
+                    if (!$changes) return '-';
+                    
+                    $html = '<div class="changes-container">';
+                    foreach ($changes as $field => $change) {
+                        $html .= '<div class="change-item">';
+                        $html .= '<span class="change-field">' . $field . '</span>';
+                        if (isset($change['from']) && isset($change['to'])) {
+                            $html .= '<span class="change-value">' . ($change['from'] ?: 'Boş') . '</span>';
+                            $html .= '<span class="change-arrow">→</span>';
+                            $html .= '<span class="change-value">' . ($change['to'] ?: 'Boş') . '</span>';
+                        } else {
+                            $html .= '<span class="change-value">' . json_encode($change) . '</span>';
+                        }
+                        $html .= '</div>';
+                    }
+                    $html .= '</div>';
+                    
+                    return $html;
+                })
+                ->addColumn('created_at', function ($row) {
+                    return $row->created_at ? $row->created_at->format('d.m.Y H:i:s') : '-';
+                })
+                ->rawColumns(['status', 'changes'])
+                ->make(true);
+        }
 
         return view('admin.barcode.history-index', compact([
             'histories',

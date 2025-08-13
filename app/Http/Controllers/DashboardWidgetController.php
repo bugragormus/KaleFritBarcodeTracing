@@ -266,7 +266,7 @@ class DashboardWidgetController extends Controller
             FROM stocks
             LEFT JOIN barcodes ON barcodes.stock_id = stocks.id AND barcodes.deleted_at IS NULL
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE stocks.deleted_at IS NULL
+
             GROUP BY stocks.id, stocks.code, stocks.name
             HAVING available_stock <= ?
             ORDER BY available_stock ASC

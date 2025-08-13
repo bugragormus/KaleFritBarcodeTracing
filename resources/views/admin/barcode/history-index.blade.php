@@ -570,6 +570,48 @@
                 padding: 1rem;
             }
         }
+        
+        /* DataTables Styling */
+        .dataTables_wrapper .dataTables_processing {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 8px;
+            margin: 0 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            border-color: #667eea;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            border-color: #667eea;
+        }
+        
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dataTables_wrapper .dataTables_length select:focus,
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
     </style>
 @endsection
 
@@ -748,8 +790,14 @@
             processing: true,
             serverSide: true,
             order: [[ 0, "desc" ]],
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/tr.json'
+            },
             ajax: {
                 url: "{{ route('barcode.historyIndex') }}",
+                type: 'GET',
                 data: function (d) {
                     // Filtreleri AJAX data'ya ekle
                     var startDate = $('#start-date').val();
@@ -765,34 +813,45 @@
                     // Dropdown filtreleri
                     $('.filter-select').each(function() {
                         var value = $(this).val();
-                        var label = $(this).prev('label').text();
+                        var column = $(this).data('column');
                         
                         if (value && value !== 'Tüm Stoklar' && value !== 'Tüm Partiler' && value !== 'Tüm Durumlar' && value !== 'Tüm Miktarlar' && value !== 'Tüm Firmalar' && value !== 'Tüm Depolar' && value !== 'Tüm Kullanıcılar' && value !== 'Tüm Lab Personeli') {
-                            if (label === 'Stok') d.stock_name = value;
-                            else if (label === 'Parti No') d.party_number = value;
-                            else if (label === 'Durum') d.status = value;
-                            else if (label === 'Miktar') d.quantity = value;
-                            else if (label === 'Firma') d.company_name = value;
-                            else if (label === 'Depo') d.warehouse_name = value;
-                            else if (label === 'Oluşturan') d.created_by = value;
-                            else if (label === 'Lab Personeli') d.lab_by = value;
+                            // Column index'e göre filtreleme
+                            if (column === 0) d.stock_name = value;        // Stok
+                            else if (column === 2) d.party_number = value; // Parti No
+                            else if (column === 3) d.status = value;       // Durum
+                            else if (column === 4) d.quantity = value;     // Miktar
+                            else if (column === 5) d.company_name = value; // Firma
+                            else if (column === 6) d.warehouse_name = value; // Depo
+                            else if (column === 7) d.created_by = value;  // Oluşturan
+                            else if (column === 8) d.lab_by = value;      // Lab Personeli
                         }
                     });
                     
                     console.log('AJAX data gönderiliyor:', d);
                     return d;
+                },
+                error: function (xhr, error, thrown) {
+                    console.error('DataTables AJAX Error:', error);
+                    console.error('Response:', xhr.responseText);
                 }
             },
             columns: [
-                {data: 'id', name: 'id'},
-                {data: 'stock', name: 'barcode.stock.name'},
-                {data: 'party_number', name: 'barcode.party_number'},
-                {data: 'load_number', name: 'barcode.load_number'},
-                {data: 'description', name: 'description'},
-                {data: 'user', name: 'user.name'},
-                {data: 'status', name: 'status'},
-                {data: 'changes', name: 'changes'},
-                {data: 'created_at', name: 'created_at'},
+                {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                {data: 'stock', name: 'stock', orderable: false},
+                {data: 'party_number', name: 'party_number', orderable: false},
+                {data: 'load_number', name: 'load_number', orderable: false},
+                {data: 'description', name: 'description', orderable: false},
+                {data: 'user', name: 'user', orderable: false},
+                {data: 'status', name: 'status', orderable: false},
+                {data: 'changes', name: 'changes', orderable: false, searchable: false},
+                {data: 'created_at', name: 'created_at', orderable: true},
+            ],
+            columnDefs: [
+                {
+                    targets: [7], // changes column
+                    width: '300px'
+                }
             ]
         });
 

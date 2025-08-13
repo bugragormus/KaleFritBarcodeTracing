@@ -317,8 +317,8 @@ class WarehouseController extends Controller
                     ELSE 0 
                 END), 0) as quantity
             FROM barcodes
-            LEFT JOIN stocks ON barcodes.stock_id = stocks.id AND stocks.deleted_at IS NULL
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+            LEFT JOIN stocks ON barcodes.stock_id = stocks.id
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.warehouse_id = ? AND barcodes.deleted_at IS NULL
             GROUP BY barcodes.warehouse_id, stocks.id, stocks.name
             ORDER BY stocks.name

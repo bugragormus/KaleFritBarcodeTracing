@@ -86,7 +86,7 @@ class DashboardController extends Controller
                 COUNT(*) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
@@ -104,8 +104,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM stocks
             LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
-            WHERE stocks.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY stocks.id, stocks.name, stocks.code
             ORDER BY total_quantity DESC
             LIMIT 10
@@ -121,8 +120,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM companies
             LEFT JOIN barcodes ON companies.id = barcodes.company_id AND barcodes.deleted_at IS NULL
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
-            WHERE companies.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             AND barcodes.company_id IS NOT NULL
             GROUP BY companies.id, companies.name
             ORDER BY total_quantity DESC
@@ -140,8 +138,7 @@ class DashboardController extends Controller
                 AVG(quantities.quantity) as avg_quantity
             FROM kilns
             LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id AND barcodes.deleted_at IS NULL
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
-            WHERE kilns.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
             ORDER BY total_quantity DESC
         ');
@@ -155,7 +152,7 @@ class DashboardController extends Controller
                 COUNT(barcodes.id) as count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.deleted_at IS NULL
             GROUP BY barcodes.status
             ORDER BY barcodes.status
@@ -171,7 +168,7 @@ class DashboardController extends Controller
                 COUNT(*) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id AND quantities.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.deleted_at IS NULL
             AND barcodes.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
             GROUP BY YEAR(barcodes.created_at), MONTH(barcodes.created_at)
