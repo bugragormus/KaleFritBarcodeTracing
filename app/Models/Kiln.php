@@ -17,7 +17,8 @@ class Kiln extends Model
      */
     protected $fillable = [
         'name',
-        'load_number'
+        'load_number',
+        'daily_production_average'
     ];
 
     /**

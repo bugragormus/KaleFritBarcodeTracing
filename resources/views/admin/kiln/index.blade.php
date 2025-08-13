@@ -151,20 +151,26 @@
             opacity: 0.9;
         }
         
+        .kiln-daily-average {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+        
         .kiln-body {
             padding: 1.5rem;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
         
         .stat-item {
             text-align: center;
-            padding: 1rem;
+            padding: 0.75rem;
             background: #f8f9fa;
             border-radius: 10px;
             border: 1px solid #e9ecef;
@@ -178,10 +184,11 @@
         }
         
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #6c757d;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            line-height: 1.2;
         }
         
         .progress-section {
@@ -256,6 +263,21 @@
             border-radius: 8px;
         }
         
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+        }
+        
+        .quick-filters {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+        }
+        
+        .quick-filters .btn-modern {
+            margin-bottom: 0.25rem;
+        }
+        
         .performance-indicator {
             position: absolute;
             top: 1rem;
@@ -316,6 +338,100 @@
                 </div>
             </div>
 
+                    <!-- Tarih Filtreleme -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-calendar-alt"></i> Tarih Filtreleme
+                </h3>
+                <p class="card-subtitle-modern">Belirli tarih aralığındaki fırın performansını görüntüleyin</p>
+            </div>
+            <div class="card-body-modern">
+                <!-- Hızlı Filtre Butonları -->
+                <div class="quick-filters mb-3">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('kiln.index') }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-day"></i> Günlük
+                        </a>
+                        <a href="{{ route('kiln.index', ['period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-alt"></i> Aylık
+                        </a>
+                        <a href="{{ route('kiln.index', ['period' => 'quarterly']) }}" class="btn-modern btn-sm {{ request('period') == 'quarterly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-week"></i> 3 Aylık
+                        </a>
+                        <a href="{{ route('kiln.index', ['period' => 'yearly']) }}" class="btn-modern btn-sm {{ request('period') == 'yearly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar"></i> Yıllık
+                        </a>
+                        <a href="{{ route('kiln.index', ['period' => 'all']) }}" class="btn-modern btn-sm {{ request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-infinity"></i> Tüm Zamanlar
+                        </a>
+                    </div>
+                </div>
+
+                <form method="GET" action="{{ route('kiln.index') }}" class="row align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label-modern">Başlangıç Tarihi</label>
+                        <input type="date" name="start_date" class="form-control-modern" 
+                               value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-modern">Bitiş Tarihi</label>
+                        <input type="date" name="end_date" class="form-control-modern" 
+                               value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label-modern">Fırın Seçimi</label>
+                        <select name="kiln_id" class="form-control-modern">
+                            <option value="">Tüm Fırınlar</option>
+                            @foreach($kilns as $kilnOption)
+                                <option value="{{ $kilnOption->id }}" {{ request('kiln_id') == $kilnOption->id ? 'selected' : '' }}>
+                                    {{ $kilnOption->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn-modern btn-primary-modern w-100">
+                            <i class="fas fa-filter"></i> Filtrele
+                        </button>
+                    </div>
+                </form>
+                @if(request('start_date') || request('end_date') || request('kiln_id') || request('period'))
+                    <div class="mt-3">
+                        <a href="{{ route('kiln.index') }}" class="btn-modern btn-secondary-modern">
+                            <i class="fas fa-times"></i> Filtreleri Temizle
+                        </a>
+                        <span class="ml-3 text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            @if(request('period'))
+                                @php
+                                    $periodNames = [
+                                        'monthly' => 'Aylık',
+                                        'quarterly' => '3 Aylık',
+                                        'yearly' => 'Yıllık',
+                                        'all' => 'Tüm Zamanlar'
+                                    ];
+                                @endphp
+                                {{ $periodNames[request('period')] ?? 'Günlük' }} görünüm
+                            @endif
+                            @if(request('start_date') && request('end_date'))
+                                - {{ request('start_date') }} - {{ request('end_date') }} tarihleri arası
+                            @endif
+                            @if(request('kiln_id'))
+                                @php
+                                    $selectedKiln = $kilns->firstWhere('id', request('kiln_id'));
+                                @endphp
+                                @if($selectedKiln)
+                                    - {{ $selectedKiln->name }} fırını
+                                @endif
+                            @endif
+                            için filtrelenmiş sonuçlar
+                        </span>
+                    </div>
+                @endif
+            </div>
+        </div>
+
             <!-- Fırın Performans Kartları -->
             @foreach($kilns as $kiln)
             <div class="kiln-card">
@@ -329,6 +445,7 @@
                     </div>
                     <div class="kiln-name">{{ $kiln->name }}</div>
                     <div class="kiln-load-number">Yük Numarası: {{ $kiln->load_number ?? 'Belirtilmemiş' }}</div>
+                    <div class="kiln-daily-average">Günlük Ortalama: {{ number_format($kiln->daily_production_average ?? 0, 2) }} Ton</div>
                 </div>
                 
                 <div class="kiln-body">
@@ -343,26 +460,20 @@
                             <div class="stat-label">Son 30 Gün (Ton)</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ $kiln->barcodes_count }}</div>
-                            <div class="stat-label">Toplam Barkod</div>
+                            <div class="stat-value">{{ number_format($kiln->daily_production_average ?? 0, 2) }}</div>
+                            <div class="stat-label">Hedef Günlük (Ton)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ number_format($kiln->daily_average_30_days, 2) }}</div>
+                            <div class="stat-label">Son 30 Gün Ort. (Ton)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ number_format($kiln->monthly_average_12_months, 2) }}</div>
+                            <div class="stat-label">Son 12 Ay Ort. (Ton)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ $kiln->rejection_rate }}%</div>
                             <div class="stat-label">Red Oranı</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ $kiln->delivery_rate }}%</div>
-                            <div class="stat-label">Teslim Oranı</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">
-                                @if($kiln->last_production_date)
-                                    {{ \Carbon\Carbon::parse($kiln->last_production_date)->format('d.m.Y') }}
-                                @else
-                                    -
-                                @endif
-                            </div>
-                            <div class="stat-label">Son Üretim</div>
                         </div>
                     </div>
 
@@ -385,22 +496,7 @@
                             </div>
                         </div>
                         
-                        <div class="progress-item">
-                            <div class="progress-label">
-                                <span>Teslim Oranı</span>
-                                <span>{{ $kiln->delivery_rate }}%</span>
-                            </div>
-                            <div class="progress-bar-custom">
-                                <div class="progress-fill 
-                                    @if($kiln->delivery_rate >= 90) progress-success
-                                    @elseif($kiln->delivery_rate >= 75) progress-info
-                                    @elseif($kiln->delivery_rate >= 50) progress-warning
-                                    @else progress-danger
-                                    @endif"
-                                    style="width: {{ $kiln->delivery_rate }}%">
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
 
                     <!-- Durum Dağılımı -->

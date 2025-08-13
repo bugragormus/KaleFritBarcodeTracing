@@ -31,6 +31,11 @@ class KilnStoreRequest extends FormRequest
                 'required',
                 Rule::unique('kilns','name')
             ],
+            'daily_production_average' => [
+                'required',
+                'numeric',
+                'min:0'
+            ],
         ];
     }
 }

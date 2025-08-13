@@ -34,6 +34,11 @@ class KilnUpdateRequest extends FormRequest
             'load_number' => [
                 'required',
                 'integer'
+            ],
+            'daily_production_average' => [
+                'required',
+                'numeric',
+                'min:0'
             ]
         ];
     }

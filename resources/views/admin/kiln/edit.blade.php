@@ -252,6 +252,31 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group-modern">
+                                    <label class="form-label-modern">
+                                        Günlük Üretim Ortalaması (Ton) <span class="required-field">*</span>
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        name="daily_production_average" 
+                                        id="daily_production_average" 
+                                        class="form-control-modern" 
+                                        placeholder="Günlük ortalama üretim miktarı" 
+                                        value="{{ old('daily_production_average', isset($kiln) ? $kiln->daily_production_average : '') }}"
+                                        min="0"
+                                        step="0.01"
+                                    />
+                                    @if($errors->has('daily_production_average'))
+                                        <span class="error-message">
+                                            {{ $errors->first('daily_production_average') }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-actions">
                             <button type="submit" class="btn-modern btn-primary-modern">
                                 <i class="fas fa-save"></i> Kaydet

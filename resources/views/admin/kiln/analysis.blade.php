@@ -221,6 +221,81 @@
             </div>
         </div>
 
+        <!-- Tarih Filtreleme -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-calendar-alt"></i> Tarih Filtreleme
+                </h3>
+                <p class="card-subtitle-modern">Belirli tarih aralığındaki fırın performansını analiz edin</p>
+            </div>
+            <div class="card-body-modern">
+                <!-- Hızlı Filtre Butonları -->
+                <div class="quick-filters mb-3">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('kiln.analysis', ['firin' => $kiln->id]) }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-day"></i> Günlük
+                        </a>
+                        <a href="{{ route('kiln.analysis', ['firin' => $kiln->id, 'period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-alt"></i> Aylık
+                        </a>
+                        <a href="{{ route('kiln.analysis', ['firin' => $kiln->id, 'period' => 'quarterly']) }}" class="btn-modern btn-sm {{ request('period') == 'quarterly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-week"></i> 3 Aylık
+                        </a>
+                        <a href="{{ route('kiln.analysis', ['firin' => $kiln->id, 'period' => 'yearly']) }}" class="btn-modern btn-sm {{ request('period') == 'yearly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar"></i> Yıllık
+                        </a>
+                        <a href="{{ route('kiln.analysis', ['firin' => $kiln->id, 'period' => 'all']) }}" class="btn-modern btn-sm {{ request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-infinity"></i> Tüm Zamanlar
+                        </a>
+                    </div>
+                </div>
+
+                <form method="GET" action="{{ route('kiln.analysis', ['firin' => $kiln->id]) }}" class="row align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label-modern">Başlangıç Tarihi</label>
+                        <input type="date" name="start_date" class="form-control-modern" 
+                               value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-modern">Bitiş Tarihi</label>
+                        <input type="date" name="end_date" class="form-control-modern" 
+                               value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn-modern btn-primary-modern w-100">
+                            <i class="fas fa-filter"></i> Filtrele
+                        </button>
+                    </div>
+                </form>
+                @if(request('start_date') || request('end_date') || request('period'))
+                    <div class="mt-3">
+                        <a href="{{ route('kiln.analysis', ['firin' => $kiln->id]) }}" class="btn-modern btn-secondary-modern">
+                            <i class="fas fa-times"></i> Filtreleri Temizle
+                        </a>
+                        <span class="ml-3 text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            @if(request('period'))
+                                @php
+                                    $periodNames = [
+                                        'monthly' => 'Aylık',
+                                        'quarterly' => '3 Aylık',
+                                        'yearly' => 'Yıllık',
+                                        'all' => 'Tüm Zamanlar'
+                                    ];
+                                @endphp
+                                {{ $periodNames[request('period')] ?? 'Günlük' }} görünüm
+                            @endif
+                            @if(request('start_date') && request('end_date'))
+                                - {{ request('start_date') }} - {{ request('end_date') }} tarihleri arası
+                            @endif
+                            için filtrelenmiş sonuçlar
+                        </span>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <!-- Genel İstatistikler -->
         <div class="card-modern">
             <div class="card-header-modern">
@@ -233,6 +308,10 @@
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($kiln->total_production, 0) }}</div>
                         <div class="stat-label">Toplam Üretim (Ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($kiln->daily_production_average ?? 0, 2) }}</div>
+                        <div class="stat-label">Günlük Ortalama (Ton)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ $kiln->total_barcodes }}</div>
@@ -257,6 +336,67 @@
                             {{ $deliveryRate }}%
                         </div>
                         <div class="stat-label">Teslim Oranı</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Günlük Üretim Ortalaması Analizi -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-calculator"></i> Günlük Üretim Ortalaması Analizi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ number_format($kiln->daily_production_average ?? 0, 2) }}</div>
+                            <div class="stat-label">Hedef Günlük Üretim (Ton)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-value">
+                                @php
+                                    $actualDailyAverage = $kiln->total_barcodes > 0 ? 
+                                        round($kiln->total_production / max(1, $kiln->barcodes->groupBy(function($item) {
+                                            return $item->created_at->format('Y-m-d');
+                                        })->count()), 2) : 0;
+                                @endphp
+                                {{ number_format($actualDailyAverage, 2) }}
+                            </div>
+                            <div class="stat-label">Gerçek Günlük Ortalama (Ton)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-value">
+                                @php
+                                    $efficiencyRate = $kiln->daily_production_average > 0 ? 
+                                        round(($actualDailyAverage / $kiln->daily_production_average) * 100, 2) : 0;
+                                @endphp
+                                {{ $efficiencyRate }}%
+                            </div>
+                            <div class="stat-label">Verimlilik Oranı</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card">
+                            <div class="stat-value">
+                                @php
+                                    $activeDays = $kiln->barcodes->groupBy(function($item) {
+                                        return $item->created_at->format('Y-m-d');
+                                    })->count();
+                                @endphp
+                                {{ $activeDays }}
+                            </div>
+                            <div class="stat-label">Aktif Çalışma Günü</div>
+                        </div>
                     </div>
                 </div>
             </div>
