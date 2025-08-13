@@ -38,7 +38,7 @@
         opacity: 0.9;
         margin-bottom: 0;
     }
-
+    
     .date-selector {
         background: rgba(255, 255, 255, 0.15);
         border-radius: 15px;
@@ -401,7 +401,7 @@
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
-
+    
     .shift-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -462,7 +462,7 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-
+    
     .warning-card {
         border-left: 4px solid;
         margin-bottom: 1rem;
@@ -550,8 +550,8 @@
                         Günlük Üretim Raporu
                     </h1>
                     <p class="page-subtitle-modern">Sistem geneli istatistikler ve performans göstergeleri</p>
-                </div>
-                
+        </div>
+
                 <!-- Date Selector -->
                 <div class="date-selector">
                     <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
@@ -560,8 +560,8 @@
                                class="form-control" onchange="this.form.submit()">
                     </form>
                 </div>
-            </div>
-        </div>
+                </div>
+                </div>
 
         <!-- Daily Production Stats -->
         <div class="card-modern">
@@ -619,16 +619,16 @@
                              @else
                                  {{ ucfirst($shiftName) }}
                              @endif
-                         </div>
+                </div>
                         <div class="shift-stats">
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
                                 <div class="shift-stat-label">Barkod</div>
-                            </div>
+            </div>
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['total_quantity']) }}</div>
                                 <div class="shift-stat-label">Miktar</div>
-                            </div>
+        </div>
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['accepted_count']) }}</div>
                                 <div class="shift-stat-label">Kabul</div>
@@ -648,10 +648,10 @@
         <div class="card-modern">
             <div class="card-header-modern">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h3 class="card-title-modern">
+                <h3 class="card-title-modern">
                         <i class="fas fa-fire"></i>
                         Fırın Performans Analizi
-                    </h3>
+                </h3>
                     <button class="btn btn-success btn-sm" onclick="exportKilnPerformance(event)">
                         <i class="fas fa-file-excel"></i> CSV İndir
                     </button>
@@ -752,7 +752,7 @@
                     @endif
                 </div>
                 @endforeach
-                @endif
+        @endif
 
                 @if(isset($stockAgeWarnings['warning']))
                 <h5 class="text-warning mb-3 mt-4">⚠️ Uyarı (15+ gün)</h5>
@@ -850,8 +850,8 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h5>Bu Ay</h5>
-                        <div class="stats-grid">
-                            <div class="stat-card">
+                <div class="stats-grid">
+                    <div class="stat-card">
                                 <div class="stat-value">{{ number_format($monthlyComparison['current_month']['total_barcodes']) }}</div>
                                 <div class="stat-label">Barkod</div>
                             </div>
@@ -948,16 +948,16 @@
                                         <span class="badge badge-success">Yüksek</span>
                                     @elseif($kiln->capacity_utilization >= 60)
                                         <span class="badge badge-warning">Orta</span>
-                                    @else
+                            @else
                                         <span class="badge badge-danger">Düşük</span>
-                                    @endif
+                            @endif
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-            </div>
+                        </div>
+                    </div>
         </div>
 
         <!-- Stock ABC Analysis -->
@@ -1000,7 +1000,7 @@
                                     @endif
                                 </td>
                             </tr>
-                            @endforeach
+                    @endforeach
                         </tbody>
                     </table>
                 </div>

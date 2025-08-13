@@ -425,23 +425,26 @@ class DashboardController extends Controller
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
         
+        // Varsayılan günlük kapasite (gerçek uygulamada config'den alınabilir)
+        $defaultDailyCapacity = 1000; // Günlük varsayılan kapasite
+        
         return DB::select('
             SELECT 
                 kilns.id,
                 kilns.name as kiln_name,
-                kilns.capacity as theoretical_capacity,
+                ? as theoretical_capacity,
                 COUNT(barcodes.id) as actual_production,
                 COALESCE(SUM(quantities.quantity), 0) as actual_quantity,
-                ROUND((COUNT(barcodes.id) / NULLIF(kilns.capacity, 0)) * 100, 2) as capacity_utilization,
-                ROUND((COALESCE(SUM(quantities.quantity), 0) / NULLIF(kilns.capacity, 0)) * 100, 2) as quantity_utilization
+                ROUND((COUNT(barcodes.id) / ?) * 100, 2) as capacity_utilization,
+                ROUND((COALESCE(SUM(quantities.quantity), 0) / ?) * 100, 2) as quantity_utilization
             FROM kilns
             LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id 
                 AND barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            GROUP BY kilns.id, kilns.name, kilns.capacity
+            GROUP BY kilns.id, kilns.name
             ORDER BY capacity_utilization DESC
-        ', [$startDate, $endDate]);
+        ', [$defaultDailyCapacity, $defaultDailyCapacity, $defaultDailyCapacity, $startDate, $endDate]);
     }
 
     /**
@@ -497,7 +500,7 @@ class DashboardController extends Controller
             }
             
             $data = DB::select('
-                SELECT 
+            SELECT 
                     COUNT(barcodes.id) as total_barcodes,
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity,
                     COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as accepted_count,
@@ -524,7 +527,7 @@ class DashboardController extends Controller
             ]);
             
             if (!empty($data)) {
-                $shiftEfficiency[$shiftKey] = array_merge($shiftInfo, $data[0]);
+                $shiftEfficiency[$shiftKey] = array_merge($shiftInfo, (array) $data[0]);
             }
         }
         
@@ -630,7 +633,7 @@ class DashboardController extends Controller
             'total_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])->count(),
             'total_quantity' => DB::select('
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
-                FROM barcodes
+            FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
