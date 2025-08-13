@@ -184,7 +184,7 @@ class DashboardController extends Controller
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
         
-        return DB::select('
+        $result = DB::select('
             SELECT 
                 kilns.id,
                 kilns.name as kiln_name,
@@ -199,7 +199,6 @@ class DashboardController extends Controller
                 AND barcodes.deleted_at IS NULL
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
-            ORDER BY kilns.name ASC
         ', [
             Barcode::STATUS_PRE_APPROVED,
             Barcode::STATUS_SHIPMENT_APPROVED,
@@ -207,6 +206,13 @@ class DashboardController extends Controller
             $startDate,
             $endDate
         ]);
+        
+        // Doğal sıralama (natural sorting) ile fırın adlarını sırala
+        usort($result, function($a, $b) {
+            return strnatcmp($a->kiln_name, $b->kiln_name);
+        });
+        
+        return $result;
     }
 
     /**

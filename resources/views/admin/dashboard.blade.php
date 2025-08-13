@@ -353,11 +353,11 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['accepted_barcodes']) }}</div>
-                        <div class="stat-label">Kabul Edilen</div>
+                        <div class="stat-label">Kabul Edilen Barkod Sayısı</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['rejected_barcodes']) }}</div>
-                        <div class="stat-label">Reddedilen</div>
+                        <div class="stat-label">Reddedilen Barkod Sayısı</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['pending_barcodes']) }}</div>
@@ -436,8 +436,8 @@
                                 <th>Barkod Sayısı</th>
                                 <th>Toplam Miktar</th>
                                 <th>Ortalama Miktar</th>
-                                <th>Kabul Edilen</th>
-                                <th>Reddedilen</th>
+                                <th>Kabul Edilen Barkod Sayısı</th>
+                                <th>Reddedilen Barkod Sayısı</th>
                             </tr>
                         </thead>
                         <tbody>
