@@ -176,9 +176,6 @@ class DashboardController extends Controller
                 ->count(),
             'delivery_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
-                ->count(),
-            'pending_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->where('status', Barcode::STATUS_WAITING)
                 ->count()
         ];
     }
@@ -298,9 +295,13 @@ class DashboardController extends Controller
                 COUNT(barcodes.id) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity,
                 AVG(quantities.quantity) as avg_quantity,
-                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?) THEN quantities.quantity ELSE 0 END), 0) as accepted_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as accepted_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?, ?) THEN quantities.quantity ELSE 0 END), 0) as testing_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?) THEN quantities.quantity ELSE 0 END), 0) as delivery_quantity,
                 COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
-                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as accepted_count,
+                COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as accepted_count,
+                COUNT(CASE WHEN barcodes.status IN (?, ?, ?) THEN 1 END) as testing_count,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as delivery_count,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count
             FROM kilns
             LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id 
@@ -309,12 +310,14 @@ class DashboardController extends Controller
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
         ', [
-            Barcode::STATUS_PRE_APPROVED,
-            Barcode::STATUS_SHIPMENT_APPROVED,
-            Barcode::STATUS_REJECTED,
-            Barcode::STATUS_PRE_APPROVED,
-            Barcode::STATUS_SHIPMENT_APPROVED,
-            Barcode::STATUS_REJECTED,
+            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı
+            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci: beklemede, ön onaylı, kontrol tekrarı
+            Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci: müşteri transfer, teslim edildi
+            Barcode::STATUS_REJECTED, // Red: reddedildi
+            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı (count için)
+            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci count için
+            Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci count için
+            Barcode::STATUS_REJECTED, // Red count için
             $startDate,
             $endDate
         ]);
@@ -419,12 +422,16 @@ class DashboardController extends Controller
                 kilns.name as kiln_name,
                 COUNT(barcodes.id) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?) THEN quantities.quantity ELSE 0 END), 0) as accepted_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as accepted_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?, ?) THEN quantities.quantity ELSE 0 END), 0) as testing_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?) THEN quantities.quantity ELSE 0 END), 0) as delivery_quantity,
                 COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
-                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as accepted_count,
+                COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as accepted_count,
+                COUNT(CASE WHEN barcodes.status IN (?, ?, ?) THEN 1 END) as testing_count,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as delivery_count,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count,
                 ROUND(
-                    (COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) * 100.0 / COUNT(barcodes.id)), 2
+                    (COUNT(CASE WHEN barcodes.status = ? THEN 1 END) * 100.0 / COUNT(barcodes.id)), 2
                 ) as acceptance_rate
             FROM stocks
             LEFT JOIN barcodes ON stocks.id = barcodes.stock_id 
@@ -436,14 +443,15 @@ class DashboardController extends Controller
             HAVING barcode_count > 0
             ORDER BY stocks.name, total_quantity DESC
         ', [
-            Barcode::STATUS_PRE_APPROVED,
-            Barcode::STATUS_SHIPMENT_APPROVED,
-            Barcode::STATUS_REJECTED,
-            Barcode::STATUS_PRE_APPROVED,
-            Barcode::STATUS_SHIPMENT_APPROVED,
-            Barcode::STATUS_REJECTED,
-            Barcode::STATUS_PRE_APPROVED,
-            Barcode::STATUS_SHIPMENT_APPROVED,
+            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı
+            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci: beklemede, ön onaylı, kontrol tekrarı
+            Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci: müşteri transfer, teslim edildi
+            Barcode::STATUS_REJECTED, // Red: reddedildi
+            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı (count için)
+            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci count için
+            Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci count için
+            Barcode::STATUS_REJECTED, // Red count için
+            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı (acceptance rate için)
             $startDate,
             $endDate
         ]);
@@ -472,7 +480,7 @@ class DashboardController extends Controller
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate])[0]->total_quantity ?? 0,
             'today_accepted' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED])
+                ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
                 ->count(),
             'today_rejected' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_REJECTED)

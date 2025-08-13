@@ -152,7 +152,7 @@
     
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
@@ -185,8 +185,8 @@
     }
 
     .shift-grid {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
         margin-bottom: 2rem;
     }
@@ -195,30 +195,29 @@
         background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         color: white;
         border-radius: 20px;
-        padding: 2.5rem;
+        padding: 2rem;
         text-align: center;
         box-shadow: 0 5px 15px rgba(44, 62, 80, 0.2);
         position: relative;
         overflow: hidden;
         min-height: 200px;
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
     }
 
     .shift-name {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
+        letter-spacing: 1.2px;
         background: rgba(255, 255, 255, 0.15);
-        padding: 1.2rem 2rem;
+        padding: 1rem 1.5rem;
         border-radius: 15px;
         border: 2px solid rgba(255, 255, 255, 0.3);
         position: relative;
-        flex-shrink: 0;
-        min-width: 200px;
+        margin-bottom: 1.5rem;
         text-align: center;
     }
 
@@ -236,30 +235,29 @@
 
     .shift-stats {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        flex-grow: 1;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        width: 100%;
         align-content: center;
-        margin-left: 2rem;
     }
 
     .shift-stat {
         background: rgba(255, 255, 255, 0.12);
-        border-radius: 15px;
-        padding: 1.5rem 1rem;
+        border-radius: 12px;
+        padding: 1.2rem 0.8rem;
         border: 1px solid rgba(255, 255, 255, 0.25);
         position: relative;
         overflow: hidden;
-        min-height: 100px;
+        min-height: 90px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-width: 120px;
+        min-width: 100px;
     }
 
     .shift-stat-value {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -268,11 +266,11 @@
     }
 
     .shift-stat-label {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         opacity: 0.9;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
         color: rgba(255, 255, 255, 0.95);
         text-align: center;
         line-height: 1.2;
@@ -388,6 +386,12 @@
         color: white;
         border: 1px solid rgba(255,255,255,0.2);
     }
+
+    .badge-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
 </style>
 @endsection
 
@@ -449,10 +453,6 @@
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['rejected_quantity'], 1) }}</div>
                         <div class="stat-label">Reddedilen (ton)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['testing_quantity'], 1) }}</div>
-                        <div class="stat-label">Bekleyen (ton)</div>
                     </div>
                 </div>
             </div>
@@ -536,6 +536,8 @@
                                 <th>Toplam Miktar (ton)</th>
                                 <th>Ortalama Miktar (ton)</th>
                                 <th>Kabul Edilen (ton)</th>
+                                <th>Test Sürecinde (ton)</th>
+                                <th>Teslimat Sürecinde (ton)</th>
                                 <th>Reddedilen (ton)</th>
                             </tr>
                         </thead>
@@ -547,6 +549,8 @@
                                 <td>{{ number_format($kiln->total_quantity, 1) }}</td>
                                 <td>{{ number_format($kiln->avg_quantity, 1) }}</td>
                                 <td><span class="badge badge-success">{{ number_format($kiln->accepted_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-info">{{ number_format($kiln->testing_quantity ?? 0, 1) }}</span></td>
+                                <td><span class="badge badge-warning">{{ number_format($kiln->delivery_quantity ?? 0, 1) }}</span></td>
                                 <td><span class="badge badge-danger">{{ number_format($kiln->rejected_quantity, 1) }}</span></td>
                             </tr>
                             @endforeach
@@ -666,6 +670,8 @@
                                 <th>Barkod Sayısı</th>
                                 <th>Toplam Miktar (ton)</th>
                                 <th>Kabul Edilen (ton)</th>
+                                <th>Test Sürecinde (ton)</th>
+                                <th>Teslimat Sürecinde (ton)</th>
                                 <th>Reddedilen (ton)</th>
                                 <th>Kabul Oranı (%)</th>
                             </tr>
@@ -678,6 +684,8 @@
                                 <td>{{ number_format($analysis->barcode_count) }}</td>
                                 <td>{{ number_format($analysis->total_quantity, 1) }}</td>
                                 <td><span class="badge badge-success">{{ number_format($analysis->accepted_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-info">{{ number_format($analysis->testing_quantity ?? 0, 1) }}</span></td>
+                                <td><span class="badge badge-warning">{{ number_format($analysis->delivery_quantity ?? 0, 1) }}</span></td>
                                 <td><span class="badge badge-danger">{{ number_format($analysis->rejected_quantity, 1) }}</span></td>
                                 <td>
                                     <span class="badge badge-{{ $analysis->acceptance_rate >= 90 ? 'success' : ($analysis->acceptance_rate >= 75 ? 'warning' : 'danger') }}">
@@ -899,7 +907,7 @@ function exportKilnPerformance() {
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             
             // Add headers
-            csvContent += "Fırın Adı,Barkod Sayısı,Toplam Miktar (ton),Ortalama Miktar (ton),Kabul Edilen (ton),Reddedilen (ton)\n";
+            csvContent += "Fırın Adı,Barkod Sayısı,Toplam Miktar (ton),Ortalama Miktar (ton),Kabul Edilen (ton),Test Sürecinde (ton),Teslimat Sürecinde (ton),Reddedilen (ton)\n";
             
             // Add data rows with proper escaping
             data.data.forEach(kiln => {
@@ -909,6 +917,8 @@ function exportKilnPerformance() {
                     parseFloat(kiln.total_quantity || 0).toFixed(1),
                     parseFloat(kiln.avg_quantity || 0).toFixed(1),
                     parseFloat(kiln.accepted_quantity || 0).toFixed(1),
+                    parseFloat(kiln.testing_quantity || 0).toFixed(1),
+                    parseFloat(kiln.delivery_quantity || 0).toFixed(1),
                     parseFloat(kiln.rejected_quantity || 0).toFixed(1)
                 ].join(',');
                 csvContent += row + '\n';
