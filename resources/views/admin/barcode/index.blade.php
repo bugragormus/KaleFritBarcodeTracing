@@ -777,19 +777,20 @@
                                 @endforeach 
                             </select>
                         </div>
-                        <div class="filter-item">
-                            <label class="filter-label">Durum</label>
-                            <select class="filter-select" data-column="2">
-                                <option value="">Tüm Durumlar</option>
-                                <option value="Beklemede">Beklemede</option>
-                                <option value="Kontrol Tekrarı">Kontrol Tekrarı</option>
-                                <option value="Ön Onaylı">Ön Onaylı</option>
-                                <option value="Sevk Onaylı">Sevk Onaylı</option>
-                                <option value="Reddedildi">Reddedildi</option>
-                                <option value="Müşteri Transfer">Müşteri Transfer</option>
-                                <option value="Teslim Edildi">Teslim Edildi</option>
-                            </select>
-                        </div>
+                            <div class="filter-item">
+                                <label class="filter-label">Durum</label>
+                                <select class="filter-select" data-column="2">
+                                    <option value="">Tüm Durumlar</option>
+                                    <option value="Beklemede">Beklemede</option>
+                                    <option value="Kontrol Tekrarı">Kontrol Tekrarı</option>
+                                    <option value="Ön Onaylı">Ön Onaylı</option>
+                                    <option value="Sevk Onaylı">Sevk Onaylı</option>
+                                    <option value="Reddedildi">Reddedildi</option>
+                                    <option value="Müşteri Transfer">Müşteri Transfer</option>
+                                    <option value="Teslim Edildi">Teslim Edildi</option>
+                                    <option value="Birleştirildi">Birleştirildi</option>
+                                </select>
+                            </div>
 
                         <div class="filter-item">
                             <label class="filter-label">Fırın</label>
@@ -915,6 +916,13 @@
                         if (globalLabEnd) d.lab_end = globalLabEnd;
                         if (globalCreatedStart) d.created_start = globalCreatedStart;
                         if (globalCreatedEnd) d.created_end = globalCreatedEnd;
+                        
+                        // Durum filtresini ekle
+                        var statusFilter = $('.filter-select[data-column="2"]').val();
+                        if (statusFilter) {
+                            d.status = statusFilter;
+                            console.log('Durum filtresi ekleniyor:', statusFilter);
+                        }
                         
                         console.log('AJAX data gönderiliyor:', d);
                         return d;

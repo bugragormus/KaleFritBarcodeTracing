@@ -52,6 +52,18 @@
             font-size: 0.875rem;
         }
         
+        .btn-info-modern {
+            background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+            color: white;
+        }
+        
+        .btn-info-modern:hover {
+            background: linear-gradient(135deg, #138496 0%, #5a32a3 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
         .btn-modern:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -78,9 +90,234 @@
             align-items: center;
         }
         
+        /* Column Filters */
+        .column-filters {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .filter-header h6 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-header h6 i {
+            margin-right: 0.5rem;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .filter-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+            white-space: normal;
+            word-wrap: break-word;
+            height: auto;
+            min-height: 45px;
+            cursor: pointer;
+        }
+        
+        .filter-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        .filter-select option {
+            font-size: 0.875rem;
+            padding: 0.5rem;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        
+        .filter-date {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .filter-date:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        .filter-date::placeholder {
+            color: #adb5bd;
+            font-size: 0.875rem;
+        }
+        
+        /* Datepicker Styling */
+        .datepicker {
+            border-radius: 10px !important;
+            border: 2px solid #e9ecef !important;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+            background: white !important;
+            color: #495057 !important;
+            z-index: 9999 !important;
+            padding: 1rem !important;
+            font-size: 0.875rem !important;
+            max-width: 300px !important;
+        }
+        
+        .datepicker table {
+            background: white !important;
+            width: 100% !important;
+            font-size: 0.875rem !important;
+        }
+        
+        .datepicker table tr td,
+        .datepicker table tr th {
+            border-radius: 8px !important;
+            margin: 2px !important;
+            color: #495057 !important;
+            background: white !important;
+            text-align: center !important;
+            padding: 0.5rem !important;
+            font-size: 0.875rem !important;
+            width: 35px !important;
+            height: 35px !important;
+            line-height: 25px !important;
+        }
+        
+        .datepicker table tr td.active,
+        .datepicker table tr td.active:hover,
+        .datepicker table tr td.active.disabled,
+        .datepicker table tr td.active.disabled:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border-color: #667eea !important;
+            color: white !important;
+        }
+        
+        .datepicker table tr td.today {
+            background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+            border-color: #ffc107 !important;
+            color: white !important;
+        }
+        
+        .datepicker table tr td:hover {
+            background: #f8f9fa !important;
+        }
+        
+        .datepicker table tr td.old,
+        .datepicker table tr td.new {
+            color: #adb5bd !important;
+        }
+        
+        .datepicker .datepicker-switch {
+            font-weight: 600 !important;
+            color: #495057 !important;
+            background: #f8f9fa !important;
+            padding: 0.5rem !important;
+            font-size: 0.875rem !important;
+            height: 35px !important;
+            line-height: 25px !important;
+        }
+        
+        .datepicker .prev,
+        .datepicker .next {
+            color: #667eea !important;
+            background: #f8f9fa !important;
+            padding: 0.5rem !important;
+            font-size: 0.875rem !important;
+            height: 35px !important;
+            line-height: 25px !important;
+        }
+        
+        .datepicker .prev:hover,
+        .datepicker .next:hover {
+            background: #e9ecef !important;
+            color: #5a6fd8 !important;
+        }
+        
+        .datepicker .dow {
+            font-weight: 600 !important;
+            color: #495057 !important;
+            background: #f8f9fa !important;
+            padding: 0.5rem !important;
+            font-size: 0.75rem !important;
+            height: 30px !important;
+            line-height: 20px !important;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .filter-header {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .filter-actions .btn {
+                width: 100%;
+            }
+            
+            .column-filters {
+                padding: 1rem;
+            }
+        }
+        
         .card-modern {
             background: #ffffff;
-            border-radius: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
             border: 1px solid #e9ecef;
             overflow: hidden;
@@ -350,151 +587,122 @@
                     </div>
                     <div class="col-md-4 text-right">
                         <div class="action-buttons justify-content-end">
-                            <button class="btn-modern btn-success-modern" type="button" id="search">
-                                <i class="fas fa-search"></i> Arama
-                            </button>
+                            <!-- Filtre butonu kaldırıldı -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Search Card -->
-            <div class="card-modern" id="search-area" style="display: none;">
-                <div class="card-header-modern">
-                    <h3 class="card-title-modern">
-                        <i class="fas fa-filter"></i> Arama Filtreleri
-                    </h3>
-                    <p class="card-subtitle-modern">Barkod hareket geçmişini filtrelemek için aşağıdaki kriterleri kullanın</p>
+            <!-- Column Filters -->
+            <div class="column-filters" id="filter-area">
+                <div class="filter-header">
+                    <h6><i class="fas fa-filter"></i> Sütun Filtreleri</h6>
+                    <div class="filter-actions">
+                        <button class="btn-modern btn-info-modern" onclick="applyFilters()">
+                            <i class="fas fa-check"></i> Filtreleri Uygula
+                        </button>
+                        <button class="btn-modern btn-secondary-modern" onclick="clearFilters()">
+                            <i class="fas fa-refresh"></i> Filtreleri Temizle
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body-modern">
-                    <form class="form" method="GET" action="{{ route('barcode.historyIndex') }}">
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Stok Adı</label>
-                                    <select class="custom-select-modern" name="stock_id">
-                                        <option disabled {{old('stock_id') == '' ? 'selected' : ''}}>Stok seçiniz</option>
-                                        @foreach($stocks as $stock)
-                                            <option {{old('stock_id') == $stock->id ? 'selected' : ''}} value="{{$stock->id}}">{{$stock->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
+                <div class="filter-grid">
+                    <div class="filter-item">
+                        <label class="filter-label">Stok</label>
+                        <select class="filter-select" data-column="0">
+                            <option value="">Tüm Stoklar</option>
+                            @foreach($stocks as $stock)
+                                <option value="{{ $stock->name }}">{{ $stock->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Fırın Adı</label>
-                                    <select class="custom-select-modern" name="kiln_id">
-                                        <option disabled {{old('kiln_id') == '' ? 'selected' : ''}}>Fırın seçiniz</option>
-                                        @foreach($kilns as $kiln)
-                                            <option {{old('kiln_id') == $kiln->id ? 'selected' : ''}} value="{{$kiln->id}}">{{$kiln->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Parti Numarası</label>
-                                    <input type="text" name="party_number" id="party_number" class="form-control-modern" placeholder="Parti numarası giriniz" value="{{ old('party_number') }}"/>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Miktar</label>
-                                    <select class="custom-select-modern" name="quantity_id">
-                                        <option disabled {{old('quantity_id') == '' ? 'selected' : ''}}>Miktar seçiniz</option>
-                                        @foreach($quantities as $quantity)
-                                            <option {{old('quantity_id') == $quantity->id ? 'selected' : ''}} value="{{$quantity->id}}">{{$quantity->quantity . " KG"}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Firma</label>
-                                    <select class="custom-select-modern" name="company_id">
-                                        <option disabled {{old('company_id') == '' ? 'selected' : ''}}>Firma seçiniz</option>
-                                        @foreach($companies as $company)
-                                            <option {{old('company_id') == $company->id ? 'selected' : ''}} value="{{$company->id}}">{{$company->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Depo</label>
-                                    <select class="custom-select-modern" name="warehouse_id">
-                                        <option disabled {{old('warehouse_id') == '' ? 'selected' : ''}}>Depo seçiniz</option>
-                                        @foreach($wareHouses as $wareHouse)
-                                            <option {{(old('warehouse_id') == $wareHouse->id) ? 'selected' : ''}} value="{{$wareHouse->id}}">{{$wareHouse->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Oluşturan Personel</label>
-                                    <select class="custom-select-modern" name="created_by_id">
-                                        <option disabled {{old('created_by_id') == '' ? 'selected' : ''}}>Personel seçiniz</option>
-                                        @foreach($users as $user)
-                                            <option {{(old('created_by_id') == $user->id) ? 'selected' : ''}} value="{{$user->id}}">{{$user->name}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Açıklama</label>
-                                    <select class="custom-select-modern" name="description_id">
-                                        <option disabled {{old('description_id') == '' ? 'selected' : ''}}>Açıklama seçiniz</option>
-                                        @foreach($descriptions as $key => $value)
-                                            <option {{(old('description_id') == $key) ? 'selected' : ''}} value="{{$key}}">{{$value}}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Oluşturulma Tarihi</label>
-                                    <div>
-                                        <div class="input-daterange input-group" id="date-range">
-                                            <input type="text" class="form-control-modern" name="start_created_at" placeholder="Başlangıç Tarihi" />
-                                            <input type="text" class="form-control-modern" name="end_created_at" placeholder="Bitiş Tarihi" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">Lab İşlem Tarihi</label>
-                                    <div>
-                                        <div class="input-daterange input-group" id="date-range2">
-                                            <input type="text" class="form-control-modern" name="start_lab_at" placeholder="Başlangıç Tarihi" />
-                                            <input type="text" class="form-control-modern" name="end_lab_at" placeholder="Bitiş Tarihi" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group-modern">
-                            <button type="submit" class="btn-modern btn-primary-modern">
-                                <i class="fas fa-search"></i> Sonuçları Getir
-                            </button>
-                        </div>
-                    </form>
+                    <div class="filter-item">
+                        <label class="filter-label">Parti No</label>
+                        <select class="filter-select" data-column="2">
+                            <option value="">Tüm Partiler</option>
+                            @foreach($barcodeHistories->pluck('party_number')->unique() as $party)
+                                @if($party)
+                                    <option value="{{ $party }}">{{ $party }}</option>
+                                @endif
+                            @endforeach 
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Durum</label>
+                        <select class="filter-select" data-column="3">
+                            <option value="">Tüm Durumlar</option>
+                            <option value="Beklemede">Beklemede</option>
+                            <option value="Kontrol Tekrarı">Kontrol Tekrarı</option>
+                            <option value="Ön Onaylı">Ön Onaylı</option>
+                            <option value="Sevk Onaylı">Sevk Onaylı</option>
+                            <option value="Reddedildi">Reddedildi</option>
+                            <option value="Müşteri Transfer">Müşteri Transfer</option>
+                            <option value="Teslim Edildi">Teslim Edildi</option>
+                            <option value="Birleştirildi">Birleştirildi</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Miktar</label>
+                        <select class="filter-select" data-column="4">
+                            <option value="">Tüm Miktarlar</option>
+                            @foreach($quantities as $quantity)
+                                <option value="{{ $quantity->quantity }} KG">{{ $quantity->quantity }} KG</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Firma</label>
+                        <select class="filter-select" data-column="5">
+                            <option value="">Tüm Firmalar</option>
+                            @foreach($companies as $company)
+                                <option value="{{ $company->name }}">{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Depo</label>
+                        <select class="filter-select" data-column="6">
+                            <option value="">Tüm Depolar</option>
+                            @foreach($wareHouses as $wareHouse)
+                                <option value="{{ $wareHouse->name }}">{{ $wareHouse->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Oluşturan</label>
+                        <select class="filter-select" data-column="7">
+                            <option value="">Tüm Kullanıcılar</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->name }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Lab Personeli</label>
+                        <select class="filter-select" data-column="8">
+                            <option value="">Tüm Lab Personeli</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->name }}">{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Başlangıç Tarihi</label>
+                        <input type="text" class="filter-date" id="start-date" placeholder="Başlangıç Tarihi" autocomplete="off">
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Bitiş Tarihi</label>
+                        <input type="text" class="filter-date" id="end-date" placeholder="Bitiş Tarihi" autocomplete="off">
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Lab Başlangıç</label>
+                        <input type="text" class="filter-date" id="lab-start-date" placeholder="Lab Başlangıç" autocomplete="off">
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Lab Bitiş</label>
+                        <input type="text" class="filter-date" id="lab-end-date" placeholder="Lab Bitiş" autocomplete="off">
+                    </div>
                 </div>
             </div>
 
@@ -510,7 +718,7 @@
                 </div>
 
                 <div class="card-body-modern">
-                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <table id="datatable" class="table table-bordered dt-responsive nowrap yajra-datatable" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -524,129 +732,9 @@
                             <th>İşlem Tarihi</th>
                         </tr>
                         </thead>
-
                         <tbody>
-                        @foreach($histories as $history)
-                            <tr>
-                                <td>{{ $history->id}}</td>
-                                <td>{{ $history->barcode->stock->name}}</td>
-                                <td>{{ $history->barcode->party_number}}</td>
-                                <td>{{ $history->barcode->load_number}}</td>
-                                <td>{{ \App\Models\Barcode::EVENTS[$history->description] ?? 'Bilinmiyor' }}</td>
-                                <td>{{ $history->user->name}}</td>
-                                <td>
-                                    @php
-                                        $statusClass = '';
-                                        switch($history->status) {
-                                            case \App\Models\Barcode::STATUS_WAITING: 
-                                                $statusClass = 'status-waiting'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_CONTROL_REPEAT: 
-                                                $statusClass = 'status-control-repeat'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_PRE_APPROVED: 
-                                                $statusClass = 'status-pre-approved'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_SHIPMENT_APPROVED: 
-                                                $statusClass = 'status-shipment-approved'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_REJECTED: 
-                                                $statusClass = 'status-rejected'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER: 
-                                                $statusClass = 'status-customer-transfer'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_DELIVERED: 
-                                                $statusClass = 'status-delivered'; 
-                                                break;
-                                            case \App\Models\Barcode::STATUS_MERGED: 
-                                                $statusClass = 'status-merged'; 
-                                                break;
-                                            default: 
-                                                $statusClass = 'status-waiting';
-                                        }
-                                    @endphp
-                                    <span class="status-badge {{ $statusClass }}">{{ \App\Models\Barcode::STATUSES[$history->status] ?? 'Bilinmiyor' }}</span>
-                                </td>
-                                <td> 
-                                    @if(!is_null($history->changes) && is_array($history->changes) && count($history->changes) > 0)
-                                        <div class="changes-container">
-                                            @foreach($history->changes as $key => $value)
-                                                @if(is_string($key) && !is_null($value))
-                                                @php
-                                                    $fieldNames = [
-                                                        'status' => 'Durum',
-                                                        // 'transfer_status' => 'Transfer Durumu', // Artık kullanılmıyor
-                                                        'lab_at' => 'Lab İşlem Tarihi',
-                                                        'lab_by' => 'Lab Personeli',
-                                                        'warehouse_id' => 'Depo',
-                                                        'warehouse_transferred_at' => 'Depo Transfer Tarihi',
-                                                        'warehouse_transferred_by' => 'Depo Transfer Personeli',
-                                                        'company_id' => 'Müşteri',
-                                                        'company_transferred_at' => 'Müşteri Transfer Tarihi',
-                                                        'delivered_at' => 'Teslim Tarihi',
-                                                        'delivered_by' => 'Teslim Eden',
-                                                        'lab_note' => 'Lab Notu',
-                                                        'note' => 'Not',
-                                                        'updated_at' => 'Güncelleme Tarihi',
-                                                        'stock_id' => 'Stok',
-                                                        'party_number' => 'Parti No',
-                                                        'load_number' => 'Şarj No',
-                                                        'quantity_id' => 'Miktar',
-                                                        'kiln_id' => 'Fırın'
-                                                    ];
-                                                    
-                                                    $fieldName = $fieldNames[$key] ?? $key;
-                                                    
-                                                    // Değerleri kullanıcı dostu hale getir
-                                                    $displayValue = $value;
-                                                    if ($key === 'status') {
-                                                        $displayValue = \App\Models\Barcode::STATUSES[$value] ?? $value;
-                                                    } elseif ($key === 'transfer_status') {
-    // Transfer status artık kullanılmıyor
-    $displayValue = 'Transfer Durumu (Kaldırıldı)';
-                                                    } elseif (in_array($key, ['lab_by', 'warehouse_transferred_by', 'delivered_by'])) {
-                                                        $user = \App\Models\User::find($value);
-                                                        $displayValue = $user ? $user->name : $value;
-                                                    } elseif (in_array($key, ['warehouse_id', 'company_id', 'stock_id', 'kiln_id', 'quantity_id'])) {
-                                                        if ($key === 'warehouse_id') {
-                                                            $warehouse = \App\Models\Warehouse::find($value);
-                                                            $displayValue = $warehouse ? $warehouse->name : $value;
-                                                        } elseif ($key === 'company_id') {
-                                                            $company = \App\Models\Company::find($value);
-                                                            $displayValue = $company ? $company->name : $value;
-                                                        } elseif ($key === 'stock_id') {
-                                                            $stock = \App\Models\Stock::find($value);
-                                                            $displayValue = $stock ? $stock->name : $value;
-                                                        } elseif ($key === 'kiln_id') {
-                                                            $kiln = \App\Models\Kiln::find($value);
-                                                            $displayValue = $kiln ? $kiln->name : $value;
-                                                        } elseif ($key === 'quantity_id') {
-                                                            $quantity = \App\Models\Quantity::find($value);
-                                                            $displayValue = $quantity ? $quantity->quantity . ' KG' : $value;
-                                                        }
-                                                    } elseif (in_array($key, ['lab_at', 'warehouse_transferred_at', 'company_transferred_at', 'delivered_at', 'updated_at'])) {
-                                                        $displayValue = $value ? \Carbon\Carbon::parse($value)->format('d.m.Y H:i') : '-';
-                                                    }
-                                                @endphp
-                                                <div class="change-item">
-                                                    <span class="change-field">{{ $fieldName }}</span>
-                                                    <i class="mdi mdi-arrow-right change-arrow"></i>
-                                                    <span class="change-value">{{ $displayValue }}</span>
-                                                </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <span class="text-muted">Değişiklik bilgisi yok</span>
-                                    @endif
-                                </td>
-                                <td>{{ $history->created_at->tz('Europe/Istanbul')->toDateTimeString() }}</td>
-                            </tr>
-                        @endforeach
                         </tbody>
                     </table>
-                    <div> {!! $histories->links('vendor.pagination.bootstrap-4') !!}</div>
                 </div>
             </div>
         </div>
@@ -655,26 +743,116 @@
 @section('scripts')
     <script src="{{ asset('assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
     <script>
-        $('#datatable').dataTable( {
-            order: {
-                order: [[0, "desc"]]
+        // DataTables initialization
+        var table = $('.yajra-datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                url: "{{ route('barcode.historyIndex') }}",
+                data: function (d) {
+                    // Filtreleri AJAX data'ya ekle
+                    var startDate = $('#start-date').val();
+                    var endDate = $('#end-date').val();
+                    var labStartDate = $('#lab-start-date').val();
+                    var labEndDate = $('#lab-end-date').val();
+                    
+                    if (startDate) d.start_date = startDate;
+                    if (endDate) d.end_date = endDate;
+                    if (labStartDate) d.lab_start_date = labStartDate;
+                    if (labEndDate) d.lab_end_date = labEndDate;
+                    
+                    // Dropdown filtreleri
+                    $('.filter-select').each(function() {
+                        var value = $(this).val();
+                        var label = $(this).prev('label').text();
+                        
+                        if (value && value !== 'Tüm Stoklar' && value !== 'Tüm Partiler' && value !== 'Tüm Durumlar' && value !== 'Tüm Miktarlar' && value !== 'Tüm Firmalar' && value !== 'Tüm Depolar' && value !== 'Tüm Kullanıcılar' && value !== 'Tüm Lab Personeli') {
+                            if (label === 'Stok') d.stock_name = value;
+                            else if (label === 'Parti No') d.party_number = value;
+                            else if (label === 'Durum') d.status = value;
+                            else if (label === 'Miktar') d.quantity = value;
+                            else if (label === 'Firma') d.company_name = value;
+                            else if (label === 'Depo') d.warehouse_name = value;
+                            else if (label === 'Oluşturan') d.created_by = value;
+                            else if (label === 'Lab Personeli') d.lab_by = value;
+                        }
+                    });
+                    
+                    console.log('AJAX data gönderiliyor:', d);
+                    return d;
+                }
             },
-            dom: 'Bfrtip',
-            buttons: [
-                'copy', 'csv', 'excel', 'pdf', 'print'
-            ],
-            pageLength: 25
-        } );
-    </script>
-
-    <script>
-        $("#search-area").hide();
-
-        $("#search").click(function(){
-            $("#search-area").toggle();
+            columns: [
+                {data: 'id', name: 'id'},
+                {data: 'stock', name: 'barcode.stock.name'},
+                {data: 'party_number', name: 'barcode.party_number'},
+                {data: 'load_number', name: 'barcode.load_number'},
+                {data: 'description', name: 'description'},
+                {data: 'user', name: 'user.name'},
+                {data: 'status', name: 'status'},
+                {data: 'changes', name: 'changes'},
+                {data: 'created_at', name: 'created_at'},
+            ]
         });
 
-        $('#date-range').datepicker();
-        $('#date-range2').datepicker();
+        function applyFilters() {
+            console.log('applyFilters fonksiyonu çağrıldı');
+            
+            // DataTable'ı yeniden yükle
+            table.ajax.reload();
+        }
+
+        function clearFilters() {
+            console.log('clearFilters fonksiyonu çağrıldı');
+            
+            // Tüm filtreleri temizle
+            $('.filter-select').val('');
+            $('.filter-date').val('');
+            
+            // DataTable'ı yeniden yükle
+            table.ajax.reload();
+        }
+
+        $('#start-date').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            orientation: 'bottom auto',
+            clearBtn: true,
+            todayBtn: 'linked',
+            keyboardNavigation: true,
+            forceParse: false
+        });
+        $('#end-date').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            orientation: 'bottom auto',
+            clearBtn: true,
+            todayBtn: 'linked',
+            keyboardNavigation: true,
+            forceParse: false
+        });
+        $('#lab-start-date').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            orientation: 'bottom auto',
+            clearBtn: true,
+            todayBtn: 'linked',
+            keyboardNavigation: true,
+            forceParse: false
+        });
+        $('#lab-end-date').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            orientation: 'bottom auto',
+            clearBtn: true,
+            todayBtn: 'linked',
+            keyboardNavigation: true,
+            forceParse: false
+        });
     </script>
 @endsection

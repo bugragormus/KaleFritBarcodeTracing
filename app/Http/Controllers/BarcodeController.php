@@ -84,6 +84,43 @@ class BarcodeController extends Controller
                     } catch (\Exception $e) {
                         \Log::error('Invalid created_end date format:', ['date' => $request->input('created_end'), 'error' => $e->getMessage()]);
                     }
+                })
+                ->when($request->filled('status'), function (Builder $query) use ($request) {
+                    $status = $request->input('status');
+                    $statusId = null;
+                    
+                    // Türkçe durum adını ID'ye çevir
+                    switch($status) {
+                        case 'Beklemede':
+                            $statusId = Barcode::STATUS_WAITING;
+                            break;
+                        case 'Kontrol Tekrarı':
+                            $statusId = Barcode::STATUS_CONTROL_REPEAT;
+                            break;
+                        case 'Ön Onaylı':
+                            $statusId = Barcode::STATUS_PRE_APPROVED;
+                            break;
+                        case 'Sevk Onaylı':
+                            $statusId = Barcode::STATUS_SHIPMENT_APPROVED;
+                            break;
+                        case 'Reddedildi':
+                            $statusId = Barcode::STATUS_REJECTED;
+                            break;
+                        case 'Müşteri Transfer':
+                            $statusId = Barcode::STATUS_CUSTOMER_TRANSFER;
+                            break;
+                        case 'Teslim Edildi':
+                            $statusId = Barcode::STATUS_DELIVERED;
+                            break;
+                        case 'Birleştirildi':
+                            $statusId = Barcode::STATUS_MERGED;
+                            break;
+                    }
+                    
+                    if ($statusId !== null) {
+                        $query->where('status', $statusId);
+                        \Log::info('Status filter applied:', ['status' => $status, 'status_id' => $statusId]);
+                    }
                 });
             return Datatables::of($barcodes)
                 ->addColumn('stock', function ($barcode) {
@@ -704,74 +741,131 @@ class BarcodeController extends Controller
         $users = User::all();
         $descriptions = Barcode::EVENTS;
 
+        // Filtreleme için tüm barkod geçmişlerini al
+        $barcodeHistories = BarcodeHistory::with(['barcode'])->get();
+        
         $histories = BarcodeHistory::with([
             'user',
             'barcode',
             'barcode.stock'
         ])
             ->orderByDesc('id')
-            ->when($request->filled('stock_id'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('stock_id', $request->input('stock_id'));
+            ->when($request->filled('stock_name'), function (Builder $query) use ($request) {
+                $query->whereHas('barcode.stock', function (Builder $query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->input('stock_name') . '%');
                 });
             })
-            ->when($request->filled('kiln_id'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('kiln_id', $request->input('kiln_id'));
-                });
-            })
+
             ->when($request->filled('party_number'), function (Builder $query) use ($request) {
                 $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('party_number', $request->input('party_number'));
+                    $query->where('party_number', 'like', '%' . $request->input('party_number') . '%');
                 });
             })
-            ->when($request->filled('quantity_id'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('quantity_id', $request->input('quantity_id'));
+            ->when($request->filled('status'), function (Builder $query) use ($request) {
+                $status = $request->input('status');
+                $statusId = null;
+                
+                // Türkçe durum adını ID'ye çevir
+                switch($status) {
+                    case 'Beklemede':
+                        $statusId = Barcode::STATUS_WAITING;
+                        break;
+                    case 'Kontrol Tekrarı':
+                        $statusId = Barcode::STATUS_CONTROL_REPEAT;
+                        break;
+                    case 'Ön Onaylı':
+                        $statusId = Barcode::STATUS_PRE_APPROVED;
+                        break;
+                    case 'Sevk Onaylı':
+                        $statusId = Barcode::STATUS_SHIPMENT_APPROVED;
+                        break;
+                    case 'Reddedildi':
+                        $statusId = Barcode::STATUS_REJECTED;
+                        break;
+                    case 'Müşteri Transfer':
+                        $statusId = Barcode::STATUS_CUSTOMER_TRANSFER;
+                        break;
+                    case 'Teslim Edildi':
+                        $statusId = Barcode::STATUS_DELIVERED;
+                        break;
+                    case 'Birleştirildi':
+                        $statusId = Barcode::STATUS_MERGED;
+                        break;
+                }
+                
+                if ($statusId !== null) {
+                    $query->whereHas('barcode', function (Builder $query) use ($statusId) {
+                        $query->where('status', $statusId);
+                    });
+                }
+            })
+            ->when($request->filled('quantity'), function (Builder $query) use ($request) {
+                $quantity = str_replace(' KG', '', $request->input('quantity'));
+                $query->whereHas('barcode.quantity', function (Builder $query) use ($quantity) {
+                    $query->where('quantity', $quantity);
                 });
             })
-            ->when($request->filled('company_id'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('company_id', $request->input('company_id'));
+            ->when($request->filled('company_name'), function (Builder $query) use ($request) {
+                $query->whereHas('barcode.company', function (Builder $query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->input('company_name') . '%');
                 });
             })
-            ->when($request->filled('warehouse_id'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('warehouse_id', $request->input('warehouse_id'));
+            ->when($request->filled('warehouse_name'), function (Builder $query) use ($request) {
+                $query->whereHas('barcode.warehouse', function (Builder $query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->input('warehouse_name') . '%');
                 });
             })
-            ->when($request->filled('start_created_at'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('created_at', '>=', $request->input('start_created_at'));
+            ->when($request->filled('created_by'), function (Builder $query) use ($request) {
+                $query->whereHas('user', function (Builder $query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->input('created_by') . '%');
                 });
             })
-            ->when($request->filled('end_created_at'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('created_at', '<=', $request->input('end_created_at'));
+            ->when($request->filled('lab_by'), function (Builder $query) use ($request) {
+                $query->whereHas('barcode.labBy', function (Builder $query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->input('lab_by') . '%');
                 });
             })
-            ->when($request->filled('start_lab_at'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('lab_at', '>=', $request->input('start_lab_at'));
-                });
+            ->when($request->filled('start_date'), function (Builder $query) use ($request) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->input('start_date'))->startOfDay();
+                    $query->where('created_at', '>=', $date);
+                } catch (\Exception $e) {
+                    \Log::error('Invalid start_date format:', ['date' => $request->input('start_date'), 'error' => $e->getMessage()]);
+                }
             })
-            ->when($request->filled('end_lab_at'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('lab_at', '<=', $request->input('end_lab_at'));
-                });
+            ->when($request->filled('end_date'), function (Builder $query) use ($request) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->input('end_date'))->endOfDay();
+                    $query->where('created_at', '<=', $date);
+                } catch (\Exception $e) {
+                    \Log::error('Invalid end_date format:', ['date' => $request->input('end_date'), 'error' => $e->getMessage()]);
+                }
             })
-            ->when($request->filled('created_by_id'), function (Builder $query) use ($request) {
-                $query->whereHas('barcode', function (Builder $query) use ($request) {
-                    $query->where('created_by', '<=', $request->input('created_by_id'));
-                });
+            ->when($request->filled('lab_start_date'), function (Builder $query) use ($request) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->input('lab_start_date'))->startOfDay();
+                    $query->whereHas('barcode', function (Builder $query) use ($date) {
+                        $query->where('lab_at', '>=', $date);
+                    });
+                } catch (\Exception $e) {
+                    \Log::error('Invalid lab_start_date format:', ['date' => $request->input('lab_start_date'), 'error' => $e->getMessage()]);
+                }
             })
-            ->when($request->filled('description_id'), function (Builder $query) use ($request) {
-                $query->where('description', $request->input('description_id'));
+            ->when($request->filled('lab_end_date'), function (Builder $query) use ($request) {
+                try {
+                    $date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->input('lab_end_date'))->endOfDay();
+                    $query->whereHas('barcode', function (Builder $query) use ($date) {
+                        $query->where('lab_at', '<=', $date);
+                    });
+                } catch (\Exception $e) {
+                    \Log::error('Invalid lab_end_date format:', ['date' => $request->input('lab_end_date'), 'error' => $e->getMessage()]);
+                }
             })
             ->paginate(25);
 
         return view('admin.barcode.history-index', compact([
             'histories',
+            'barcodeHistories',
             'stocks',
             'kilns',
             'quantities',
