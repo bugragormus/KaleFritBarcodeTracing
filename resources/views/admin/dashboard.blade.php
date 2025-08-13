@@ -718,6 +718,417 @@
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
+
+    /* Section Headers */
+    .section-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 2rem 0 1.5rem 0;
+        border-left: 5px solid #667eea;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-header h2 {
+        color: #333;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-header h2 i {
+        margin-right: 1rem;
+        color: #667eea;
+        font-size: 1.5rem;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+        font-weight: 500;
+    }
+
+    /* Card Subtitle */
+    .card-subtitle {
+        margin-top: 0.5rem;
+    }
+
+    .card-subtitle small {
+        color: #6c757d;
+        font-style: italic;
+        font-size: 0.9rem;
+    }
+
+    /* Improved Card Spacing */
+    .card-modern {
+        margin-bottom: 2rem;
+    }
+
+    .card-modern:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Enhanced Table Headers */
+    .table-modern thead th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .table-modern tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table-modern tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.05);
+    }
+
+    /* Better Progress Bar Styling */
+    .progress {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        line-height: 20px;
+        transition: all 0.3s ease;
+    }
+
+    /* Enhanced Badge Styling */
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: #212529;
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+
+    /* Improved Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .card-modern {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .card-header-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .card-title-modern {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-title-modern i {
+        margin-right: 0.5rem;
+        color: #667eea;
+    }
+    
+    .card-body-modern {
+        padding: 2rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .shift-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .shift-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .shift-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+
+    .shift-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.8rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .shift-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.2rem;
+    }
+
+    .shift-stat {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .shift-stat:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+
+    .shift-stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .shift-stat-label {
+        font-size: 0.9rem;
+        opacity: 0.95;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .warning-card {
+        border-left: 4px solid;
+        margin-bottom: 1rem;
+    }
+
+    .warning-critical {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+    }
+
+    .warning-warning {
+        border-left-color: #ffc107;
+        background: #fff3cd;
+    }
+
+    .warning-info {
+        border-left-color: #17a2b8;
+        background: #d1ecf1;
+    }
+
+    .chart-container {
+        height: 300px;
+        margin: 1rem 0;
+    }
+
+    .table-modern {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .table-modern th {
+        background: #f8f9fa;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .table-modern td {
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .badge-modern {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    /* KPI Modal Styles */
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+    }
+
+    .modal-title i {
+        margin-right: 0.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-text {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
 </style>
 @endsection
 
@@ -746,6 +1157,16 @@
                 </div>
                 </div>
 
+                <!-- ===== GÜNLÜK ÜRETİM ÖZETİ ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Günlük Üretim Özeti</h2>
+                    <p>{{ $date->format('d.m.Y') }} tarihli üretim performansı</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Daily Production Stats -->
         <div class="card-modern">
             <div class="card-header-modern">
@@ -762,15 +1183,15 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['total_quantity']) }}</div>
-                        <div class="stat-label">Toplam Miktar</div>
+                        <div class="stat-label">Toplam Miktar (Ton)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['accepted_barcodes']) }}</div>
-                        <div class="stat-label">Kabul Edilen Barkod Sayısı</div>
+                        <div class="stat-label">Kabul Edilen</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['rejected_barcodes']) }}</div>
-                        <div class="stat-label">Reddedilen Barkod Sayısı</div>
+                        <div class="stat-label">Reddedilen</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['pending_barcodes']) }}</div>
@@ -790,28 +1211,28 @@
             </div>
             <div class="card-body-modern">
                 <div class="shift-grid">
-                                         @foreach($shiftReport as $shiftName => $shiftData)
-                     <div class="shift-card">
-                         <div class="shift-name">
-                             @if($shiftName === 'gece')
-                                 00:00 - 08:00
-                             @elseif($shiftName === 'gündüz')
-                                 08:00 - 16:00
-                             @elseif($shiftName === 'akşam')
-                                 16:00 - 00:00
-                             @else
-                                 {{ ucfirst($shiftName) }}
-                             @endif
-                </div>
+                    @foreach($shiftReport as $shiftName => $shiftData)
+                    <div class="shift-card">
+                        <div class="shift-name">
+                            @if($shiftName === 'gece')
+                                00:00 - 08:00
+                            @elseif($shiftName === 'gündüz')
+                                08:00 - 16:00
+                            @elseif($shiftName === 'akşam')
+                                16:00 - 00:00
+                            @else
+                                {{ ucfirst($shiftName) }}
+                            @endif
+                        </div>
                         <div class="shift-stats">
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
                                 <div class="shift-stat-label">Barkod</div>
-            </div>
+                            </div>
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['total_quantity']) }}</div>
                                 <div class="shift-stat-label">Miktar</div>
-        </div>
+                            </div>
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['accepted_count']) }}</div>
                                 <div class="shift-stat-label">Kabul</div>
@@ -827,14 +1248,24 @@
             </div>
         </div>
 
+                <!-- ===== FIRIN PERFORMANS ANALİZİ ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-fire"></i> Fırın Performans Analizi</h2>
+                    <p>Fırın bazında üretim performansı ve kapasite kullanım oranları</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Kiln Performance -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <div class="d-flex justify-content-between align-items-center">
-                <h3 class="card-title-modern">
+                    <h3 class="card-title-modern">
                         <i class="fas fa-fire"></i>
                         Fırın Performans Analizi
-                </h3>
+                    </h3>
                     <button class="btn btn-success btn-sm" onclick="exportKilnPerformance(event)">
                         <i class="fas fa-file-excel"></i> CSV İndir
                     </button>
@@ -1088,8 +1519,11 @@
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
                     <i class="fas fa-tachometer-alt"></i>
-                    Üretim Verimliliği - Fırın Kapasite Kullanımı
+                    Fırın Kapasite Kullanım Oranları
                 </h3>
+                <div class="card-subtitle">
+                    <small>Son 30 günün ortalama kapasitesine göre bugünkü kullanım oranları</small>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
@@ -1143,13 +1577,26 @@
                     </div>
         </div>
 
+        <!-- ===== STOK VE DEPO YÖNETİMİ ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-warehouse"></i> Stok ve Depo Yönetimi</h2>
+                    <p>Stok kullanım analizi ve depo performans metrikleri</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Stock ABC Analysis -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
                     <i class="fas fa-chart-pie"></i>
-                    Stok ABC Analizi (Son 30 Gün)
+                    Stok ABC Analizi
                 </h3>
+                <div class="card-subtitle">
+                    <small>Son 30 günlük kullanım sıklığına göre stok kategorileri</small>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
@@ -1190,13 +1637,26 @@
             </div>
         </div>
 
+        <!-- ===== İNSAN KAYNAKLARI VE VARDİYA ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> İnsan Kaynakları ve Vardiya</h2>
+                    <p>Vardiya bazında performans analizi ve kullanıcı verimliliği</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Shift Efficiency Analysis -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
-                    <i class="fas fa-users"></i>
+                    <i class="fas fa-clock"></i>
                     Vardiya Verimlilik Analizi
                 </h3>
+                <div class="card-subtitle">
+                    <small>Her vardiyanın günlük performans metrikleri</small>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="row">
@@ -1236,6 +1696,16 @@
             </div>
         </div>
 
+        <!-- ===== KARŞILAŞTIRMA VE ANALİZ ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Karşılaştırma ve Analiz</h2>
+                    <p>Zaman bazında performans karşılaştırmaları ve trend analizleri</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Time Comparison -->
         <div class="card-modern">
             <div class="card-header-modern">
@@ -1243,6 +1713,9 @@
                     <i class="fas fa-balance-scale"></i>
                     Günlük Karşılaştırma
                 </h3>
+                <div class="card-subtitle">
+                    <small>Bugün vs Dün performans karşılaştırması</small>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="row">
@@ -1292,17 +1765,30 @@
             </div>
         </div>
 
+        <!-- ===== KPI VE HEDEF TAKİBİ ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-bullseye"></i> KPI ve Hedef Takibi</h2>
+                    <p>Aylık hedefler ve gerçekleşme oranları</p>
+                </div>
+            </div>
+        </div>
+
         <!-- KPI Metrics -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <div class="d-flex justify-content-between align-items-center">
                     <h3 class="card-title-modern">
                         <i class="fas fa-bullseye"></i>
-                        KPI ve Hedef Takibi
+                        KPI Metrikleri
                     </h3>
                     <button class="btn btn-primary btn-sm" onclick="openKPITargetModal()">
                         <i class="fas fa-edit"></i> Hedefleri Düzenle
                     </button>
+                </div>
+                <div class="card-subtitle">
+                    <small>Aylık hedefler ve gerçekleşme durumları</small>
                 </div>
             </div>
             <div class="card-body-modern">
@@ -1412,13 +1898,26 @@
             </div>
         </div>
 
+        <!-- ===== GÜVENLİK VE AUDIT ===== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="section-header">
+                    <h2><i class="fas fa-shield-alt"></i> Güvenlik ve Audit</h2>
+                    <p>Kullanıcı aktivite logları ve güvenlik uyarıları</p>
+                </div>
+            </div>
+        </div>
+
         <!-- User Activity Logs -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
                     <i class="fas fa-shield-alt"></i>
-                    Güvenlik ve Audit - Kullanıcı Aktiviteleri
+                    Kullanıcı Aktiviteleri
                 </h3>
+                <div class="card-subtitle">
+                    <small>Günlük kullanıcı aktiviteleri ve güvenlik durumu</small>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="row">

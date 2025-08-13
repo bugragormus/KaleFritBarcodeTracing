@@ -425,69 +425,73 @@ class DashboardController extends Controller
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
         
-        return DB::select('
+        // Önce her fırın için son 30 günün ortalama üretim miktarını hesapla
+        $avgProduction = DB::select('
             SELECT 
-                kilns.id,
-                kilns.name as kiln_name,
-                -- Günlük ortalama üretim kapasitesi (son 30 gün)
-                COALESCE(
-                    (SELECT ROUND(AVG(daily_avg), 2)
-                     FROM (
-                         SELECT DATE(b.created_at) as date, SUM(q.quantity) as daily_avg
-                         FROM barcodes b
-                         LEFT JOIN quantities q ON b.quantity_id = q.id
-                         WHERE b.kiln_id = kilns.id 
-                         AND b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
-                         AND b.deleted_at IS NULL
-                         GROUP BY DATE(b.created_at)
-                     ) as daily_averages
-                ), 0) as theoretical_capacity,
-                -- Bugünkü gerçek üretim (barkod sayısı)
-                COUNT(barcodes.id) as actual_production,
-                -- Bugünkü gerçek üretim (miktar - ton)
-                COALESCE(SUM(quantities.quantity), 0) as actual_quantity,
-                -- Kapasite kullanım oranı (barkod sayısı bazında)
-                ROUND(
-                    (COUNT(barcodes.id) / NULLIF(
-                        COALESCE(
-                            (SELECT ROUND(AVG(daily_avg), 2)
-                             FROM (
-                                 SELECT DATE(b.created_at) as date, SUM(q.quantity) as daily_avg
-                                 FROM barcodes b
-                                 LEFT JOIN quantities q ON b.quantity_id = q.id
-                                 WHERE b.kiln_id = kilns.id 
-                                 AND b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
-                                 AND b.deleted_at IS NULL
-                                 GROUP BY DATE(b.created_at)
-                             ) as daily_averages
-                        ), 0)
-                    ) * 100, 2
-                ) as capacity_utilization,
-                -- Miktar kullanım oranı (ton bazında)
-                ROUND(
-                    (COALESCE(SUM(quantities.quantity), 0) / NULLIF(
-                        COALESCE(
-                            (SELECT ROUND(AVG(daily_avg), 2)
-                             FROM (
-                                 SELECT DATE(b.created_at) as date, SUM(q.quantity) as daily_avg
-                                 FROM barcodes b
-                                 LEFT JOIN quantities q ON b.quantity_id = q.id
-                                 WHERE b.kiln_id = kilns.id 
-                                 AND b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
-                                 AND b.deleted_at IS NULL
-                                 GROUP BY DATE(b.created_at)
-                             ) as daily_averages
-                        ), 0)
-                    ) * 100, 2
-                ) as quantity_utilization
-            FROM kilns
-            LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id 
-                AND barcodes.created_at BETWEEN ? AND ?
-                AND barcodes.deleted_at IS NULL
-            LEFT JOIN quantities q ON quantities.id = barcodes.quantity_id
-            GROUP BY kilns.id, kilns.name
-            ORDER BY capacity_utilization DESC
-        ', [$startDate, $startDate, $startDate, $startDate, $endDate]);
+                b.kiln_id,
+                ROUND(AVG(daily_total), 2) as avg_daily_quantity
+            FROM (
+                SELECT 
+                    b.kiln_id,
+                    DATE(b.created_at) as date,
+                    COALESCE(SUM(q.quantity), 0) as daily_total
+                FROM barcodes b
+                LEFT JOIN quantities q ON b.quantity_id = q.id
+                WHERE b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
+                AND b.deleted_at IS NULL
+                GROUP BY b.kiln_id, DATE(b.created_at)
+            ) b
+            GROUP BY b.kiln_id
+        ', [$startDate]);
+        
+        // Ortalama üretim verilerini array'e çevir
+        $avgData = [];
+        foreach ($avgProduction as $avg) {
+            $avgData[$avg->kiln_id] = $avg->avg_daily_quantity;
+        }
+        
+        // Ana sorgu - bugünkü üretim verilerini al
+        $todayProduction = DB::select('
+            SELECT 
+                k.id,
+                k.name as kiln_name,
+                COUNT(b.id) as actual_production,
+                COALESCE(SUM(q.quantity), 0) as actual_quantity
+            FROM kilns k
+            LEFT JOIN barcodes b ON k.id = b.kiln_id 
+                AND b.created_at BETWEEN ? AND ?
+                AND b.deleted_at IS NULL
+            LEFT JOIN quantities q ON b.quantity_id = q.id
+            GROUP BY k.id, k.name
+            ORDER BY k.name ASC
+        ', [$startDate, $endDate]);
+        
+        // Sonuçları birleştir ve hesaplamaları yap
+        $result = [];
+        foreach ($todayProduction as $prod) {
+            $theoreticalCapacity = $avgData[$prod->id] ?? 0;
+            $capacityUtilization = $theoreticalCapacity > 0 ? 
+                round(($prod->actual_production / $theoreticalCapacity) * 100, 2) : 0;
+            $quantityUtilization = $theoreticalCapacity > 0 ? 
+                round(($prod->actual_quantity / $theoreticalCapacity) * 100, 2) : 0;
+            
+            $result[] = (object) [
+                'id' => $prod->id,
+                'kiln_name' => $prod->kiln_name,
+                'theoretical_capacity' => $theoreticalCapacity,
+                'actual_production' => $prod->actual_production,
+                'actual_quantity' => $prod->actual_quantity,
+                'capacity_utilization' => $capacityUtilization,
+                'quantity_utilization' => $quantityUtilization
+            ];
+        }
+        
+        // Kapasite kullanım oranına göre sırala
+        usort($result, function($a, $b) {
+            return $b->capacity_utilization <=> $a->capacity_utilization;
+        });
+        
+        return $result;
     }
 
     /**
