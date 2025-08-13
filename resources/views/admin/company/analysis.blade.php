@@ -93,10 +93,25 @@
         color: white;
     }
     
-    .btn-warning-modern {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: white;
-    }
+            .btn-warning-modern {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+        }
+        
+        .quick-filters {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+        }
+        
+        .quick-filters .btn-modern {
+            margin-bottom: 0.25rem;
+        }
     
     .stats-grid {
         display: grid;
@@ -215,6 +230,81 @@
             </div>
         </div>
 
+        <!-- Tarih Filtreleme -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-calendar-alt"></i> Tarih Filtreleme
+                </h3>
+                <p class="card-subtitle-modern">Belirli tarih aralığındaki firma performansını analiz edin</p>
+            </div>
+            <div class="card-body-modern">
+                <!-- Hızlı Filtre Butonları -->
+                <div class="quick-filters mb-3">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ route('company.analysis', ['firma' => $company->id]) }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-day"></i> Günlük
+                        </a>
+                        <a href="{{ route('company.analysis', ['firma' => $company->id, 'period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-alt"></i> Aylık
+                        </a>
+                        <a href="{{ route('company.analysis', ['firma' => $company->id, 'period' => 'quarterly']) }}" class="btn-modern btn-sm {{ request('period') == 'quarterly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-week"></i> 3 Aylık
+                        </a>
+                        <a href="{{ route('company.analysis', ['firma' => $company->id, 'period' => 'yearly']) }}" class="btn-modern btn-sm {{ request('period') == 'yearly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar"></i> Yıllık
+                        </a>
+                        <a href="{{ route('company.analysis', ['firma' => $company->id, 'period' => 'all']) }}" class="btn-modern btn-sm {{ request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-infinity"></i> Tüm Zamanlar
+                        </a>
+                    </div>
+                </div>
+
+                <form method="GET" action="{{ route('company.analysis', ['firma' => $company->id]) }}" class="row align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label-modern">Başlangıç Tarihi</label>
+                        <input type="date" name="start_date" class="form-control-modern" 
+                               value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label-modern">Bitiş Tarihi</label>
+                        <input type="date" name="end_date" class="form-control-modern" 
+                               value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn-modern btn-primary-modern w-100">
+                            <i class="fas fa-filter"></i> Filtrele
+                        </button>
+                    </div>
+                </form>
+                @if(request('start_date') || request('end_date') || request('period'))
+                    <div class="mt-3">
+                        <a href="{{ route('company.analysis', ['firma' => $company->id]) }}" class="btn-modern btn-secondary-modern">
+                            <i class="fas fa-times"></i> Filtreleri Temizle
+                        </a>
+                        <span class="ml-3 text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            @if(request('period'))
+                                @php
+                                    $periodNames = [
+                                        'monthly' => 'Aylık',
+                                        'quarterly' => '3 Aylık',
+                                        'yearly' => 'Yıllık',
+                                        'all' => 'Tüm Zamanlar'
+                                    ];
+                                @endphp
+                                {{ $periodNames[request('period')] ?? 'Günlük' }} görünüm
+                            @endif
+                            @if(request('start_date') && request('end_date'))
+                                - {{ request('start_date') }} - {{ request('end_date') }} tarihleri arası
+                            @endif
+                            için filtrelenmiş sonuçlar
+                        </span>
+                    </div>
+                @endif
+            </div>
+        </div>
+
         <!-- Genel İstatistikler -->
         <div class="card-modern">
             <div class="card-header-modern">
@@ -226,7 +316,7 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($company->total_purchase, 0) }}</div>
-                        <div class="stat-label">Toplam Alım (Ton)</div>
+                        <div class="stat-label">Toplam Satış (Ton)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ $company->total_barcodes }}</div>
@@ -250,7 +340,7 @@
                                 -
                             @endif
                         </div>
-                        <div class="stat-label">İlk Alım</div>
+                        <div class="stat-label">İlk Satış Tarihi</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">
@@ -260,7 +350,7 @@
                                 -
                             @endif
                         </div>
-                        <div class="stat-label">Son Alım</div>
+                        <div class="stat-label">Son Satış Tarihi</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">

@@ -241,11 +241,13 @@
         }
         
         .status-waiting { background: #fff3cd; color: #856404; }
+        .status-control-repeat { background: #ffeaa7; color: #856404; }
         .status-pre-approved { background: #d1edff; color: #0c5460; }
         .status-rejected { background: #f8d7da; color: #721c24; }
         .status-shipment-approved { background: #d4edda; color: #155724; }
         .status-customer-transfer { background: #e2d9f3; color: #6f42c1; }
         .status-delivered { background: #c3e6cb; color: #155724; }
+        .status-merged { background: #f8f9fa; color: #6c757d; }
         
         .action-buttons {
             display: flex;
@@ -258,6 +260,21 @@
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
             border-radius: 8px;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 8px;
+        }
+        
+        .quick-filters {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+        }
+        
+        .quick-filters .btn-modern {
+            margin-bottom: 0.25rem;
         }
         
         .performance-indicator {
@@ -335,6 +352,81 @@
                             </a>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Tarih Filtreleme -->
+            <div class="card-modern">
+                <div class="card-header-modern">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-calendar-alt"></i> Tarih Filtreleme
+                    </h3>
+                    <p class="card-subtitle-modern">Belirli tarih aralığındaki stok performansını görüntüleyin</p>
+                </div>
+                <div class="card-body-modern">
+                    <!-- Hızlı Filtre Butonları -->
+                    <div class="quick-filters mb-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ route('stock.index') }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                                <i class="fas fa-calendar-day"></i> Günlük
+                            </a>
+                            <a href="{{ route('stock.index', ['period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                                <i class="fas fa-calendar-alt"></i> Aylık
+                            </a>
+                            <a href="{{ route('stock.index', ['period' => 'quarterly']) }}" class="btn-modern btn-sm {{ request('period') == 'quarterly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                                <i class="fas fa-calendar-week"></i> 3 Aylık
+                            </a>
+                            <a href="{{ route('stock.index', ['period' => 'yearly']) }}" class="btn-modern btn-sm {{ request('period') == 'yearly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                                <i class="fas fa-calendar"></i> Yıllık
+                            </a>
+                            <a href="{{ route('stock.index', ['period' => 'all']) }}" class="btn-modern btn-sm {{ request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                                <i class="fas fa-infinity"></i> Tüm Zamanlar
+                            </a>
+                        </div>
+                    </div>
+
+                    <form method="GET" action="{{ route('stock.index') }}" class="row align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label-modern">Başlangıç Tarihi</label>
+                            <input type="date" name="start_date" class="form-control-modern" 
+                                   value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label-modern">Bitiş Tarihi</label>
+                            <input type="date" name="end_date" class="form-control-modern" 
+                                   value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn-modern btn-primary-modern w-100">
+                                <i class="fas fa-filter"></i> Filtrele
+                            </button>
+                        </div>
+                    </form>
+                    @if(request('start_date') || request('end_date') || request('period'))
+                        <div class="mt-3">
+                            <a href="{{ route('stock.index') }}" class="btn-modern btn-secondary-modern">
+                                <i class="fas fa-times"></i> Filtreleri Temizle
+                            </a>
+                            <span class="ml-3 text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                @if(request('period'))
+                                    @php
+                                        $periodNames = [
+                                            'monthly' => 'Aylık',
+                                            'quarterly' => '3 Aylık',
+                                            'yearly' => 'Yıllık',
+                                            'all' => 'Tüm Zamanlar'
+                                        ];
+                                    @endphp
+                                    {{ $periodNames[request('period')] ?? 'Günlük' }} görünüm
+                                @endif
+                                @if(request('start_date') && request('end_date'))
+                                    - {{ request('start_date') }} - {{ request('end_date') }} tarihleri arası
+                                @endif
+                                için filtrelenmiş sonuçlar
+                            </span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -435,6 +527,10 @@
                             <div>{{ number_format($stock->waiting_quantity, 0) }}</div>
                             <small>Beklemede</small>
                         </div>
+                        <div class="status-item status-control-repeat">
+                            <div>{{ number_format($stock->control_repeat_quantity ?? 0, 0) }}</div>
+                            <small>Kontrol Tekrarı</small>
+                        </div>
                         <div class="status-item status-pre-approved">
                             <div>{{ number_format($stock->accepted_quantity, 0) }}</div>
                             <small>Ön Onaylı</small>
@@ -454,6 +550,10 @@
                         <div class="status-item status-delivered">
                             <div>{{ number_format($stock->delivered_quantity, 0) }}</div>
                             <small>Teslim Edildi</small>
+                        </div>
+                        <div class="status-item status-merged">
+                            <div>{{ number_format($stock->merged_quantity ?? 0, 0) }}</div>
+                            <small>Birleştirildi</small>
                         </div>
                     </div>
 

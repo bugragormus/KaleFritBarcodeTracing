@@ -259,6 +259,7 @@ class StockCalculationService
                     COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as customer_transfer_quantity,
                     COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as delivered_quantity,
                     COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as merged_quantity,
                     MIN(barcodes.created_at) as first_production_date,
                     MAX(barcodes.created_at) as last_production_date
                 FROM stocks
@@ -274,6 +275,7 @@ class StockCalculationService
                 Barcode::STATUS_CUSTOMER_TRANSFER,
                 Barcode::STATUS_DELIVERED,
                 Barcode::STATUS_REJECTED,
+                Barcode::STATUS_MERGED,
                 $stockId
             ])[0] ?? null;
         });

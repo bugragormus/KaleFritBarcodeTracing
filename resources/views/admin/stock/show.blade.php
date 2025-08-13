@@ -295,42 +295,7 @@
             </div>
         </div>
 
-        <!-- Durum Bazında Dağılım -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-tasks"></i> Durum Bazında Dağılım
-                </h3>
-            </div>
-            <div class="card-body-modern">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($stockDetails->waiting_quantity, 0) }}</div>
-                        <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_WAITING] }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($stockDetails->pre_approved_quantity, 0) }}</div>
-                        <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_PRE_APPROVED] }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($stockDetails->shipment_approved_quantity, 0) }}</div>
-                        <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_SHIPMENT_APPROVED] }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($stockDetails->customer_transfer_quantity, 0) }}</div>
-                        <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_CUSTOMER_TRANSFER] }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($stockDetails->delivered_quantity, 0) }}</div>
-                        <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_DELIVERED] }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($stockDetails->rejected_quantity, 0) }}</div>
-                        <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_REJECTED] }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Son 30 Günlük Üretim Grafiği -->
         @if($productionData && count($productionData) > 0)

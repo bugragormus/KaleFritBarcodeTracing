@@ -21,42 +21,93 @@ class CompanyController extends Controller
             return back()->withInput();
         }
 
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
         $companies = Company::withCount([
-            'barcodes',
-            'barcodes as total_quantity' => function($query) {
+            'barcodes' => function($query) use ($startDate, $endDate) {
+                if ($startDate) { $query->where('created_at', '>=', $startDate); }
+                if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
+            },
+            'barcodes as total_quantity' => function($query) use ($startDate, $endDate) {
                 $query->select(\DB::raw('SUM(quantity_id)'));
+                if ($startDate) { $query->where('created_at', '>=', $startDate); }
+                if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
             },
-            'barcodes as customer_transfer_count' => function($query) {
+            'barcodes as customer_transfer_count' => function($query) use ($startDate, $endDate) {
                 $query->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER);
+                if ($startDate) { $query->where('created_at', '>=', $startDate); }
+                if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
             },
-            'barcodes as delivered_count' => function($query) {
+            'barcodes as delivered_count' => function($query) use ($startDate, $endDate) {
                 $query->where('status', \App\Models\Barcode::STATUS_DELIVERED);
+                if ($startDate) { $query->where('created_at', '>=', $startDate); }
+                if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
             }
         ])->get();
 
         // Her firma için detaylı istatistikler
         foreach ($companies as $company) {
+            $barcodesQuery = $company->barcodes();
+            if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
+            if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
+            
             // Toplam alım miktarı (sadece müşteri transfer ve teslim edildi)
-            $company->total_purchase = $company->barcodes()->sum('quantity_id');
+            $company->total_purchase = $barcodesQuery->sum('quantity_id');
             
             // Son 30 günlük alım
-            $company->last_30_days_purchase = $company->barcodes()
+            $last30DaysQuery = $company->barcodes();
+            if ($startDate) { $last30DaysQuery->where('created_at', '>=', $startDate); }
+            if ($endDate) { $last30DaysQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
+            $company->last_30_days_purchase = $last30DaysQuery
                 ->where('created_at', '>=', now()->subDays(30))
                 ->sum('quantity_id');
             
             // Teslim oranı (teslim edildi / toplam)
-            $totalBarcodes = $company->barcodes()->count();
-            $deliveredBarcodes = $company->barcodes()->where('status', \App\Models\Barcode::STATUS_DELIVERED)->count();
+            $totalBarcodes = $barcodesQuery->count();
+            $deliveredBarcodes = $barcodesQuery->where('status', \App\Models\Barcode::STATUS_DELIVERED)->count();
             $company->delivery_rate = $totalBarcodes > 0 ? round(($deliveredBarcodes / $totalBarcodes) * 100, 2) : 0;
             
             // Son alım tarihi
-            $company->last_purchase_date = $company->barcodes()->latest('created_at')->value('created_at');
+            $company->last_purchase_date = $barcodesQuery->latest('created_at')->value('created_at');
             
             // Ortalama sipariş büyüklüğü
             $company->average_order_size = $totalBarcodes > 0 ? round($company->total_purchase / $totalBarcodes, 0) : 0;
             
             // Aktiflik skoru (son 90 gün içinde alım yapıp yapmadığı)
-            $recentActivity = $company->barcodes()
+            $recentActivity = $barcodesQuery
                 ->where('created_at', '>=', now()->subDays(90))
                 ->count();
             $company->is_active = $recentActivity > 0;
@@ -201,8 +252,51 @@ class CompanyController extends Controller
             return back()->withInput();
         }
 
-        $company = Company::with(['barcodes' => function($query) {
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        $company = Company::with(['barcodes' => function($query) use ($startDate, $endDate) {
             $query->with(['stock', 'kiln', 'warehouse']);
+            
+            // Tarih filtreleme
+            if ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->where('created_at', '<=', $endDate . ' 23:59:59');
+            }
         }])->findOrFail($id);
 
         // Detaylı istatistikler

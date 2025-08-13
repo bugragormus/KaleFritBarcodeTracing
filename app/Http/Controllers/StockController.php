@@ -28,6 +28,41 @@ class StockController extends Controller
      */
     public function index()
     {
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
         $stocks = $this->stockCalculationService->calculateStockStatuses();
 
         // Array'i Collection'a çevir
@@ -35,9 +70,26 @@ class StockController extends Controller
 
         // Her stok için detaylı istatistikler
         foreach ($stocks as $stock) {
-            // Toplam üretim miktarı
-            $stock->total_production = $stock->waiting_quantity + $stock->accepted_quantity + $stock->rejected_quantity + 
-                                     $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity + $stock->delivered_quantity;
+            // Barkod sorgusu oluştur
+            $barcodesQuery = Barcode::where('stock_id', $stock->id);
+            if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
+            if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
+            
+            // Tarih filtrelenmiş miktarlar
+            $filteredBarcodes = $barcodesQuery->get();
+            
+            // Toplam üretim miktarı (filtrelenmiş)
+            $stock->total_production = $filteredBarcodes->sum('quantity_id');
+            
+            // Durum bazında miktarlar (filtrelenmiş)
+            $stock->waiting_quantity = $filteredBarcodes->where('status', Barcode::STATUS_WAITING)->sum('quantity_id');
+            $stock->control_repeat_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CONTROL_REPEAT)->sum('quantity_id');
+            $stock->accepted_quantity = $filteredBarcodes->where('status', Barcode::STATUS_PRE_APPROVED)->sum('quantity_id');
+            $stock->rejected_quantity = $filteredBarcodes->where('status', Barcode::STATUS_REJECTED)->sum('quantity_id');
+            $stock->in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_SHIPMENT_APPROVED)->sum('quantity_id');
+            $stock->on_delivery_in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CUSTOMER_TRANSFER)->sum('quantity_id');
+            $stock->delivered_quantity = $filteredBarcodes->where('status', Barcode::STATUS_DELIVERED)->sum('quantity_id');
+            $stock->merged_quantity = $filteredBarcodes->where('status', Barcode::STATUS_MERGED)->sum('quantity_id');
             
             // Red oranı
             $totalQuantity = $stock->total_production;
@@ -47,15 +99,15 @@ class StockController extends Controller
             $stock->delivery_rate = $totalQuantity > 0 ? round(($stock->delivered_quantity / $totalQuantity) * 100, 2) : 0;
             
             // Stokta kalan miktar
-            $stock->remaining_stock = $stock->waiting_quantity + $stock->accepted_quantity + $stock->in_warehouse_quantity + 
-                                    $stock->on_delivery_in_warehouse_quantity;
+            $stock->remaining_stock = $stock->waiting_quantity + $stock->control_repeat_quantity + $stock->accepted_quantity + 
+                                    $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity;
             
-            // Son üretim tarihi (barkod tablosundan)
-            $lastBarcode = Barcode::where('stock_id', $stock->id)->latest('created_at')->first();
+            // Son üretim tarihi (filtrelenmiş)
+            $lastBarcode = $barcodesQuery->latest('created_at')->first();
             $stock->last_production_date = $lastBarcode ? $lastBarcode->created_at : null;
             
-            // Aktiflik durumu (son 90 gün içinde üretim yapılıp yapılmadığı)
-            $recentProduction = Barcode::where('stock_id', $stock->id)
+            // Aktiflik durumu (filtrelenmiş)
+            $recentProduction = $barcodesQuery
                 ->where('created_at', '>=', now()->subDays(90))
                 ->count();
             $stock->is_active = $recentProduction > 0;
