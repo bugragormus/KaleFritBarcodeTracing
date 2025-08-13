@@ -1338,10 +1338,6 @@
                             <i class="fas fa-book"></i>
                             <span>Kullanım Kılavuzu</span>
                         </a>
-                        <a href="{{ route('ai-ml.dashboard') }}" class="footer-action-btn">
-                            <i class="fas fa-brain"></i>
-                            <span>AI/ML Analytics</span>
-                        </a>
                     </div>
                 </div>
             </div>

@@ -392,6 +392,276 @@
         color: white;
         border: 1px solid rgba(255,255,255,0.2);
     }
+
+    /* New styles for AI/ML Insights */
+    .insight-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+        margin-bottom: 1.5rem;
+    }
+
+    .insight-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .insight-header i {
+        font-size: 1.8rem;
+        margin-right: 1rem;
+        color: #667eea;
+    }
+
+    .insight-header h5 {
+        margin-bottom: 0;
+        color: #495057;
+    }
+
+    .insight-content {
+        font-size: 0.95rem;
+        color: #6c757d;
+        line-height: 1.6;
+    }
+
+    .prediction-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .prediction-label {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .prediction-value {
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .trend-indicator {
+        display: flex;
+        align-items: center;
+        margin-top: 0.5rem;
+    }
+
+    .trend-indicator i {
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+    }
+
+    .risk-indicator {
+        margin-bottom: 0.5rem;
+    }
+
+    .risk-label {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .risk-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .risk-low {
+        background: #e9ecef;
+        color: #495057;
+        border: 1px solid #ced4da;
+    }
+
+    .risk-medium {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    .risk-high {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .anomaly-item {
+        background: #fdfdfe;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .anomaly-type {
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.3rem;
+    }
+
+    .anomaly-description {
+        font-size: 0.9rem;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .anomaly-severity {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .severity-low {
+        color: #28a745;
+        background: #e9f5ea;
+        border: 1px solid #c3e6cb;
+    }
+
+    .severity-medium {
+        color: #ffc107;
+        background: #fffbeb;
+        border: 1px solid #ffe58f;
+    }
+
+    .severity-high {
+        color: #dc3545;
+        background: #fde3e3;
+        border: 1px solid #f5c6cb;
+    }
+
+    .no-anomalies {
+        display: flex;
+        align-items: center;
+        color: #28a745;
+        font-size: 0.9rem;
+    }
+
+    .no-anomalies i {
+        margin-right: 0.5rem;
+    }
+
+    .no-recommendations {
+        display: flex;
+        align-items: center;
+        color: #17a2b8;
+        font-size: 0.9rem;
+    }
+
+    .no-recommendations i {
+        margin-right: 0.5rem;
+    }
+
+    .recommendation {
+        margin-top: 1rem;
+        font-style: italic;
+        color: #6c757d;
+    }
+
+    .recommendation strong {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .recommendation-item {
+        margin-bottom: 0.8rem;
+    }
+
+    .recommendation-category {
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.3rem;
+    }
+
+    .recommendation-text {
+        font-size: 0.9rem;
+        color: #495057;
+        margin-bottom: 0.3rem;
+    }
+
+    .recommendation-impact {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    .impact-label {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .impact-value {
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .impact-low {
+        color: #28a745;
+    }
+
+    .impact-medium {
+        color: #ffc107;
+    }
+
+    .impact-high {
+        color: #dc3545;
+    }
+
+    .ml-status-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .model-status-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.2rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        border: 1px solid #e9ecef;
+        text-align: center;
+    }
+
+    .status-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.8rem;
+    }
+
+    .status-header i {
+        font-size: 2rem;
+        margin-right: 0.8rem;
+        color: #667eea;
+    }
+
+    .status-header span {
+        font-weight: 700;
+        color: #495057;
+        font-size: 1.1rem;
+    }
+
+    .status-indicator {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.4rem 1rem;
+        border-radius: 15px;
+    }
+
+    .status-active {
+        background: #e9ecef;
+        color: #495057;
+        border: 1px solid #ced4da;
+    }
+
+    .model-accuracy {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
 </style>
 @endsection
 
@@ -770,6 +1040,207 @@
                                     {{ $monthlyComparison['change_percentage']['total_quantity'] >= 0 ? '+' : '' }}{{ $monthlyComparison['change_percentage']['total_quantity'] }}%
                                 </div>
                                 <div class="stat-label">Miktar Değişimi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI/ML Insights Section -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-brain"></i>
+                    AI/ML İçgörüler & Tahmin Analizi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <!-- Production Predictions -->
+                    <div class="col-md-6 mb-4">
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <i class="fas fa-chart-line text-primary"></i>
+                                <h5>Üretim Tahmini (Gelecek 7 Gün)</h5>
+                            </div>
+                            <div class="insight-content">
+                                <div class="prediction-item">
+                                    <span class="prediction-label">Beklenen Üretim:</span>
+                                    <span class="prediction-value">{{ number_format($aiInsights['production_forecast'] ?? 0, 1) }} ton</span>
+                                </div>
+                                <div class="prediction-item">
+                                    <span class="prediction-label">Güven Seviyesi:</span>
+                                    <span class="prediction-value {{ ($aiInsights['confidence_level'] ?? 0) >= 80 ? 'text-success' : (($aiInsights['confidence_level'] ?? 0) >= 60 ? 'text-warning' : 'text-danger') }}">
+                                        {{ $aiInsights['confidence_level'] ?? 0 }}%
+                                    </span>
+                                </div>
+                                <div class="trend-indicator">
+                                    <i class="fas fa-arrow-{{ ($aiInsights['trend_direction'] ?? 'up') === 'up' ? 'up text-success' : 'down text-danger' }}"></i>
+                                    <span>Geçen haftaya göre %{{ $aiInsights['trend_percentage'] ?? 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quality Predictions -->
+                    <div class="col-md-6 mb-4">
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <i class="fas fa-shield-alt text-success"></i>
+                                <h5>Kalite Risk Değerlendirmesi</h5>
+                            </div>
+                            <div class="insight-content">
+                                <div class="risk-indicator">
+                                    <span class="risk-label">Mevcut Risk Seviyesi:</span>
+                                    <span class="risk-badge risk-{{ $aiInsights['quality_risk_level'] ?? 'low' }}">
+                                        @if(($aiInsights['quality_risk_level'] ?? 'low') === 'low')
+                                            Düşük
+                                        @elseif(($aiInsights['quality_risk_level'] ?? 'low') === 'medium')
+                                            Orta
+                                        @else
+                                            Yüksek
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="prediction-item">
+                                    <span class="prediction-label">Beklenen Red Oranı:</span>
+                                    <span class="prediction-value">{{ $aiInsights['expected_rejection_rate'] ?? 0 }}%</span>
+                                </div>
+                                <div class="recommendation">
+                                    <strong>Öneri:</strong> {{ $aiInsights['quality_recommendation'] ?? 'Mevcut kalite kontrol prosedürlerine devam edin.' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anomaly Detection -->
+                    <div class="col-md-6 mb-4">
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <i class="fas fa-exclamation-triangle text-warning"></i>
+                                <h5>Anomali Tespiti</h5>
+                            </div>
+                            <div class="insight-content">
+                                @if(isset($aiInsights['anomalies']) && count($aiInsights['anomalies']) > 0)
+                                    @foreach($aiInsights['anomalies'] as $anomaly)
+                                    <div class="anomaly-item">
+                                        <div class="anomaly-type">{{ $anomaly['type'] }}</div>
+                                        <div class="anomaly-description">{{ $anomaly['description'] }}</div>
+                                        <div class="anomaly-severity severity-{{ $anomaly['severity'] }}">
+                                            @if($anomaly['severity'] === 'low')
+                                                Düşük
+                                            @elseif($anomaly['severity'] === 'medium')
+                                                Orta
+                                            @else
+                                                Yüksek
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                @else
+                                    <div class="no-anomalies">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                        <span>Mevcut verilerde anomali tespit edilmedi</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optimization Recommendations -->
+                    <div class="col-md-6 mb-4">
+                        <div class="insight-card">
+                            <div class="insight-header">
+                                <i class="fas fa-lightbulb text-info"></i>
+                                <h5>Optimizasyon Önerileri</h5>
+                            </div>
+                            <div class="insight-content">
+                                @if(isset($aiInsights['recommendations']) && count($aiInsights['recommendations']) > 0)
+                                    @foreach($aiInsights['recommendations'] as $recommendation)
+                                    <div class="recommendation-item">
+                                        <div class="recommendation-category">{{ $recommendation['category'] }}</div>
+                                        <div class="recommendation-text">{{ $recommendation['text'] }}</div>
+                                        <div class="recommendation-impact">
+                                            <span class="impact-label">Beklenen Etki:</span>
+                                            <span class="impact-value impact-{{ $recommendation['impact'] }}">
+                                                @if($recommendation['impact'] === 'low')
+                                                    Düşük
+                                                @elseif($recommendation['impact'] === 'medium')
+                                                    Orta
+                                                @else
+                                                    Yüksek
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                @else
+                                    <div class="no-recommendations">
+                                        <i class="fas fa-info-circle text-info"></i>
+                                        <span>Şu anda optimizasyon önerisi bulunmuyor</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Machine Learning Model Status -->
+                <div class="ml-status-section mt-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="model-status-card">
+                                <div class="status-header">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Üretim Modeli</span>
+                                </div>
+                                <div class="status-indicator status-{{ $aiInsights['model_status']['production'] ?? 'active' }}">
+                                    @if(($aiInsights['model_status']['production'] ?? 'active') === 'active')
+                                        Aktif
+                                    @else
+                                        Pasif
+                                    @endif
+                                </div>
+                                <div class="model-accuracy">
+                                    Doğruluk: %{{ $aiInsights['model_accuracy']['production'] ?? 0 }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="model-status-card">
+                                <div class="status-header">
+                                    <i class="fas fa-chart-bar"></i>
+                                    <span>Kalite Modeli</span>
+                                </div>
+                                <div class="status-indicator status-{{ $aiInsights['model_status']['quality'] ?? 'active' }}">
+                                    @if(($aiInsights['model_status']['quality'] ?? 'active') === 'active')
+                                        Aktif
+                                    @else
+                                        Pasif
+                                    @endif
+                                </div>
+                                <div class="model-accuracy">
+                                    Doğruluk: %{{ $aiInsights['model_status']['quality'] ?? 0 }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="model-status-card">
+                                <div class="status-header">
+                                    <i class="fas fa-robot"></i>
+                                    <span>Anomali Modeli</span>
+                                </div>
+                                <div class="status-indicator status-{{ $aiInsights['model_status']['anomaly'] ?? 'active' }}">
+                                    @if(($aiInsights['model_status']['anomaly'] ?? 'active') === 'active')
+                                        Aktif
+                                    @else
+                                        Pasif
+                                    @endif
+                                </div>
+                                <div class="model-accuracy">
+                                    Doğruluk: %{{ $aiInsights['model_status']['anomaly'] ?? 0 }}
+                                </div>
                             </div>
                         </div>
                     </div>
