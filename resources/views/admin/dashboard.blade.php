@@ -38,7 +38,7 @@
         opacity: 0.9;
         margin-bottom: 0;
     }
-    
+
     .date-selector {
         background: rgba(255, 255, 255, 0.15);
         border-radius: 15px;
@@ -97,363 +97,6 @@
     .btn-success i {
         margin-right: 0.5rem;
     }
-
-    /* New Dashboard Components Styles */
-    .shift-efficiency-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .shift-efficiency-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-    }
-
-    .shift-header h5 {
-        margin-bottom: 0.5rem;
-        font-weight: 700;
-    }
-
-    .shift-header small {
-        opacity: 0.8;
-        font-size: 0.9rem;
-    }
-
-    .shift-metrics {
-        margin-top: 1rem;
-    }
-
-    .metric {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .metric:last-child {
-        border-bottom: none;
-    }
-
-    .metric-label {
-        font-weight: 500;
-    }
-
-    .metric-value {
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    .comparison-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .comparison-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: rgba(102, 126, 234, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #667eea;
-    }
-
-    .comparison-label {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .comparison-value {
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    .detailed-numbers {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .number-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: rgba(118, 75, 162, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #764ba2;
-    }
-
-    .number-label {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .number-value {
-        font-weight: 700;
-        color: #764ba2;
-    }
-
-    .kpi-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .kpi-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        background: rgba(40, 167, 69, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #28a745;
-    }
-
-    .kpi-label {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .kpi-value {
-        font-weight: 700;
-        color: #28a745;
-    }
-
-    .kpi-achievement {
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-
-    .actual-values {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .actual-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        background: rgba(255, 193, 7, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #ffc107;
-    }
-
-    .actual-label {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .actual-value {
-        font-weight: 700;
-        color: #ffc107;
-    }
-
-    .activity-summary {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .activity-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: rgba(220, 53, 69, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #dc3545;
-    }
-
-    .activity-label {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .activity-value {
-        font-weight: 700;
-        color: #dc3545;
-    }
-
-    .recent-activities {
-        display: grid;
-        gap: 0.75rem;
-    }
-
-    .activity-log {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: rgba(23, 162, 184, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #17a2b8;
-        font-size: 0.9rem;
-    }
-
-    .activity-user {
-        font-weight: 600;
-        color: #17a2b8;
-        min-width: 100px;
-    }
-
-    .activity-action {
-        color: #333;
-        flex: 1;
-        margin: 0 1rem;
-    }
-
-    .activity-time {
-        font-weight: 600;
-        color: #6c757d;
-        min-width: 60px;
-        text-align: right;
-    }
-
-    /* Progress Bar Enhancements */
-    .progress {
-        background-color: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    .progress-bar {
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        line-height: 20px;
-    }
-    
-    /* Security Audit Styles */
-    .security-alerts {
-        display: grid;
-        gap: 0.75rem;
-    }
-
-    .security-alert {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        border-radius: 10px;
-        border-left: 4px solid;
-        font-size: 0.9rem;
-    }
-
-    .security-alert.alert-high {
-        background: rgba(220, 53, 69, 0.1);
-        border-left-color: #dc3545;
-    }
-
-    .security-alert.alert-medium {
-        background: rgba(255, 193, 7, 0.1);
-        border-left-color: #ffc107;
-    }
-
-    .security-alert.alert-low {
-        background: rgba(40, 167, 69, 0.1);
-        border-left-color: #28a745;
-    }
-
-    .alert-type {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .alert-count {
-        font-weight: 700;
-        color: #666;
-    }
-
-    .user-performance {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .user-perf-item {
-        padding: 0.75rem;
-        background: rgba(23, 162, 184, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #17a2b8;
-    }
-
-    .user-info {
-        margin-bottom: 0.5rem;
-    }
-
-    .user-info strong {
-        display: block;
-        color: #17a2b8;
-        font-size: 0.9rem;
-    }
-
-    .user-info small {
-        color: #6c757d;
-        font-size: 0.8rem;
-    }
-
-    .user-stats {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .user-stats .stat {
-        font-size: 0.8rem;
-        color: #666;
-        background: rgba(255, 255, 255, 0.5);
-        padding: 0.25rem 0.5rem;
-        border-radius: 5px;
-    }
-
-    .detailed-activities {
-        display: grid;
-        gap: 0.75rem;
-    }
-
-    .detailed-activity-log {
-        padding: 1rem;
-        background: rgba(102, 126, 234, 0.1);
-        border-radius: 10px;
-        border-left: 4px solid #667eea;
-    }
-
-    .activity-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .activity-user {
-        font-weight: 600;
-        color: #667eea;
-    }
-
-    .activity-time {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-
-    .activity-details {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .activity-action {
-        color: #333;
-        font-weight: 500;
-    }
-
-    .activity-ip {
-        color: #666;
-        font-size: 0.8rem;
-        font-family: monospace;
-    }
     
     .card-modern {
         background: #ffffff;
@@ -528,7 +171,7 @@
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
-    
+
     .shift-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -589,7 +232,7 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
-    
+
     .warning-card {
         border-left: 4px solid;
         margin-bottom: 1rem;
@@ -661,473 +304,6 @@
     .badge-info {
         background: #d1ecf1;
         color: #0c5460;
-    }
-
-    /* KPI Modal Styles */
-    .modal-content {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .modal-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px 15px 0 0;
-        border: none;
-    }
-
-    .modal-title i {
-        margin-right: 0.5rem;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-control {
-        border-radius: 10px;
-        border: 2px solid #e9ecef;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    .form-text {
-        color: #6c757d;
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 10px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    /* Section Headers */
-    .section-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 2rem 0 1.5rem 0;
-        border-left: 5px solid #667eea;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .section-header h2 {
-        color: #333;
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .section-header h2 i {
-        margin-right: 1rem;
-        color: #667eea;
-        font-size: 1.5rem;
-    }
-
-    .section-header p {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 0;
-        font-weight: 500;
-    }
-
-    /* Card Subtitle */
-    .card-subtitle {
-        margin-top: 0.5rem;
-    }
-
-    .card-subtitle small {
-        color: #6c757d;
-        font-style: italic;
-        font-size: 0.9rem;
-    }
-
-    /* Improved Card Spacing */
-    .card-modern {
-        margin-bottom: 2rem;
-    }
-
-    .card-modern:last-child {
-        margin-bottom: 0;
-    }
-
-    /* Enhanced Table Headers */
-    .table-modern thead th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        font-weight: 600;
-        border: none;
-        padding: 1rem;
-        font-size: 0.95rem;
-    }
-
-    .table-modern tbody td {
-        padding: 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .table-modern tbody tr:hover {
-        background-color: rgba(102, 126, 234, 0.05);
-    }
-
-    /* Better Progress Bar Styling */
-    .progress {
-        background-color: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .progress-bar {
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 0.8rem;
-        line-height: 20px;
-        transition: all 0.3s ease;
-    }
-
-    /* Enhanced Badge Styling */
-    .badge {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-
-    .badge-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    }
-
-    .badge-warning {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: #212529;
-    }
-
-    .badge-danger {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    }
-
-    /* Improved Stats Grid */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1rem;
-    }
-
-    .stat-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .card-modern {
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e9ecef;
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-    
-    .card-header-modern {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid #e9ecef;
-    }
-    
-    .card-title-modern {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-    }
-    
-    .card-title-modern i {
-        margin-right: 0.5rem;
-        color: #667eea;
-    }
-    
-    .card-body-modern {
-        padding: 2rem;
-    }
-    
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border: 1px solid #e9ecef;
-        border-radius: 15px;
-        padding: 1.5rem;
-        text-align: center;
-        transition: all 0.3s ease;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 0.5rem;
-    }
-    
-    .stat-label {
-        color: #6c757d;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .shift-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    
-    .shift-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .shift-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-    }
-
-    .shift-name {
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.8rem;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .shift-stats {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.2rem;
-    }
-
-    .shift-stat {
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .shift-stat:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.05);
-    }
-
-    .shift-stat-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .shift-stat-label {
-        font-size: 0.9rem;
-        opacity: 0.95;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .warning-card {
-        border-left: 4px solid;
-        margin-bottom: 1rem;
-    }
-
-    .warning-critical {
-        border-left-color: #dc3545;
-        background: #f8d7da;
-    }
-
-    .warning-warning {
-        border-left-color: #ffc107;
-        background: #fff3cd;
-    }
-
-    .warning-info {
-        border-left-color: #17a2b8;
-        background: #d1ecf1;
-    }
-
-    .chart-container {
-        height: 300px;
-        margin: 1rem 0;
-    }
-
-    .table-modern {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .table-modern th {
-        background: #f8f9fa;
-        border: none;
-        padding: 1rem;
-        font-weight: 600;
-        color: #495057;
-    }
-
-    .table-modern td {
-        border: none;
-        padding: 1rem;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .badge-modern {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-
-    .badge-success {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .badge-danger {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .badge-warning {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .badge-info {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
-
-    /* KPI Modal Styles */
-    .modal-content {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .modal-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px 15px 0 0;
-        border: none;
-    }
-
-    .modal-title i {
-        margin-right: 0.5rem;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-
-    .form-control {
-        border-radius: 10px;
-        border: 2px solid #e9ecef;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    .form-text {
-        color: #6c757d;
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 10px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 </style>
 @endsection
@@ -1144,8 +320,8 @@
                         Günlük Üretim Raporu
                     </h1>
                     <p class="page-subtitle-modern">Sistem geneli istatistikler ve performans göstergeleri</p>
-        </div>
-
+                </div>
+                
                 <!-- Date Selector -->
                 <div class="date-selector">
                     <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
@@ -1153,16 +329,6 @@
                         <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
                                class="form-control" onchange="this.form.submit()">
                     </form>
-                </div>
-                </div>
-                </div>
-
-                <!-- ===== GÜNLÜK ÜRETİM ÖZETİ ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-chart-line"></i> Günlük Üretim Özeti</h2>
-                    <p>{{ $date->format('d.m.Y') }} tarihli üretim performansı</p>
                 </div>
             </div>
         </div>
@@ -1183,15 +349,15 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['total_quantity']) }}</div>
-                        <div class="stat-label">Toplam Miktar (Ton)</div>
+                        <div class="stat-label">Toplam Miktar</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['accepted_barcodes']) }}</div>
-                        <div class="stat-label">Kabul Edilen</div>
+                        <div class="stat-label">Kabul Edilen Barkod Sayısı</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['rejected_barcodes']) }}</div>
-                        <div class="stat-label">Reddedilen</div>
+                        <div class="stat-label">Reddedilen Barkod Sayısı</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['pending_barcodes']) }}</div>
@@ -1211,49 +377,39 @@
             </div>
             <div class="card-body-modern">
                 <div class="shift-grid">
-                    @foreach($shiftReport as $shiftName => $shiftData)
-                    <div class="shift-card">
-                        <div class="shift-name">
-                            @if($shiftName === 'gece')
-                                00:00 - 08:00
-                            @elseif($shiftName === 'gündüz')
-                                08:00 - 16:00
-                            @elseif($shiftName === 'akşam')
-                                16:00 - 00:00
-                            @else
-                                {{ ucfirst($shiftName) }}
-                            @endif
-                        </div>
+                                         @foreach($shiftReport as $shiftName => $shiftData)
+                     <div class="shift-card">
+                         <div class="shift-name">
+                             @if($shiftName === 'gece')
+                                 00:00 - 08:00
+                             @elseif($shiftName === 'gündüz')
+                                 08:00 - 16:00
+                             @elseif($shiftName === 'akşam')
+                                 16:00 - 00:00
+                             @else
+                                 {{ ucfirst($shiftName) }}
+                             @endif
+                         </div>
                         <div class="shift-stats">
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['barcode_count']) }}</div>
                                 <div class="shift-stat-label">Barkod</div>
                             </div>
                             <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['total_quantity']) }}</div>
-                                <div class="shift-stat-label">Miktar</div>
+                                <div class="shift-stat-value">{{ number_format($shiftData['total_quantity'], 1) }}</div>
+                                <div class="shift-stat-label">Toplam (ton)</div>
                             </div>
                             <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['accepted_count']) }}</div>
-                                <div class="shift-stat-label">Kabul</div>
+                                <div class="shift-stat-value">{{ number_format($shiftData['accepted_quantity'], 1) }}</div>
+                                <div class="shift-stat-label">Kabul (ton)</div>
                             </div>
                             <div class="shift-stat">
-                                <div class="shift-stat-value">{{ number_format($shiftData['rejected_count']) }}</div>
-                                <div class="shift-stat-label">Red</div>
+                                <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'], 1) }}</div>
+                                <div class="shift-stat-label">Red (ton)</div>
                             </div>
                         </div>
                     </div>
                     @endforeach
-                </div>
-            </div>
-        </div>
-
-                <!-- ===== FIRIN PERFORMANS ANALİZİ ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-fire"></i> Fırın Performans Analizi</h2>
-                    <p>Fırın bazında üretim performansı ve kapasite kullanım oranları</p>
                 </div>
             </div>
         </div>
@@ -1278,10 +434,10 @@
                             <tr>
                                 <th>Fırın Adı</th>
                                 <th>Barkod Sayısı</th>
-                                <th>Toplam Miktar</th>
-                                <th>Ortalama Miktar</th>
-                                <th>Kabul Edilen Barkod Sayısı</th>
-                                <th>Reddedilen Barkod Sayısı</th>
+                                <th>Toplam Miktar (ton)</th>
+                                <th>Ortalama Miktar (ton)</th>
+                                <th>Kabul Edilen (ton)</th>
+                                <th>Reddedilen (ton)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1289,10 +445,10 @@
                             <tr>
                                 <td><strong>{{ $kiln->kiln_name }}</strong></td>
                                 <td>{{ number_format($kiln->barcode_count) }}</td>
-                                <td>{{ number_format($kiln->total_quantity) }}</td>
+                                <td>{{ number_format($kiln->total_quantity, 1) }}</td>
                                 <td>{{ number_format($kiln->avg_quantity, 1) }}</td>
-                                <td><span class="badge badge-success">{{ number_format($kiln->accepted_count) }}</span></td>
-                                <td><span class="badge badge-danger">{{ number_format($kiln->rejected_count) }}</span></td>
+                                <td><span class="badge badge-success">{{ number_format($kiln->accepted_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-danger">{{ number_format($kiln->rejected_quantity, 1) }}</span></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -1316,7 +472,7 @@
                             <tr>
                                 <th>Fırın Adı</th>
                                 <th>Toplam Barkod</th>
-                                <th>Reddedilen</th>
+                                <th>Reddedilen (ton)</th>
                                 <th>Red Oranı (%)</th>
                                 <th>Durum</th>
                             </tr>
@@ -1326,7 +482,7 @@
                             <tr>
                                 <td><strong>{{ $kiln->kiln_name }}</strong></td>
                                 <td>{{ number_format($kiln->total_barcodes) }}</td>
-                                <td>{{ number_format($kiln->rejected_count) }}</td>
+                                <td>{{ number_format($kiln->rejected_quantity, 1) }}</td>
                                 <td><strong>{{ $kiln->rejection_rate }}%</strong></td>
                                 <td>
                                     @if($kiln->rejection_rate <= 5)
@@ -1366,7 +522,7 @@
                     @endif
                 </div>
                 @endforeach
-        @endif
+                @endif
 
                 @if(isset($stockAgeWarnings['warning']))
                 <h5 class="text-warning mb-3 mt-4">⚠️ Uyarı (15+ gün)</h5>
@@ -1409,9 +565,9 @@
                                 <th>Ürün</th>
                                 <th>Fırın</th>
                                 <th>Barkod Sayısı</th>
-                                <th>Toplam Miktar</th>
-                                <th>Kabul Edilen</th>
-                                <th>Reddedilen</th>
+                                <th>Toplam Miktar (ton)</th>
+                                <th>Kabul Edilen (ton)</th>
+                                <th>Reddedilen (ton)</th>
                                 <th>Kabul Oranı (%)</th>
                             </tr>
                         </thead>
@@ -1421,9 +577,9 @@
                                 <td><strong>{{ $analysis->stock_name }}</strong><br><small>{{ $analysis->stock_code }}</small></td>
                                 <td>{{ $analysis->kiln_name }}</td>
                                 <td>{{ number_format($analysis->barcode_count) }}</td>
-                                <td>{{ number_format($analysis->total_quantity) }}</td>
-                                <td><span class="badge badge-success">{{ number_format($analysis->accepted_count) }}</span></td>
-                                <td><span class="badge badge-danger">{{ number_format($analysis->rejected_count) }}</span></td>
+                                <td>{{ number_format($analysis->total_quantity, 1) }}</td>
+                                <td><span class="badge badge-success">{{ number_format($analysis->accepted_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-danger">{{ number_format($analysis->rejected_quantity, 1) }}</span></td>
                                 <td>
                                     <span class="badge badge-{{ $analysis->acceptance_rate >= 90 ? 'success' : ($analysis->acceptance_rate >= 75 ? 'warning' : 'danger') }}">
                                         {{ $analysis->acceptance_rate }}%
@@ -1464,8 +620,8 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h5>Bu Ay</h5>
-                <div class="stats-grid">
-                    <div class="stat-card">
+                        <div class="stats-grid">
+                            <div class="stat-card">
                                 <div class="stat-value">{{ number_format($monthlyComparison['current_month']['total_barcodes']) }}</div>
                                 <div class="stat-label">Barkod</div>
                             </div>
@@ -1508,492 +664,6 @@
                                 </div>
                                 <div class="stat-label">Miktar Değişimi</div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Production Efficiency - Kiln Capacity Utilization -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Fırın Kapasite Kullanım Oranları
-                </h3>
-                <div class="card-subtitle">
-                    <small>Son 30 günün ortalama kapasitesine göre bugünkü kullanım oranları</small>
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="table-responsive">
-                    <table class="table table-modern">
-                        <thead>
-                            <tr>
-                                <th>Fırın Adı</th>
-                                <th>Günlük Ort. Kapasite (Ton)</th>
-                                <th>Bugünkü Üretim (Ton)</th>
-                                <th>Kapasite Kullanımı (%)</th>
-                                <th>Miktar Kullanımı (%)</th>
-                                <th>Durum</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($productionEfficiency as $kiln)
-                                                        <tr>
-                                <td><strong>{{ $kiln->kiln_name }}</strong></td>
-                                <td>{{ number_format($kiln->theoretical_capacity, 2) }} ton</td>
-                                <td>{{ number_format($kiln->actual_quantity, 2) }} ton</td>
-                                <td>
-                                    <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar {{ $kiln->capacity_utilization >= 80 ? 'bg-success' : ($kiln->capacity_utilization >= 60 ? 'bg-warning' : 'bg-danger') }}" 
-                                             style="width: {{ min($kiln->capacity_utilization, 100) }}%">
-                                            {{ $kiln->capacity_utilization }}%
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar {{ $kiln->quantity_utilization >= 80 ? 'bg-success' : ($kiln->quantity_utilization >= 60 ? 'bg-warning' : 'bg-danger') }}" 
-                                             style="width: {{ min($kiln->quantity_utilization, 100) }}%">
-                                            {{ $kiln->quantity_utilization }}%
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if($kiln->capacity_utilization >= 80)
-                                        <span class="badge badge-success">Yüksek</span>
-                                    @elseif($kiln->capacity_utilization >= 60)
-                                        <span class="badge badge-warning">Orta</span>
-                                    @else
-                                        <span class="badge badge-danger">Düşük</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                        </div>
-                    </div>
-        </div>
-
-        <!-- ===== STOK VE DEPO YÖNETİMİ ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-warehouse"></i> Stok ve Depo Yönetimi</h2>
-                    <p>Stok kullanım analizi ve depo performans metrikleri</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stock ABC Analysis -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-chart-pie"></i>
-                    Stok ABC Analizi
-                </h3>
-                <div class="card-subtitle">
-                    <small>Son 30 günlük kullanım sıklığına göre stok kategorileri</small>
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="table-responsive">
-                    <table class="table table-modern">
-                        <thead>
-                            <tr>
-                                <th>Ürün</th>
-                                <th>Kullanım Sıklığı</th>
-                                <th>Toplam Miktar</th>
-                                <th>Kullanım Yüzdesi</th>
-                                <th>Kategori</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($stockABC as $stock)
-                            <tr>
-                                <td>
-                                    <strong>{{ $stock->name }}</strong><br>
-                                    <small>{{ $stock->code }}</small>
-                                </td>
-                                <td>{{ number_format($stock->usage_frequency) }}</td>
-                                <td>{{ number_format($stock->total_quantity) }}</td>
-                                <td>{{ $stock->usage_percentage }}%</td>
-                                <td>
-                                    @if($stock->usage_percentage >= 20)
-                                        <span class="badge badge-danger">A (Kritik)</span>
-                                    @elseif($stock->usage_percentage >= 5)
-                                        <span class="badge badge-warning">B (Önemli)</span>
-                                    @else
-                                        <span class="badge badge-success">C (Normal)</span>
-                                    @endif
-                                </td>
-                            </tr>
-                    @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== İNSAN KAYNAKLARI VE VARDİYA ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-users"></i> İnsan Kaynakları ve Vardiya</h2>
-                    <p>Vardiya bazında performans analizi ve kullanıcı verimliliği</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Shift Efficiency Analysis -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-clock"></i>
-                    Vardiya Verimlilik Analizi
-                </h3>
-                <div class="card-subtitle">
-                    <small>Her vardiyanın günlük performans metrikleri</small>
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="row">
-                    @foreach($shiftEfficiency as $shiftKey => $shift)
-                    <div class="col-md-4">
-                        <div class="shift-efficiency-card">
-                            <div class="shift-header">
-                                <h5>{{ $shift['name'] }}</h5>
-                                <small>{{ $shift['start'] }} - {{ $shift['end'] }}</small>
-                            </div>
-                            <div class="shift-metrics">
-                                <div class="metric">
-                                    <span class="metric-label">Barkod Sayısı:</span>
-                                    <span class="metric-value">{{ number_format($shift['total_barcodes']) }}</span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Toplam Miktar:</span>
-                                    <span class="metric-value">{{ number_format($shift['total_quantity']) }}</span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Kabul Oranı:</span>
-                                    <span class="metric-value {{ $shift['acceptance_rate'] >= 90 ? 'text-success' : ($shift['acceptance_rate'] >= 75 ? 'text-warning' : 'text-danger') }}">
-                                        {{ $shift['acceptance_rate'] }}%
-                                    </span>
-                                </div>
-                                <div class="metric">
-                                    <span class="metric-label">Red Oranı:</span>
-                                    <span class="metric-value {{ $shift['rejection_rate'] <= 5 ? 'text-success' : ($shift['rejection_rate'] <= 15 ? 'text-warning' : 'text-danger') }}">
-                                        {{ $shift['rejection_rate'] }}%
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== KARŞILAŞTIRMA VE ANALİZ ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-chart-bar"></i> Karşılaştırma ve Analiz</h2>
-                    <p>Zaman bazında performans karşılaştırmaları ve trend analizleri</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Time Comparison -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-balance-scale"></i>
-                    Günlük Karşılaştırma
-                </h3>
-                <div class="card-subtitle">
-                    <small>Bugün vs Dün performans karşılaştırması</small>
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Bugün vs Dün</h6>
-                        <div class="comparison-grid">
-                            <div class="comparison-item">
-                                <span class="comparison-label">Barkod Sayısı:</span>
-                                <span class="comparison-value {{ $timeComparison['changes']['barcodes'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ $timeComparison['changes']['barcodes'] >= 0 ? '+' : '' }}{{ $timeComparison['changes']['barcodes'] }}%
-                                </span>
-                            </div>
-                            <div class="comparison-item">
-                                <span class="comparison-label">Toplam Miktar:</span>
-                                <span class="comparison-value {{ $timeComparison['changes']['quantity'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ $timeComparison['changes']['quantity'] >= 0 ? '+' : '' }}{{ $timeComparison['changes']['quantity'] }}%
-                                </span>
-                            </div>
-                            <div class="comparison-item">
-                                <span class="comparison-label">Kabul Edilen:</span>
-                                <span class="comparison-value {{ $timeComparison['changes']['accepted'] >= 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ $timeComparison['changes']['accepted'] >= 0 ? '+' : '' }}{{ $timeComparison['changes']['accepted'] }}%
-                                </span>
-                            </div>
-                            <div class="comparison-item">
-                                <span class="comparison-label">Reddedilen:</span>
-                                <span class="comparison-value {{ $timeComparison['changes']['rejected'] <= 0 ? 'text-success' : 'text-danger' }}">
-                                    {{ $timeComparison['changes']['rejected'] <= 0 ? '' : '+' }}{{ $timeComparison['changes']['rejected'] }}%
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Detaylı Sayılar</h6>
-                        <div class="detailed-numbers">
-                            <div class="number-item">
-                                <span class="number-label">Bugün:</span>
-                                <span class="number-value">{{ number_format($timeComparison['current']['total_barcodes']) }} barkod, {{ number_format($timeComparison['current']['total_quantity']) }} miktar</span>
-                            </div>
-                            <div class="number-item">
-                                <span class="number-label">Dün:</span>
-                                <span class="number-value">{{ number_format($timeComparison['previous']['total_barcodes']) }} barkod, {{ number_format($timeComparison['previous']['total_quantity']) }} miktar</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== KPI VE HEDEF TAKİBİ ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-bullseye"></i> KPI ve Hedef Takibi</h2>
-                    <p>Aylık hedefler ve gerçekleşme oranları</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- KPI Metrics -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h3 class="card-title-modern">
-                        <i class="fas fa-bullseye"></i>
-                        KPI Metrikleri
-                    </h3>
-                    <button class="btn btn-primary btn-sm" onclick="openKPITargetModal()">
-                        <i class="fas fa-edit"></i> Hedefleri Düzenle
-                    </button>
-                </div>
-                <div class="card-subtitle">
-                    <small>Aylık hedefler ve gerçekleşme durumları</small>
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Aylık Hedefler</h6>
-                        <div class="kpi-grid">
-                            <div class="kpi-item">
-                                <span class="kpi-label">Barkod Hedefi:</span>
-                                <span class="kpi-value">{{ number_format($kpiMetrics['targets']['monthly_barcodes']) }}</span>
-                                <span class="kpi-achievement {{ $kpiMetrics['achievement']['barcodes'] >= 100 ? 'text-success' : 'text-warning' }}">
-                                    {{ $kpiMetrics['achievement']['barcodes'] }}%
-                                </span>
-                            </div>
-                            <div class="kpi-item">
-                                <span class="kpi-label">Miktar Hedefi:</span>
-                                <span class="kpi-value">{{ number_format($kpiMetrics['targets']['monthly_quantity']) }}</span>
-                                <span class="kpi-achievement {{ $kpiMetrics['achievement']['quantity'] >= 100 ? 'text-success' : 'text-warning' }}">
-                                    {{ $kpiMetrics['achievement']['quantity'] }}%
-                                </span>
-                            </div>
-                            <div class="kpi-item">
-                                <span class="kpi-label">Kabul Oranı Hedefi:</span>
-                                <span class="kpi-value">{{ $kpiMetrics['targets']['acceptance_rate'] }}%</span>
-                                <span class="kpi-achievement {{ $kpiMetrics['achievement']['acceptance'] >= 100 ? 'text-success' : 'text-warning' }}">
-                                    {{ $kpiMetrics['achievement']['acceptance'] }}%
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Gerçekleşen Değerler</h6>
-                        <div class="actual-values">
-                            <div class="actual-item">
-                                <span class="actual-label">Aylık Barkod:</span>
-                                <span class="actual-value">{{ number_format($kpiMetrics['actual']['monthly_barcodes']) }}</span>
-                            </div>
-                            <div class="actual-item">
-                                <span class="actual-label">Aylık Miktar:</span>
-                                <span class="actual-value">{{ number_format($kpiMetrics['actual']['monthly_quantity']) }}</span>
-                            </div>
-                            <div class="actual-item">
-                                <span class="actual-label">Kabul Oranı:</span>
-                                <span class="actual-value {{ $kpiMetrics['actual']['acceptance_rate'] >= 95 ? 'text-success' : 'text-warning' }}">
-                                    {{ $kpiMetrics['actual']['acceptance_rate'] }}%
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- KPI Target Modal -->
-        <div class="modal fade" id="kpiTargetModal" tabindex="-1" aria-labelledby="kpiTargetModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="kpiTargetModalLabel">
-                            <i class="fas fa-bullseye"></i> KPI Hedeflerini Düzenle
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="kpiTargetForm">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="monthly_barcodes" class="form-label">Aylık Barkod Hedefi</label>
-                                        <input type="number" class="form-control" id="monthly_barcodes" name="monthly_barcodes" min="1" required>
-                                        <div class="form-text">Aylık hedeflenen toplam barkod sayısı</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="monthly_quantity" class="form-label">Aylık Miktar Hedefi (Ton)</label>
-                                        <input type="number" class="form-control" id="monthly_quantity" name="monthly_quantity" min="1" required>
-                                        <div class="form-text">Aylık hedeflenen toplam üretim miktarı</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="acceptance_rate" class="form-label">Kabul Oranı Hedefi (%)</label>
-                                        <input type="number" class="form-control" id="acceptance_rate" name="acceptance_rate" min="0" max="100" step="0.1" required>
-                                        <div class="form-text">Hedeflenen minimum kabul oranı</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="rejection_rate" class="form-label">Red Oranı Hedefi (%)</label>
-                                        <input type="number" class="form-control" id="rejection_rate" name="rejection_rate" min="0" max="100" step="0.1" required>
-                                        <div class="form-text">Hedeflenen maksimum red oranı</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                        <button type="button" class="btn btn-primary" onclick="saveKPITargets()">
-                            <i class="fas fa-save"></i> Hedefleri Kaydet
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== GÜVENLİK VE AUDIT ===== -->
-        <div class="row">
-            <div class="col-12">
-                <div class="section-header">
-                    <h2><i class="fas fa-shield-alt"></i> Güvenlik ve Audit</h2>
-                    <p>Kullanıcı aktivite logları ve güvenlik uyarıları</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- User Activity Logs -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-shield-alt"></i>
-                    Kullanıcı Aktiviteleri
-                </h3>
-                <div class="card-subtitle">
-                    <small>Günlük kullanıcı aktiviteleri ve güvenlik durumu</small>
-                </div>
-            </div>
-            <div class="card-body-modern">
-                <div class="row">
-                    <div class="col-md-4">
-                        <h6>Günlük Aktivite Özeti</h6>
-                        <div class="activity-summary">
-                            <div class="activity-item">
-                                <span class="activity-label">Toplam Aktivite:</span>
-                                <span class="activity-value">{{ number_format($userActivityLogs['total_activities']) }}</span>
-                            </div>
-                            <div class="activity-item">
-                                <span class="activity-label">Giriş Sayısı:</span>
-                                <span class="activity-value">{{ number_format($userActivityLogs['login_count']) }}</span>
-                            </div>
-                            <div class="activity-item">
-                                <span class="activity-label">Veri Değişikliği:</span>
-                                <span class="activity-value">{{ number_format($userActivityLogs['data_changes']) }}</span>
-                            </div>
-                            <div class="activity-item">
-                                <span class="activity-label">Export İşlemleri:</span>
-                                <span class="activity-value">{{ number_format($userActivityLogs['export_activities']) }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6>Güvenlik Uyarıları</h6>
-                        <div class="security-alerts">
-                            @foreach($userActivityLogs['security_alerts'] as $alert)
-                            <div class="security-alert alert-{{ $alert['severity'] }}">
-                                <span class="alert-type">{{ $alert['type'] }}</span>
-                                <span class="alert-count">{{ $alert['count'] }}</span>
-                                <span class="alert-severity badge badge-{{ $alert['severity'] === 'high' ? 'danger' : ($alert['severity'] === 'medium' ? 'warning' : 'success') }}">
-                                    {{ ucfirst($alert['severity']) }}
-                                </span>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <h6>Kullanıcı Performansı</h6>
-                        <div class="user-performance">
-                            @foreach($userActivityLogs['user_performance'] as $user)
-                            <div class="user-perf-item">
-                                <div class="user-info">
-                                    <strong>{{ $user['user'] }}</strong>
-                                    <small>Son aktivite: {{ $user['last_activity'] }}</small>
-                                </div>
-                                <div class="user-stats">
-                                    <span class="stat">Giriş: {{ $user['login_count'] }}</span>
-                                    <span class="stat">İşlem: {{ $user['actions'] }}</span>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <h6>Detaylı Aktivite Logları</h6>
-                        <div class="detailed-activities">
-                            @foreach($userActivityLogs['recent_activities'] as $activity)
-                            <div class="detailed-activity-log">
-                                <div class="activity-header">
-                                    <span class="activity-user">{{ $activity['user'] }}</span>
-                                    <span class="activity-time">{{ $activity['time'] }}</span>
-                                    <span class="activity-status badge badge-{{ $activity['status'] === 'success' ? 'success' : ($activity['status'] === 'warning' ? 'warning' : 'danger') }}">
-                                        {{ ucfirst($activity['status']) }}
-                                    </span>
-                                </div>
-                                <div class="activity-details">
-                                    <span class="activity-action">{{ $activity['action'] }}</span>
-                                    <span class="activity-ip">IP: {{ $activity['ip'] }}</span>
-                                </div>
-                            </div>
-                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -2130,17 +800,17 @@ function exportKilnPerformance() {
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             
             // Add headers
-            csvContent += "Fırın Adı,Barkod Sayısı,Toplam Miktar,Ortalama Miktar,Kabul Edilen,Reddedilen\n";
+            csvContent += "Fırın Adı,Barkod Sayısı,Toplam Miktar (ton),Ortalama Miktar (ton),Kabul Edilen (ton),Reddedilen (ton)\n";
             
             // Add data rows with proper escaping
             data.data.forEach(kiln => {
                 const row = [
                     `"${kiln.kiln_name || ''}"`,
                     kiln.barcode_count || 0,
-                    kiln.total_quantity || 0,
+                    parseFloat(kiln.total_quantity || 0).toFixed(1),
                     parseFloat(kiln.avg_quantity || 0).toFixed(1),
-                    kiln.accepted_count || 0,
-                    kiln.rejected_count || 0
+                    parseFloat(kiln.accepted_quantity || 0).toFixed(1),
+                    parseFloat(kiln.rejected_quantity || 0).toFixed(1)
                 ].join(',');
                 csvContent += row + '\n';
             });
@@ -2167,61 +837,6 @@ function exportKilnPerformance() {
             exportBtn.innerHTML = originalText;
             exportBtn.disabled = false;
         });
-}
-
-// KPI Target Management Functions
-function openKPITargetModal() {
-    // Mevcut hedefleri yükle
-    fetch('{{ route("dashboard.get-kpi-targets") }}')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('monthly_barcodes').value = data.targets.monthly_barcodes;
-                document.getElementById('monthly_quantity').value = data.targets.monthly_quantity;
-                document.getElementById('acceptance_rate').value = data.targets.acceptance_rate;
-                document.getElementById('rejection_rate').value = data.targets.rejection_rate;
-            }
-        })
-        .catch(error => {
-            console.error('Hedefler yüklenirken hata:', error);
-        });
-    
-    // Modal'ı aç
-    const modal = new bootstrap.Modal(document.getElementById('kpiTargetModal'));
-    modal.show();
-}
-
-function saveKPITargets() {
-    const formData = new FormData(document.getElementById('kpiTargetForm'));
-    const targets = Object.fromEntries(formData.entries());
-    
-    fetch('{{ route("dashboard.update-kpi-targets") }}', {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-        },
-        body: JSON.stringify(targets)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('KPI hedefleri başarıyla güncellendi!');
-            // Modal'ı kapat
-            const modal = bootstrap.Modal.getInstance(document.getElementById('kpiTargetModal'));
-            modal.hide();
-            // Sayfayı yenile
-            location.reload();
-        } else {
-            alert('Hedef güncellenirken hata: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Hedef güncellenirken hata:', error);
-        alert('Hedef güncellenirken bir hata oluştu.');
-    });
 }
 </script>
 @endsection

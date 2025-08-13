@@ -25,8 +25,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 Route::post('/dashboard/export-kiln-performance', [App\Http\Controllers\DashboardController::class, 'exportKilnPerformance'])->name('dashboard.export-kiln-performance')->middleware('auth');
-Route::post('/dashboard/update-kpi-targets', [App\Http\Controllers\DashboardController::class, 'updateKPITargets'])->name('dashboard.update-kpi-targets')->middleware('auth');
-Route::get('/dashboard/get-kpi-targets', [App\Http\Controllers\DashboardController::class, 'getKPITargets'])->name('dashboard.get-kpi-targets')->middleware('auth');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/hakkinda', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
 Route::get('/kullanim-kilavuzu', [App\Http\Controllers\ManualController::class, 'index'])->name('manual');

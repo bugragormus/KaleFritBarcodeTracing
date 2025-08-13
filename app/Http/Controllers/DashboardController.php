@@ -54,14 +54,6 @@ class DashboardController extends Controller
         // Aylık karşılaştırma
         $monthlyComparison = $this->getMonthlyComparison($date);
         
-        // Yeni eklenen raporlar
-        $productionEfficiency = $this->getProductionEfficiency($date);
-        $stockABC = $this->getStockABC($date);
-        $shiftEfficiency = $this->getShiftEfficiency($date);
-        $timeComparison = $this->getTimeComparison($date);
-        $kpiMetrics = $this->getKPIMetrics($date);
-        $userActivityLogs = $this->getUserActivityLogs($date);
-        
         return view('admin.dashboard', compact(
             'selectedDate',
             'date',
@@ -73,13 +65,7 @@ class DashboardController extends Controller
             'productKilnAnalysis',
             'dailyStats',
             'weeklyTrend',
-            'monthlyComparison',
-            'productionEfficiency',
-            'stockABC',
-            'shiftEfficiency',
-            'timeComparison',
-            'kpiMetrics',
-            'userActivityLogs'
+            'monthlyComparison'
         ));
     }
 
@@ -169,6 +155,25 @@ class DashboardController extends Controller
                 $endTime->addDay();
             }
             
+            // Vardiya için ton bazında veriler
+            $acceptedQuantity = DB::select('
+                SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+                FROM barcodes
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+                WHERE barcodes.created_at BETWEEN ? AND ?
+                AND barcodes.status IN (?, ?)
+                AND barcodes.deleted_at IS NULL
+            ', [$startTime, $endTime, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
+            
+            $rejectedQuantity = DB::select('
+                SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+                FROM barcodes
+                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+                WHERE barcodes.created_at BETWEEN ? AND ?
+                AND barcodes.status = ?
+                AND barcodes.deleted_at IS NULL
+            ', [$startTime, $endTime, Barcode::STATUS_REJECTED])[0]->total_quantity ?? 0;
+            
             $shiftData[$shiftName] = [
                 'barcode_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])->count(),
                 'total_quantity' => DB::select('
@@ -178,6 +183,8 @@ class DashboardController extends Controller
                     WHERE barcodes.created_at BETWEEN ? AND ?
                     AND barcodes.deleted_at IS NULL
                 ', [$startTime, $endTime])[0]->total_quantity ?? 0,
+                'accepted_quantity' => $acceptedQuantity,
+                'rejected_quantity' => $rejectedQuantity,
                 'accepted_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
                     ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED])
                     ->count(),
@@ -205,6 +212,8 @@ class DashboardController extends Controller
                 COUNT(barcodes.id) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity,
                 AVG(quantities.quantity) as avg_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?) THEN quantities.quantity ELSE 0 END), 0) as accepted_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as accepted_count,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count
             FROM kilns
@@ -214,6 +223,9 @@ class DashboardController extends Controller
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
         ', [
+            Barcode::STATUS_PRE_APPROVED,
+            Barcode::STATUS_SHIPMENT_APPROVED,
+            Barcode::STATUS_REJECTED,
             Barcode::STATUS_PRE_APPROVED,
             Barcode::STATUS_SHIPMENT_APPROVED,
             Barcode::STATUS_REJECTED,
@@ -242,6 +254,7 @@ class DashboardController extends Controller
                 kilns.id,
                 kilns.name as kiln_name,
                 COUNT(barcodes.id) as total_barcodes,
+                COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count,
                 ROUND(
                     (COUNT(CASE WHEN barcodes.status = ? THEN 1 END) * 100.0 / COUNT(barcodes.id)), 2
@@ -250,10 +263,12 @@ class DashboardController extends Controller
             LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id 
                 AND barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
             HAVING total_barcodes > 0
             ORDER BY rejection_rate DESC
         ', [
+            Barcode::STATUS_REJECTED,
             Barcode::STATUS_REJECTED,
             Barcode::STATUS_REJECTED,
             $startDate,
@@ -318,6 +333,8 @@ class DashboardController extends Controller
                 kilns.name as kiln_name,
                 COUNT(barcodes.id) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status IN (?, ?) THEN quantities.quantity ELSE 0 END), 0) as accepted_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as accepted_count,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count,
                 ROUND(
@@ -333,6 +350,9 @@ class DashboardController extends Controller
             HAVING barcode_count > 0
             ORDER BY stocks.name, total_quantity DESC
         ', [
+            Barcode::STATUS_PRE_APPROVED,
+            Barcode::STATUS_SHIPMENT_APPROVED,
+            Barcode::STATUS_REJECTED,
             Barcode::STATUS_PRE_APPROVED,
             Barcode::STATUS_SHIPMENT_APPROVED,
             Barcode::STATUS_REJECTED,
@@ -410,356 +430,50 @@ class DashboardController extends Controller
         return [
             'current_month' => $currentMonthData,
             'previous_month' => $previousMonthData,
-            'change_percentage' => [
-                'total_barcodes' => $this->calculatePercentageChange($previousMonthData['total_barcodes'], $currentMonthData['total_barcodes']),
-                'total_quantity' => $this->calculatePercentageChange($previousMonthData['total_quantity'], $currentMonthData['total_quantity'])
-            ]
+            'change_percentage' => $this->calculateChangePercentage($currentMonthData, $previousMonthData)
         ];
     }
 
     /**
-     * Üretim verimliliği - Fırın kapasite kullanım oranı
+     * Ay verilerini getir
      */
-    private function getProductionEfficiency($date)
+    private function getMonthData($monthStart)
     {
-        $startDate = $date->copy()->startOfDay();
-        $endDate = $date->copy()->endOfDay();
+        $monthEnd = $monthStart->copy()->endOfMonth();
         
-        // Önce her fırın için son 30 günün ortalama üretim miktarını hesapla
-        $avgProduction = DB::select('
-            SELECT 
-                b.kiln_id,
-                ROUND(AVG(daily_total), 2) as avg_daily_quantity
-            FROM (
-                SELECT 
-                    b.kiln_id,
-                    DATE(b.created_at) as date,
-                    COALESCE(SUM(q.quantity), 0) as daily_total
-                FROM barcodes b
-                LEFT JOIN quantities q ON b.quantity_id = q.id
-                WHERE b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
-                AND b.deleted_at IS NULL
-                GROUP BY b.kiln_id, DATE(b.created_at)
-            ) b
-            GROUP BY b.kiln_id
-        ', [$startDate]);
-        
-        // Ortalama üretim verilerini array'e çevir
-        $avgData = [];
-        foreach ($avgProduction as $avg) {
-            $avgData[$avg->kiln_id] = $avg->avg_daily_quantity;
-        }
-        
-        // Ana sorgu - bugünkü üretim verilerini al
-        $todayProduction = DB::select('
-            SELECT 
-                k.id,
-                k.name as kiln_name,
-                COUNT(b.id) as actual_production,
-                COALESCE(SUM(q.quantity), 0) as actual_quantity
-            FROM kilns k
-            LEFT JOIN barcodes b ON k.id = b.kiln_id 
-                AND b.created_at BETWEEN ? AND ?
-                AND b.deleted_at IS NULL
-            LEFT JOIN quantities q ON b.quantity_id = q.id
-            GROUP BY k.id, k.name
-            ORDER BY k.name ASC
-        ', [$startDate, $endDate]);
-        
-        // Sonuçları birleştir ve hesaplamaları yap
-        $result = [];
-        foreach ($todayProduction as $prod) {
-            $theoreticalCapacity = $avgData[$prod->id] ?? 0;
-            $capacityUtilization = $theoreticalCapacity > 0 ? 
-                round(($prod->actual_production / $theoreticalCapacity) * 100, 2) : 0;
-            $quantityUtilization = $theoreticalCapacity > 0 ? 
-                round(($prod->actual_quantity / $theoreticalCapacity) * 100, 2) : 0;
-            
-            $result[] = (object) [
-                'id' => $prod->id,
-                'kiln_name' => $prod->kiln_name,
-                'theoretical_capacity' => $theoreticalCapacity,
-                'actual_production' => $prod->actual_production,
-                'actual_quantity' => $prod->actual_quantity,
-                'capacity_utilization' => $capacityUtilization,
-                'quantity_utilization' => $quantityUtilization
-            ];
-        }
-        
-        // Kapasite kullanım oranına göre sırala
-        usort($result, function($a, $b) {
-            return $b->capacity_utilization <=> $a->capacity_utilization;
-        });
-        
-        return $result;
-    }
-
-    /**
-     * Stok ve depo yönetimi - ABC analizi
-     */
-    private function getStockABC($date)
-    {
-        $startDate = $date->copy()->subDays(30); // Son 30 gün
-        
-        return DB::select('
-            SELECT 
-                stocks.id,
-                stocks.name,
-                stocks.code,
-                COUNT(barcodes.id) as usage_frequency,
-                COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                ROUND(
-                    (COUNT(barcodes.id) * 100.0 / (
-                        SELECT COUNT(*) FROM barcodes 
-                        WHERE created_at >= ? AND deleted_at IS NULL
-                    )), 2
-                ) as usage_percentage
-            FROM stocks
-            LEFT JOIN barcodes ON stocks.id = barcodes.stock_id 
-                AND barcodes.created_at >= ?
-                AND barcodes.deleted_at IS NULL
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            GROUP BY stocks.id, stocks.name, stocks.code
-            HAVING usage_frequency > 0
-            ORDER BY usage_frequency DESC
-        ', [$startDate, $startDate]);
-    }
-
-    /**
-     * İnsan kaynakları - Vardiya verimliliği detayı
-     */
-    private function getShiftEfficiency($date)
-    {
-        $shifts = [
-            'gece' => ['start' => '22:00', 'end' => '06:00', 'name' => 'Gece Vardiyası'],
-            'gündüz' => ['start' => '06:00', 'end' => '14:00', 'name' => 'Gündüz Vardiyası'],
-            'akşam' => ['start' => '14:00', 'end' => '22:00', 'name' => 'Akşam Vardiyası']
-        ];
-        
-        $shiftEfficiency = [];
-        
-        foreach ($shifts as $shiftKey => $shiftInfo) {
-            $startTime = $date->copy()->setTimeFromTimeString($shiftInfo['start']);
-            $endTime = $date->copy()->setTimeFromTimeString($shiftInfo['end']);
-            
-            if ($shiftKey === 'gece') {
-                $endTime->addDay();
-            }
-            
-            $data = DB::select('
-            SELECT 
-                    COUNT(barcodes.id) as total_barcodes,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                    COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as accepted_count,
-                    COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count,
-                    ROUND(
-                        (COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) * 100.0 / COUNT(barcodes.id)), 2
-                    ) as acceptance_rate,
-                    ROUND(
-                        (COUNT(CASE WHEN barcodes.status = ? THEN 1 END) * 100.0 / COUNT(barcodes.id)), 2
-                    ) as rejection_rate
+        return [
+            'total_barcodes' => Barcode::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+            'total_quantity' => DB::select('
+                SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
-            ', [
-                Barcode::STATUS_PRE_APPROVED,
-                Barcode::STATUS_SHIPMENT_APPROVED,
-                Barcode::STATUS_REJECTED,
-                Barcode::STATUS_PRE_APPROVED,
-                Barcode::STATUS_SHIPMENT_APPROVED,
-                Barcode::STATUS_REJECTED,
-                $startTime,
-                $endTime
-            ]);
-            
-            if (!empty($data)) {
-                $shiftEfficiency[$shiftKey] = array_merge($shiftInfo, (array) $data[0]);
-            }
-        }
-        
-        return $shiftEfficiency;
-    }
-
-    /**
-     * Detaylı filtreleme - Zaman aralığı karşılaştırması
-     */
-    private function getTimeComparison($date)
-    {
-        $currentPeriod = $date->copy()->startOfDay();
-        $previousPeriod = $date->copy()->subDay()->startOfDay();
-        
-        $currentData = $this->getDailyProduction($currentPeriod);
-        $previousData = $this->getDailyProduction($previousPeriod);
-        
-        return [
-            'current' => $currentData,
-            'previous' => $previousData,
-            'changes' => [
-                'barcodes' => $this->calculatePercentageChange($previousData['total_barcodes'], $currentData['total_barcodes']),
-                'quantity' => $this->calculatePercentageChange($previousData['total_quantity'], $currentData['total_quantity']),
-                'accepted' => $this->calculatePercentageChange($previousData['accepted_barcodes'], $currentData['accepted_barcodes']),
-                'rejected' => $this->calculatePercentageChange($previousData['rejected_barcodes'], $currentData['rejected_barcodes'])
-            ]
-        ];
-    }
-
-    /**
-     * KPI ve hedef takibi
-     */
-    private function getKPIMetrics($date)
-    {
-        $startDate = $date->copy()->startOfMonth();
-        $endDate = $date->copy()->endOfMonth();
-        
-        $monthlyData = $this->getMonthData($startDate);
-        
-        // Hedefleri cache'den al (varsayılan değerler ile)
-        $targets = cache('kpi_targets', [
-            'monthly_barcodes' => 10000,
-            'monthly_quantity' => 50000,
-            'acceptance_rate' => 95,
-            'rejection_rate' => 5
-        ]);
-        
-        $actualAcceptanceRate = $monthlyData['total_barcodes'] > 0 ? 
-            round(($monthlyData['accepted_barcodes'] / $monthlyData['total_barcodes']) * 100, 2) : 0;
-        
-        $actualRejectionRate = $monthlyData['total_barcodes'] > 0 ? 
-            round(($monthlyData['rejected_barcodes'] / $monthlyData['total_barcodes']) * 100, 2) : 0;
-        
-        return [
-            'targets' => $targets,
-            'actual' => [
-                'monthly_barcodes' => $monthlyData['total_barcodes'],
-                'monthly_quantity' => $monthlyData['total_quantity'],
-                'acceptance_rate' => $actualAcceptanceRate,
-                'rejection_rate' => $actualRejectionRate
-            ],
-            'achievement' => [
-                'barcodes' => round(($monthlyData['total_barcodes'] / $targets['monthly_barcodes']) * 100, 2),
-                'quantity' => round(($monthlyData['total_quantity'] / $targets['monthly_quantity']) * 100, 2),
-                'acceptance' => $actualAcceptanceRate >= $targets['acceptance_rate'] ? 100 : round(($actualAcceptanceRate / $targets['acceptance_rate']) * 100, 2),
-                'rejection' => $actualRejectionRate <= $targets['rejection_rate'] ? 100 : round(($targets['rejection_rate'] / $actualRejectionRate) * 100, 2)
-            ]
-        ];
-    }
-
-    /**
-     * KPI hedeflerini güncelle
-     */
-    public function updateKPITargets(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'monthly_barcodes' => 'required|integer|min:1',
-                'monthly_quantity' => 'required|integer|min:1',
-                'acceptance_rate' => 'required|numeric|min:0|max:100',
-                'rejection_rate' => 'required|numeric|min:0|max:100'
-            ]);
-
-            // Hedefleri cache'e kaydet (gerçek uygulamada database'e kaydedilebilir)
-            cache(['kpi_targets' => $validated], now()->addYear());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'KPI hedefleri başarıyla güncellendi',
-                'targets' => $validated
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hedef güncellenirken hata oluştu: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * KPI hedeflerini getir
-     */
-    public function getKPITargets()
-    {
-        $targets = cache('kpi_targets', [
-            'monthly_barcodes' => 10000,
-            'monthly_quantity' => 50000,
-            'acceptance_rate' => 95,
-            'rejection_rate' => 5
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'targets' => $targets
-        ]);
-    }
-
-    /**
-     * Güvenlik ve audit - Kullanıcı aktivite logları
-     */
-    private function getUserActivityLogs($date)
-    {
-        $startDate = $date->copy()->startOfDay();
-        $endDate = $date->copy()->endOfDay();
-        
-        // Bu metod gerçek uygulamada activity log tablosundan veri çeker
-        // Şimdilik örnek veri döndürüyoruz
-        return [
-            'total_activities' => rand(50, 200),
-            'login_count' => rand(10, 30),
-            'data_changes' => rand(20, 80),
-            'export_activities' => rand(5, 15),
-            'recent_activities' => [
-                ['user' => 'Admin User', 'action' => 'Dashboard görüntülendi', 'time' => $date->copy()->subHours(1)->format('H:i'), 'ip' => '192.168.1.100', 'status' => 'success'],
-                ['user' => 'Operator 1', 'action' => 'Barkod eklendi', 'time' => $date->copy()->subHours(2)->format('H:i'), 'ip' => '192.168.1.101', 'status' => 'success'],
-                ['user' => 'Manager', 'action' => 'Rapor indirildi', 'time' => $date->copy()->subHours(3)->format('H:i'), 'ip' => '192.168.1.102', 'status' => 'success'],
-                ['user' => 'Operator 2', 'action' => 'Veri güncellendi', 'time' => $date->copy()->subHours(4)->format('H:i'), 'ip' => '192.168.1.103', 'status' => 'warning'],
-                ['user' => 'Guest', 'action' => 'Yetkisiz erişim denemesi', 'time' => $date->copy()->subHours(5)->format('H:i'), 'ip' => '192.168.1.104', 'status' => 'danger']
-            ],
-            'security_alerts' => [
-                ['type' => 'Failed Login', 'count' => rand(1, 10), 'severity' => 'medium'],
-                ['type' => 'Suspicious Activity', 'count' => rand(0, 5), 'severity' => 'high'],
-                ['type' => 'Data Export', 'count' => rand(5, 20), 'severity' => 'low']
-            ],
-            'user_performance' => [
-                ['user' => 'Admin User', 'login_count' => rand(5, 15), 'actions' => rand(20, 50), 'last_activity' => $date->copy()->subMinutes(30)->format('H:i')],
-                ['user' => 'Operator 1', 'login_count' => rand(3, 10), 'actions' => rand(15, 40), 'last_activity' => $date->copy()->subHours(2)->format('H:i')],
-                ['user' => 'Manager', 'login_count' => rand(2, 8), 'actions' => rand(10, 30), 'last_activity' => $date->copy()->subHours(4)->format('H:i')]
-            ]
-        ];
-    }
-
-    /**
-     * Yardımcı metodlar
-     */
-    private function getMonthData($date)
-    {
-        $startDate = $date->copy()->startOfMonth();
-        $endDate = $date->copy()->endOfMonth();
-        
-        return [
-            'total_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])->count(),
-            'total_quantity' => DB::select('
-                SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
-            FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
-                AND barcodes.deleted_at IS NULL
-            ', [$startDate, $endDate])[0]->total_quantity ?? 0,
-            'accepted_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
+            ', [$monthStart, $monthEnd])[0]->total_quantity ?? 0,
+            'accepted_barcodes' => Barcode::whereBetween('created_at', [$monthStart, $monthEnd])
                 ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED])
                 ->count(),
-            'rejected_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
+            'rejected_barcodes' => Barcode::whereBetween('created_at', [$monthStart, $monthEnd])
                 ->where('status', Barcode::STATUS_REJECTED)
                 ->count()
         ];
     }
 
-    private function calculatePercentageChange($oldValue, $newValue)
+    /**
+     * Değişim yüzdesini hesapla
+     */
+    private function calculateChangePercentage($current, $previous)
     {
-        if ($oldValue == 0) {
-            return $newValue > 0 ? 100 : 0;
+        $changes = [];
+        
+        foreach ($current as $key => $value) {
+            if (isset($previous[$key]) && $previous[$key] > 0) {
+                $changes[$key] = round((($value - $previous[$key]) / $previous[$key]) * 100, 2);
+            } else {
+                $changes[$key] = 0;
+            }
         }
         
-        return round((($newValue - $oldValue) / $oldValue) * 100, 2);
+        return $changes;
     }
 }
