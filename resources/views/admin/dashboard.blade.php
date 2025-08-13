@@ -201,8 +201,8 @@
 
     .shift-stats {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.2rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
     }
 
     .shift-stat {
@@ -348,16 +348,24 @@
                         <div class="stat-label">Toplam Barkod</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['total_quantity']) }}</div>
-                        <div class="stat-label">Toplam Miktar</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['total_quantity'], 1) }}</div>
+                        <div class="stat-label">Toplam Miktar (ton)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['accepted_barcodes']) }}</div>
-                        <div class="stat-label">Kabul Edilen Barkod Sayısı</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['accepted_quantity'], 1) }}</div>
+                        <div class="stat-label">Kabul Edilen (ton)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['rejected_barcodes']) }}</div>
-                        <div class="stat-label">Reddedilen Barkod Sayısı</div>
+                        <div class="stat-value">{{ number_format($dailyProduction['testing_quantity'], 1) }}</div>
+                        <div class="stat-label">Test Sürecinde (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['delivery_quantity'], 1) }}</div>
+                        <div class="stat-label">Teslimat Sürecinde (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['rejected_quantity'], 1) }}</div>
+                        <div class="stat-label">Reddedilen (ton)</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($dailyProduction['pending_barcodes']) }}</div>
@@ -402,6 +410,14 @@
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['accepted_quantity'], 1) }}</div>
                                 <div class="shift-stat-label">Kabul (ton)</div>
+                            </div>
+                            <div class="shift-stat">
+                                <div class="shift-stat-value">{{ number_format($shiftData['testing_quantity'], 1) }}</div>
+                                <div class="shift-stat-label">Test (ton)</div>
+                            </div>
+                            <div class="shift-stat">
+                                <div class="shift-stat-value">{{ number_format($shiftData['delivery_quantity'], 1) }}</div>
+                                <div class="shift-stat-label">Teslimat (ton)</div>
                             </div>
                             <div class="shift-stat">
                                 <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'], 1) }}</div>
