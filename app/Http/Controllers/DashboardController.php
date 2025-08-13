@@ -425,26 +425,69 @@ class DashboardController extends Controller
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
         
-        // Varsayılan günlük kapasite (gerçek uygulamada config'den alınabilir)
-        $defaultDailyCapacity = 1000; // Günlük varsayılan kapasite
-        
         return DB::select('
             SELECT 
                 kilns.id,
                 kilns.name as kiln_name,
-                ? as theoretical_capacity,
+                -- Günlük ortalama üretim kapasitesi (son 30 gün)
+                COALESCE(
+                    (SELECT ROUND(AVG(daily_avg), 2)
+                     FROM (
+                         SELECT DATE(b.created_at) as date, SUM(q.quantity) as daily_avg
+                         FROM barcodes b
+                         LEFT JOIN quantities q ON b.quantity_id = q.id
+                         WHERE b.kiln_id = kilns.id 
+                         AND b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
+                         AND b.deleted_at IS NULL
+                         GROUP BY DATE(b.created_at)
+                     ) as daily_averages
+                ), 0) as theoretical_capacity,
+                -- Bugünkü gerçek üretim (barkod sayısı)
                 COUNT(barcodes.id) as actual_production,
+                -- Bugünkü gerçek üretim (miktar - ton)
                 COALESCE(SUM(quantities.quantity), 0) as actual_quantity,
-                ROUND((COUNT(barcodes.id) / ?) * 100, 2) as capacity_utilization,
-                ROUND((COALESCE(SUM(quantities.quantity), 0) / ?) * 100, 2) as quantity_utilization
+                -- Kapasite kullanım oranı (barkod sayısı bazında)
+                ROUND(
+                    (COUNT(barcodes.id) / NULLIF(
+                        COALESCE(
+                            (SELECT ROUND(AVG(daily_avg), 2)
+                             FROM (
+                                 SELECT DATE(b.created_at) as date, SUM(q.quantity) as daily_avg
+                                 FROM barcodes b
+                                 LEFT JOIN quantities q ON b.quantity_id = q.id
+                                 WHERE b.kiln_id = kilns.id 
+                                 AND b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
+                                 AND b.deleted_at IS NULL
+                                 GROUP BY DATE(b.created_at)
+                             ) as daily_averages
+                        ), 0)
+                    ) * 100, 2
+                ) as capacity_utilization,
+                -- Miktar kullanım oranı (ton bazında)
+                ROUND(
+                    (COALESCE(SUM(quantities.quantity), 0) / NULLIF(
+                        COALESCE(
+                            (SELECT ROUND(AVG(daily_avg), 2)
+                             FROM (
+                                 SELECT DATE(b.created_at) as date, SUM(q.quantity) as daily_avg
+                                 FROM barcodes b
+                                 LEFT JOIN quantities q ON b.quantity_id = q.id
+                                 WHERE b.kiln_id = kilns.id 
+                                 AND b.created_at >= DATE_SUB(?, INTERVAL 30 DAY)
+                                 AND b.deleted_at IS NULL
+                                 GROUP BY DATE(b.created_at)
+                             ) as daily_averages
+                        ), 0)
+                    ) * 100, 2
+                ) as quantity_utilization
             FROM kilns
             LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id 
                 AND barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            LEFT JOIN quantities q ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
             ORDER BY capacity_utilization DESC
-        ', [$defaultDailyCapacity, $defaultDailyCapacity, $defaultDailyCapacity, $startDate, $endDate]);
+        ', [$startDate, $startDate, $startDate, $startDate, $endDate]);
     }
 
     /**
@@ -567,13 +610,13 @@ class DashboardController extends Controller
         
         $monthlyData = $this->getMonthData($startDate);
         
-        // Hedefler (örnek değerler - gerçek uygulamada config'den alınabilir)
-        $targets = [
+        // Hedefleri cache'den al (varsayılan değerler ile)
+        $targets = cache('kpi_targets', [
             'monthly_barcodes' => 10000,
             'monthly_quantity' => 50000,
             'acceptance_rate' => 95,
             'rejection_rate' => 5
-        ];
+        ]);
         
         $actualAcceptanceRate = $monthlyData['total_barcodes'] > 0 ? 
             round(($monthlyData['accepted_barcodes'] / $monthlyData['total_barcodes']) * 100, 2) : 0;
@@ -599,6 +642,54 @@ class DashboardController extends Controller
     }
 
     /**
+     * KPI hedeflerini güncelle
+     */
+    public function updateKPITargets(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'monthly_barcodes' => 'required|integer|min:1',
+                'monthly_quantity' => 'required|integer|min:1',
+                'acceptance_rate' => 'required|numeric|min:0|max:100',
+                'rejection_rate' => 'required|numeric|min:0|max:100'
+            ]);
+
+            // Hedefleri cache'e kaydet (gerçek uygulamada database'e kaydedilebilir)
+            cache(['kpi_targets' => $validated], now()->addYear());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'KPI hedefleri başarıyla güncellendi',
+                'targets' => $validated
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hedef güncellenirken hata oluştu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * KPI hedeflerini getir
+     */
+    public function getKPITargets()
+    {
+        $targets = cache('kpi_targets', [
+            'monthly_barcodes' => 10000,
+            'monthly_quantity' => 50000,
+            'acceptance_rate' => 95,
+            'rejection_rate' => 5
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'targets' => $targets
+        ]);
+    }
+
+    /**
      * Güvenlik ve audit - Kullanıcı aktivite logları
      */
     private function getUserActivityLogs($date)
@@ -614,9 +705,21 @@ class DashboardController extends Controller
             'data_changes' => rand(20, 80),
             'export_activities' => rand(5, 15),
             'recent_activities' => [
-                ['user' => 'Admin User', 'action' => 'Dashboard görüntülendi', 'time' => $date->copy()->subHours(1)->format('H:i')],
-                ['user' => 'Operator 1', 'action' => 'Barkod eklendi', 'time' => $date->copy()->subHours(2)->format('H:i')],
-                ['user' => 'Manager', 'action' => 'Rapor indirildi', 'time' => $date->copy()->subHours(3)->format('H:i')]
+                ['user' => 'Admin User', 'action' => 'Dashboard görüntülendi', 'time' => $date->copy()->subHours(1)->format('H:i'), 'ip' => '192.168.1.100', 'status' => 'success'],
+                ['user' => 'Operator 1', 'action' => 'Barkod eklendi', 'time' => $date->copy()->subHours(2)->format('H:i'), 'ip' => '192.168.1.101', 'status' => 'success'],
+                ['user' => 'Manager', 'action' => 'Rapor indirildi', 'time' => $date->copy()->subHours(3)->format('H:i'), 'ip' => '192.168.1.102', 'status' => 'success'],
+                ['user' => 'Operator 2', 'action' => 'Veri güncellendi', 'time' => $date->copy()->subHours(4)->format('H:i'), 'ip' => '192.168.1.103', 'status' => 'warning'],
+                ['user' => 'Guest', 'action' => 'Yetkisiz erişim denemesi', 'time' => $date->copy()->subHours(5)->format('H:i'), 'ip' => '192.168.1.104', 'status' => 'danger']
+            ],
+            'security_alerts' => [
+                ['type' => 'Failed Login', 'count' => rand(1, 10), 'severity' => 'medium'],
+                ['type' => 'Suspicious Activity', 'count' => rand(0, 5), 'severity' => 'high'],
+                ['type' => 'Data Export', 'count' => rand(5, 20), 'severity' => 'low']
+            ],
+            'user_performance' => [
+                ['user' => 'Admin User', 'login_count' => rand(5, 15), 'actions' => rand(20, 50), 'last_activity' => $date->copy()->subMinutes(30)->format('H:i')],
+                ['user' => 'Operator 1', 'login_count' => rand(3, 10), 'actions' => rand(15, 40), 'last_activity' => $date->copy()->subHours(2)->format('H:i')],
+                ['user' => 'Manager', 'login_count' => rand(2, 8), 'actions' => rand(10, 30), 'last_activity' => $date->copy()->subHours(4)->format('H:i')]
             ]
         ];
     }

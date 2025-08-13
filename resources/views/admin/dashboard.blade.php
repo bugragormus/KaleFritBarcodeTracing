@@ -328,6 +328,133 @@
         line-height: 20px;
     }
     
+    /* Security Audit Styles */
+    .security-alerts {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .security-alert {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        border-radius: 10px;
+        border-left: 4px solid;
+        font-size: 0.9rem;
+    }
+
+    .security-alert.alert-high {
+        background: rgba(220, 53, 69, 0.1);
+        border-left-color: #dc3545;
+    }
+
+    .security-alert.alert-medium {
+        background: rgba(255, 193, 7, 0.1);
+        border-left-color: #ffc107;
+    }
+
+    .security-alert.alert-low {
+        background: rgba(40, 167, 69, 0.1);
+        border-left-color: #28a745;
+    }
+
+    .alert-type {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .alert-count {
+        font-weight: 700;
+        color: #666;
+    }
+
+    .user-performance {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .user-perf-item {
+        padding: 0.75rem;
+        background: rgba(23, 162, 184, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #17a2b8;
+    }
+
+    .user-info {
+        margin-bottom: 0.5rem;
+    }
+
+    .user-info strong {
+        display: block;
+        color: #17a2b8;
+        font-size: 0.9rem;
+    }
+
+    .user-info small {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+
+    .user-stats {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .user-stats .stat {
+        font-size: 0.8rem;
+        color: #666;
+        background: rgba(255, 255, 255, 0.5);
+        padding: 0.25rem 0.5rem;
+        border-radius: 5px;
+    }
+
+    .detailed-activities {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .detailed-activity-log {
+        padding: 1rem;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+    }
+
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-user {
+        font-weight: 600;
+        color: #667eea;
+    }
+
+    .activity-time {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .activity-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .activity-action {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .activity-ip {
+        color: #666;
+        font-size: 0.8rem;
+        font-family: monospace;
+    }
+    
     .card-modern {
         background: #ffffff;
         border-radius: 20px;
@@ -534,6 +661,62 @@
     .badge-info {
         background: #d1ecf1;
         color: #0c5460;
+    }
+
+    /* KPI Modal Styles */
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+    }
+
+    .modal-title i {
+        margin-right: 0.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .form-text {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 </style>
 @endsection
@@ -914,8 +1097,8 @@
                         <thead>
                             <tr>
                                 <th>Fırın Adı</th>
-                                <th>Teorik Kapasite</th>
-                                <th>Gerçek Üretim</th>
+                                <th>Günlük Ort. Kapasite (Ton)</th>
+                                <th>Bugünkü Üretim (Ton)</th>
                                 <th>Kapasite Kullanımı (%)</th>
                                 <th>Miktar Kullanımı (%)</th>
                                 <th>Durum</th>
@@ -923,10 +1106,10 @@
                         </thead>
                         <tbody>
                             @foreach($productionEfficiency as $kiln)
-                            <tr>
+                                                        <tr>
                                 <td><strong>{{ $kiln->kiln_name }}</strong></td>
-                                <td>{{ number_format($kiln->theoretical_capacity) }}</td>
-                                <td>{{ number_format($kiln->actual_production) }}</td>
+                                <td>{{ number_format($kiln->theoretical_capacity, 2) }} ton</td>
+                                <td>{{ number_format($kiln->actual_quantity, 2) }} ton</td>
                                 <td>
                                     <div class="progress" style="height: 20px;">
                                         <div class="progress-bar {{ $kiln->capacity_utilization >= 80 ? 'bg-success' : ($kiln->capacity_utilization >= 60 ? 'bg-warning' : 'bg-danger') }}" 
@@ -948,9 +1131,9 @@
                                         <span class="badge badge-success">Yüksek</span>
                                     @elseif($kiln->capacity_utilization >= 60)
                                         <span class="badge badge-warning">Orta</span>
-                            @else
+                                    @else
                                         <span class="badge badge-danger">Düşük</span>
-                            @endif
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -1112,10 +1295,15 @@
         <!-- KPI Metrics -->
         <div class="card-modern">
             <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-bullseye"></i>
-                    KPI ve Hedef Takibi
-                </h3>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-bullseye"></i>
+                        KPI ve Hedef Takibi
+                    </h3>
+                    <button class="btn btn-primary btn-sm" onclick="openKPITargetModal()">
+                        <i class="fas fa-edit"></i> Hedefleri Düzenle
+                    </button>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="row">
@@ -1168,6 +1356,62 @@
             </div>
         </div>
 
+        <!-- KPI Target Modal -->
+        <div class="modal fade" id="kpiTargetModal" tabindex="-1" aria-labelledby="kpiTargetModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="kpiTargetModalLabel">
+                            <i class="fas fa-bullseye"></i> KPI Hedeflerini Düzenle
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="kpiTargetForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="monthly_barcodes" class="form-label">Aylık Barkod Hedefi</label>
+                                        <input type="number" class="form-control" id="monthly_barcodes" name="monthly_barcodes" min="1" required>
+                                        <div class="form-text">Aylık hedeflenen toplam barkod sayısı</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="monthly_quantity" class="form-label">Aylık Miktar Hedefi (Ton)</label>
+                                        <input type="number" class="form-control" id="monthly_quantity" name="monthly_quantity" min="1" required>
+                                        <div class="form-text">Aylık hedeflenen toplam üretim miktarı</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="acceptance_rate" class="form-label">Kabul Oranı Hedefi (%)</label>
+                                        <input type="number" class="form-control" id="acceptance_rate" name="acceptance_rate" min="0" max="100" step="0.1" required>
+                                        <div class="form-text">Hedeflenen minimum kabul oranı</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="rejection_rate" class="form-label">Red Oranı Hedefi (%)</label>
+                                        <input type="number" class="form-control" id="rejection_rate" name="rejection_rate" min="0" max="100" step="0.1" required>
+                                        <div class="form-text">Hedeflenen maksimum red oranı</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="button" class="btn btn-primary" onclick="saveKPITargets()">
+                            <i class="fas fa-save"></i> Hedefleri Kaydet
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- User Activity Logs -->
         <div class="card-modern">
             <div class="card-header-modern">
@@ -1178,7 +1422,7 @@
             </div>
             <div class="card-body-modern">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <h6>Günlük Aktivite Özeti</h6>
                         <div class="activity-summary">
                             <div class="activity-item">
@@ -1199,14 +1443,56 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <h6>Son Aktiviteler</h6>
-                        <div class="recent-activities">
+                    <div class="col-md-4">
+                        <h6>Güvenlik Uyarıları</h6>
+                        <div class="security-alerts">
+                            @foreach($userActivityLogs['security_alerts'] as $alert)
+                            <div class="security-alert alert-{{ $alert['severity'] }}">
+                                <span class="alert-type">{{ $alert['type'] }}</span>
+                                <span class="alert-count">{{ $alert['count'] }}</span>
+                                <span class="alert-severity badge badge-{{ $alert['severity'] === 'high' ? 'danger' : ($alert['severity'] === 'medium' ? 'warning' : 'success') }}">
+                                    {{ ucfirst($alert['severity']) }}
+                                </span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Kullanıcı Performansı</h6>
+                        <div class="user-performance">
+                            @foreach($userActivityLogs['user_performance'] as $user)
+                            <div class="user-perf-item">
+                                <div class="user-info">
+                                    <strong>{{ $user['user'] }}</strong>
+                                    <small>Son aktivite: {{ $user['last_activity'] }}</small>
+                                </div>
+                                <div class="user-stats">
+                                    <span class="stat">Giriş: {{ $user['login_count'] }}</span>
+                                    <span class="stat">İşlem: {{ $user['actions'] }}</span>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6>Detaylı Aktivite Logları</h6>
+                        <div class="detailed-activities">
                             @foreach($userActivityLogs['recent_activities'] as $activity)
-                            <div class="activity-log">
-                                <span class="activity-user">{{ $activity['user'] }}</span>
-                                <span class="activity-action">{{ $activity['action'] }}</span>
-                                <span class="activity-time">{{ $activity['time'] }}</span>
+                            <div class="detailed-activity-log">
+                                <div class="activity-header">
+                                    <span class="activity-user">{{ $activity['user'] }}</span>
+                                    <span class="activity-time">{{ $activity['time'] }}</span>
+                                    <span class="activity-status badge badge-{{ $activity['status'] === 'success' ? 'success' : ($activity['status'] === 'warning' ? 'warning' : 'danger') }}">
+                                        {{ ucfirst($activity['status']) }}
+                                    </span>
+                                </div>
+                                <div class="activity-details">
+                                    <span class="activity-action">{{ $activity['action'] }}</span>
+                                    <span class="activity-ip">IP: {{ $activity['ip'] }}</span>
+                                </div>
                             </div>
                             @endforeach
                         </div>
@@ -1382,6 +1668,61 @@ function exportKilnPerformance() {
             exportBtn.innerHTML = originalText;
             exportBtn.disabled = false;
         });
+}
+
+// KPI Target Management Functions
+function openKPITargetModal() {
+    // Mevcut hedefleri yükle
+    fetch('{{ route("dashboard.get-kpi-targets") }}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('monthly_barcodes').value = data.targets.monthly_barcodes;
+                document.getElementById('monthly_quantity').value = data.targets.monthly_quantity;
+                document.getElementById('acceptance_rate').value = data.targets.acceptance_rate;
+                document.getElementById('rejection_rate').value = data.targets.rejection_rate;
+            }
+        })
+        .catch(error => {
+            console.error('Hedefler yüklenirken hata:', error);
+        });
+    
+    // Modal'ı aç
+    const modal = new bootstrap.Modal(document.getElementById('kpiTargetModal'));
+    modal.show();
+}
+
+function saveKPITargets() {
+    const formData = new FormData(document.getElementById('kpiTargetForm'));
+    const targets = Object.fromEntries(formData.entries());
+    
+    fetch('{{ route("dashboard.update-kpi-targets") }}', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify(targets)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('KPI hedefleri başarıyla güncellendi!');
+            // Modal'ı kapat
+            const modal = bootstrap.Modal.getInstance(document.getElementById('kpiTargetModal'));
+            modal.hide();
+            // Sayfayı yenile
+            location.reload();
+        } else {
+            alert('Hedef güncellenirken hata: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Hedef güncellenirken hata:', error);
+        alert('Hedef güncellenirken bir hata oluştu.');
+    });
 }
 </script>
 @endsection
