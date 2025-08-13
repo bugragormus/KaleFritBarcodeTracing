@@ -179,6 +179,108 @@
     
     .table-modern tbody tr:hover {
         background: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .table-modern tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    /* Pagination Styles */
+    .pagination {
+        margin-bottom: 0;
+    }
+    
+    .page-link {
+        color: #667eea;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        margin-left: -1px;
+        background-color: #fff;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .page-link:hover {
+        color: #fff;
+        background-color: #667eea;
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-item.active .page-link {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #fff;
+        border-color: #dee2e6;
+        cursor: not-allowed;
+    }
+    
+    /* Loading Animation */
+    .loading-overlay {
+        position: relative;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .loading-overlay::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    /* Smooth transitions for pagination */
+    .pagination .page-link {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .pagination .page-item.active .page-link {
+        transform: scale(1.1);
+        box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Table fade effects */
+    .table-fade-enter {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    
+    .table-fade-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+    
+    /* Error state styling */
+    .error-state {
+        background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+        border: 1px solid #feb2b2;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .error-state i {
+        color: #e53e3e;
+        font-size: 3rem;
+        margin-bottom: 1rem;
     }
     
     .status-badge {
@@ -427,7 +529,7 @@
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table id="top-stocks-table" class="table table-modern">
                         <thead>
                             <tr>
                                 <th>Stok Adı</th>
@@ -437,16 +539,95 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($topStocks as $stock)
+                            @forelse($topStocks as $stock)
                             <tr>
                                 <td>{{ $stock->stock ? $stock->stock->name : 'Bilinmeyen Stok' }}</td>
                                 <td>{{ number_format($stock->total_quantity, 0) }}</td>
                                 <td>{{ $stock->total_barcodes }}</td>
                                 <td>{{ number_format($stock->total_quantity / $stock->total_barcodes, 0) }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">Bu firma için stok verisi bulunamadı.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    @if($topStocksPagination['last_page'] > 1)
+                    <div id="top-stocks-pagination" class="d-flex justify-content-center mt-3">
+                        <nav aria-label="En çok alınan stoklar sayfaları">
+                            <ul class="pagination" data-table="top-stocks">
+                                @if($topStocksPagination['current_page'] > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $topStocksPagination['current_page'] - 1 }}" data-table="top-stocks" href="javascript:void(0)">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </span>
+                                    </li>
+                                @endif
+                                
+                                @php
+                                    $start = max(1, $topStocksPagination['current_page'] - 2);
+                                    $end = min($topStocksPagination['last_page'], $topStocksPagination['current_page'] + 2);
+                                @endphp
+                                
+                                @if($start > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="1" data-table="top-stocks" href="javascript:void(0)">1</a>
+                                    </li>
+                                    @if($start > 2)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                @endif
+                                
+                                @for($i = $start; $i <= $end; $i++)
+                                    <li class="page-item {{ $i == $topStocksPagination['current_page'] ? 'active' : '' }}">
+                                        <a class="page-link pagination-link" data-page="{{ $i }}" data-table="top-stocks" href="javascript:void(0)">{{ $i }}</a>
+                                    </li>
+                                @endfor
+                                
+                                @if($end < $topStocksPagination['last_page'])
+                                    @if($end < $topStocksPagination['last_page'] - 1)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $topStocksPagination['last_page'] }}" data-table="top-stocks" href="javascript:void(0)">{{ $topStocksPagination['last_page'] }}</a>
+                                    </li>
+                                @endif
+                                
+                                @if($topStocksPagination['current_page'] < $topStocksPagination['last_page'])
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $topStocksPagination['current_page'] + 1 }}" data-table="top-stocks" href="javascript:void(0)">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -462,7 +643,7 @@
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table id="top-kilns-table" class="table table-modern">
                         <thead>
                             <tr>
                                 <th>Fırın Adı</th>
@@ -472,16 +653,95 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($topKilns as $kiln)
+                            @forelse($topKilns as $kiln)
                             <tr>
                                 <td>{{ $kiln->kiln ? $kiln->kiln->name : 'Bilinmeyen Fırın' }}</td>
                                 <td>{{ number_format($kiln->total_quantity, 0) }}</td>
                                 <td>{{ $kiln->total_barcodes }}</td>
                                 <td>{{ number_format($kiln->total_quantity / $kiln->total_barcodes, 0) }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">Bu firma için fırın verisi bulunamadı.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    @if($topKilnsPagination['last_page'] > 1)
+                    <div id="top-kilns-pagination" class="d-flex justify-content-center mt-3">
+                        <nav aria-label="En çok çalışılan fırınlar sayfaları">
+                            <ul class="pagination" data-table="top-kilns">
+                                @if($topKilnsPagination['current_page'] > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $topKilnsPagination['current_page'] - 1 }}" data-table="top-kilns" href="javascript:void(0)">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </span>
+                                    </li>
+                                @endif
+                                
+                                @php
+                                    $start = max(1, $topKilnsPagination['current_page'] - 2);
+                                    $end = min($topKilnsPagination['last_page'], $topKilnsPagination['current_page'] + 2);
+                                @endphp
+                                
+                                @if($start > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="1" data-table="top-kilns" href="javascript:void(0)">1</a>
+                                    </li>
+                                    @if($start > 2)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                @endif
+                                
+                                @for($i = $start; $i <= $end; $i++)
+                                    <li class="page-item {{ $i == $topKilnsPagination['current_page'] ? 'active' : '' }}">
+                                        <a class="page-link pagination-link" data-page="{{ $i }}" data-table="top-kilns" href="javascript:void(0)">{{ $i }}</a>
+                                    </li>
+                                @endfor
+                                
+                                @if($end < $topKilnsPagination['last_page'])
+                                    @if($end < $topKilnsPagination['last_page'] - 1)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $topKilnsPagination['last_page'] }}" data-table="top-kilns" href="javascript:void(0)">{{ $topKilnsPagination['last_page'] }}</a>
+                                    </li>
+                                @endif
+                                
+                                @if($topKilnsPagination['current_page'] < $topKilnsPagination['last_page'])
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $topKilnsPagination['current_page'] + 1 }}" data-table="top-kilns" href="javascript:void(0)">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -549,5 +809,227 @@
         }
     });
     @endif
+</script>
+
+<script>
+// Enhanced AJAX Pagination with Smooth Transitions
+document.addEventListener('DOMContentLoaded', function() {
+    let isLoading = false;
+    
+    // Pagination linklerine click event ekle
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('pagination-link') && !isLoading) {
+            e.preventDefault();
+            
+            const page = e.target.getAttribute('data-page');
+            const table = e.target.getAttribute('data-table');
+            
+            if (page && table) {
+                loadTableData(table, page);
+            }
+        }
+    });
+    
+    // Tablo verilerini AJAX ile yükle
+    async function loadTableData(table, page) {
+        if (isLoading) return;
+        
+        isLoading = true;
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('page', page);
+        
+        // Loading göster
+        showLoading(table);
+        
+        try {
+            const response = await fetch(currentUrl.toString());
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const html = await response.text();
+            
+            // HTML'i parse et
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // İlgili tabloyu güncelle
+            await updateTable(table, doc, page);
+            
+            // URL'i güncelle (sayfa yenilenmeden)
+            window.history.pushState({}, '', currentUrl.toString());
+            
+            // Smooth scroll to table
+            smoothScrollToTable(table);
+            
+        } catch (error) {
+            console.error('Veri yüklenirken hata:', error);
+            showErrorMessage(table, 'Veri yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+        } finally {
+            isLoading = false;
+            hideLoading(table);
+        }
+    }
+    
+    // Tabloyu güncelle
+    async function updateTable(table, doc, page) {
+        let tableBody, pagination;
+        
+        switch(table) {
+            case 'top-stocks':
+                tableBody = document.querySelector('#top-stocks-table tbody');
+                pagination = document.querySelector('#top-stocks-pagination');
+                break;
+            case 'top-kilns':
+                tableBody = document.querySelector('#top-kilns-table tbody');
+                pagination = document.querySelector('#top-kilns-pagination');
+                break;
+        }
+        
+        if (tableBody && pagination) {
+            // Fade out effect
+            tableBody.style.opacity = '0.5';
+            tableBody.style.transition = 'opacity 0.3s ease';
+            
+            // Tablo verilerini güncelle
+            const newTableBody = doc.querySelector(`#${table}-table tbody`);
+            if (newTableBody) {
+                tableBody.innerHTML = newTableBody.innerHTML;
+            }
+            
+            // Pagination'ı güncelle
+            const newPagination = doc.querySelector(`#${table}-pagination`);
+            if (newPagination) {
+                pagination.innerHTML = newPagination.innerHTML;
+            }
+            
+            // Aktif sayfa linkini güncelle
+            updateActivePage(table, page);
+            
+            // Fade in effect
+            setTimeout(() => {
+                tableBody.style.opacity = '1';
+            }, 100);
+        }
+    }
+    
+    // Aktif sayfa linkini güncelle
+    function updateActivePage(table, page) {
+        const pagination = document.querySelector(`#${table}-pagination`);
+        if (pagination) {
+            // Tüm linklerden active class'ını kaldır
+            pagination.querySelectorAll('.page-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Yeni sayfayı active yap
+            const activeLink = pagination.querySelector(`[data-page="${page}"]`);
+            if (activeLink) {
+                activeLink.closest('.page-item').classList.add('active');
+            }
+        }
+    }
+    
+    // Loading göster
+    function showLoading(table) {
+        const tableBody = document.querySelector(`#${table}-table tbody`);
+        const tableElement = document.querySelector(`#${table}-table`);
+        
+        if (tableBody) {
+            // Loading overlay ekle
+            if (tableElement) {
+                tableElement.classList.add('loading-overlay');
+            }
+            
+            // Tablo sütun sayısını al
+            const columnCount = tableElement ? tableElement.querySelectorAll('thead th').length : 4;
+            
+            const loadingHtml = `
+                <tr>
+                    <td colspan="${columnCount}" class="text-center py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="spinner-border text-primary mb-2" role="status">
+                                <span class="visually-hidden">Yükleniyor...</span>
+                            </div>
+                            <small class="text-muted">Veriler yükleniyor...</small>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML = loadingHtml;
+        }
+    }
+    
+    // Loading gizle
+    function hideLoading(table) {
+        const tableElement = document.querySelector(`#${table}-table`);
+        if (tableElement) {
+            tableElement.classList.remove('loading-overlay');
+        }
+    }
+    
+    // Hata mesajı göster
+    function showErrorMessage(table, message) {
+        const tableBody = document.querySelector(`#${table}-table tbody`);
+        const tableElement = document.querySelector(`#${table}-table`);
+        
+        if (tableBody) {
+            // Tablo sütun sayısını al
+            const columnCount = tableElement ? tableElement.querySelectorAll('thead th').length : 4;
+            
+            const errorHtml = `
+                <tr>
+                    <td colspan="${columnCount}" class="text-center py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-exclamation-triangle text-warning mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-2">${message}</p>
+                            <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">
+                                <i class="fas fa-redo"></i> Sayfayı Yenile
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML = errorHtml;
+        }
+    }
+    
+    // Smooth scroll to table
+    function smoothScrollToTable(table) {
+        const tableElement = document.querySelector(`#${table}-table`);
+        if (tableElement) {
+            tableElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+    
+    // Keyboard navigation support
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            const activePagination = document.querySelector('.pagination .page-item.active');
+            if (activePagination) {
+                const currentPage = parseInt(activePagination.querySelector('.page-link').getAttribute('data-page'));
+                const paginationContainer = activePagination.closest('.pagination');
+                const table = paginationContainer ? paginationContainer.getAttribute('data-table') : null;
+                
+                if (table && currentPage) {
+                    if (e.key === 'ArrowLeft' && currentPage > 1) {
+                        loadTableData(table, currentPage - 1);
+                    } else if (e.key === 'ArrowRight') {
+                        const paginationLinks = paginationContainer.querySelectorAll('.page-link[data-page]');
+                        const pageNumbers = Array.from(paginationLinks).map(link => parseInt(link.getAttribute('data-page')));
+                        const maxPage = Math.max(...pageNumbers);
+                        
+                        if (currentPage < maxPage) {
+                            loadTableData(table, currentPage + 1);
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
 </script>
 @endsection

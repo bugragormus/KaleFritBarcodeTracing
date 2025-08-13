@@ -315,26 +315,45 @@ class CompanyController extends Controller
             ->orderBy('month')
             ->get();
 
-        // En çok alınan stoklar
-        $topStocks = $company->barcodes()
+        // En çok alınan stoklar (pagination ile)
+        $perPage = 10;
+        $topStocksQuery = $company->barcodes()
             ->with('stock')
             ->selectRaw('stock_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
             ->groupBy('stock_id')
-            ->orderByDesc('total_quantity')
-            ->limit(10)
-            ->get();
+            ->orderByDesc('total_quantity');
+        
+        $topStocksTotal = $topStocksQuery->get()->count();
+        $topStocks = $topStocksQuery->skip((request('stocks_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        $topStocksPagination = [
+            'data' => $topStocks,
+            'total' => $topStocksTotal,
+            'per_page' => $perPage,
+            'current_page' => request('stocks_page', 1),
+            'last_page' => ceil($topStocksTotal / $perPage)
+        ];
 
-        // En çok çalışılan fırınlar
-        $topKilns = $company->barcodes()
+        // En çok çalışılan fırınlar (pagination ile)
+        $topKilnsQuery = $company->barcodes()
             ->with('kiln')
             ->selectRaw('kiln_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
             ->whereNotNull('kiln_id')
             ->groupBy('kiln_id')
-            ->orderByDesc('total_quantity')
-            ->limit(10)
-            ->get();
+            ->orderByDesc('total_quantity');
+        
+        $topKilnsTotal = $topKilnsQuery->get()->count();
+        $topKilns = $topKilnsQuery->skip((request('kilns_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        $topKilnsPagination = [
+            'data' => $topKilns,
+            'total' => $topKilnsTotal,
+            'per_page' => $perPage,
+            'current_page' => request('kilns_page', 1),
+            'last_page' => ceil($topKilnsTotal / $perPage)
+        ];
 
-        return view('admin.company.analysis', compact('company', 'statusDistribution', 'monthlyPurchase', 'topStocks', 'topKilns'));
+        return view('admin.company.analysis', compact('company', 'statusDistribution', 'monthlyPurchase', 'topStocks', 'topKilns', 'topStocksPagination', 'topKilnsPagination'));
     }
 
     /**

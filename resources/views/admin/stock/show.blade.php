@@ -100,6 +100,43 @@
         margin-bottom: 0.5rem;
     }
     
+    /* Pagination Styles */
+    .pagination {
+        margin-bottom: 0;
+    }
+    
+    .page-link {
+        color: #667eea;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        margin-left: -1px;
+        background-color: #fff;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .page-link:hover {
+        color: #fff;
+        background-color: #667eea;
+        border-color: #667eea;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-item.active .page-link {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #fff;
+        border-color: #dee2e6;
+        cursor: not-allowed;
+    }
+    
     .stat-label {
         font-size: 0.875rem;
         color: #6c757d;
@@ -138,6 +175,71 @@
     
     .table-modern tbody tr:hover {
         background: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .table-modern tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    /* Loading Animation */
+    .loading-overlay {
+        position: relative;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .loading-overlay::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+    
+    /* Smooth transitions for pagination */
+    .pagination .page-link {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .pagination .page-item.active .page-link {
+        transform: scale(1.1);
+        box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Table fade effects */
+    .table-fade-enter {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    
+    .table-fade-enter-active {
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+    
+    /* Error state styling */
+    .error-state {
+        background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+        border: 1px solid #feb2b2;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .error-state i {
+        color: #e53e3e;
+        font-size: 3rem;
+        margin-bottom: 1rem;
     }
     
     .btn-modern {
@@ -314,7 +416,7 @@
         @endif
 
         <!-- Fırın Bazında Üretim -->
-        @if($productionByKiln && count($productionByKiln) > 0)
+        @if($productionByKiln && isset($productionByKiln['data']) && count($productionByKiln['data']) > 0)
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
@@ -323,7 +425,7 @@
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table id="production-kiln-table" class="table table-modern">
                         <thead>
                             <tr>
                                 <th>Fırın Adı</th>
@@ -333,23 +435,90 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($productionByKiln as $kiln)
+                            @forelse($productionByKiln['data'] as $kiln)
                             <tr>
                                 <td>{{ $kiln->kiln_name ?? 'Belirtilmemiş' }}</td>
                                 <td>{{ $kiln->barcode_count }}</td>
                                 <td>{{ number_format($kiln->total_quantity, 0) }}</td>
                                 <td>{{ number_format($kiln->avg_quantity, 0) }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">Bu stok için fırın bazında üretim verisi bulunamadı.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    @if($productionByKiln['last_page'] > 1)
+                    <div id="production-kiln-pagination" class="d-flex justify-content-center mt-3">
+                        <nav aria-label="Fırın bazında üretim sayfaları">
+                            <ul class="pagination" data-table="production-kiln">
+                                @if($productionByKiln['current_page'] > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $productionByKiln['current_page'] - 1 }}" data-table="production-kiln" href="javascript:void(0)">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </a>
+                                    </li>
+                                @endif
+                                
+                                @php
+                                    $start = max(1, $productionByKiln['current_page'] - 2);
+                                    $end = min($productionByKiln['last_page'], $productionByKiln['current_page'] + 2);
+                                @endphp
+                                
+                                @if($start > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="1" data-table="production-kiln" href="javascript:void(0)">1</a>
+                                    </li>
+                                    @if($start > 2)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                @endif
+                                
+                                @for($i = $start; $i <= $end; $i++)
+                                    <li class="page-item {{ $i == $productionByKiln['current_page'] ? 'active' : '' }}">
+                                        <a class="page-link pagination-link" data-page="{{ $i }}" data-table="production-kiln" href="javascript:void(0)">{{ $i }}</a>
+                                    </li>
+                                @endfor
+                                
+                                @if($end < $productionByKiln['last_page'])
+                                    @if($end < $productionByKiln['last_page'] - 1)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $productionByKiln['last_page'] }}" data-table="production-kiln" href="javascript:void(0)">{{ $productionByKiln['last_page'] }}</a>
+                                    </li>
+                                @endif
+                                
+                                @if($productionByKiln['current_page'] < $productionByKiln['last_page'])
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $productionByKiln['current_page'] + 1 }}" data-table="production-kiln" href="javascript:void(0)">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
         @endif
 
         <!-- Müşteri Bazında Satış -->
-        @if($salesByCompany && count($salesByCompany) > 0)
+        @if($salesByCompany && isset($salesByCompany['data']) && count($salesByCompany['data']) > 0)
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
@@ -358,7 +527,7 @@
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table id="sales-company-table" class="table table-modern">
                         <thead>
                             <tr>
                                 <th>Müşteri Adı</th>
@@ -369,7 +538,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($salesByCompany as $company)
+                            @forelse($salesByCompany['data'] as $company)
                             <tr>
                                 <td>{{ $company->company_name ?? 'Belirtilmemiş' }}</td>
                                 <td>{{ $company->barcode_count }}</td>
@@ -377,16 +546,83 @@
                                 <td>{{ $company->first_sale_date ? \Carbon\Carbon::parse($company->first_sale_date)->format('d.m.Y') : '-' }}</td>
                                 <td>{{ $company->last_sale_date ? \Carbon\Carbon::parse($company->last_sale_date)->format('d.m.Y') : '-' }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">Bu stok için müşteri bazında satış verisi bulunamadı.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    @if($salesByCompany['last_page'] > 1)
+                    <div id="sales-company-pagination" class="d-flex justify-content-center mt-3">
+                        <nav aria-label="Müşteri bazında satış sayfaları">
+                            <ul class="pagination" data-table="sales-company">
+                                @if($salesByCompany['current_page'] > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $salesByCompany['current_page'] - 1 }}" data-table="sales-company" href="javascript:void(0)">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </a>
+                                    </li>
+                                @endif
+                                
+                                @php
+                                    $start = max(1, $salesByCompany['current_page'] - 2);
+                                    $end = min($salesByCompany['last_page'], $salesByCompany['current_page'] + 2);
+                                @endphp
+                                
+                                @if($start > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="1" data-table="sales-company" href="javascript:void(0)">1</a>
+                                    </li>
+                                    @if($start > 2)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                @endif
+                                
+                                @for($i = $start; $i <= $end; $i++)
+                                    <li class="page-item {{ $i == $salesByCompany['current_page'] ? 'active' : '' }}">
+                                        <a class="page-link pagination-link" data-page="{{ $i }}" data-table="sales-company" href="javascript:void(0)">{{ $i }}</a>
+                                    </li>
+                                @endfor
+                                
+                                @if($end < $salesByCompany['last_page'])
+                                    @if($end < $salesByCompany['last_page'] - 1)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $salesByCompany['last_page'] }}" data-table="sales-company" href="javascript:void(0)">{{ $salesByCompany['last_page'] }}</a>
+                                    </li>
+                                @endif
+                                
+                                @if($salesByCompany['current_page'] < $salesByCompany['last_page'])
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $salesByCompany['current_page'] + 1 }}" data-table="sales-company" href="javascript:void(0)">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
         @endif
 
         <!-- Aylık Üretim Trendi -->
-        @if($monthlyTrend && count($monthlyTrend) > 0)
+        @if($monthlyTrend && isset($monthlyTrend['data']) && count($monthlyTrend['data']) > 0)
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern">
@@ -395,7 +631,7 @@
             </div>
             <div class="card-body-modern">
                 <div class="table-responsive">
-                    <table class="table table-modern">
+                    <table id="monthly-trend-table" class="table table-modern">
                         <thead>
                             <tr>
                                 <th>Dönem</th>
@@ -405,16 +641,83 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($monthlyTrend as $trend)
+                            @forelse($monthlyTrend['data'] as $trend)
                             <tr>
                                 <td>{{ $trend->month }}/{{ $trend->year }}</td>
                                 <td>{{ $trend->barcode_count }}</td>
                                 <td>{{ number_format($trend->total_quantity, 0) }}</td>
                                 <td>{{ $trend->barcode_count > 0 ? number_format($trend->total_quantity / $trend->barcode_count, 0) : 0 }}</td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-info-circle mb-2" style="font-size: 1.5rem;"></i>
+                                        <p class="mb-0">Bu stok için aylık üretim trendi verisi bulunamadı.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    @if($monthlyTrend['last_page'] > 1)
+                    <div id="monthly-trend-pagination" class="d-flex justify-content-center mt-3">
+                        <nav aria-label="Aylık üretim trendi sayfaları">
+                            <ul class="pagination" data-table="monthly-trend">
+                                @if($monthlyTrend['current_page'] > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $monthlyTrend['current_page'] - 1 }}" data-table="monthly-trend" href="javascript:void(0)">
+                                            <i class="fas fa-chevron-left"></i> Önceki
+                                        </a>
+                                    </li>
+                                @endif
+                                
+                                @php
+                                    $start = max(1, $monthlyTrend['current_page'] - 2);
+                                    $end = min($monthlyTrend['last_page'], $monthlyTrend['current_page'] + 2);
+                                @endphp
+                                
+                                @if($start > 1)
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="1" data-table="monthly-trend" href="javascript:void(0)">1</a>
+                                    </li>
+                                    @if($start > 2)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                @endif
+                                
+                                @for($i = $start; $i <= $end; $i++)
+                                    <li class="page-item {{ $i == $monthlyTrend['current_page'] ? 'active' : '' }}">
+                                        <a class="page-link pagination-link" data-page="{{ $i }}" data-table="monthly-trend" href="javascript:void(0)">{{ $i }}</a>
+                                    </li>
+                                @endfor
+                                
+                                @if($end < $monthlyTrend['last_page'])
+                                    @if($end < $monthlyTrend['last_page'] - 1)
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $monthlyTrend['last_page'] }}" data-table="monthly-trend" href="javascript:void(0)">{{ $monthlyTrend['last_page'] }}</a>
+                                    </li>
+                                @endif
+                                
+                                @if($monthlyTrend['current_page'] < $monthlyTrend['last_page'])
+                                    <li class="page-item">
+                                        <a class="page-link pagination-link" data-page="{{ $monthlyTrend['current_page'] + 1 }}" data-table="monthly-trend" href="javascript:void(0)">
+                                            Sonraki <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -422,8 +725,14 @@
         @else
         <div class="card-modern">
             <div class="card-body-modern text-center">
-                <h4>Bu stok için henüz veri bulunmuyor.</h4>
-                <p>Stok detayları görüntülenebilmesi için önce bu stoktan üretim yapılması gerekiyor.</p>
+                <div class="error-state">
+                    <i class="fas fa-box-open"></i>
+                    <h4 class="text-muted">Bu stok için henüz veri bulunmuyor</h4>
+                    <p class="text-muted mb-3">Stok detayları görüntülenebilmesi için önce bu stoktan üretim yapılması gerekiyor.</p>
+                    <a href="{{ route('stock.index') }}" class="btn-modern btn-primary-modern">
+                        <i class="fas fa-arrow-left"></i> Stok Listesine Dön
+                    </a>
+                </div>
             </div>
         </div>
         @endif
@@ -515,4 +824,230 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endif
+
+<script>
+// Enhanced AJAX Pagination with Smooth Transitions
+document.addEventListener('DOMContentLoaded', function() {
+    let isLoading = false;
+    
+    // Pagination linklerine click event ekle
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('pagination-link') && !isLoading) {
+            e.preventDefault();
+            
+            const page = e.target.getAttribute('data-page');
+            const table = e.target.getAttribute('data-table');
+            
+            if (page && table) {
+                loadTableData(table, page);
+            }
+        }
+    });
+    
+    // Tablo verilerini AJAX ile yükle
+    async function loadTableData(table, page) {
+        if (isLoading) return;
+        
+        isLoading = true;
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('page', page);
+        
+        // Loading göster
+        showLoading(table);
+        
+        try {
+            const response = await fetch(currentUrl.toString());
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const html = await response.text();
+            
+            // HTML'i parse et
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // İlgili tabloyu güncelle
+            await updateTable(table, doc, page);
+            
+            // URL'i güncelle (sayfa yenilenmeden)
+            window.history.pushState({}, '', currentUrl.toString());
+            
+            // Smooth scroll to table
+            smoothScrollToTable(table);
+            
+        } catch (error) {
+            console.error('Veri yüklenirken hata:', error);
+            showErrorMessage(table, 'Veri yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+        } finally {
+            isLoading = false;
+            hideLoading(table);
+        }
+    }
+    
+    // Tabloyu güncelle
+    async function updateTable(table, doc, page) {
+        let tableBody, pagination;
+        
+        switch(table) {
+            case 'production-kiln':
+                tableBody = document.querySelector('#production-kiln-table tbody');
+                pagination = document.querySelector('#production-kiln-pagination');
+                break;
+            case 'sales-company':
+                tableBody = document.querySelector('#sales-company-table tbody');
+                pagination = document.querySelector('#sales-company-pagination');
+                break;
+            case 'monthly-trend':
+                tableBody = document.querySelector('#monthly-trend-table tbody');
+                pagination = document.querySelector('#monthly-trend-pagination');
+                break;
+        }
+        
+        if (tableBody && pagination) {
+            // Fade out effect
+            tableBody.style.opacity = '0.5';
+            tableBody.style.transition = 'opacity 0.3s ease';
+            
+            // Tablo verilerini güncelle
+            const newTableBody = doc.querySelector(`#${table}-table tbody`);
+            if (newTableBody) {
+                tableBody.innerHTML = newTableBody.innerHTML;
+            }
+            
+            // Pagination'ı güncelle
+            const newPagination = doc.querySelector(`#${table}-pagination`);
+            if (newPagination) {
+                pagination.innerHTML = newPagination.innerHTML;
+            }
+            
+            // Aktif sayfa linkini güncelle
+            updateActivePage(table, page);
+            
+            // Fade in effect
+            setTimeout(() => {
+                tableBody.style.opacity = '1';
+            }, 100);
+        }
+    }
+    
+    // Aktif sayfa linkini güncelle
+    function updateActivePage(table, page) {
+        const pagination = document.querySelector(`#${table}-pagination`);
+        if (pagination) {
+            // Tüm linklerden active class'ını kaldır
+            pagination.querySelectorAll('.page-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Yeni sayfayı active yap
+            const activeLink = pagination.querySelector(`[data-page="${page}"]`);
+            if (activeLink) {
+                activeLink.closest('.page-item').classList.add('active');
+            }
+        }
+    }
+    
+    // Loading göster
+    function showLoading(table) {
+        const tableBody = document.querySelector(`#${table}-table tbody`);
+        const tableElement = document.querySelector(`#${table}-table`);
+        
+        if (tableBody) {
+            // Loading overlay ekle
+            if (tableElement) {
+                tableElement.classList.add('loading-overlay');
+            }
+            
+            // Tablo sütun sayısını al
+            const columnCount = tableElement ? tableElement.querySelector('thead th').length : 4;
+            
+            const loadingHtml = `
+                <tr>
+                    <td colspan="${columnCount}" class="text-center py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="spinner-border text-primary mb-2" role="status">
+                                <span class="visually-hidden">Yükleniyor...</span>
+                            </div>
+                            <small class="text-muted">Veriler yükleniyor...</small>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML = loadingHtml;
+        }
+    }
+    
+    // Loading gizle
+    function hideLoading(table) {
+        const tableElement = document.querySelector(`#${table}-table`);
+        if (tableElement) {
+            tableElement.classList.remove('loading-overlay');
+        }
+    }
+    
+    // Hata mesajı göster
+    function showErrorMessage(table, message) {
+        const tableBody = document.querySelector(`#${table}-table tbody`);
+        const tableElement = document.querySelector(`#${table}-table`);
+        
+        if (tableBody) {
+            // Tablo sütun sayısını al
+            const columnCount = tableElement ? tableElement.querySelectorAll('thead th').length : 4;
+            
+            const errorHtml = `
+                <tr>
+                    <td colspan="${columnCount}" class="text-center py-4">
+                        <div class="d-flex flex-column align-items-center">
+                            <i class="fas fa-exclamation-triangle text-warning mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-2">${message}</p>
+                            <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">
+                                <i class="fas fa-redo"></i> Sayfayı Yenile
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            tableBody.innerHTML = errorHtml;
+        }
+    }
+    
+    // Smooth scroll to table
+    function smoothScrollToTable(table) {
+        const tableElement = document.querySelector(`#${table}-table`);
+        if (tableElement) {
+            tableElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+    
+    // Keyboard navigation support
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            const activePagination = document.querySelector('.pagination .page-item.active');
+            if (activePagination) {
+                const currentPage = parseInt(activePagination.querySelector('.page-link').getAttribute('data-page'));
+                const paginationContainer = activePagination.closest('.pagination');
+                const table = paginationContainer ? paginationContainer.getAttribute('data-table') : null;
+                
+                if (table && currentPage) {
+                    if (e.key === 'ArrowLeft' && currentPage > 1) {
+                        loadTableData(table, currentPage - 1);
+                    } else if (e.key === 'ArrowRight') {
+                        const paginationLinks = paginationContainer.querySelectorAll('.page-link[data-page]');
+                        const pageNumbers = Array.from(paginationLinks).map(link => parseInt(link.getAttribute('data-page')));
+                        const maxPage = Math.max(...pageNumbers);
+                        
+                        if (currentPage < maxPage) {
+                            loadTableData(table, currentPage + 1);
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 @endsection

@@ -427,26 +427,45 @@ class KilnController extends Controller
             ->orderBy('month')
             ->get();
 
-        // En çok üretilen stoklar
-        $topStocks = $kiln->barcodes()
+        // En çok üretilen stoklar (pagination ile)
+        $perPage = 10;
+        $topStocksQuery = $kiln->barcodes()
             ->with('stock')
             ->selectRaw('stock_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
             ->groupBy('stock_id')
-            ->orderByDesc('total_quantity')
-            ->limit(10)
-            ->get();
+            ->orderByDesc('total_quantity');
+        
+        $topStocksTotal = $topStocksQuery->get()->count();
+        $topStocks = $topStocksQuery->skip((request('stocks_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        $topStocksPagination = [
+            'data' => $topStocks,
+            'total' => $topStocksTotal,
+            'per_page' => $perPage,
+            'current_page' => request('stocks_page', 1),
+            'last_page' => ceil($topStocksTotal / $perPage)
+        ];
 
-        // En çok çalışılan müşteriler
-        $topCompanies = $kiln->barcodes()
+        // En çok çalışılan müşteriler (pagination ile)
+        $topCompaniesQuery = $kiln->barcodes()
             ->with('company')
             ->selectRaw('company_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
             ->whereNotNull('company_id')
             ->groupBy('company_id')
-            ->orderByDesc('total_quantity')
-            ->limit(10)
-            ->get();
+            ->orderByDesc('total_quantity');
+        
+        $topCompaniesTotal = $topCompaniesQuery->get()->count();
+        $topCompanies = $topCompaniesQuery->skip((request('companies_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        $topCompaniesPagination = [
+            'data' => $topCompanies,
+            'total' => $topCompaniesTotal,
+            'per_page' => $perPage,
+            'current_page' => request('companies_page', 1),
+            'last_page' => ceil($topCompaniesTotal / $perPage)
+        ];
 
-        return view('admin.kiln.analysis', compact('kiln', 'statusDistribution', 'monthlyProduction', 'rejectionTrend', 'topStocks', 'topCompanies'));
+        return view('admin.kiln.analysis', compact('kiln', 'statusDistribution', 'monthlyProduction', 'rejectionTrend', 'topStocks', 'topCompanies', 'topStocksPagination', 'topCompaniesPagination'));
     }
 
     /**

@@ -326,10 +326,12 @@ class StockCalculationService
     /**
      * Fırın bazında üretim
      */
-    public function getProductionByKiln($stockId)
+    public function getProductionByKiln($stockId, $perPage = 10)
     {
-        return Cache::remember("production_by_kiln_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
+        $offset = (request('page', 1) - 1) * $perPage;
+        
+        return Cache::remember("production_by_kiln_{$stockId}_page_" . request('page', 1), 300, function () use ($stockId, $perPage, $offset) {
+            $data = DB::select('
                 SELECT 
                     kilns.name as kiln_name,
                     COUNT(barcodes.id) as barcode_count,
@@ -341,17 +343,35 @@ class StockCalculationService
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY kilns.id, kilns.name
                 ORDER BY total_quantity DESC
-            ', [$stockId]);
+                LIMIT ? OFFSET ?
+            ', [$stockId, $perPage, $offset]);
+            
+            $total = DB::select('
+                SELECT COUNT(DISTINCT kilns.id) as total
+                FROM barcodes
+                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id AND kilns.deleted_at IS NULL
+                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+            ', [$stockId])[0]->total;
+            
+            return [
+                'data' => $data,
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => request('page', 1),
+                'last_page' => ceil($total / $perPage)
+            ];
         });
     }
 
     /**
      * Müşteri bazında satış
      */
-    public function getSalesByCompany($stockId)
+    public function getSalesByCompany($stockId, $perPage = 10)
     {
-        return Cache::remember("sales_by_company_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
+        $offset = (request('page', 1) - 1) * $perPage;
+        
+        return Cache::remember("sales_by_company_{$stockId}_page_" . request('page', 1), 300, function () use ($stockId, $perPage, $offset) {
+            $data = DB::select('
                 SELECT 
                     companies.name as company_name,
                     COUNT(barcodes.id) as barcode_count,
@@ -366,17 +386,37 @@ class StockCalculationService
                 AND barcodes.company_id IS NOT NULL
                 GROUP BY companies.id, companies.name
                 ORDER BY total_quantity DESC
-            ', [$stockId]);
+                LIMIT ? OFFSET ?
+            ', [$stockId, $perPage, $offset]);
+            
+            $total = DB::select('
+                SELECT COUNT(DISTINCT companies.id) as total
+                FROM barcodes
+                LEFT JOIN companies ON companies.id = barcodes.company_id AND companies.deleted_at IS NULL
+                WHERE barcodes.stock_id = ? 
+                AND barcodes.deleted_at IS NULL
+                AND barcodes.company_id IS NOT NULL
+            ', [$stockId])[0]->total;
+            
+            return [
+                'data' => $data,
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => request('page', 1),
+                'last_page' => ceil($total / $perPage)
+            ];
         });
     }
 
     /**
      * Aylık üretim trendi
      */
-    public function getMonthlyTrend($stockId)
+    public function getMonthlyTrend($stockId, $perPage = 10)
     {
-        return Cache::remember("monthly_trend_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
+        $offset = (request('page', 1) - 1) * $perPage;
+        
+        return Cache::remember("monthly_trend_{$stockId}_page_" . request('page', 1), 300, function () use ($stockId, $perPage, $offset) {
+            $data = DB::select('
                 SELECT 
                     YEAR(barcodes.created_at) as year,
                     MONTH(barcodes.created_at) as month,
@@ -387,8 +427,22 @@ class StockCalculationService
                 WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
                 GROUP BY YEAR(barcodes.created_at), MONTH(barcodes.created_at)
                 ORDER BY year DESC, month DESC
-                LIMIT 12
-            ', [$stockId]);
+                LIMIT ? OFFSET ?
+            ', [$stockId, $perPage, $offset]);
+            
+            $total = DB::select('
+                SELECT COUNT(DISTINCT CONCAT(YEAR(barcodes.created_at), "-", MONTH(barcodes.created_at))) as total
+                FROM barcodes
+                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+            ', [$stockId])[0]->total;
+            
+            return [
+                'data' => $data,
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => request('page', 1),
+                'last_page' => ceil($total / $perPage)
+            ];
         });
     }
 } 
