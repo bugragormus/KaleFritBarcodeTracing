@@ -1640,7 +1640,7 @@
                                     @endif
                                 </div>
                                 <div class="model-accuracy">
-                                    Doğruluk: %{{ $aiInsights['model_accuracy']['production'] ?? 0 }}
+                                    Doğruluk: %{{ $aiInsights['model_status']['accuracy']['production'] ?? 0 }}
                                 </div>
                             </div>
                         </div>
@@ -1658,7 +1658,7 @@
                                     @endif
                                 </div>
                                 <div class="model-accuracy">
-                                    Doğruluk: %{{ $aiInsights['model_status']['quality'] ?? 0 }}
+                                    Doğruluk: %{{ $aiInsights['model_status']['accuracy']['quality'] ?? 0 }}
                                 </div>
                             </div>
                         </div>
@@ -1676,7 +1676,7 @@
                                     @endif
                                 </div>
                                 <div class="model-accuracy">
-                                    Doğruluk: %{{ $aiInsights['model_status']['anomaly'] ?? 0 }}
+                                    Doğruluk: %{{ $aiInsights['model_status']['accuracy']['anomaly'] ?? 0 }}
                                 </div>
                             </div>
                         </div>
