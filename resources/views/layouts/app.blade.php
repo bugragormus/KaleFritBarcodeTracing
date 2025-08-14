@@ -1490,22 +1490,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!menuToggleBtn.contains(event.target) && !mainNavbar.contains(event.target)) {
-                mainNavbar.classList.add('mobile-hidden');
-                // Reset hamburger animation
-                menuToggleSpans.forEach((span, index) => {
-                    if (index === 0) {
-                        span.style.transform = 'rotate(0deg)';
-                    } else if (index === 1) {
-                        span.style.opacity = '1';
-                    } else if (index === 2) {
-                        span.style.transform = 'rotate(0deg)';
-                    }
-                });
-            }
-        });
+        // Menu will only close when toggle button is clicked or page is resized
+        // This prevents accidental closing when clicking on navigation elements
         
         // Close menu when window is resized to desktop
         window.addEventListener('resize', function() {

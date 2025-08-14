@@ -258,22 +258,280 @@
             color: #721c24;
         }
         
-        @media (max-width: 768px) {
+        /* Responsive Design */
+        @media (max-width: 1200px) {
             .stats-cards {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .page-header-modern {
+                padding: 1.5rem;
             }
             
             .page-title-modern {
+                font-size: 2.2rem;
+            }
+            
+            .card-body-modern {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modern-user-management {
+                padding: 1rem 0;
+            }
+            
+            .page-header-modern {
+                padding: 1rem;
+                margin-bottom: 1rem;
+                border-radius: 15px;
+            }
+            
+            .page-title-modern {
+                font-size: 1.8rem;
+            }
+            
+            .page-title-modern i {
+                font-size: 1.5rem;
+                margin-right: 0.8rem;
+            }
+            
+            .page-subtitle-modern {
+                font-size: 1rem;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-icon {
                 font-size: 2rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .card-header-modern {
+                padding: 1rem 1.5rem;
+            }
+            
+            .card-title-modern {
+                font-size: 1.2rem;
+            }
+            
+            .card-body-modern {
+                padding: 1rem;
+            }
+            
+            .table-modern thead th {
+                padding: 0.8rem 0.6rem;
+                font-size: 0.9rem;
+            }
+            
+            .table-modern tbody td {
+                padding: 0.8rem 0.6rem;
+                font-size: 0.9rem;
+            }
+            
+            .table-modern .user-info {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
             .table-modern .action-buttons {
                 flex-direction: column;
+                gap: 0.3rem;
             }
             
             .table-modern .btn-xs-modern {
                 width: 100%;
                 margin-bottom: 0.25rem;
+                padding: 0.6rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            /* Make table responsive */
+            .table-responsive {
+                overflow-x: auto;
+            }
+            
+            /* Stack table cells on very small screens */
+            .table-modern tbody td {
+                display: block;
+                text-align: left;
+                border: none;
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .table-modern tbody td:before {
+                content: attr(data-label) ": ";
+                font-weight: 600;
+                color: #495057;
+                margin-right: 0.5rem;
+            }
+            
+            .table-modern tbody tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 1rem;
+                background: #f8f9fa;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-header-modern {
+                padding: 0.8rem;
+                border-radius: 12px;
+            }
+            
+            .page-title-modern {
+                font-size: 1.5rem;
+            }
+            
+            .page-title-modern i {
+                font-size: 1.3rem;
+                margin-right: 0.6rem;
+            }
+            
+            .page-subtitle-modern {
+                font-size: 0.9rem;
+            }
+            
+            .stats-cards {
+                gap: 0.8rem;
+            }
+            
+            .stat-card {
+                padding: 0.8rem;
+            }
+            
+            .stat-icon {
+                font-size: 1.8rem;
+            }
+            
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            
+            .card-header-modern {
+                padding: 0.8rem 1rem;
+            }
+            
+            .card-title-modern {
+                font-size: 1.1rem;
+            }
+            
+            .card-body-modern {
+                padding: 0.8rem;
+            }
+            
+            .btn-modern {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .table-modern .btn-xs-modern {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title-modern {
+                font-size: 1.3rem;
+            }
+            
+            .page-title-modern i {
+                font-size: 1.1rem;
+                margin-right: 0.5rem;
+            }
+            
+            .stat-card {
+                padding: 0.6rem;
+            }
+            
+            .stat-icon {
+                font-size: 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 1.1rem;
+            }
+            
+            .card-header-modern {
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .card-body-modern {
+                padding: 0.6rem;
+            }
+            
+            .table-modern tbody tr {
+                padding: 0.8rem;
+            }
+        }
+
+        /* DataTables Responsive Improvements */
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            min-width: 80px;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+
+            .dataTables_wrapper .dataTables_filter input {
+                min-width: 150px;
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .dataTables_wrapper .dataTables_info,
+            .dataTables_wrapper .dataTables_paginate {
+                text-align: center;
+                margin-top: 1rem;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 0.3rem 0.6rem;
+                margin: 0 0.1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dataTables_wrapper .dataTables_filter input {
+                min-width: 120px;
+                max-width: 250px;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                padding: 0.2rem 0.4rem;
+                margin: 0 0.05rem;
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -284,13 +542,13 @@
             <!-- Modern Page Header -->
             <div class="page-header-modern">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
+                    <div class="col-lg-8 col-md-7 col-sm-12">
                         <h1 class="page-title-modern">
                             <i class="fas fa-users"></i> Kullanıcı Yönetimi
                         </h1>
                         <p class="page-subtitle-modern">Sistem kullanıcılarını yönetin ve yetkilerini düzenleyin</p>
                     </div>
-                    <div class="col-md-4 text-right">
+                    <div class="col-lg-4 col-md-5 col-sm-12 text-md-right text-center mt-3 mt-md-0">
                         <a href="{{ route('user.create') }}" class="btn-modern btn-success-modern">
                             <i class="fas fa-plus"></i> Yeni Kullanıcı
                         </a>
@@ -312,61 +570,63 @@
                 </div>
                 
                 <div class="card-body-modern">
-                    <table id="datatable" class="table table-modern">
-                        <thead>
-                            <tr>
-                                <th>Kullanıcı</th>
-                                <th>İletişim Bilgileri</th>
-                                <th>Sicil Numarası</th>
-                                <th>İşlemler</th>
-                            </tr>
-                        </thead>
+                    <div class="table-responsive">
+                        <table id="datatable" class="table table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Kullanıcı</th>
+                                    <th>İletişim Bilgileri</th>
+                                    <th>Sicil Numarası</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                        @foreach($users as $user)
-                        <tr>
-                            <td>
-                                <div class="user-info">
-                                    <div>
-                                        <div class="user-name">{{ $user->name }}</div>
-                                        <div class="user-email">{{ $user->email }}</div>
+                            <tbody>
+                            @foreach($users as $user)
+                            <tr>
+                                <td data-label="Kullanıcı">
+                                    <div class="user-info">
+                                        <div>
+                                            <div class="user-name">{{ $user->name }}</div>
+                                            <div class="user-email">{{ $user->email }}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    <div><i class="fas fa-envelope text-muted"></i> {{ $user->email }}</div>
-                                    @if($user->phone)
-                                        <div><i class="fas fa-phone text-muted"></i> {{ $user->phone }}</div>
+                                </td>
+                                <td data-label="İletişim Bilgileri">
+                                    <div>
+                                        <div><i class="fas fa-envelope text-muted"></i> {{ $user->email }}</div>
+                                        @if($user->phone)
+                                            <div><i class="fas fa-phone text-muted"></i> {{ $user->phone }}</div>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td data-label="Sicil Numarası">
+                                    @if($user->registration_number)
+                                        <span class="badge badge-secondary">{{ $user->registration_number }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
                                     @endif
-                                </div>
-                            </td>
-                            <td>
-                                @if($user->registration_number)
-                                    <span class="badge badge-secondary">{{ $user->registration_number }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="{{ route('user.edit', ['user' => $user->id]) }}" class="btn-modern btn-success-modern btn-xs-modern">
-                                        <i class="fas fa-edit"></i> Düzenle
-                                    </a>
-                                    <a href="{{ route('user.permission-edit', ['user' => $user->id]) }}" class="btn-modern btn-info-modern btn-xs-modern">
-                                        <i class="fas fa-shield-alt"></i> Yetkiler
-                                    </a>
-                                    @if(Auth::user()->id !== $user->id)
-                                        <button class="btn-modern btn-danger-modern btn-xs-modern" onclick='deleteConfirmation("{{$user->id}}")'>
-                                            <i class="fas fa-trash"></i> Sil
-                                        </button>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                                </td>
+                                <td data-label="İşlemler">
+                                    <div class="action-buttons">
+                                        <a href="{{ route('user.edit', ['user' => $user->id]) }}" class="btn-modern btn-success-modern btn-xs-modern">
+                                            <i class="fas fa-edit"></i> Düzenle
+                                        </a>
+                                        <a href="{{ route('user.permission-edit', ['user' => $user->id]) }}" class="btn-modern btn-info-modern btn-xs-modern">
+                                            <i class="fas fa-shield-alt"></i> Yetkiler
+                                        </a>
+                                        @if(Auth::user()->id !== $user->id)
+                                            <button class="btn-modern btn-danger-modern btn-xs-modern" onclick='deleteConfirmation("{{$user->id}}")'>
+                                                <i class="fas fa-trash"></i> Sil
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -424,7 +684,19 @@
             language: {
                 search: "Kullanıcı Arama: ",
                 searchPlaceholder: "Orhan ÖZKAN"
-            }
+            },
+            responsive: true,
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Tümü"]],
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            columnDefs: [
+                {
+                    targets: [0, 1, 2, 3],
+                    className: 'text-center'
+                }
+            ]
         } );
     </script>
 @endsection

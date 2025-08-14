@@ -36,14 +36,40 @@ class LaboratoryController extends Controller
             ]);
         }
 
-        // Laboratuvar istatistikleri
+        // Tarih filtreleri (KPI'lar için)
+        $startDate = request('start_date', now()->subDays(30)->format('Y-m-d'));
+        $endDate = request('end_date', now()->format('Y-m-d'));
+        
+        $startDateTime = \Carbon\Carbon::parse($startDate)->startOfDay();
+        $endDateTime = \Carbon\Carbon::parse($endDate)->endOfDay();
+
+        // Laboratuvar istatistikleri (tarih filtrelenmiş)
         $stats = [
-            'waiting' => Barcode::where('status', Barcode::STATUS_WAITING)->count(),
-            'accepted' => Barcode::where('status', Barcode::STATUS_ACCEPTED)->count(),
-            'rejected' => Barcode::where('status', Barcode::STATUS_REJECTED)->count(),
-            'total_today' => Barcode::whereDate('created_at', today())->count(),
-            'processed_today' => Barcode::whereDate('lab_at', today())->count(),
+            'waiting' => Barcode::where('status', Barcode::STATUS_WAITING)->count(), // Bekleyen her zaman güncel
+            'accepted' => Barcode::where('status', Barcode::STATUS_PRE_APPROVED)
+                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->count(),
+            'rejected' => Barcode::where('status', Barcode::STATUS_REJECTED)
+                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->count(),
+            'total_processed' => Barcode::whereNotNull('lab_at')
+                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->count(),
+            'processed_today' => Barcode::whereNotNull('lab_at')
+                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->count(),
+            'control_repeat' => Barcode::where('status', Barcode::STATUS_CONTROL_REPEAT)
+                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->count(),
+            'shipment_approved' => Barcode::where('status', Barcode::STATUS_SHIPMENT_APPROVED)
+                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->count(),
         ];
+
+        // Kabul oranı hesaplama
+        $totalProcessed = $stats['total_processed'];
+        $acceptedCount = $stats['shipment_approved'];
+        $stats['acceptance_rate'] = $totalProcessed > 0 ? round(($acceptedCount / $totalProcessed) * 100, 1) : 0;
 
         // Son işlemler
         $recentActivities = Barcode::with(['stock', 'kiln', 'quantity', 'labBy'])

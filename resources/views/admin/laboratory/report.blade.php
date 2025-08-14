@@ -334,7 +334,7 @@
                                 $personnelStats = $report->groupBy('lab_by')->map(function($items) {
                                     return [
                                         'total' => $items->sum('count'),
-                                        'pre_approved' => $items->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('count'),
+                                        'pre_approved' => $items->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)->sum('count'),
                                         'rejected' => $items->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('count'),
                                         'last_activity' => $items->max('lab_date')
                                     ];

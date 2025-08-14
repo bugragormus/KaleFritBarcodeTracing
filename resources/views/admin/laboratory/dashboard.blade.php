@@ -179,23 +179,116 @@
             background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
             color: white;
         }
+        /* Date Filter Styles */
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .stat-card-modern {
+                margin-bottom: 1rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .page-title-modern {
                 font-size: 2rem;
             }
+            
             .stat-card-modern {
                 padding: 1.2rem 1rem;
+                margin-bottom: 1rem;
             }
+            
             .card-body-modern {
                 padding: 1.2rem;
             }
+            
             .inline-action-buttons {
                 flex-direction: column;
                 gap: 0.5rem;
             }
+            
             .inline-action-buttons .btn-modern {
                 width: 100%;
                 justify-content: center;
+            }
+
+            /* Date filter responsive */
+            .card-modern .row {
+                flex-direction: column;
+            }
+
+            .card-modern .col-md-6 {
+                margin-bottom: 1rem;
+            }
+
+            .card-modern .col-md-6:last-child {
+                margin-bottom: 0;
+            }
+
+            #kpi-date-filter .row {
+                flex-direction: column;
+            }
+
+            #kpi-date-filter .col-md-5,
+            #kpi-date-filter .col-md-2 {
+                margin-bottom: 0.5rem;
+            }
+
+            #kpi-date-filter .col-md-2 {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-title-modern {
+                font-size: 1.8rem;
+            }
+
+            .stat-card-modern {
+                padding: 1rem 0.8rem;
+            }
+
+            .card-body-modern {
+                padding: 1rem;
+            }
+
+            .form-control {
+                font-size: 0.9rem;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .btn-primary {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -221,6 +314,52 @@
             </div>
         </div>
 
+        <!-- KPI Tarih Filtresi -->
+        <div class="card-modern mb-3">
+            <div class="card-body-modern">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt text-primary mr-2"></i>
+                            KPI Tarih Filtresi
+                        </h5>
+                        <small class="text-muted">
+                            Sadece istatistik kartları bu filtrelerden etkilenir | 
+                            <strong>Aktif Tarih: {{ \Carbon\Carbon::parse(request('start_date', now()->subDays(30)->format('Y-m-d')))->format('d.m.Y') }} - {{ \Carbon\Carbon::parse(request('end_date', now()->format('Y-m-d')))->format('d.m.Y') }}</strong>
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <form id="kpi-date-filter" class="row g-2">
+                            <div class="col-md-5">
+                                <label for="start_date" class="form-label">Başlangıç Tarihi</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ request('start_date', now()->subDays(30)->format('Y-m-d')) }}">
+                            </div>
+                            <div class="col-md-5">
+                                <label for="end_date" class="form-label">Bitiş Tarihi</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+                        </form>
+                        <!-- Hızlı Tarih Seçenekleri -->
+                        <div class="mt-2">
+                            <small class="text-muted">Hızlı seçim: </small>
+                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('today')">Bugün</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('yesterday')">Dün</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('week')">Bu Hafta</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('month')">Bu Ay</button>
+                            <button type="button" class="btn btn-outline-warning btn-sm mx-1" onclick="resetDateFilter()">Sıfırla</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- İstatistik Kartları -->
         <div class="row">
             <div class="col-xl-3 col-md-6">
@@ -238,7 +377,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-number-modern">{{ $stats['accepted'] }}</div>
-                    <div class="stat-label-modern">Kabul Edilen</div>
+                    <div class="stat-label-modern">Ön Onaylı</div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -247,7 +386,7 @@
                         <i class="fas fa-times-circle"></i>
                     </div>
                     <div class="stat-number-modern">{{ $stats['rejected'] }}</div>
-                    <div class="stat-label-modern">Red Edilen</div>
+                    <div class="stat-label-modern">Reddedilen</div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
@@ -256,7 +395,47 @@
                         <i class="fas fa-tasks"></i>
                     </div>
                     <div class="stat-number-modern">{{ $stats['processed_today'] }}</div>
-                    <div class="stat-label-modern">Bugün İşlenen</div>
+                    <div class="stat-label-modern">Seçilen Tarihte İşlenen</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ek KPI Kartları -->
+        <div class="row mt-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card-modern text-center">
+                    <div class="stat-icon-modern text-primary mb-2">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['total_processed'] ?? 0 }}</div>
+                    <div class="stat-label-modern">Toplam İşlenen</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card-modern text-center">
+                    <div class="stat-icon-modern text-secondary mb-2">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['control_repeat'] ?? 0 }}</div>
+                    <div class="stat-label-modern">Kontrol Tekrarı</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card-modern text-center">
+                    <div class="stat-icon-modern text-dark mb-2">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['shipment_approved'] ?? 0 }}</div>
+                    <div class="stat-label-modern">Sevk Onaylı</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card-modern text-center">
+                    <div class="stat-icon-modern text-success mb-2">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['acceptance_rate'] ?? 0 }}%</div>
+                    <div class="stat-label-modern">Sevk Oranı</div>
                 </div>
             </div>
         </div>
@@ -464,7 +643,83 @@ $.ajaxSetup({
     }
 });
 
+// Date filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const dateFilterForm = document.getElementById('kpi-date-filter');
+    
+    if (dateFilterForm) {
+        dateFilterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            
+            if (!startDate || !endDate) {
+                alert('Lütfen başlangıç ve bitiş tarihlerini seçin.');
+                return;
+            }
+            
+            if (startDate > endDate) {
+                alert('Başlangıç tarihi bitiş tarihinden büyük olamaz.');
+                return;
+            }
+            
+            // Reload page with new date parameters
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('start_date', startDate);
+            currentUrl.searchParams.set('end_date', endDate);
+            window.location.href = currentUrl.toString();
+        });
+    }
+});
 
+// Quick date range functions
+function setDateRange(range) {
+    const today = new Date();
+    let startDate, endDate;
+    
+    switch(range) {
+        case 'today':
+            startDate = today.toISOString().split('T')[0];
+            endDate = today.toISOString().split('T')[0];
+            break;
+        case 'yesterday':
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            startDate = yesterday.toISOString().split('T')[0];
+            endDate = yesterday.toISOString().split('T')[0];
+            break;
+        case 'week':
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            startDate = weekStart.toISOString().split('T')[0];
+            endDate = today.toISOString().split('T')[0];
+            break;
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+            endDate = today.toISOString().split('T')[0];
+            break;
+    }
+    
+    document.getElementById('start_date').value = startDate;
+    document.getElementById('end_date').value = endDate;
+    
+    // Auto-submit the form
+    document.getElementById('kpi-date-filter').submit();
+}
+
+// Reset date filter to default (last 30 days)
+function resetDateFilter() {
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    document.getElementById('start_date').value = thirtyDaysAgo.toISOString().split('T')[0];
+    document.getElementById('end_date').value = today.toISOString().split('T')[0];
+    
+    // Auto-submit the form
+    document.getElementById('kpi-date-filter').submit();
+}
 
 // Modal açma
 $(document).on('click', '.process-barcode-btn', function() {
