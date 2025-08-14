@@ -54,6 +54,9 @@ class DashboardController extends Controller
         // AI/ML Insights
         $aiInsights = $this->generateAIInsights($date);
         
+        // Stok yaşı analizi
+        $stockAgeAnalysis = $this->getStockAgeAnalysis();
+        
         // Stok, depo ve fırın bilgileri
         $stockInfo = $this->getStockInfo();
         $warehouseInfo = $this->getWarehouseInfo();
@@ -71,6 +74,7 @@ class DashboardController extends Controller
             'weeklyTrend',
             'monthlyComparison',
             'aiInsights',
+            'stockAgeAnalysis',
             'stockInfo',
             'warehouseInfo',
             'kilnInfo'
@@ -577,10 +581,22 @@ class DashboardController extends Controller
         $changes = [];
         
         foreach ($current as $key => $value) {
-            if (isset($previous[$key]) && $previous[$key] > 0) {
-                $changes[$key] = round((($value - $previous[$key]) / $previous[$key]) * 100, 2);
+            if (isset($previous[$key])) {
+                if ($previous[$key] > 0) {
+                    // Önceki ay verisi varsa normal hesaplama
+                    $changes[$key] = round((($value - $previous[$key]) / $previous[$key]) * 100, 2);
+                } elseif ($previous[$key] == 0 && $value > 0) {
+                    // Önceki ay 0, bu ay veri varsa %100 artış
+                    $changes[$key] = 100.00;
+                } elseif ($previous[$key] == 0 && $value == 0) {
+                    // Her iki ay da 0 ise değişim yok
+                    $changes[$key] = 0.00;
+                } else {
+                    // Önceki ay veri var, bu ay 0 ise %100 düşüş
+                    $changes[$key] = -100.00;
+                }
             } else {
-                $changes[$key] = 0;
+                $changes[$key] = 0.00;
             }
         }
         
@@ -1666,6 +1682,168 @@ class DashboardController extends Controller
                 WHERE barcodes.created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)
                 AND barcodes.deleted_at IS NULL
             ')[0]->count ?? 0
+        ];
+    }
+
+    /**
+     * Stok yaşı analizi
+     */
+    private function getStockAgeAnalysis()
+    {
+        $currentDate = Carbon::now();
+        
+        // Tüm barkodları yaşlarına göre analiz et
+        $stockAgeData = DB::select('
+            SELECT 
+                barcodes.id,
+                barcodes.id as barcode,
+                barcodes.status,
+                barcodes.created_at,
+                barcodes.updated_at,
+                barcodes.lab_at,
+                barcodes.warehouse_transferred_at as shipment_at,
+                stocks.name as stock_name,
+                stocks.code as stock_code,
+                quantities.quantity,
+                companies.name as company_name,
+                warehouses.name as warehouse_name,
+                kilns.name as kiln_name,
+                DATEDIFF(?, barcodes.created_at) as days_old,
+                DATEDIFF(?, COALESCE(barcodes.lab_at, barcodes.created_at)) as days_since_lab,
+                DATEDIFF(?, COALESCE(barcodes.warehouse_transferred_at, barcodes.created_at)) as days_since_shipment,
+                DATEDIFF(?, barcodes.updated_at) as days_since_update
+            FROM barcodes
+            LEFT JOIN stocks ON barcodes.stock_id = stocks.id
+            LEFT JOIN quantities ON barcodes.quantity_id = quantities.id
+            LEFT JOIN companies ON barcodes.company_id = companies.id
+            LEFT JOIN warehouses ON barcodes.warehouse_id = warehouses.id
+            LEFT JOIN kilns ON barcodes.kiln_id = kilns.id
+            WHERE barcodes.deleted_at IS NULL
+            ORDER BY days_old DESC, quantities.quantity DESC
+        ', [$currentDate, $currentDate, $currentDate, $currentDate]);
+        
+        // Yaş kategorilerine göre grupla
+        $ageCategories = [
+            'critical' => ['min' => 30, 'max' => null, 'label' => 'Kritik (30+ gün)', 'color' => 'danger'],
+            'warning' => ['min' => 15, 'max' => 29, 'label' => 'Uyarı (15-29 gün)', 'color' => 'warning'],
+            'attention' => ['min' => 7, 'max' => 14, 'label' => 'Dikkat (7-14 gün)', 'color' => 'info'],
+            'normal' => ['min' => 0, 'max' => 6, 'label' => 'Normal (0-6 gün)', 'color' => 'success']
+        ];
+        
+        $categorizedStock = [];
+        $summary = [
+            'total_barcodes' => 0,
+            'total_quantity' => 0,
+            'critical_count' => 0,
+            'critical_quantity' => 0,
+            'warning_count' => 0,
+            'warning_quantity' => 0,
+            'attention_count' => 0,
+            'attention_quantity' => 0,
+            'normal_count' => 0,
+            'normal_quantity' => 0
+        ];
+        
+        foreach ($stockAgeData as $stock) {
+            $summary['total_barcodes']++;
+            $summary['total_quantity'] += $stock->quantity ?? 0;
+            
+            foreach ($ageCategories as $category => $criteria) {
+                if (($criteria['min'] === null || $stock->days_old >= $criteria['min']) && 
+                    ($criteria['max'] === null || $stock->days_old <= $criteria['max'])) {
+                    
+                    if (!isset($categorizedStock[$category])) {
+                        $categorizedStock[$category] = [];
+                    }
+                    
+                    $categorizedStock[$category][] = $stock;
+                    
+                    // Summary güncelle
+                    $summary[$category . '_count']++;
+                    $summary[$category . '_quantity'] += $stock->quantity ?? 0;
+                    break;
+                }
+            }
+        }
+        
+        // En eski 20 barkodu al
+        $oldestBarcodes = array_slice($stockAgeData, 0, 20);
+        
+        // Durum bazında analiz
+        $statusAnalysis = [];
+        foreach ($stockAgeData as $stock) {
+            $status = $stock->status;
+            if (!isset($statusAnalysis[$status])) {
+                $statusAnalysis[$status] = [
+                    'count' => 0,
+                    'quantity' => 0,
+                    'avg_age' => 0,
+                    'oldest_age' => 0
+                ];
+            }
+            
+            $statusAnalysis[$status]['count']++;
+            $statusAnalysis[$status]['quantity'] += $stock->quantity ?? 0;
+            $statusAnalysis[$status]['avg_age'] += $stock->days_old;
+            $statusAnalysis[$status]['oldest_age'] = max($statusAnalysis[$status]['oldest_age'], $stock->days_old);
+        }
+        
+        // Ortalama yaşları hesapla
+        foreach ($statusAnalysis as $status => $data) {
+            if ($data['count'] > 0) {
+                $statusAnalysis[$status]['avg_age'] = round($data['avg_age'] / $data['count'], 1);
+            }
+        }
+        
+        // Ürün bazında analiz
+        $productAnalysis = [];
+        foreach ($stockAgeData as $stock) {
+            $productKey = $stock->stock_name . ' (' . $stock->stock_code . ')';
+            if (!isset($productAnalysis[$productKey])) {
+                $productAnalysis[$productKey] = [
+                    'stock_name' => $stock->stock_name,
+                    'stock_code' => $stock->stock_code,
+                    'count' => 0,
+                    'quantity' => 0,
+                    'avg_age' => 0,
+                    'oldest_age' => 0,
+                    'critical_count' => 0,
+                    'warning_count' => 0
+                ];
+            }
+            
+            $productAnalysis[$productKey]['count']++;
+            $productAnalysis[$productKey]['quantity'] += $stock->quantity ?? 0;
+            $productAnalysis[$productKey]['avg_age'] += $stock->days_old;
+            $productAnalysis[$productKey]['oldest_age'] = max($productAnalysis[$productKey]['oldest_age'], $stock->days_old);
+            
+            if ($stock->days_old >= 30) {
+                $productAnalysis[$productKey]['critical_count']++;
+            } elseif ($stock->days_old >= 15) {
+                $productAnalysis[$productKey]['warning_count']++;
+            }
+        }
+        
+        // Ürün ortalamalarını hesapla
+        foreach ($productAnalysis as $productKey => $data) {
+            if ($data['count'] > 0) {
+                $productAnalysis[$productKey]['avg_age'] = round($data['avg_age'] / $data['count'], 1);
+            }
+        }
+        
+        // Kritik ürünleri sırala
+        uasort($productAnalysis, function($a, $b) {
+            return ($b['critical_count'] + $b['warning_count']) - ($a['critical_count'] + $a['warning_count']);
+        });
+        
+        return [
+            'summary' => $summary,
+            'categorized_stock' => $categorizedStock,
+            'oldest_barcodes' => $oldestBarcodes,
+            'status_analysis' => $statusAnalysis,
+            'product_analysis' => array_slice($productAnalysis, 0, 20), // En kritik 20 ürün
+            'age_categories' => $ageCategories,
+            'current_date' => $currentDate->format('d.m.Y H:i')
         ];
     }
 }

@@ -775,7 +775,7 @@
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
                                 <div class="feature-title">Kalite Modeli</div>
-                                <div class="feature-description">Doğruluk: %75+<br>Durum: Aktif</div>
+                                <div class="feature-description">Doğruluk: %95+<br>Durum: Aktif</div>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-search"></i></div>
