@@ -5,26 +5,26 @@
 </p>
 
 <p align="center">
-  <strong>AI/ML Destekli Modern ve Kullanıcı Dostu Yönetim Sistemi</strong>
+  <strong>Gelişmiş İstatistiksel Analiz Destekli Modern ve Kullanıcı Dostu Yönetim Sistemi</strong>
 </p>
 
-## 🚀 Yeni: AI/ML Destekli Akıllı Analitik
+## 🚀 Yeni: Gelişmiş İstatistiksel Analiz Sistemi
 
-Kalefrit artık yapay zeka ve makine öğrenmesi teknolojileri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti ve akıllı optimizasyon önerileri ile işletmenizi bir üst seviyeye taşıyın.
+Kalefrit artık gelişmiş istatistiksel analiz özellikleri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti ve veri tabanlı optimizasyon önerileri ile işletmenizi bir üst seviyeye taşıyın.
 
 ## 📋 Proje Hakkında
 
-Kalefrit, işletmeler için geliştirilmiş kapsamlı bir yönetim sistemidir. Bu sistem, işletme operasyonlarını dijitalleştirerek verimliliği artırır ve hata riskini minimize eder. **v2.0** ile birlikte AI/ML destekli akıllı analitik özellikleri eklenmiştir.
+Kalefrit, işletmeler için geliştirilmiş kapsamlı bir yönetim sistemidir. Bu sistem, işletme operasyonlarını dijitalleştirerek verimliliği artırır ve hata riskini minimize eder. **v2.0** ile birlikte gelişmiş istatistiksel analiz özellikleri eklenmiştir.
 
 ## ✨ Özellikler
 
-### 🧠 AI/ML Destekli Analitik
+### 📊 Gelişmiş İstatistiksel Analitik
 
--   **Üretim Tahmini**: Gelecek 7 gün için AI destekli üretim tahminleri
+-   **Üretim Tahmini**: Gelecek 7 gün için istatistiksel üretim tahminleri
 -   **Kalite Risk Analizi**: Otomatik kalite risk değerlendirmesi ve uyarıları
--   **Anomali Tespiti**: Makine öğrenmesi ile üretim anomalilerinin tespiti
--   **Akıllı Öneriler**: AI tarafından üretilen optimizasyon önerileri
--   **ML Model Yönetimi**: 3 farklı ML modeli ile sürekli öğrenme
+-   **Anomali Tespiti**: İstatistiksel analiz ile üretim anomalilerinin tespiti
+-   **Veri Tabanlı Öneriler**: İstatistiksel analiz ile üretilen optimizasyon önerileri
+-   **Analitik Model Yönetimi**: 3 farklı analitik model ile sürekli veri analizi
 
 ### 📊 Gelişmiş Raporlama
 
@@ -99,12 +99,12 @@ Kalefrit, işletmeler için geliştirilmiş kapsamlı bir yönetim sistemidir. B
 -   **JavaScript**: jQuery, Chart.js
 -   **Icons**: Font Awesome, Material Design Icons
 
-### AI/ML & Analitik
+### Analitik & İstatistik
 
--   **Makine Öğrenmesi**: Özel geliştirilmiş ML modelleri
 -   **İstatistiksel Analiz**: Z-Score, trend analizi, anomali tespiti
--   **Tahmin Modelleri**: Üretim ve kalite tahmin algoritmaları
+-   **Tahmin Modelleri**: Basit istatistiksel üretim ve kalite tahmin algoritmaları
 -   **Gerçek Zamanlı İşleme**: Canlı veri analizi ve güncelleme
+-   **Veri Görselleştirme**: Grafik ve tablo tabanlı raporlama
 
 ### Entegrasyonlar
 
@@ -121,7 +121,7 @@ Kalefrit, işletmeler için geliştirilmiş kapsamlı bir yönetim sistemidir. B
 -   **Composer**: 2.0+
 -   **MySQL**: 5.7+ (8.0+ önerilen)
 -   **Web Server**: Apache/Nginx
--   **RAM**: 4GB+ (AI/ML özellikleri için 8GB+ önerilen)
+-   **RAM**: 4GB+ (analitik özellikleri için 6GB+ önerilen)
 -   **Storage**: 10GB+ boş alan
 
 ### Adımlar
@@ -179,16 +179,13 @@ php artisan view:clear
 php artisan serve
 ```
 
-### AI/ML Model Kurulumu
+### Analitik Model Kurulumu
 
-AI/ML özelliklerinin tam olarak çalışması için:
+Analitik özelliklerin tam olarak çalışması için:
 
 ```bash
 # Veri bütünlüğü kontrolü
 php artisan data:integrity:check
-
-# ML model durumunu kontrol et
-php artisan ml:status
 
 # Cache'i optimize et
 php artisan optimize
@@ -212,10 +209,10 @@ php artisan optimize
 2. **Modülleri Kullanın**: Üst menüden ihtiyacınız olan modülü seçin
 3. **İşlemleri Gerçekleştirin**: Stok, üretim, raporlama işlemlerini yapın
 
-### AI/ML Özellikleri
+### Analitik Özellikleri
 
 1. **Dashboard'a Gidin**: Ana sayfaya gidin
-2. **AI/ML Bölümünü Bulun**: Sayfayı aşağı kaydırarak AI/ML bölümünü bulun
+2. **Analitik Bölümünü Bulun**: Sayfayı aşağı kaydırarak analitik bölümünü bulun
 3. **İçgörüleri İnceleyin**: Üretim tahminleri, kalite risk analizi ve önerileri görüntüleyin
 
 ### Günlük Raporlar
@@ -225,7 +222,7 @@ php artisan optimize
 3. **Tarih Filtreleme**: İstediğiniz tarihi seçin
 4. **Verileri İndirin**: Excel formatında raporları indirin
 
-## 📊 AI/ML Özellik Detayları
+## 📊 Analitik Özellik Detayları
 
 ### Üretim Tahmini
 
@@ -233,13 +230,14 @@ php artisan optimize
 -   **Tahmin Süresi**: Gelecek 7 gün
 -   **Güven Seviyesi**: %60-95 arası
 -   **Güncelleme**: Her gece otomatik
+-   **Metod**: Basit istatistiksel hesaplama (ortalama × gün sayısı)
 
 ### Kalite Risk Analizi
 
 -   **Risk Seviyeleri**: Düşük (≤%5), Orta (%6-15), Yüksek (>%15)
 -   **Analiz Periyodu**: Son 14 gün
--   **Tahmin**: %10 artış öngörüsü
--   **Öneriler**: Otomatik akıllı öneriler
+-   **Tahmin**: Basit trend analizi
+-   **Öneriler**: Veri tabanlı optimizasyon önerileri
 
 ### Anomali Tespiti
 
@@ -256,11 +254,11 @@ php artisan optimize
 4. Branch'inizi push edin (`git push origin feature/AmazingFeature`)
 5. Pull Request oluşturun
 
-### Geliştirme Kuralları
+### Geliştirme Kurulları
 
 -   PSR-12 kod standartlarına uyun
 -   Unit testler yazın
--   AI/ML modellerini test edin
+-   Analitik modelleri test edin
 -   Dokümantasyonu güncelleyin
 
 ## 📄 Lisans
@@ -275,7 +273,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ---
 
-**Kalefrit v2.0** - AI/ML destekli işletme yönetiminde dijital dönüşüm 🚀🧠
+**Kalefrit v2.0** - İstatistiksel analiz destekli işletme yönetiminde dijital dönüşüm 🚀📊
 
 ---
 
@@ -286,26 +284,26 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 </p>
 
 <p align="center">
-  <strong>AI/ML-Powered Modern and User-Friendly Management System</strong>
+  <strong>Advanced Statistical Analysis-Powered Modern and User-Friendly Management System</strong>
 </p>
 
-## 🚀 New: AI/ML-Powered Smart Analytics
+## 🚀 New: Advanced Statistical Analysis System
 
-Kalefrit is now enhanced with artificial intelligence and machine learning technologies! Take your business to the next level with production forecasts, quality risk analysis, anomaly detection, and smart optimization recommendations.
+Kalefrit is now enhanced with advanced statistical analysis features! Take your business to the next level with production forecasts, quality risk analysis, anomaly detection, and data-driven optimization recommendations.
 
 ## 📋 About the Project
 
-Kalefrit is a comprehensive management system developed for businesses. This system digitizes business operations to increase efficiency and minimize error risk. **v2.0** adds AI/ML-powered smart analytics features.
+Kalefrit is a comprehensive management system developed for businesses. This system digitizes business operations to increase efficiency and minimize error risk. **v2.0** adds advanced statistical analysis features.
 
 ## ✨ Features
 
-### 🧠 AI/ML-Powered Analytics
+### 📊 Advanced Statistical Analytics
 
--   **Production Forecasting**: AI-powered 7-day production forecasts
+-   **Production Forecasting**: Statistical 7-day production forecasts
 -   **Quality Risk Analysis**: Automatic quality risk assessment and alerts
--   **Anomaly Detection**: Machine learning-based production anomaly detection
--   **Smart Recommendations**: AI-generated optimization recommendations
--   **ML Model Management**: Continuous learning with 3 different ML models
+-   **Anomaly Detection**: Statistical analysis-based production anomaly detection
+-   **Data-Driven Recommendations**: Statistical analysis-generated optimization recommendations
+-   **Analytics Model Management**: Continuous data analysis with 3 different analytical models
 
 ### 📊 Advanced Reporting
 
@@ -380,12 +378,12 @@ Kalefrit is a comprehensive management system developed for businesses. This sys
 -   **JavaScript**: jQuery, Chart.js
 -   **Icons**: Font Awesome, Material Design Icons
 
-### AI/ML & Analytics
+### Analytics & Statistics
 
--   **Machine Learning**: Custom-developed ML models
 -   **Statistical Analysis**: Z-Score, trend analysis, anomaly detection
--   **Prediction Models**: Production and quality prediction algorithms
+-   **Prediction Models**: Simple statistical production and quality prediction algorithms
 -   **Real-time Processing**: Live data analysis and updates
+-   **Data Visualization**: Chart and table-based reporting
 
 ### Integrations
 
@@ -402,7 +400,7 @@ Kalefrit is a comprehensive management system developed for businesses. This sys
 -   **Composer**: 2.0+
 -   **MySQL**: 5.7+ (8.0+ recommended)
 -   **Web Server**: Apache/Nginx
--   **RAM**: 4GB+ (8GB+ recommended for AI/ML features)
+-   **RAM**: 4GB+ (6GB+ recommended for analytics features)
 -   **Storage**: 10GB+ free space
 
 ### Steps
@@ -460,16 +458,13 @@ php artisan view:clear
 php artisan serve
 ```
 
-### AI/ML Model Setup
+### Analytics Model Setup
 
-For full AI/ML functionality:
+For full analytics functionality:
 
 ```bash
 # Check data integrity
 php artisan data:integrity:check
-
-# Check ML model status
-php artisan ml:status
 
 # Optimize cache
 php artisan optimize
@@ -493,10 +488,10 @@ php artisan optimize
 2. **Use Modules**: Select the module you need from the top menu
 3. **Perform Operations**: Execute inventory, production, and reporting operations
 
-### AI/ML Features
+### Analytics Features
 
 1. **Go to Dashboard**: Navigate to the main page
-2. **Find AI/ML Section**: Scroll down to find the AI/ML section
+2. **Find Analytics Section**: Scroll down to find the analytics section
 3. **Review Insights**: View production forecasts, quality risk analysis, and recommendations
 
 ### Daily Reports
@@ -506,7 +501,7 @@ php artisan optimize
 3. **Date Filtering**: Select your desired date
 4. **Download Data**: Export reports in Excel format
 
-## 📊 AI/ML Feature Details
+## 📊 Analytics Feature Details
 
 ### Production Forecasting
 
@@ -514,13 +509,14 @@ php artisan optimize
 -   **Forecast Period**: Next 7 days
 -   **Confidence Level**: 60-95%
 -   **Updates**: Automatic every night
+-   **Method**: Simple statistical calculation (average × days)
 
 ### Quality Risk Analysis
 
 -   **Risk Levels**: Low (≤5%), Medium (6-15%), High (>15%)
 -   **Analysis Period**: Last 14 days
--   **Prediction**: 10% increase forecast
--   **Recommendations**: Automatic smart recommendations
+-   **Prediction**: Simple trend analysis
+-   **Recommendations**: Data-driven optimization recommendations
 
 ### Anomaly Detection
 
@@ -541,7 +537,7 @@ php artisan optimize
 
 -   Follow PSR-12 coding standards
 -   Write unit tests
--   Test AI/ML models
+-   Test analytics models
 -   Update documentation
 
 ## 📄 License
@@ -556,4 +552,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ---
 
-**Kalefrit v2.0** - AI/ML-powered digital transformation in business management 🚀🧠
+**Kalefrit v2.0** - Statistical analysis-powered digital transformation in business management 🚀📊

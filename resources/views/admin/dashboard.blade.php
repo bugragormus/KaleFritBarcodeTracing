@@ -1421,7 +1421,7 @@
                     </h3>
                     <div class="shift-actions">
                         <button class="btn btn-info btn-sm" onclick="refreshShiftReport()" title="Yenile">
-                            <i class="fas fa-sync-alt"></i>
+                            <i class="fas fa-sync-alt"></i> Yenile
                         </button>
                     </div>
                 </div>

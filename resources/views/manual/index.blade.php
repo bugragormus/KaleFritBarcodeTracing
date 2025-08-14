@@ -428,8 +428,8 @@
 
             <!-- AI/ML Highlight -->
             <div class="ai-ml-highlight">
-                <h4><i class="fas fa-brain"></i> 🚀 Yeni: AI/ML Destekli Akıllı Analitik Sistemi</h4>
-                <p>Kalefrit artık yapay zeka ve makine öğrenmesi teknolojileri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti ve akıllı optimizasyon önerileri ile işletmenizi bir üst seviyeye taşıyın.</p>
+                <h4><i class="fas fa-chart-line"></i> 🚀 Yeni: Gelişmiş İstatistiksel Analiz Sistemi</h4>
+                <p>Kalefrit artık gelişmiş istatistiksel analiz özellikleri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti ve veri tabanlı optimizasyon önerileri ile işletmenizi bir üst seviyeye taşıyın.</p>
             </div>
 
             <!-- Hızlı Başlangıç -->
@@ -448,7 +448,7 @@
                 </h3>
                 <ul class="toc-list">
                     <li><a href="#sistem-hakkinda"><i class="fas fa-info-circle"></i> Sistem Hakkında</a></li>
-                    <li><a href="#ai-ml-ozellikleri"><i class="fas fa-brain"></i> AI/ML Özellikleri</a></li>
+                    <li><a href="#ai-ml-ozellikleri"><i class="fas fa-chart-line"></i> Gelişmiş Analitik Özellikleri</a></li>
                     <li><a href="#temel-navigation"><i class="fas fa-compass"></i> Temel Navigasyon</a></li>
                     <li><a href="#giris-cikis"><i class="fas fa-sign-in-alt"></i> Giriş ve Çıkış İşlemleri</a></li>
                     <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard Kullanımı</a></li>
@@ -488,9 +488,9 @@
                                 <div class="feature-description">Tüm barkod işlemlerinizi tek yerden yönetin</div>
                             </div>
                             <div class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-brain"></i></div>
-                                <div class="feature-title">AI/ML Analitik</div>
-                                <div class="feature-description">Yapay zeka destekli tahmin ve analiz</div>
+                                <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="feature-title">Gelişmiş Analitik</div>
+                                <div class="feature-description">İstatistiksel analiz ve tahmin</div>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
@@ -552,7 +552,7 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Veri Analistleri</strong></td>
-                                    <td>AI/ML analitik ve raporlama</td>
+                                    <td>İstatistiksel analiz ve raporlama</td>
                                     <td>Trend analizi, tahmin modelleri, optimizasyon</td>
                                 </tr>
                             </tbody>
@@ -569,8 +569,8 @@
                                 <div class="step-description">Manuel süreçleri dijitalleştirerek hata oranını azaltır ve verimliliği artırır.</div>
                             </li>
                             <li class="step-item">
-                                <div class="step-title">AI/ML Destekli Analitik</div>
-                                <div class="step-description">Yapay zeka teknolojileri ile gelecek tahminleri ve akıllı öneriler sunar.</div>
+                                <div class="step-title">Gelişmiş İstatistiksel Analitik</div>
+                                <div class="step-description">İstatistiksel modeller ile gelecek tahminleri ve veri tabanlı öneriler sunar.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">Gerçek Zamanlı Takip</div>
@@ -593,9 +593,9 @@
             <div class="card-modern" id="ai-ml-ozellikleri">
                 <div class="card-header-modern">
                     <h3 class="card-title-modern">
-                        <i class="fas fa-brain"></i> AI/ML Özellikleri
+                        <i class="fas fa-chart-line"></i> Gelişmiş Analitik Özellikleri
                     </h3>
-                    <p class="card-subtitle-modern">Yapay zeka ve makine öğrenmesi destekli akıllı özellikler</p>
+                    <p class="card-subtitle-modern">İstatistiksel analiz ve veri tabanlı karar destek özellikleri</p>
                 </div>
                 <div class="card-body-modern">
                     <div class="manual-section">
@@ -762,30 +762,30 @@
 
                     <div class="manual-section">
                         <h4 class="section-title">
-                            <i class="fas fa-cog"></i> Makine Öğrenmesi Model Durumu
+                            <i class="fas fa-cog"></i> Analitik Model Durumu
                         </h4>
-                        <p>Sistemde 3 farklı ML modeli aktif olarak çalışmaktadır:</p>
+                        <p>Sistemde 3 farklı analitik model aktif olarak çalışmaktadır:</p>
                         
                         <div class="feature-grid">
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-cog"></i></div>
                                 <div class="feature-title">Üretim Modeli</div>
-                                <div class="feature-description">Doğruluk: %87<br>Durum: Aktif</div>
+                                <div class="feature-description">Doğruluk: %70+<br>Durum: Aktif</div>
                             </div>
                             <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
                                 <div class="feature-title">Kalite Modeli</div>
-                                <div class="feature-description">Doğruluk: %92<br>Durum: Aktif</div>
+                                <div class="feature-description">Doğruluk: %75+<br>Durum: Aktif</div>
                             </div>
                             <div class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                                <div class="feature-icon"><i class="fas fa-search"></i></div>
                                 <div class="feature-title">Anomali Modeli</div>
-                                <div class="feature-description">Doğruluk: %89<br>Durum: Aktif</div>
+                                <div class="feature-description">Doğruluk: %80+<br>Durum: Aktif</div>
                             </div>
                         </div>
                         
                         <div class="info-box">
-                            <strong><i class="fas fa-info-circle"></i> Model Güncellemeleri:</strong> ML modelleri her hafta yeni verilerle otomatik olarak güncellenir ve doğruluk oranları sürekli iyileştirilir.
+                            <strong><i class="fas fa-info-circle"></i> Model Güncellemeleri:</strong> Analitik modeller her gece yeni verilerle otomatik olarak güncellenir. Doğruluk oranları basit istatistiksel hesaplamalara dayanır.
                         </div>
                     </div>
                 </div>
@@ -1093,42 +1093,38 @@
                                     <td>Kalite standartlarını karşılamayan barkod</td>
                                     <td><span style="color: #dc3545;">Kırmızı</span></td>
                                 </tr>
-                                <tr>
-                                    <td>Birleştirildi</td>
-                                    <td>Diğer barkodlarla birleştirilmiş barkod</td>
-                                    <td><span style="color: #6f42c1;">Mor</span></td>
-                                </tr>
+
                             </tbody>
                         </table>
                     </div>
 
                     <div class="manual-section">
                         <h4 class="section-title">
-                            <i class="fas fa-link"></i> Barkod Birleştirme
+                            <i class="fas fa-tools"></i> Düzeltici Faaliyet
                         </h4>
-                        <p>Reddedilmiş barkodları kabul edilmiş barkodlarla birleştirerek yeniden test edilebilir hale getirebilirsiniz:</p>
+                        <p>Kalite kontrol süreçlerinde tespit edilen hataları düzeltmek ve önlemek için düzeltici faaliyetler yapabilirsiniz:</p>
                         
                         <ol class="step-list">
                             <li class="step-item">
-                                <div class="step-title">1. Birleştirme Sayfasına Gidin</div>
-                                <div class="step-description">"Barkod Yönetimi" sayfasından barkod birleştirme işlemini yapın.</div>
+                                <div class="step-title">1. Hata Tespiti</div>
+                                <div class="step-description">Laboratuvar testlerinde reddedilen ürünleri ve hata türlerini belirleyin.</div>
                             </li>
                             <li class="step-item">
-                                <div class="step-title">2. Barkodları Seçin</div>
-                                <div class="step-description">Birleştirilecek barkodları iki grup halinde seçin.</div>
+                                <div class="step-title">2. Kök Neden Analizi</div>
+                                <div class="step-description">Hataların nedenlerini analiz edin ve kaynak noktalarını tespit edin.</div>
                             </li>
                             <li class="step-item">
-                                <div class="step-title">3. Depo Belirleyin</div>
-                                <div class="step-description">Yeni oluşturulacak barkodların hangi depoya gideceğini seçin.</div>
+                                <div class="step-title">3. Düzeltici Aksiyon</div>
+                                <div class="step-description">Tespit edilen hataları düzeltmek için gerekli aksiyonları alın.</div>
                             </li>
                             <li class="step-item">
-                                <div class="step-title">4. Birleştirme İşlemini Tamamlayın</div>
-                                <div class="step-description">"Barkodları Birleştir" butonuna tıklayın.</div>
+                                <div class="step-title">4. Önleyici Tedbir</div>
+                                <div class="step-description">Benzer hataların tekrarlanmaması için önleyici tedbirler uygulayın.</div>
                             </li>
                         </ol>
                         
-                        <div class="warning-box">
-                            <strong><i class="fas fa-exclamation-triangle"></i> Dikkat:</strong> Birleştirilmiş barkodlar tekrar birleştirilemez.
+                        <div class="info-box">
+                            <strong><i class="fas fa-info-circle"></i> Bilgi:</strong> Düzeltici faaliyetler kalite süreçlerinin sürekli iyileştirilmesi için önemlidir.
                         </div>
                     </div>
                 </div>
@@ -1772,8 +1768,8 @@
                         </div>
                         
                         <div class="step-item">
-                            <div class="step-title">Birleştirilmiş barkodlar tekrar birleştirilebilir mi?</div>
-                            <div class="step-description">Hayır, birleştirilmiş barkodlar tekrar birleştirilemez. Bu işlem geri alınamaz.</div>
+                            <div class="step-title">Düzeltici faaliyetler nasıl planlanır?</div>
+                            <div class="step-description">Hata tespiti sonrası kök neden analizi yapılır, düzeltici aksiyonlar belirlenir ve önleyici tedbirler uygulanır.</div>
                         </div>
                         
                         <div class="step-item">
@@ -1879,17 +1875,17 @@
 
                     <div class="manual-section">
                         <h4 class="section-title">
-                            <i class="fas fa-brain"></i> AI/ML Özellikleri
+                            <i class="fas fa-chart-line"></i> Gelişmiş Analitik Özellikleri
                         </h4>
                         
                         <div class="step-item">
-                            <div class="step-title">AI/ML tahminleri neden farklılık gösterebilir?</div>
+                            <div class="step-title">İstatistiksel tahminler neden farklılık gösterebilir?</div>
                             <div class="step-description">Tahminler geçmiş verilerinize dayanır. Veri tutarlılığı, miktarı ve güncelliği tahmin doğruluğunu etkiler. Daha fazla veri = Daha doğru tahminler.</div>
                         </div>
                         
                         <div class="step-item">
-                            <div class="step-title">ML modellerinin doğruluk oranları nasıl hesaplanır?</div>
-                            <div class="step-description">Doğruluk oranları, modellerin geçmiş veriler üzerindeki tahmin performansına göre hesaplanır. Her hafta yeni verilerle güncellenir.</div>
+                            <div class="step-title">Analitik modellerin doğruluk oranları nasıl hesaplanır?</div>
+                            <div class="step-description">Doğruluk oranları, modellerin geçmiş veriler üzerindeki tahmin performansına göre hesaplanır. Her gece yeni verilerle güncellenir.</div>
                         </div>
                         
                         <div class="step-item">
@@ -1898,13 +1894,13 @@
                         </div>
                         
                         <div class="step-item">
-                            <div class="step-title">AI önerileri nasıl üretilir?</div>
-                            <div class="step-description">Sistem üretim verimliliği, kalite metrikleri ve kapasite kullanım oranlarını analiz ederek akıllı öneriler üretir.</div>
+                            <div class="step-title">Sistem önerileri nasıl üretilir?</div>
+                            <div class="step-description">Sistem üretim verimliliği, kalite metrikleri ve kapasite kullanım oranlarını analiz ederek veri tabanlı öneriler üretir.</div>
                         </div>
                         
                         <div class="step-item">
-                            <div class="step-title">ML modelleri ne sıklıkla güncellenir?</div>
-                            <div class="step-description">Modeller her gece yeni verilerle otomatik olarak güncellenir. Doğruluk oranları her hafta yeniden hesaplanır.</div>
+                            <div class="step-title">Analitik modeller ne sıklıkla güncellenir?</div>
+                            <div class="step-description">Modeller her gece yeni verilerle otomatik olarak güncellenir. Doğruluk oranları basit istatistiksel hesaplamalara dayanır.</div>
                         </div>
                     </div>
                 </div>
