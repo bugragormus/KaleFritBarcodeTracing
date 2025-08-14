@@ -287,6 +287,17 @@
             border-radius: 50%;
             border: 2px solid white;
         }
+
+        .status-item > div {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item small {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
         
         .performance-excellent { background: #28a745; }
         .performance-good { background: #17a2b8; }
@@ -370,18 +381,18 @@
 
                 <form method="GET" action="{{ route('kiln.index') }}" class="row align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label-modern">Başlangıç Tarihi</label>
-                        <input type="date" name="start_date" class="form-control-modern" 
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" name="start_date" class="form-control" 
                                value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label-modern">Bitiş Tarihi</label>
-                        <input type="date" name="end_date" class="form-control-modern" 
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" name="end_date" class="form-control" 
                                value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label-modern">Fırın Seçimi</label>
-                        <select name="kiln_id" class="form-control-modern">
+                        <label class="form-label">Fırın Seçimi</label>
+                        <select name="kiln_id" class="form-control">
                             <option value="">Tüm Fırınlar</option>
                             @foreach($kilns as $kilnOption)
                                 <option value="{{ $kilnOption->id }}" {{ request('kiln_id') == $kilnOption->id ? 'selected' : '' }}>
@@ -453,11 +464,11 @@
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($kiln->total_production, 0) }}</div>
-                            <div class="stat-label">Toplam Üretim (Ton)</div>
+                            <div class="stat-label">Toplam Üretim (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($kiln->last_30_days_production, 0) }}</div>
-                            <div class="stat-label">Son 30 Gün (Ton)</div>
+                            <div class="stat-label">Son 30 Gün (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($kiln->daily_production_average ?? 0, 2) }}</div>
@@ -465,11 +476,11 @@
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($kiln->daily_average_30_days, 2) }}</div>
-                            <div class="stat-label">Son 30 Gün Ort. (Ton)</div>
+                            <div class="stat-label">Son 30 Gün Ort. (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($kiln->monthly_average_12_months, 2) }}</div>
-                            <div class="stat-label">Son 12 Ay Ort. (Ton)</div>
+                            <div class="stat-label">Son 12 Ay Ort. (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ $kiln->rejection_rate }}%</div>
@@ -502,36 +513,36 @@
                     <!-- Durum Dağılımı -->
                     <div class="status-distribution">
                         <div class="status-item status-waiting">
-                            <div>{{ $kiln->waiting_count }}</div>
-                            <small>Beklemede</small>
+                            <div>{{ number_format($kiln->waiting_kg ?? 0, 0) }}</div>
+                            <small>Beklemede (KG)</small>
                         </div>
                         <div class="status-item status-control-repeat">
-                            <div>{{ $kiln->control_repeat_count ?? 0 }}</div>
-                            <small>Kontrol Tekrarı</small>
+                            <div>{{ number_format($kiln->control_repeat_kg ?? 0, 0) }}</div>
+                            <small>Kontrol Tekrarı (KG)</small>
                         </div>
                         <div class="status-item status-pre-approved">
-                            <div>{{ $kiln->pre_approved_count }}</div>
-                            <small>Ön Onaylı</small>
+                            <div>{{ number_format($kiln->pre_approved_kg ?? 0, 0) }}</div>
+                            <small>Ön Onaylı (KG)</small>
                         </div>
                         <div class="status-item status-shipment-approved">
-                            <div>{{ $kiln->shipment_approved_count }}</div>
-                            <small>Sevk Onaylı</small>
+                            <div>{{ number_format($kiln->shipment_approved_kg ?? 0, 0) }}</div>
+                            <small>Sevk Onaylı (KG)</small>
                         </div>
                         <div class="status-item status-customer-transfer">
-                            <div>{{ $kiln->customer_transfer_count ?? 0 }}</div>
-                            <small>Müşteri Transfer</small>
+                            <div>{{ number_format($kiln->customer_transfer_kg ?? 0, 0) }}</div>
+                            <small>Müşteri Transfer (KG)</small>
                         </div>
                         <div class="status-item status-delivered">
-                            <div>{{ $kiln->delivered_count }}</div>
-                            <small>Teslim Edildi</small>
+                            <div>{{ number_format($kiln->delivered_kg ?? 0, 0) }}</div>
+                            <small>Teslim Edildi (KG)</small>
                         </div>
                         <div class="status-item status-rejected">
-                            <div>{{ $kiln->rejected_count }}</div>
-                            <small>Reddedildi</small>
+                            <div>{{ number_format($kiln->rejected_kg ?? 0, 0) }}</div>
+                            <small>Reddedildi (KG)</small>
                         </div>
                         <div class="status-item status-merged">
-                            <div>{{ $kiln->merged_count ?? 0 }}</div>
-                            <small>Birleştirildi</small>
+                            <div>{{ number_format($kiln->merged_kg ?? 0, 0) }}</div>
+                            <small>Birleştirildi (KG)</small>
                         </div>
                     </div>
 

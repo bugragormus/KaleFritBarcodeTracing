@@ -42,6 +42,9 @@ class WarehouseController extends Controller
             'barcodes as waiting_count' => function($query) {
                 $query->where('status', \App\Models\Barcode::STATUS_WAITING);
             },
+            'barcodes as control_repeat_count' => function($query) {
+                $query->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT);
+            },
             'barcodes as pre_approved_count' => function($query) {
                 $query->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED);
             },
@@ -55,17 +58,62 @@ class WarehouseController extends Controller
 
         // Her depo için detaylı istatistikler
         foreach ($warehouses as $warehouse) {
-            // Depoda bulunan stok miktarı (müşteri transfer, teslim edildi ve birleştirildi hariç)
-            $warehouse->current_stock = $warehouse->barcodes()
+            // Depoda bulunan stok miktarı (KG) - müşteri transfer, teslim edildi ve birleştirildi hariç
+            $warehouse->current_stock_kg = $warehouse->barcodes()
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
                     \App\Models\Barcode::STATUS_MERGED
                 ])
-                ->sum('quantity_id');
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
             
             // Depoda bulunan barkod sayısı
             $warehouse->current_barcodes = $warehouse->in_warehouse_barcodes;
+            
+            // Durum bazında KG miktarları
+            $warehouse->waiting_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_WAITING)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->control_repeat_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->pre_approved_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->shipment_approved_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->rejected_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
             
             // Son işlem tarihi (depoda bulunan barkodlardan)
             $lastBarcode = $warehouse->barcodes()

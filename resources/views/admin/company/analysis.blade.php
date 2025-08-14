@@ -364,13 +364,13 @@
 
                 <form method="GET" action="{{ route('company.analysis', ['firma' => $company->id]) }}" class="row align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label-modern">Başlangıç Tarihi</label>
-                        <input type="date" name="start_date" class="form-control-modern" 
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" name="start_date" class="form-control" 
                                value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label-modern">Bitiş Tarihi</label>
-                        <input type="date" name="end_date" class="form-control-modern" 
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" name="end_date" class="form-control" 
                                value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col-md-4">

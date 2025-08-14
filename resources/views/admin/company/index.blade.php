@@ -236,6 +236,17 @@
         
         .status-customer-transfer { background: #e2d9f3; color: #6f42c1; }
         .status-delivered { background: #c3e6cb; color: #155724; }
+
+        .status-item > div {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item small {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
         
         .action-buttons {
             display: flex;
@@ -357,13 +368,13 @@
 
                     <form method="GET" action="{{ route('company.index') }}" class="row align-items-end">
                         <div class="col-md-4">
-                            <label class="form-label-modern">Başlangıç Tarihi</label>
-                            <input type="date" name="start_date" class="form-control-modern" 
+                            <label class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" name="start_date" class="form-control" 
                                    value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-modern">Bitiş Tarihi</label>
-                            <input type="date" name="end_date" class="form-control-modern" 
+                            <label class="form-label">Bitiş Tarihi</label>
+                            <input type="date" name="end_date" class="form-control" 
                                    value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-4">
@@ -420,11 +431,11 @@
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($company->total_purchase, 0) }}</div>
-                            <div class="stat-label">Toplam Satış (Ton)</div>
+                            <div class="stat-label">Toplam Satış (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($company->last_30_days_purchase, 0) }}</div>
-                            <div class="stat-label">Son 30 Gün (Ton)</div>
+                            <div class="stat-label">Son 30 Gün (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ $company->barcodes_count }}</div>
@@ -447,7 +458,7 @@
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($company->average_order_size, 0) }}</div>
-                            <div class="stat-label">Ort. Sipariş (Ton)</div>
+                            <div class="stat-label">Ort. Sipariş (KG)</div>
                         </div>
                     </div>
 
@@ -474,12 +485,12 @@
                     <!-- Durum Dağılımı -->
                     <div class="status-distribution">
                         <div class="status-item status-customer-transfer">
-                            <div>{{ $company->customer_transfer_count ?? 0 }}</div>
-                            <small>Müşteri Transfer</small>
+                            <div>{{ number_format($company->customer_transfer_kg ?? 0, 0) }}</div>
+                            <small>Müşteri Transfer (KG)</small>
                         </div>
                         <div class="status-item status-delivered">
-                            <div>{{ $company->delivered_count }}</div>
-                            <small>Teslim Edildi</small>
+                            <div>{{ number_format($company->delivered_kg ?? 0, 0) }}</div>
+                            <small>Teslim Edildi (KG)</small>
                         </div>
                     </div>
 

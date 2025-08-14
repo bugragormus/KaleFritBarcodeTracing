@@ -235,9 +235,23 @@
         }
         
         .status-waiting { background: #fff3cd; color: #856404; }
+        .status-control-repeat { background: #e3f2fd; color: #1976d2; }
         .status-pre-approved { background: #e2d9f3; color: #6f42c1; }
         .status-shipment-approved { background: #ffeaa7; color: #856404; }
         .status-rejected { background: #f8d7da; color: #721c24; }
+
+        .status-item > div {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item small {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+
         
         .action-buttons {
             display: flex;
@@ -293,6 +307,8 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
+
+            
             .action-buttons {
                 justify-content: center;
             }
@@ -344,8 +360,8 @@
                     <!-- Temel İstatistikler -->
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-value">{{ number_format($warehouse->current_stock, 0) }}</div>
-                            <div class="stat-label">Mevcut Stok (Ton)</div>
+                            <div class="stat-value">{{ number_format($warehouse->current_stock_kg, 0) }}</div>
+                            <div class="stat-label">Toplam Stok (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ $warehouse->rejection_rate }}%</div>
@@ -421,20 +437,24 @@
                     <!-- Durum Dağılımı -->
                     <div class="status-distribution">
                         <div class="status-item status-waiting">
-                            <div>{{ $warehouse->waiting_count }}</div>
-                            <small>Beklemede</small>
+                            <div>{{ number_format($warehouse->waiting_kg, 0) }}</div>
+                            <small>Beklemede (KG)</small>
+                        </div>
+                        <div class="status-item status-control-repeat">
+                            <div>{{ number_format($warehouse->control_repeat_kg, 0) }}</div>
+                            <small>Kontrol Tekrarı (KG)</small>
                         </div>
                         <div class="status-item status-pre-approved">
-                            <div>{{ $warehouse->pre_approved_count }}</div>
-                            <small>Ön Onaylı</small>
+                            <div>{{ number_format($warehouse->pre_approved_kg, 0) }}</div>
+                            <small>Ön Onaylı (KG)</small>
                         </div>
                         <div class="status-item status-shipment-approved">
-                            <div>{{ $warehouse->shipment_approved_count }}</div>
-                            <small>Sevk Onaylı</small>
+                            <div>{{ number_format($warehouse->shipment_approved_kg, 0) }}</div>
+                            <small>Sevk Onaylı (KG)</small>
                         </div>
                         <div class="status-item status-rejected">
-                            <div>{{ $warehouse->rejected_count }}</div>
-                            <small>Reddedildi</small>
+                            <div>{{ number_format($warehouse->rejected_kg, 0) }}</div>
+                            <small>Reddedildi (KG)</small>
                         </div>
                     </div>
 

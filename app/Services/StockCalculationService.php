@@ -20,26 +20,28 @@ class StockCalculationService
                     stocks.id,
                     stocks.name,
                     stocks.code,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as waiting_quantity,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as accepted_quantity,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as rejected_quantity,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as in_warehouse_quantity,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as on_delivery_quantity,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as delivered_quantity,
-                    COALESCE(SUM(CASE WHEN (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as on_delivery_in_warehouse_quantity
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as waiting_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as control_repeat_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as accepted_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as rejected_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as in_warehouse_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as on_delivery_in_warehouse_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as delivered_quantity,
+                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as merged_quantity
                 FROM stocks
                 LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
                 GROUP BY stocks.id, stocks.name, stocks.code
                 ORDER BY stocks.name
             ', [
-                Barcode::STATUS_WAITING, Barcode::STATUS_WAITING,
-                Barcode::STATUS_ACCEPTED, Barcode::STATUS_ACCEPTED,
-                Barcode::STATUS_REJECTED, Barcode::STATUS_REJECTED,
-                Barcode::STATUS_IN_WAREHOUSE, Barcode::STATUS_IN_WAREHOUSE,
-                Barcode::STATUS_ON_DELIVERY, Barcode::STATUS_ON_DELIVERY,
-                Barcode::STATUS_DELIVERED, Barcode::STATUS_DELIVERED,
-                Barcode::STATUS_ON_DELIVERY_IN_WAREHOUSE, Barcode::STATUS_ON_DELIVERY_IN_WAREHOUSE
+                Barcode::STATUS_WAITING,
+                Barcode::STATUS_CONTROL_REPEAT,
+                Barcode::STATUS_PRE_APPROVED,
+                Barcode::STATUS_REJECTED,
+                Barcode::STATUS_SHIPMENT_APPROVED,
+                Barcode::STATUS_CUSTOMER_TRANSFER,
+                Barcode::STATUS_DELIVERED,
+                Barcode::STATUS_MERGED
             ]);
         });
     }
@@ -168,8 +170,8 @@ class StockCalculationService
                     COALESCE(SUM(COALESCE(quantities.quantity, 0)), 0) as quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? AND (barcodes.status = ? OR barcodes.transfer_status = ?) AND barcodes.deleted_at IS NULL
-            ', [$stockId, $status, $status])[0]->quantity ?? 0;
+                WHERE barcodes.stock_id = ? AND barcodes.status = ? AND barcodes.deleted_at IS NULL
+            ', [$stockId, $status])[0]->quantity ?? 0;
         });
     }
 

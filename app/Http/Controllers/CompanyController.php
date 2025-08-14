@@ -61,11 +61,6 @@ class CompanyController extends Controller
                 if ($startDate) { $query->where('created_at', '>=', $startDate); }
                 if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
             },
-            'barcodes as total_quantity' => function($query) use ($startDate, $endDate) {
-                $query->select(\DB::raw('SUM(quantity_id)'));
-                if ($startDate) { $query->where('created_at', '>=', $startDate); }
-                if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
-            },
             'barcodes as customer_transfer_count' => function($query) use ($startDate, $endDate) {
                 $query->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER);
                 if ($startDate) { $query->where('created_at', '>=', $startDate); }
@@ -84,16 +79,54 @@ class CompanyController extends Controller
             if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
             if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
             
-            // Toplam alım miktarı (sadece müşteri transfer ve teslim edildi)
-            $company->total_purchase = $barcodesQuery->sum('quantity_id');
+            // Toplam alım miktarı (KG) - sadece müşteri transfer ve teslim edildi
+            $company->total_purchase = $barcodesQuery
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
             
-            // Son 30 günlük alım
+            // Son 30 günlük alım (KG)
             $last30DaysQuery = $company->barcodes();
             if ($startDate) { $last30DaysQuery->where('created_at', '>=', $startDate); }
             if ($endDate) { $last30DaysQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
             $company->last_30_days_purchase = $last30DaysQuery
                 ->where('created_at', '>=', now()->subDays(30))
-                ->sum('quantity_id');
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            // Durum bazında KG miktarları
+            $company->customer_transfer_kg = $company->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $company->delivered_kg = $company->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_DELIVERED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
             
             // Teslim oranı (teslim edildi / toplam)
             $totalBarcodes = $barcodesQuery->count();
@@ -103,7 +136,7 @@ class CompanyController extends Controller
             // Son alım tarihi
             $company->last_purchase_date = $barcodesQuery->latest('created_at')->value('created_at');
             
-            // Ortalama sipariş büyüklüğü
+            // Ortalama sipariş büyüklüğü (KG)
             $company->average_order_size = $totalBarcodes > 0 ? round($company->total_purchase / $totalBarcodes, 0) : 0;
             
             // Aktiflik skoru (son 90 gün içinde alım yapıp yapmadığı)
@@ -300,7 +333,9 @@ class CompanyController extends Controller
         }])->findOrFail($id);
 
         // Detaylı istatistikler
-        $company->total_purchase = $company->barcodes->sum('quantity_id');
+        $company->total_purchase = $company->barcodes->sum(function($barcode) {
+            return $barcode->quantity ? $barcode->quantity->quantity : 0;
+        });
         $company->total_barcodes = $company->barcodes->count();
         
         // Durum bazında dağılım
@@ -308,23 +343,45 @@ class CompanyController extends Controller
         
         // Aylık alım trendi (son 12 ay)
         $monthlyPurchase = $company->barcodes()
-            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as total_barcodes')
             ->where('created_at', '>=', now()->subMonths(12))
             ->groupBy('month', 'year')
             ->orderBy('year')
             ->orderBy('month')
             ->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($monthlyPurchase as $month) {
+            $month->total_quantity = $company->barcodes()
+                ->whereRaw('MONTH(created_at) = ? AND YEAR(created_at) = ?', [$month->month, $month->year])
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
 
         // En çok alınan stoklar (pagination ile)
         $perPage = 10;
         $topStocksQuery = $company->barcodes()
             ->with('stock')
-            ->selectRaw('stock_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
+            ->selectRaw('stock_id, COUNT(*) as total_barcodes')
             ->groupBy('stock_id')
-            ->orderByDesc('total_quantity');
+            ->orderByDesc('total_barcodes');
         
         $topStocksTotal = $topStocksQuery->get()->count();
         $topStocks = $topStocksQuery->skip((request('stocks_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($topStocks as $stock) {
+            $stock->total_quantity = $company->barcodes()
+                ->where('stock_id', $stock->stock_id)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
         
         $topStocksPagination = [
             'data' => $topStocks,
@@ -337,13 +394,24 @@ class CompanyController extends Controller
         // En çok çalışılan fırınlar (pagination ile)
         $topKilnsQuery = $company->barcodes()
             ->with('kiln')
-            ->selectRaw('kiln_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
+            ->selectRaw('kiln_id, COUNT(*) as total_barcodes')
             ->whereNotNull('kiln_id')
             ->groupBy('kiln_id')
-            ->orderByDesc('total_quantity');
+            ->orderByDesc('total_barcodes');
         
         $topKilnsTotal = $topKilnsQuery->get()->count();
         $topKilns = $topKilnsQuery->skip((request('kilns_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($topKilns as $kiln) {
+            $kiln->total_quantity = $company->barcodes()
+                ->where('kiln_id', $kiln->kiln_id)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
         
         $topKilnsPagination = [
             'data' => $topKilns,
@@ -379,7 +447,7 @@ class CompanyController extends Controller
             $data[] = [
                 'Barkod ID' => $barcode->id,
                 'Stok Adı' => $barcode->stock ? $barcode->stock->name : '-',
-                'Miktar (Ton)' => $barcode->quantity_id,
+                'Miktar (KG)' => $barcode->quantity ? $barcode->quantity->quantity : 0,
                 'Durum' => \App\Models\Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor',
                 'Fırın' => $barcode->kiln ? $barcode->kiln->name : '-',
                 'Depo' => $barcode->warehouse ? $barcode->warehouse->name : '-',

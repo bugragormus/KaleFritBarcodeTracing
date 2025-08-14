@@ -74,15 +74,6 @@ class KilnController extends Controller
                     $query->where('created_at', '<=', $endDate . ' 23:59:59');
                 }
             },
-            'barcodes as total_quantity' => function($query) use ($startDate, $endDate) {
-                if ($startDate) {
-                    $query->where('created_at', '>=', $startDate);
-                }
-                if ($endDate) {
-                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
-                }
-                $query->select(\DB::raw('SUM(quantity_id)'));
-            },
             'barcodes as waiting_count' => function($query) use ($startDate, $endDate) {
                 $query->where('status', \App\Models\Barcode::STATUS_WAITING);
                 if ($startDate) {
@@ -168,37 +159,164 @@ class KilnController extends Controller
                 $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59');
             }
             
-            // Toplam üretim miktarı
-            $kiln->total_production = $barcodesQuery->sum('quantity_id');
+            // Toplam üretim miktarı (KG)
+            $kiln->total_production = $barcodesQuery
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
             
-            // Son 30 günlük üretim (tarih filtresi varsa sadece o aralıkta)
+            // Son 30 günlük üretim (KG) - tarih filtresi varsa sadece o aralıkta
             if ($startDate || $endDate) {
                 $kiln->last_30_days_production = $kiln->total_production;
             } else {
                 $kiln->last_30_days_production = $kiln->barcodes()
                     ->where('created_at', '>=', now()->subDays(30))
-                    ->sum('quantity_id');
+                    ->with('quantity')
+                    ->get()
+                    ->sum(function($barcode) {
+                        return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                    });
             }
             
-            // Günlük ortalama üretim
+            // Durum bazında KG miktarları
+            $kiln->waiting_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_WAITING)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->control_repeat_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->pre_approved_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->shipment_approved_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->customer_transfer_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->delivered_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_DELIVERED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->rejected_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->merged_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_MERGED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            // Günlük ortalama üretim (KG)
             $barcodes = $barcodesQuery->get();
             $activeDays = $barcodes->groupBy(function($item) {
                 return $item->created_at->format('Y-m-d');
             })->count();
             $kiln->daily_average_30_days = $activeDays > 0 ? round($kiln->total_production / $activeDays, 2) : 0;
             
-            // Aylık ortalama üretim (son 12 ay)
+            // Aylık ortalama üretim (KG) - son 12 ay
             $last12MonthsBarcodes = $kiln->barcodes()
                 ->where('created_at', '>=', now()->subMonths(12))
+                ->with('quantity')
                 ->get();
             $activeMonths12 = $last12MonthsBarcodes->groupBy(function($item) {
                 return $item->created_at->format('Y-m');
             })->count();
-            $totalProduction12Months = $last12MonthsBarcodes->sum('quantity_id');
+            $totalProduction12Months = $last12MonthsBarcodes->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
             $kiln->monthly_average_12_months = $activeMonths12 > 0 ? round($totalProduction12Months / $activeMonths12, 2) : 0;
             
-            // Genel günlük ortalama (tüm zamanlar)
-            $allBarcodes = $kiln->barcodes()->get();
+            // Genel günlük ortalama (KG) - tüm zamanlar
+            $allBarcodes = $kiln->barcodes()
+                ->with('quantity')
+                ->get();
             $activeDaysTotal = $allBarcodes->groupBy(function($item) {
                 return $item->created_at->format('Y-m-d');
             })->count();
@@ -401,7 +519,9 @@ class KilnController extends Controller
         }])->findOrFail($id);
 
         // Detaylı istatistikler
-        $kiln->total_production = $kiln->barcodes->sum('quantity_id');
+        $kiln->total_production = $kiln->barcodes->sum(function($barcode) {
+            return $barcode->quantity ? $barcode->quantity->quantity : 0;
+        });
         $kiln->total_barcodes = $kiln->barcodes->count();
         
         // Durum bazında dağılım
@@ -409,12 +529,23 @@ class KilnController extends Controller
         
         // Aylık üretim trendi (son 12 ay)
         $monthlyProduction = $kiln->barcodes()
-            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as total_barcodes')
             ->where('created_at', '>=', now()->subMonths(12))
             ->groupBy('month', 'year')
             ->orderBy('year')
             ->orderBy('month')
             ->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($monthlyProduction as $month) {
+            $month->total_quantity = $kiln->barcodes()
+                ->whereRaw('MONTH(created_at) = ? AND YEAR(created_at) = ?', [$month->month, $month->year])
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
 
         // Red oranı trendi
         $rejectionTrend = $kiln->barcodes()
@@ -431,12 +562,23 @@ class KilnController extends Controller
         $perPage = 10;
         $topStocksQuery = $kiln->barcodes()
             ->with('stock')
-            ->selectRaw('stock_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
+            ->selectRaw('stock_id, COUNT(*) as total_barcodes')
             ->groupBy('stock_id')
-            ->orderByDesc('total_quantity');
+            ->orderByDesc('total_barcodes');
         
         $topStocksTotal = $topStocksQuery->get()->count();
         $topStocks = $topStocksQuery->skip((request('stocks_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($topStocks as $stock) {
+            $stock->total_quantity = $kiln->barcodes()
+                ->where('stock_id', $stock->stock_id)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
         
         $topStocksPagination = [
             'data' => $topStocks,
@@ -449,13 +591,24 @@ class KilnController extends Controller
         // En çok çalışılan müşteriler (pagination ile)
         $topCompaniesQuery = $kiln->barcodes()
             ->with('company')
-            ->selectRaw('company_id, SUM(quantity_id) as total_quantity, COUNT(*) as total_barcodes')
+            ->selectRaw('company_id, COUNT(*) as total_barcodes')
             ->whereNotNull('company_id')
             ->groupBy('company_id')
-            ->orderByDesc('total_quantity');
+            ->orderByDesc('total_barcodes');
         
         $topCompaniesTotal = $topCompaniesQuery->get()->count();
         $topCompanies = $topCompaniesQuery->skip((request('companies_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($topCompanies as $company) {
+            $company->total_quantity = $kiln->barcodes()
+                ->where('company_id', $company->company_id)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
         
         $topCompaniesPagination = [
             'data' => $topCompanies,
@@ -491,7 +644,7 @@ class KilnController extends Controller
             $data[] = [
                 'Barkod ID' => $barcode->id,
                 'Stok Adı' => $barcode->stock ? $barcode->stock->name : '-',
-                'Miktar (KG)' => $barcode->quantity_id,
+                'Miktar (KG)' => $barcode->quantity ? $barcode->quantity->quantity : 0,
                 'Durum' => \App\Models\Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor',
                 'Müşteri' => $barcode->company ? $barcode->company->name : '-',
                 'Depo' => $barcode->warehouse ? $barcode->warehouse->name : '-',

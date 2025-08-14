@@ -793,6 +793,7 @@
     <script>
         // Global değişkenler
         var table;
+        var dataTableInitialized = false;
         
         // Sayfa yüklendiğinde çalışacak fonksiyon
         $(document).ready(function() {
@@ -804,11 +805,26 @@
             // Toastr güvenlik kontrolü
             setupToastrFallback();
             
-            // DataTables'ı başlat
-            initializeDataTable();
+            // DataTables'ı başlat (sadece bir kez)
+            if (!dataTableInitialized) {
+                initializeDataTable();
+            }
             
             // Datepicker'ları başlat
             initializeDatepickers();
+        });
+        
+        // Sayfa kapatılırken DataTable'ı temizle
+        $(window).on('beforeunload', function() {
+            if (typeof table !== 'undefined' && table) {
+                try {
+                    table.destroy();
+                } catch (e) {
+                    console.log('Table cleanup hatası:', e);
+                }
+                table = null;
+                dataTableInitialized = false;
+            }
         });
         
         // Morris chart hatalarını önle
@@ -826,6 +842,26 @@
                     }
                 }
             }
+        }
+        
+        // DataTable'ı güvenli şekilde yeniden başlat
+        function reinitializeDataTable() {
+            console.log('DataTable yeniden başlatılıyor...');
+            
+            // Mevcut DataTable'ı yok et
+            if (typeof table !== 'undefined' && table) {
+                try {
+                    table.destroy();
+                } catch (e) {
+                    console.log('Table destroy hatası:', e);
+                }
+                table = null;
+            }
+            
+            // Kısa bir gecikme ile yeniden başlat
+            setTimeout(function() {
+                initializeDataTable();
+            }, 100);
         }
         
         // Toastr fallback kurulumu
@@ -848,6 +884,26 @@
             if ($('.yajra-datatable').length === 0) {
                 console.error('DataTables element bulunamadı!');
                 return;
+            }
+            
+            // Eğer DataTable zaten başlatılmışsa, önce onu yok et
+            if ($.fn.DataTable.isDataTable('.yajra-datatable')) {
+                console.log('Mevcut DataTable yok ediliyor...');
+                try {
+                    $('.yajra-datatable').DataTable().destroy();
+                } catch (e) {
+                    console.log('DataTable destroy hatası:', e);
+                }
+            }
+            
+            // Global table değişkenini temizle
+            if (typeof table !== 'undefined' && table) {
+                try {
+                    table.destroy();
+                } catch (e) {
+                    console.log('Table destroy hatası:', e);
+                }
+                table = null;
             }
             
             try {
@@ -979,10 +1035,12 @@
                 });
                 
                 console.log('DataTables başarıyla oluşturuldu');
+                dataTableInitialized = true;
                 
             } catch (error) {
                 console.error('DataTables oluşturulurken hata:', error);
                 alert('Tablo yüklenirken hata oluştu: ' + error.message);
+                dataTableInitialized = false;
             }
         }
         

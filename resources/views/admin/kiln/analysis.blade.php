@@ -68,6 +68,13 @@
         color: #667eea;
     }
     
+    .card-subtitle-modern {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0;
+        opacity: 0.8;
+    }
+    
     .card-body-modern {
         padding: 2rem;
     }
@@ -286,6 +293,65 @@
     .status-rejected { background: #dc3545; color: white; }
     .status-merged { background: #6c757d; color: white; }
     
+    /* Form Styling */
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .form-control {
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        background: #ffffff;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .form-control:hover {
+        border-color: #667eea;
+    }
+    
+    /* Progress Bar Styling */
+    .progress {
+        background-color: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        transition: width 0.6s ease;
+        border-radius: 10px;
+    }
+    
+    /* Badge Styling */
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+    
+    .badge-light {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #e9ecef;
+    }
+    
+    /* Text Color Utilities */
+    .text-success { color: #28a745 !important; }
+    .text-warning { color: #ffc107 !important; }
+    .text-danger { color: #dc3545 !important; }
+    .text-info { color: #17a2b8 !important; }
+    
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -355,13 +421,13 @@
 
                 <form method="GET" action="{{ route('kiln.analysis', ['firin' => $kiln->id]) }}" class="row align-items-end">
                     <div class="col-md-4">
-                        <label class="form-label-modern">Başlangıç Tarihi</label>
-                        <input type="date" name="start_date" class="form-control-modern" 
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" name="start_date" class="form-control" 
                                value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label-modern">Bitiş Tarihi</label>
-                        <input type="date" name="end_date" class="form-control-modern" 
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" name="end_date" class="form-control" 
                                value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
                     </div>
                     <div class="col-md-4">
@@ -510,8 +576,37 @@
                 <h3 class="card-title-modern">
                     <i class="fas fa-tasks"></i> Durum Bazında Dağılım
                 </h3>
+                <p class="card-subtitle-modern">Fırın üretim sürecindeki her aşamada bulunan ürünlerin dağılımı</p>
             </div>
             <div class="card-body-modern">
+                <!-- Özet Kartlar -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card text-center">
+                            <div class="stat-value text-success">{{ $statusDistribution[\App\Models\Barcode::STATUS_DELIVERED] ?? 0 }}</div>
+                            <div class="stat-label">Teslim Edilen</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card text-center">
+                            <div class="stat-value text-warning">{{ $statusDistribution[\App\Models\Barcode::STATUS_WAITING] ?? 0 }}</div>
+                            <div class="stat-label">Bekleyen</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card text-center">
+                            <div class="stat-value text-danger">{{ $statusDistribution[\App\Models\Barcode::STATUS_REJECTED] ?? 0 }}</div>
+                            <div class="stat-label">Reddedilen</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card text-center">
+                            <div class="stat-value text-info">{{ $statusDistribution[\App\Models\Barcode::STATUS_PRE_APPROVED] ?? 0 }}</div>
+                            <div class="stat-label">Ön Onaylı</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="table-responsive">
                     <table class="table table-modern">
                         <thead>
@@ -520,6 +615,7 @@
                                 <th>Barkod Sayısı</th>
                                 <th>Oran</th>
                                 <th>Toplam Miktar (Ton)</th>
+                                <th>Durum Açıklaması</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -539,19 +635,54 @@
                                         {{ $statusName }}
                                     </span>
                                 </td>
-                                <td>{{ $statusDistribution[$statusId] ?? 0 }}</td>
                                 <td>
                                     @php
-                                        $percentage = $kiln->total_barcodes > 0 ? 
-                                            round(($statusDistribution[$statusId] ?? 0) / $kiln->total_barcodes * 100, 2) : 0;
+                                        $statusCount = $statusDistribution[$statusId] ?? 0;
+                                        $totalBarcodes = max(1, $kiln->total_barcodes);
                                     @endphp
-                                    {{ $percentage }}%
+                                    <strong>{{ $statusCount }}</strong>
                                 </td>
                                 <td>
                                     @php
-                                        $totalQuantity = $kiln->barcodes->where('status', $statusId)->sum('quantity_id');
+                                        $percentage = round(($statusCount / $totalBarcodes) * 100, 2);
                                     @endphp
-                                    {{ number_format($totalQuantity, 0) }}
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 mr-2" style="height: 8px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ $percentage }}%; background: 
+                                                 @if($statusId == \App\Models\Barcode::STATUS_DELIVERED) #20c997
+                                                 @elseif($statusId == \App\Models\Barcode::STATUS_REJECTED) #dc3545
+                                                 @elseif($statusId == \App\Models\Barcode::STATUS_WAITING) #ffc107
+                                                 @elseif($statusId == \App\Models\Barcode::STATUS_PRE_APPROVED) #17a2b8
+                                                 @else #6c757d
+                                                 @endif;">
+                                            </div>
+                                        </div>
+                                        <span class="badge badge-light">{{ $percentage }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    @php
+                                        $totalQuantity = $kiln->barcodes->where('status', $statusId)->sum(function($barcode) {
+                                            return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                                        });
+                                    @endphp
+                                    <strong>{{ number_format($totalQuantity, 0) }}</strong>
+                                </td>
+                                <td>
+                                    @php
+                                        $statusDescriptions = [
+                                            \App\Models\Barcode::STATUS_WAITING => 'Üretim tamamlandı, kalite kontrol bekleniyor',
+                                            \App\Models\Barcode::STATUS_CONTROL_REPEAT => 'Kalite kontrol tekrarı gerekli',
+                                            \App\Models\Barcode::STATUS_PRE_APPROVED => 'Kalite kontrol geçti, ön onay verildi',
+                                            \App\Models\Barcode::STATUS_SHIPMENT_APPROVED => 'Sevkiyat onayı verildi',
+                                            \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER => 'Müşteriye transfer edildi',
+                                            \App\Models\Barcode::STATUS_DELIVERED => 'Müşteriye teslim edildi',
+                                            \App\Models\Barcode::STATUS_REJECTED => 'Kalite kontrol başarısız',
+                                            \App\Models\Barcode::STATUS_MERGED => 'Diğer barkodlarla birleştirildi'
+                                        ];
+                                    @endphp
+                                    <small class="text-muted">{{ $statusDescriptions[$statusId] ?? 'Durum açıklaması bulunamadı' }}</small>
                                 </td>
                             </tr>
                             @endforeach

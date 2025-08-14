@@ -76,20 +76,38 @@ class StockController extends Controller
             if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
             
             // Tarih filtrelenmiş miktarlar
-            $filteredBarcodes = $barcodesQuery->get();
+            $filteredBarcodes = $barcodesQuery->with('quantity')->get();
             
             // Toplam üretim miktarı (filtrelenmiş)
-            $stock->total_production = $filteredBarcodes->sum('quantity_id');
+            $stock->total_production = $filteredBarcodes->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
             
             // Durum bazında miktarlar (filtrelenmiş)
-            $stock->waiting_quantity = $filteredBarcodes->where('status', Barcode::STATUS_WAITING)->sum('quantity_id');
-            $stock->control_repeat_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CONTROL_REPEAT)->sum('quantity_id');
-            $stock->accepted_quantity = $filteredBarcodes->where('status', Barcode::STATUS_PRE_APPROVED)->sum('quantity_id');
-            $stock->rejected_quantity = $filteredBarcodes->where('status', Barcode::STATUS_REJECTED)->sum('quantity_id');
-            $stock->in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_SHIPMENT_APPROVED)->sum('quantity_id');
-            $stock->on_delivery_in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CUSTOMER_TRANSFER)->sum('quantity_id');
-            $stock->delivered_quantity = $filteredBarcodes->where('status', Barcode::STATUS_DELIVERED)->sum('quantity_id');
-            $stock->merged_quantity = $filteredBarcodes->where('status', Barcode::STATUS_MERGED)->sum('quantity_id');
+            $stock->waiting_quantity = $filteredBarcodes->where('status', Barcode::STATUS_WAITING)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->control_repeat_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CONTROL_REPEAT)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->accepted_quantity = $filteredBarcodes->where('status', Barcode::STATUS_PRE_APPROVED)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->rejected_quantity = $filteredBarcodes->where('status', Barcode::STATUS_REJECTED)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_SHIPMENT_APPROVED)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->on_delivery_in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CUSTOMER_TRANSFER)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->delivered_quantity = $filteredBarcodes->where('status', Barcode::STATUS_DELIVERED)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $stock->merged_quantity = $filteredBarcodes->where('status', Barcode::STATUS_MERGED)->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
             
             // Red oranı
             $totalQuantity = $stock->total_production;

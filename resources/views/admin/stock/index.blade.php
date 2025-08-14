@@ -189,6 +189,17 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
+        .status-item > div {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item small {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
         
         .progress-section {
             margin-bottom: 1.5rem;
@@ -387,13 +398,13 @@
 
                     <form method="GET" action="{{ route('stock.index') }}" class="row align-items-end">
                         <div class="col-md-4">
-                            <label class="form-label-modern">Başlangıç Tarihi</label>
-                            <input type="date" name="start_date" class="form-control-modern" 
+                            <label class="form-label">Başlangıç Tarihi</label>
+                            <input type="date" name="start_date" class="form-control" 
                                    value="{{ request('start_date') }}" max="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-modern">Bitiş Tarihi</label>
-                            <input type="date" name="end_date" class="form-control-modern" 
+                            <label class="form-label">Bitiş Tarihi</label>
+                            <input type="date" name="end_date" class="form-control" 
                                    value="{{ request('end_date') }}" max="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-4">
