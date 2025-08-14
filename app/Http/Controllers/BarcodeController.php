@@ -121,6 +121,41 @@ class BarcodeController extends Controller
                         $query->where('status', $statusId);
                         \Log::info('Status filter applied:', ['status' => $status, 'status_id' => $statusId]);
                     }
+                })
+                ->when($request->filled('stock'), function (Builder $query) use ($request) {
+                    $stockName = $request->input('stock');
+                    $query->whereHas('stock', function ($q) use ($stockName) {
+                        $q->where('name', 'like', '%' . $stockName . '%');
+                    });
+                    \Log::info('Stock filter applied:', ['stock' => $stockName]);
+                })
+                ->when($request->filled('kiln'), function (Builder $query) use ($request) {
+                    $kilnName = $request->input('kiln');
+                    $query->whereHas('kiln', function ($q) use ($kilnName) {
+                        $q->where('name', 'like', '%' . $kilnName . '%');
+                    });
+                    \Log::info('Kiln filter applied:', ['kiln' => $kilnName]);
+                })
+                ->when($request->filled('warehouse'), function (Builder $query) use ($request) {
+                    $warehouseName = $request->input('warehouse');
+                    $query->whereHas('warehouse', function ($q) use ($warehouseName) {
+                        $q->where('name', 'like', '%' . $warehouseName . '%');
+                    });
+                    \Log::info('Warehouse filter applied:', ['warehouse' => $warehouseName]);
+                })
+                ->when($request->filled('company'), function (Builder $query) use ($request) {
+                    $companyName = $request->input('company');
+                    $query->whereHas('company', function ($q) use ($companyName) {
+                        $q->where('name', 'like', '%' . $companyName . '%');
+                    });
+                    \Log::info('Company filter applied:', ['company' => $companyName]);
+                })
+                ->when($request->filled('createdBy'), function (Builder $query) use ($request) {
+                    $userName = $request->input('createdBy');
+                    $query->whereHas('createdBy', function ($q) use ($userName) {
+                        $q->where('name', 'like', '%' . $userName . '%');
+                    });
+                    \Log::info('CreatedBy filter applied:', ['user' => $userName]);
                 });
             return Datatables::of($barcodes)
                 ->addColumn('stock', function ($barcode) {

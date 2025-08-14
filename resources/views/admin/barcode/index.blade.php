@@ -917,12 +917,22 @@
                         if (globalCreatedStart) d.created_start = globalCreatedStart;
                         if (globalCreatedEnd) d.created_end = globalCreatedEnd;
                         
-                        // Durum filtresini ekle
+                        // Dropdown filtreleri ekle
+                        var stockFilter = $('.filter-select[data-column="0"]').val();
+                        var partyFilter = $('.filter-select[data-column="1"]').val();
                         var statusFilter = $('.filter-select[data-column="2"]').val();
-                        if (statusFilter) {
-                            d.status = statusFilter;
-                            console.log('Durum filtresi ekleniyor:', statusFilter);
-                        }
+                        var kilnFilter = $('.filter-select[data-column="3"]').val();
+                        var warehouseFilter = $('.filter-select[data-column="4"]').val();
+                        var companyFilter = $('.filter-select[data-column="5"]').val();
+                        var createdByFilter = $('.filter-select[data-column="9"]').val();
+                        
+                        if (stockFilter) d.stock = stockFilter;
+                        if (partyFilter) d.party_number = partyFilter;
+                        if (statusFilter) d.status = statusFilter;
+                        if (kilnFilter) d.kiln = kilnFilter;
+                        if (warehouseFilter) d.warehouse = warehouseFilter;
+                        if (companyFilter) d.company = companyFilter;
+                        if (createdByFilter) d.createdBy = createdByFilter;
                         
                         console.log('AJAX data gönderiliyor:', d);
                         return d;
