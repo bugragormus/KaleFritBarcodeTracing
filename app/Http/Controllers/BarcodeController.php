@@ -106,6 +106,9 @@ class BarcodeController extends Controller
                         case 'Reddedildi':
                             $statusId = Barcode::STATUS_REJECTED;
                             break;
+                        case 'Düzeltme Faaliyetinde Kullanıldı':
+                            $statusId = Barcode::STATUS_CORRECTED;
+                            break;
                         case 'Müşteri Transfer':
                             $statusId = Barcode::STATUS_CUSTOMER_TRANSFER;
                             break;
@@ -162,6 +165,8 @@ class BarcodeController extends Controller
                     return $barcode->stock->code . ' --- ' . $barcode->stock->name;
                 })
                 ->addColumn('loadNumber', function ($barcode) {
+                    $additionalInfo = [];
+                    
                     if (!is_null($barcode->rejected_load_number) && !empty($barcode->rejected_load_number)) {
                         $rejectedLoadNumbers = [];
                         
@@ -194,7 +199,7 @@ class BarcodeController extends Controller
                                 $rejectedLoadNumbers = array_merge($group1LoadNumbers, $group2LoadNumbers);
                                 $group1Str = implode(', ', $group1LoadNumbers);
                                 $group2Str = implode(', ', $group2LoadNumbers);
-                                return $barcode->load_number . ' <small class="text-muted">(Kaynak: ' . $group1Str . ' → Hedef: ' . $group2Str . ')</small>';
+                                $additionalInfo[] = 'Kaynak: ' . $group1Str . ' → Hedef: ' . $group2Str;
                             }
                             
                             // Eski format için fallback
@@ -222,14 +227,31 @@ class BarcodeController extends Controller
                         sort($rejectedLoadNumbers);
                         
                         if (count($rejectedLoadNumbers) > 1) {
-                            return $barcode->load_number . ' <small class="text-muted">(Birleştirilen: ' . implode(', ', $rejectedLoadNumbers) . ')</small>';
+                            $additionalInfo[] = 'Birleştirilen: ' . implode(', ', $rejectedLoadNumbers);
                         } else {
-                            return $barcode->load_number . ' <small class="text-muted">(Birleştirilen: ' . $rejectedLoadNumbers[0] . ')</small>';
+                            $additionalInfo[] = 'Birleştirilen: ' . $rejectedLoadNumbers[0];
                         }
                     }
+                    
+                    // Eğer bu barkod düzeltme faaliyetinde kullanılan kaynak barkodlardan oluşmuşsa
+                    if ($barcode->is_correction && $barcode->correction_source_barcode_id) {
+                        $sourceBarcode = Barcode::find($barcode->correction_source_barcode_id);
+                        if ($sourceBarcode) {
+                            $additionalInfo[] = 'Düzeltme Kaynağı: ' . $sourceBarcode->load_number;
+                        }
+                    }
+                    
+
+                    
+                    if (!empty($additionalInfo)) {
+                        return $barcode->load_number . ' <small class="text-muted">(' . implode(' | ', $additionalInfo) . ')</small>';
+                    }
+                    
                     return $barcode->load_number;
                 })
                 ->addColumn('barcodeId', function ($barcode) {
+                    $additionalInfo = [];
+                    
                     // Eğer bu barkod birleştirilmiş barkodlardan oluşmuşsa
                     if (!is_null($barcode->rejected_load_number) && !empty($barcode->rejected_load_number)) {
                         $mergedBarcodeIds = [];
@@ -256,7 +278,7 @@ class BarcodeController extends Controller
                                 sort($group2BarcodeIds);
                                 $group1Str = implode(', ', $group1BarcodeIds);
                                 $group2Str = implode(', ', $group2BarcodeIds);
-                                return $barcode->id . ' <small class="text-muted">(Kaynak: ' . $group1Str . ' → Hedef: ' . $group2Str . ')</small>';
+                                $additionalInfo[] = 'Birleştirilen: ' . $group1Str . ' → ' . $group2Str;
                             }
                             
                             // Eski format için fallback
@@ -295,8 +317,22 @@ class BarcodeController extends Controller
                         }
                         
                         if (!empty($mergedBarcodeIds)) {
-                            return $barcode->id . ' <small class="text-muted">(Birleştirilen: ' . implode(', ', $mergedBarcodeIds) . ')</small>';
+                            $additionalInfo[] = 'Birleştirilen: ' . implode(', ', $mergedBarcodeIds);
                         }
+                    }
+                    
+                    // Eğer bu barkod düzeltme faaliyetinde kullanılan kaynak barkodlardan oluşmuşsa
+                    if ($barcode->is_correction && $barcode->correction_source_barcode_id) {
+                        $sourceBarcode = Barcode::find($barcode->correction_source_barcode_id);
+                        if ($sourceBarcode) {
+                            $additionalInfo[] = 'Düzeltme Kaynağı: ' . $sourceBarcode->id . ' (' . $sourceBarcode->load_number . ')';
+                        }
+                    }
+                    
+
+                    
+                    if (!empty($additionalInfo)) {
+                        return $barcode->id . ' <small class="text-muted">(' . implode(' | ', $additionalInfo) . ')</small>';
                     }
                     
                     return $barcode->id;
@@ -382,6 +418,15 @@ class BarcodeController extends Controller
                 ->addColumn('isMerged', function ($barcode) {
                     return $barcode->is_merged ? '<span class="badge badge-success">Evet</span>' : '<span class="badge badge-secondary">Hayır</span>';
                 })
+                ->addColumn('isCorrection', function ($barcode) {
+                    if ($barcode->is_correction) {
+                        $sourceBarcode = Barcode::find($barcode->correction_source_barcode_id);
+                        $sourceInfo = $sourceBarcode ? " (Kaynak: {$sourceBarcode->id})" : '';
+                        return '<span class="badge badge-warning">Evet' . $sourceInfo . '</span>';
+                    } else {
+                        return '<span class="badge badge-secondary">Hayır</span>';
+                    }
+                })
                 ->addColumn('processingTime', function ($barcode) {
                     if ($barcode->lab_at && $barcode->created_at) {
                         $diffInSeconds = $barcode->lab_at->diffInSeconds($barcode->created_at);
@@ -421,7 +466,7 @@ class BarcodeController extends Controller
                         </button>
                     </div>";
                 })
-                ->rawColumns(['action', 'status', 'isMerged', 'barcodeId', 'loadNumber'])
+                ->rawColumns(['action', 'status', 'isMerged', 'isCorrection', 'barcodeId', 'loadNumber'])
                 ->make(true);
         }
 
@@ -672,7 +717,7 @@ class BarcodeController extends Controller
         // Başarı mesajı
         $message = 'Barkod başarıyla oluşturuldu.';
         if ($totalCorrectionQuantity > 0) {
-            $message .= ' Düzeltme faaliyeti: ' . $totalCorrectionQuantity . ' KG reddedilen malzeme kullanıldı (quantity bilgisi korundu).';
+            $message .= ' Düzeltme faaliyeti: ' . $totalCorrectionQuantity . ' KG reddedilen malzeme kullanıldı.';
         }
         if ($normalQuantity > 0) {
             $message .= ' Yeni üretim: ' . $normalQuantity . ' barkod.';

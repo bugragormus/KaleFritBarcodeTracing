@@ -786,6 +786,7 @@
                                     <option value="Ön Onaylı">Ön Onaylı</option>
                                     <option value="Sevk Onaylı">Sevk Onaylı</option>
                                     <option value="Reddedildi">Reddedildi</option>
+                                    <option value="Düzeltme Faaliyetinde Kullanıldı">Düzeltme Faaliyetinde Kullanıldı</option>
                                     <option value="Müşteri Transfer">Müşteri Transfer</option>
                                     <option value="Teslim Edildi">Teslim Edildi</option>
                                     <option value="Birleştirildi">Birleştirildi</option>
@@ -872,6 +873,7 @@
                                 <th>Genel Not</th>
                                 <th>Lab Notu</th>
                                 <th>Birleştirilme Durumu</th>
+                                <th>Düzeltme Durumu</th>
                                 <th>İşlem Süresi</th>
                             </tr>
                         </thead>
@@ -904,7 +906,7 @@
                         className: 'text-center'
                     },
                     {
-                        targets: [10, 11, 12, 13, 14, 16, 17, 18, 19, 20], // Yeni eklenen sütunlar
+                        targets: [10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21], // Yeni eklenen sütunlar
                         className: 'text-center'
                     }
                 ],
@@ -960,6 +962,7 @@
                     {data: 'note', name: 'note'},
                     {data: 'labNote', name: 'lab_note'},
                     {data: 'isMerged', name: 'is_merged'},
+                    {data: 'isCorrection', name: 'is_correction'},
                     {data: 'processingTime', name: 'processing_time'},
                 ]
             });

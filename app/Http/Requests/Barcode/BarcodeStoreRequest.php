@@ -96,12 +96,8 @@ class BarcodeStoreRequest extends FormRequest
                             $requestedQuantity = (int) $correctionQuantities[$index];
                             $availableQuantity = $barcode->quantity->quantity;
                             
-                            if ($requestedQuantity > $availableQuantity) {
-                                $validator->errors()->add(
-                                    "correction_quantities.{$index}",
-                                    "Düzeltme miktarı ({$requestedQuantity} KG) mevcut stok miktarını ({$availableQuantity} KG) aşamaz."
-                                );
-                            }
+                            // Düzeltme miktarı otomatik olarak tüm mevcut miktar olarak ayarlandı
+                            // Bu yüzden miktar kontrolü yapmaya gerek yok
                         }
                     }
                 }

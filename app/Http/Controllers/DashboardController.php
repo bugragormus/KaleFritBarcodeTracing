@@ -39,9 +39,6 @@ class DashboardController extends Controller
         // Fırın başına red oranları
         $kilnRejectionRates = $this->getKilnRejectionRates($date);
         
-        // Stok yaşı uyarıları
-        $stockAgeWarnings = $this->getStockAgeWarnings();
-        
         // Ürün özelinde fırın kapasite analizi
         $productKilnAnalysis = $this->getProductKilnAnalysis($date);
         
@@ -69,7 +66,6 @@ class DashboardController extends Controller
             'shiftReport',
             'kilnPerformance',
             'kilnRejectionRates',
-            'stockAgeWarnings',
             'productKilnAnalysis',
             'dailyStats',
             'weeklyTrend',
@@ -164,6 +160,48 @@ class DashboardController extends Controller
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
+
+        // Düzeltme faaliyeti ile oluşturulan üretim çıktısı (ton)
+        $correctionOutputQuantity = DB::select('
+            SELECT COALESCE(SUM(q.quantity), 0) as total_quantity
+            FROM barcodes b
+            LEFT JOIN quantities q ON q.id = b.quantity_id
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 1
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Düzeltme faaliyeti kapsamında kullanılan red miktarı (ton)
+        $correctionInputUsed = DB::select('
+            SELECT COALESCE(SUM(b.correction_quantity), 0) as total_quantity
+            FROM barcodes b
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 1
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Düzeltmesiz üretim çıktısı (ton)
+        $nonCorrectionOutputQuantity = DB::select('
+            SELECT COALESCE(SUM(q.quantity), 0) as total_quantity
+            FROM barcodes b
+            LEFT JOIN quantities q ON q.id = b.quantity_id
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 0
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Düzeltmeli üretimde kullanılan yeni hammadde (ton) = üretim çıktısı - kullanılan red miktarı
+        $newMaterialUsedInCorrections = DB::select('
+            SELECT COALESCE(SUM(GREATEST(q.quantity - COALESCE(b.correction_quantity, 0), 0)), 0) as total_quantity
+            FROM barcodes b
+            LEFT JOIN quantities q ON q.id = b.quantity_id
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 1
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Toplam hammadde kullanımı (ton) = düzeltmesiz üretim + (düzeltmeli üretimde kullanılan yeni hammadde)
+        $rawMaterialUsed = ($nonCorrectionOutputQuantity + $newMaterialUsedInCorrections);
         
         return [
             'total_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])->count(),
@@ -178,6 +216,11 @@ class DashboardController extends Controller
             'testing_quantity' => $testingQuantity,
             'delivery_quantity' => $deliveryQuantity,
             'rejected_quantity' => $rejectedQuantity,
+            // Düzeltme faaliyeti detayları
+            'with_correction_output' => $correctionOutputQuantity,
+            'without_correction_output' => $nonCorrectionOutputQuantity,
+            'correction_input_used' => $correctionInputUsed,
+            'raw_material_used' => $rawMaterialUsed,
             'accepted_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
                 ->count(),
@@ -379,46 +422,6 @@ class DashboardController extends Controller
     }
 
     /**
-     * Stok yaşı uyarıları
-     */
-    private function getStockAgeWarnings()
-    {
-        $warningThresholds = [
-            'critical' => 30, // 30 günden eski - kritik
-            'warning' => 15,  // 15 günden eski - uyarı
-            'info' => 7       // 7 günden eski - bilgi
-        ];
-        
-        $warnings = [];
-        
-        foreach ($warningThresholds as $level => $days) {
-            $cutoffDate = Carbon::now()->subDays($days);
-            
-            $stocks = DB::select('
-                SELECT 
-                    stocks.id,
-                    stocks.name,
-                    stocks.code,
-                    MAX(barcodes.created_at) as last_production_date,
-                    DATEDIFF(NOW(), MAX(barcodes.created_at)) as days_old,
-                    COUNT(barcodes.id) as total_barcodes
-                FROM stocks
-                LEFT JOIN barcodes ON stocks.id = barcodes.stock_id 
-                    AND barcodes.deleted_at IS NULL
-                GROUP BY stocks.id, stocks.name, stocks.code
-                HAVING last_production_date < ? OR last_production_date IS NULL
-                ORDER BY days_old DESC
-            ', [$cutoffDate]);
-            
-            if (!empty($stocks)) {
-                $warnings[$level] = $stocks;
-            }
-        }
-        
-        return $warnings;
-    }
-
-    /**
      * Ürün özelinde fırın kapasite analizi
      */
     private function getProductKilnAnalysis($date)
@@ -585,24 +588,45 @@ class DashboardController extends Controller
     }
 
     /**
-     * AI/ML Insights
+     * AI/ML Insights üretimi
      */
     private function generateAIInsights($date)
     {
+        // OEE ve AI/ML içgörüler her zaman güncel tarihe göre çalışsın
+        // Tarih filtresinden etkilenmesin
+        $currentDate = Carbon::today('Europe/Istanbul');
+        
         // Production forecast based on historical data
-        $productionForecast = $this->calculateProductionForecast($date);
+        $productionForecast = $this->calculateProductionForecast($currentDate);
         
         // Quality risk assessment
-        $qualityRisk = $this->assessQualityRisk($date);
+        $qualityRisk = $this->assessQualityRisk($currentDate);
         
         // Anomaly detection
-        $anomalies = $this->detectAnomalies($date);
+        $anomalies = $this->detectAnomalies($currentDate);
         
         // Optimization recommendations
-        $recommendations = $this->generateRecommendations($date);
+        $recommendations = $this->generateRecommendations($currentDate);
         
         // Model status and accuracy
         $modelStatus = $this->getModelStatus();
+        
+        // Production efficiency analysis
+        $productionEfficiency = $this->calculateProductionEfficiency($currentDate);
+        
+        // Quality prediction model
+        $qualityPrediction = $this->predictQualityIssues($currentDate);
+        
+        // Process optimization insights
+        $processInsights = $this->generateProcessInsights($currentDate);
+        
+        // Debug: Log model status
+        \Log::info('Model Status Debug:', [
+            'production_accuracy' => $modelStatus['accuracy']['production'],
+            'quality_accuracy' => $modelStatus['accuracy']['quality'],
+            'anomaly_accuracy' => $modelStatus['accuracy']['anomaly'],
+            'full_model_status' => $modelStatus
+        ]);
         
         return [
             'production_forecast' => $productionForecast['forecast'],
@@ -614,8 +638,10 @@ class DashboardController extends Controller
             'quality_recommendation' => $qualityRisk['recommendation'],
             'anomalies' => $anomalies,
             'recommendations' => $recommendations,
-            'model_status' => $modelStatus['status'],
-            'model_accuracy' => $modelStatus['accuracy']
+            'model_status' => $modelStatus,
+            'production_efficiency' => $productionEfficiency,
+            'quality_prediction' => $qualityPrediction,
+            'process_insights' => $processInsights
         ];
     }
 
@@ -662,7 +688,12 @@ class DashboardController extends Controller
         $previousAvg = !empty($previousDays) ? array_sum(array_column($previousDays, 'daily_production')) / count($previousDays) : 0;
         
         $trendDirection = $recentAvg >= $previousAvg ? 'up' : 'down';
-        $trendPercentage = $previousAvg > 0 ? abs(($recentAvg - $previousAvg) / $previousAvg * 100) : 0;
+        
+        // Safety check: Prevent division by zero
+        $trendPercentage = 0;
+        if ($previousAvg > 0) {
+            $trendPercentage = abs(($recentAvg - $previousAvg) / $previousAvg * 100);
+        }
         
         // 7-day forecast
         $forecast = $avgDailyProduction * 7;
@@ -699,7 +730,11 @@ class DashboardController extends Controller
         $totalBarcodes = $qualityData[0]->total_barcodes ?? 0;
         $rejectedCount = $qualityData[0]->rejected_count ?? 0;
         
-        $currentRejectionRate = $totalBarcodes > 0 ? ($rejectedCount / $totalBarcodes) * 100 : 0;
+        // Safety check: Prevent division by zero
+        $currentRejectionRate = 0;
+        if ($totalBarcodes > 0) {
+            $currentRejectionRate = ($rejectedCount / $totalBarcodes) * 100;
+        }
         
         // Predict future rejection rate using simple moving average
         $expectedRejectionRate = min(25, max(0, $currentRejectionRate * 1.1)); // Slight increase prediction
@@ -780,32 +815,32 @@ class DashboardController extends Controller
     {
         $recommendations = [];
         
-        // Production efficiency recommendations
-        $efficiencyScore = $this->calculateEfficiencyScore($date);
-        if ($efficiencyScore < 0.7) {
+        // Get production efficiency data
+        $productionEfficiency = $this->calculateProductionEfficiency($date);
+        if ($productionEfficiency['oee_score'] < 70) {
             $recommendations[] = [
                 'category' => 'Üretim Verimliliği',
-                'text' => 'Üretim verimliliğini artırmak için vardiya programlarını ve ekipman bakımını optimize etmeyi düşünün.',
+                'text' => 'OEE skoru %' . $productionEfficiency['oee_score'] . ' - Üretim verimliliğini artırmak için vardiya programlarını ve ekipman bakımını optimize etmeyi düşünün.',
                 'impact' => 'medium'
             ];
         }
         
-        // Quality improvement recommendations
-        $qualityScore = $this->calculateQualityScore($date);
-        if ($qualityScore < 0.8) {
+        // Get quality prediction data
+        $qualityPrediction = $this->predictQualityIssues($date);
+        if ($qualityPrediction['overall_trend'] === 'increasing') {
             $recommendations[] = [
                 'category' => 'Kalite Kontrol',
-                'text' => 'Ek kalite kontrol noktaları uygulayın ve hammadde kalite standartlarını gözden geçirin.',
+                'text' => 'Kalite trendi artıyor (%' . $qualityPrediction['trend_percentage'] . ') - Ek kalite kontrol noktaları uygulayın ve hammadde kalite standartlarını gözden geçirin.',
                 'impact' => 'high'
             ];
         }
         
-        // Capacity utilization recommendations
-        $capacityUtilization = $this->calculateCapacityUtilization($date);
-        if ($capacityUtilization < 0.75) {
+        // Get process insights data
+        $processInsights = $this->generateProcessInsights($date);
+        if ($processInsights['correction_efficiency'] > 20) {
             $recommendations[] = [
-                'category' => 'Kapasite Planlama',
-                'text' => 'Üretim darboğazlarını analiz edin ve kapasite genişletme fırsatlarını değerlendirin.',
+                'category' => 'Düzeltme Faaliyeti',
+                'text' => 'Düzeltme oranı %' . $processInsights['correction_efficiency'] . ' - Kalite kontrol süreçlerini iyileştir, hataları kaynağında önle.',
                 'impact' => 'medium'
             ];
         }
@@ -814,20 +849,29 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get ML model status and accuracy
+     * Get ML model status and accuracy based on real data
      */
     private function getModelStatus()
     {
+        // Production model accuracy based on forecast vs actual production
+        $productionAccuracy = $this->calculateProductionModelAccuracy();
+        
+        // Quality model accuracy based on predicted vs actual rejection rates
+        $qualityAccuracy = $this->calculateQualityModelAccuracy();
+        
+        // Anomaly detection accuracy based on detected vs actual anomalies
+        $anomalyAccuracy = $this->calculateAnomalyModelAccuracy();
+        
         return [
             'status' => [
-                'production' => 'active',
-                'quality' => 'active',
-                'anomaly' => 'active'
+                'production' => $productionAccuracy >= 70 ? 'active' : 'inactive',
+                'quality' => $qualityAccuracy >= 70 ? 'active' : 'inactive',
+                'anomaly' => $anomalyAccuracy >= 70 ? 'active' : 'inactive'
             ],
             'accuracy' => [
-                'production' => 87,
-                'quality' => 92,
-                'anomaly' => 89
+                'production' => $productionAccuracy,
+                'quality' => $qualityAccuracy,
+                'anomaly' => $anomalyAccuracy
             ]
         ];
     }
@@ -837,7 +881,7 @@ class DashboardController extends Controller
      */
     private function calculateVariance($data)
     {
-        if (empty($data)) return 0;
+        if (empty($data) || count($data) < 2) return 0;
         
         $mean = array_sum($data) / count($data);
         $variance = 0;
@@ -846,7 +890,13 @@ class DashboardController extends Controller
             $variance += pow($value - $mean, 2);
         }
         
-        return $variance / count($data);
+        // Safety check: Prevent division by zero
+        $count = count($data);
+        if ($count > 0) {
+            return $variance / $count;
+        }
+        
+        return 0;
     }
 
     /**
@@ -869,6 +919,7 @@ class DashboardController extends Controller
         $total = $recentRejectionRate[0]->total_barcodes ?? 0;
         $rejected = $recentRejectionRate[0]->rejected_count ?? 0;
         
+        // Safety check: Prevent division by zero
         if ($total > 0 && ($rejected / $total) > 0.2) { // 20% rejection rate threshold
             return [
                 'type' => 'Kalite Anomalisi',
@@ -881,35 +932,587 @@ class DashboardController extends Controller
     }
 
     /**
-     * Calculate production efficiency score
+     * Calculate comprehensive production efficiency (OEE)
      */
-    private function calculateEfficiencyScore($date)
+    private function calculateProductionEfficiency($date)
     {
-        // Simplified efficiency calculation
-        // In a real implementation, this would consider multiple factors
-        return 0.75; // Placeholder value
+        // Get last 30 days of production data
+        $startDate = $date->copy()->subDays(30)->startOfDay();
+        $endDate = $date->copy()->endOfDay();
+        
+        // Calculate Availability (Makinelerin çalışma süresi)
+        $availabilityData = DB::select('
+            SELECT 
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.status IN (?, ?, ?, ?, ?) THEN 1 END) as active_barcodes,
+                COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_barcodes,
+                COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as merged_barcodes
+            FROM barcodes
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+        ', [
+            Barcode::STATUS_WAITING, 
+            Barcode::STATUS_CONTROL_REPEAT, 
+            Barcode::STATUS_PRE_APPROVED, 
+            Barcode::STATUS_SHIPMENT_APPROVED,
+            Barcode::STATUS_CUSTOMER_TRANSFER,
+            Barcode::STATUS_REJECTED,
+            Barcode::STATUS_MERGED,
+            $startDate, 
+            $endDate
+        ]);
+        
+        $totalBarcodes = $availabilityData[0]->total_barcodes ?? 0;
+        $activeBarcodes = $availabilityData[0]->active_barcodes ?? 0;
+        $rejectedBarcodes = $availabilityData[0]->rejected_barcodes ?? 0;
+        $mergedBarcodes = $availabilityData[0]->merged_barcodes ?? 0;
+        
+        // Safety check: If no data, return default values
+        if ($totalBarcodes == 0) {
+            return [
+                'oee_score' => 0,
+                'availability' => 0,
+                'performance' => 0,
+                'quality_rate' => 0,
+                'level' => 'critical',
+                'total_barcodes' => 0,
+                'active_barcodes' => 0,
+                'rejected_barcodes' => 0,
+                'merged_barcodes' => 0,
+                'avg_quantity' => 0
+            ];
+        }
+        
+        // Availability = Aktif süre / Toplam süre
+        $availability = ($activeBarcodes / $totalBarcodes) * 100;
+        
+        // Performance = Standart üretim hızı vs gerçek üretim hızı
+        $performanceData = DB::select('
+            SELECT 
+                AVG(quantities.quantity) as avg_quantity,
+                COUNT(*) as barcode_count
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            AND barcodes.status IN (?, ?, ?, ?, ?)
+        ', [
+            $startDate, 
+            $endDate,
+            Barcode::STATUS_WAITING, 
+            Barcode::STATUS_CONTROL_REPEAT, 
+            Barcode::STATUS_PRE_APPROVED, 
+            Barcode::STATUS_SHIPMENT_APPROVED,
+            Barcode::STATUS_CUSTOMER_TRANSFER
+        ]);
+        
+        $avgQuantity = $performanceData[0]->avg_quantity ?? 0;
+        $barcodeCount = $performanceData[0]->barcode_count ?? 0;
+        
+        // Assume standard production rate (can be configurable)
+        $standardRate = 1000; // KG per barcode (standard)
+        $performance = $avgQuantity > 0 ? min(100, ($avgQuantity / $standardRate) * 100) : 0;
+        
+        // Quality = Kaliteli ürün / Toplam ürün
+        $quality = (($totalBarcodes - $rejectedBarcodes - $mergedBarcodes) / $totalBarcodes) * 100;
+        
+        // Overall Equipment Effectiveness (OEE)
+        $oee = ($availability * $performance * $quality) / 10000;
+        
+        // Efficiency score (0-100)
+        $efficiencyScore = round($oee, 2);
+        
+        // Efficiency level
+        $efficiencyLevel = $this->getEfficiencyLevel($efficiencyScore);
+        
+        return [
+            'oee_score' => $efficiencyScore,
+            'availability' => round($availability, 2),
+            'performance' => round($performance, 2),
+            'quality_rate' => round($quality, 2),
+            'level' => $efficiencyLevel,
+            'total_barcodes' => $totalBarcodes,
+            'active_barcodes' => $activeBarcodes,
+            'rejected_barcodes' => $rejectedBarcodes,
+            'merged_barcodes' => $mergedBarcodes,
+            'avg_quantity' => round($avgQuantity, 2)
+        ];
+    }
+    
+    /**
+     * Get efficiency level based on OEE score
+     */
+    private function getEfficiencyLevel($oeeScore)
+    {
+        if ($oeeScore >= 90) return 'excellent';
+        if ($oeeScore >= 80) return 'good';
+        if ($oeeScore >= 70) return 'average';
+        if ($oeeScore >= 60) return 'poor';
+        return 'critical';
     }
 
     /**
-     * Calculate quality score
+     * Predict quality issues using historical data analysis
      */
-    private function calculateQualityScore($date)
+    private function predictQualityIssues($date)
     {
-        // Simplified quality score calculation
-        // In a real implementation, this would consider multiple quality metrics
-        return 0.85; // Placeholder value
+        // Get last 60 days of quality data for pattern analysis
+        $startDate = $date->copy()->subDays(60)->startOfDay();
+        $endDate = $date->copy()->endOfDay();
+        
+        // Analyze quality patterns by stock type
+        $qualityByStock = DB::select('
+            SELECT 
+                stocks.name as stock_name,
+                stocks.code as stock_code,
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count,
+                AVG(quantities.quantity) as avg_quantity,
+                COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as correction_count
+            FROM barcodes
+            LEFT JOIN stocks ON stocks.id = barcodes.stock_id
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY stocks.id, stocks.name, stocks.code
+            HAVING total_barcodes >= 5
+            ORDER BY rejected_count DESC
+        ', [
+            Barcode::STATUS_REJECTED, 
+            Barcode::STATUS_MERGED,
+            Barcode::STATUS_CORRECTED,
+            $startDate, 
+            $endDate
+        ]);
+        
+        // Analyze quality patterns by kiln
+        $qualityByKiln = DB::select('
+            SELECT 
+                kilns.name as kiln_name,
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count,
+                AVG(quantities.quantity) as avg_quantity
+            FROM barcodes
+            LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY kilns.id, kilns.name
+            HAVING total_barcodes >= 5
+            ORDER BY rejected_count DESC
+        ', [
+            Barcode::STATUS_REJECTED, 
+            Barcode::STATUS_MERGED,
+            $startDate, 
+            $endDate
+        ]);
+        
+        // Calculate overall quality trends
+        $qualityTrends = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
+            FROM barcodes
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [
+            Barcode::STATUS_REJECTED, 
+            Barcode::STATUS_MERGED,
+            $startDate, 
+            $endDate
+        ]);
+        
+        // Calculate trend direction
+        $trendDirection = 'stable';
+        $trendPercentage = 0;
+        
+        if (count($qualityTrends) >= 14) {
+            $recentWeek = array_slice($qualityTrends, -7);
+            $previousWeek = array_slice($qualityTrends, -14, 7);
+            
+            $recentTotal = array_sum(array_column($recentWeek, 'total_barcodes'));
+            $previousTotal = array_sum(array_column($previousWeek, 'total_barcodes'));
+            
+            // Safety check: Prevent division by zero
+            $recentRejectionRate = 0;
+            $previousRejectionRate = 0;
+            
+            if ($recentTotal > 0) {
+                $recentRejectionRate = array_sum(array_column($recentWeek, 'rejected_count')) / $recentTotal * 100;
+            }
+            
+            if ($previousTotal > 0) {
+                $previousRejectionRate = array_sum(array_column($previousWeek, 'rejected_count')) / $previousTotal * 100;
+            }
+            
+            if ($previousRejectionRate > 0) {
+                $trendPercentage = (($recentRejectionRate - $previousRejectionRate) / $previousRejectionRate) * 100;
+                
+                if ($trendPercentage > 5) {
+                    $trendDirection = 'increasing';
+                } elseif ($trendPercentage < -5) {
+                    $trendDirection = 'decreasing';
+                }
+            }
+        }
+        
+        // Identify high-risk stocks and kilns
+        $highRiskStocks = array_filter($qualityByStock, function($stock) {
+            $rejectionRate = $stock->total_barcodes > 0 ? ($stock->rejected_count / $stock->total_barcodes) * 100 : 0;
+            return $rejectionRate > 15; // %15'ten fazla red oranı
+        });
+        
+        $highRiskKilns = array_filter($qualityByKiln, function($kiln) {
+            $rejectionRate = $kiln->total_barcodes > 0 ? ($kiln->rejected_count / $kiln->total_barcodes) * 100 : 0;
+            return $rejectionRate > 15; // %15'ten fazla red oranı
+        });
+        
+        return [
+            'overall_trend' => $trendDirection,
+            'trend_percentage' => round($trendPercentage, 2),
+            'high_risk_stocks' => array_values($highRiskStocks),
+            'high_risk_kilns' => array_values($highRiskKilns),
+            'quality_by_stock' => $qualityByStock,
+            'quality_by_kiln' => $qualityByKiln,
+            'total_analysis_period' => 60,
+            'prediction_confidence' => $this->calculateQualityPredictionConfidence($qualityTrends)
+        ];
+    }
+    
+    /**
+     * Calculate quality prediction confidence
+     */
+    private function calculateQualityPredictionConfidence($qualityTrends)
+    {
+        if (count($qualityTrends) < 10) {
+            return 60; // Low confidence with limited data
+        }
+        
+        // Calculate data consistency
+        $rejectionRates = [];
+        foreach ($qualityTrends as $trend) {
+            if ($trend->total_barcodes > 0) {
+                $rejectionRates[] = ($trend->rejected_count / $trend->total_barcodes) * 100;
+            }
+        }
+        
+        if (empty($rejectionRates)) {
+            return 60;
+        }
+        
+        // Lower variance = higher confidence
+        $variance = $this->calculateVariance($rejectionRates);
+        $confidence = max(60, min(95, 95 - ($variance / 2)));
+        
+        return round($confidence);
     }
 
     /**
-     * Calculate capacity utilization
+     * Generate process optimization insights
      */
-    private function calculateCapacityUtilization($date)
+    private function generateProcessInsights($date)
     {
-        // Simplified capacity utilization calculation
-        // In a real implementation, this would consider actual vs. theoretical capacity
-        return 0.70; // Placeholder value
+        // Get last 30 days of process data
+        $startDate = $date->copy()->subDays(30)->startOfDay();
+        $endDate = $date->copy()->endOfDay();
+        
+        // Analyze process bottlenecks
+        $processBottlenecks = DB::select('
+            SELECT 
+                barcodes.status,
+                COUNT(*) as barcode_count,
+                AVG(TIMESTAMPDIFF(HOUR, barcodes.created_at, COALESCE(barcodes.lab_at, NOW()))) as avg_lab_time,
+                AVG(TIMESTAMPDIFF(HOUR, barcodes.lab_at, COALESCE(barcodes.warehouse_transferred_at, NOW()))) as avg_warehouse_time,
+                AVG(TIMESTAMPDIFF(HOUR, barcodes.warehouse_transferred_at, COALESCE(barcodes.company_transferred_at, NOW()))) as avg_delivery_time
+            FROM barcodes
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY barcodes.status
+            HAVING barcode_count >= 3
+        ', [$startDate, $endDate]);
+        
+        // Analyze correction activity patterns
+        $correctionPatterns = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.is_correction = 1 THEN 1 END) as correction_barcodes,
+                SUM(CASE WHEN barcodes.is_correction = 1 THEN quantities.quantity ELSE 0 END) as correction_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [$startDate, $endDate]);
+        
+        // Calculate correction efficiency
+        $totalCorrections = array_sum(array_column($correctionPatterns, 'correction_barcodes'));
+        $totalBarcodes = array_sum(array_column($correctionPatterns, 'total_barcodes'));
+        $correctionEfficiency = $totalBarcodes > 0 ? ($totalCorrections / $totalBarcodes) * 100 : 0;
+        
+        // Analyze merge patterns
+        $mergePatterns = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.is_merged = 1 THEN 1 END) as merged_barcodes
+            FROM barcodes
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [$startDate, $endDate]);
+        
+        // Calculate merge efficiency
+        $totalMerges = array_sum(array_column($mergePatterns, 'merged_barcodes'));
+        $mergeEfficiency = $totalBarcodes > 0 ? ($totalMerges / $totalBarcodes) * 100 : 0;
+        
+        // Generate optimization recommendations
+        $recommendations = [];
+        
+        // Lab process optimization
+        $avgLabTime = 0;
+        if (!empty($processBottlenecks)) {
+            $avgLabTime = array_sum(array_column($processBottlenecks, 'avg_lab_time')) / count($processBottlenecks);
+        }
+        
+        if ($avgLabTime > 24) {
+            $recommendations[] = [
+                'category' => 'Laboratuvar Süreci',
+                'issue' => 'Ortalama lab süresi ' . round($avgLabTime, 1) . ' saat',
+                'recommendation' => 'Lab personeli artırımı veya süreç optimizasyonu gerekli',
+                'impact' => 'high',
+                'estimated_improvement' => 'Lab süresini %30 azaltabilir'
+            ];
+        }
+        
+        // Correction activity optimization
+        if ($correctionEfficiency > 20) {
+            $recommendations[] = [
+                'category' => 'Düzeltme Faaliyeti',
+                'issue' => 'Düzeltme oranı %' . round($correctionEfficiency, 1),
+                'recommendation' => 'Kalite kontrol süreçlerini iyileştir, hataları kaynağında önle',
+                'impact' => 'medium',
+                'estimated_improvement' => 'Düzeltme oranını %50 azaltabilir'
+            ];
+        }
+        
+        // Merge activity optimization
+        if ($mergeEfficiency > 15) {
+            $recommendations[] = [
+                'category' => 'Birleştirme Faaliyeti',
+                'issue' => 'Birleştirme oranı %' . round($mergeEfficiency, 1),
+                'recommendation' => 'Üretim planlamasını optimize et, küçük partileri birleştir',
+                'impact' => 'low',
+                'estimated_improvement' => 'Birleştirme oranını %30 azaltabilir'
+            ];
+        }
+        
+        return [
+            'process_bottlenecks' => $processBottlenecks,
+            'correction_patterns' => $correctionPatterns,
+            'merge_patterns' => $mergePatterns,
+            'correction_efficiency' => round($correctionEfficiency, 2),
+            'merge_efficiency' => round($mergeEfficiency, 2),
+            'avg_lab_time' => round($avgLabTime, 1),
+            'optimization_recommendations' => $recommendations,
+            'analysis_period' => 30
+        ];
     }
 
+    /**
+     * Calculate production model accuracy based on forecast vs actual production
+     */
+    private function calculateProductionModelAccuracy()
+    {
+        // Get last 7 days of production data to compare with forecasts
+        $endDate = now()->endOfDay();
+        $startDate = $endDate->copy()->subDays(7)->startOfDay();
+        
+        // Get actual production data
+        $actualProduction = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COALESCE(SUM(quantities.quantity), 0) as daily_production
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [$startDate, $endDate]);
+        
+        if (empty($actualProduction)) {
+            return 75; // Default accuracy if no data
+        }
+        
+        // Calculate total actual production
+        $totalActual = array_sum(array_column($actualProduction, 'daily_production'));
+        
+        // Get forecast for the same period (using historical data from 7 days before)
+        $forecastStartDate = $startDate->copy()->subDays(7);
+        $forecastEndDate = $startDate->copy()->subDay();
+        
+        $historicalData = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COALESCE(SUM(quantities.quantity), 0) as daily_production
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [$forecastStartDate, $forecastEndDate]);
+        
+        if (empty($historicalData)) {
+            return 75; // Default accuracy if no historical data
+        }
+        
+        // Calculate forecast based on historical average
+        $historicalAvg = array_sum(array_column($historicalData, 'daily_production')) / count($historicalData);
+        $forecast = $historicalAvg * 7;
+        
+        // Calculate accuracy based on forecast vs actual
+        if ($forecast > 0) {
+            $accuracy = max(0, min(100, 100 - (abs($forecast - $totalActual) / $forecast * 100)));
+        } else {
+            $accuracy = 75;
+        }
+        
+        return round($accuracy);
+    }
+    
+    /**
+     * Calculate quality model accuracy based on predicted vs actual rejection rates
+     */
+    private function calculateQualityModelAccuracy()
+    {
+        // Get last 14 days of quality data
+        $endDate = now()->endOfDay();
+        $startDate = $endDate->copy()->subDays(14)->startOfDay();
+        
+        // Get actual rejection rates
+        $actualQuality = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
+            FROM barcodes
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, $startDate, $endDate]);
+        
+        if (empty($actualQuality)) {
+            return 80; // Default accuracy if no data
+        }
+        
+        // Calculate average actual rejection rate
+        $totalActual = array_sum(array_column($actualQuality, 'total_barcodes'));
+        $totalRejected = array_sum(array_column($actualQuality, 'rejected_count'));
+        $actualRejectionRate = $totalActual > 0 ? ($totalRejected / $totalActual) * 100 : 0;
+        
+        // Get historical rejection rate from previous 14 days for comparison
+        $historicalStartDate = $startDate->copy()->subDays(14);
+        $historicalEndDate = $startDate->copy()->subDay();
+        
+        $historicalQuality = DB::select('
+            SELECT 
+                COUNT(*) as total_barcodes,
+                COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
+            FROM barcodes
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+        ', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, $historicalStartDate, $historicalEndDate]);
+        
+        if (empty($historicalQuality)) {
+            return 80; // Default accuracy if no historical data
+        }
+        
+        $historicalTotal = $historicalQuality[0]->total_barcodes ?? 0;
+        $historicalRejected = $historicalQuality[0]->rejected_count ?? 0;
+        $historicalRejectionRate = $historicalTotal > 0 ? ($historicalRejected / $historicalTotal) * 100 : 0;
+        
+        // Calculate accuracy based on prediction stability
+        $accuracy = 80; // Default accuracy
+        if ($historicalRejectionRate > 0) {
+            $accuracy = max(0, min(100, 100 - (abs($actualRejectionRate - $historicalRejectionRate) / $historicalRejectionRate * 100)));
+        }
+        
+        return round($accuracy);
+    }
+    
+    /**
+     * Calculate anomaly detection model accuracy
+     */
+    private function calculateAnomalyModelAccuracy()
+    {
+        // Get last 30 days of data to analyze anomalies
+        $endDate = now()->endOfDay();
+        $startDate = $endDate->copy()->subDays(30)->startOfDay();
+        
+        // Get production data with potential anomalies
+        $productionData = DB::select('
+            SELECT 
+                DATE(barcodes.created_at) as date,
+                COALESCE(SUM(quantities.quantity), 0) as daily_production,
+                COUNT(*) as barcode_count
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+            GROUP BY DATE(barcodes.created_at)
+            ORDER BY date
+        ', [$startDate, $endDate]);
+        
+        if (empty($productionData)) {
+            return 85; // Default accuracy if no data
+        }
+        
+        // Calculate daily production averages and standard deviation
+        $dailyProductions = array_column($productionData, 'daily_production');
+        $mean = array_sum($dailyProductions) / count($dailyProductions);
+        $variance = $this->calculateVariance($dailyProductions);
+        $stdDev = sqrt($variance);
+        
+        // Safety check: Prevent division by zero or invalid calculations
+        if ($stdDev <= 0 || is_nan($stdDev) || is_infinite($stdDev)) {
+            $stdDev = 1; // Default to 1 if calculation fails
+        }
+        
+        // Define anomaly threshold (2 standard deviations from mean)
+        $threshold = 2 * $stdDev;
+        
+        // Count actual anomalies (days with production outside threshold)
+        $actualAnomalies = 0;
+        foreach ($dailyProductions as $production) {
+            if (abs($production - $mean) > $threshold) {
+                $actualAnomalies++;
+            }
+        }
+        
+        // Calculate anomaly rate
+        $anomalyRate = count($dailyProductions) > 0 ? ($actualAnomalies / count($dailyProductions)) * 100 : 0;
+        
+        // Model accuracy based on reasonable anomaly detection (not too many false positives)
+        // Ideal anomaly rate should be between 5-15% for production data
+        if ($anomalyRate >= 5 && $anomalyRate <= 15) {
+            $accuracy = 90; // High accuracy for reasonable anomaly rate
+        } elseif ($anomalyRate > 15) {
+            $accuracy = max(60, 90 - ($anomalyRate - 15)); // Decreasing accuracy for too many anomalies
+        } else {
+            $accuracy = max(70, 90 - (5 - $anomalyRate)); // Decreasing accuracy for too few anomalies
+        }
+        
+        return round($accuracy);
+    }
+    
     /**
      * Stok bilgilerini getir
      */

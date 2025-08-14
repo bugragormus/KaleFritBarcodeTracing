@@ -499,25 +499,7 @@
         }
     }
 
-    .warning-card {
-        border-left: 4px solid;
-        margin-bottom: 1rem;
-    }
 
-    .warning-critical {
-        border-left-color: #dc3545;
-        background: #f8d7da;
-    }
-
-    .warning-warning {
-        border-left-color: #ffc107;
-        background: #fff3cd;
-    }
-
-    .warning-info {
-        border-left-color: #17a2b8;
-        background: #d1ecf1;
-    }
 
     .chart-container {
         height: 300px;
@@ -1055,11 +1037,276 @@
         color: #495057;
         border: 1px solid #ced4da;
     }
+    
+    .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
 
     .model-accuracy {
         font-size: 0.85rem;
         color: #6c757d;
+        margin-top: 0.5rem;
     }
+    
+    .accuracy-bar {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .accuracy-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        border-radius: 4px;
+        transition: width 0.8s ease;
+    }
+    
+    .accuracy-text {
+        font-weight: 600;
+        color: #495057;
+    }
+    
+
+    
+    /* Production Efficiency Styles */
+    .efficiency-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .efficiency-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .efficiency-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+    
+    .efficiency-value.excellent {
+        color: #28a745;
+    }
+    
+    .efficiency-value.good {
+        color: #20c997;
+    }
+    
+    .efficiency-value.average {
+        color: #ffc107;
+    }
+    
+    .efficiency-value.poor {
+        color: #fd7e14;
+    }
+    
+    .efficiency-value.critical {
+        color: #dc3545;
+    }
+    
+    .efficiency-value.availability {
+        color: #17a2b8;
+    }
+    
+    .efficiency-value.performance {
+        color: #6f42c1;
+    }
+    
+    .efficiency-value.quality {
+        color: #e83e8c;
+    }
+    
+    .efficiency-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .efficiency-level {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.4rem 1rem;
+        border-radius: 15px;
+        display: inline-block;
+    }
+    
+    .efficiency-level.excellent {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .efficiency-level.good {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    
+    .efficiency-level.average {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+    
+    .efficiency-level.poor {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .efficiency-level.critical {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .efficiency-desc {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+    
+    .efficiency-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .efficiency-stats {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .efficiency-stats li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .efficiency-stats li:last-child {
+        border-bottom: none;
+    }
+    
+    .efficiency-stats strong {
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    /* Info Button Styles */
+    .card-header-modern .btn-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border: none;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .card-header-modern .btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+    }
+    
+    .card-header-modern .btn-info i {
+        margin-right: 0.5rem;
+    }
+    
+    /* Modal Styles */
+    .info-modal .modal-header {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+    
+    .info-modal .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+    
+    .info-modal .modal-body {
+        padding: 2rem;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .info-modal .metric-explanation {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border-left: 4px solid #17a2b8;
+    }
+    
+    .info-modal .metric-title {
+        font-weight: 600;
+        color: #17a2b8;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .info-modal .metric-desc {
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-modal .metric-formula {
+        background: #e9ecef;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: #495057;
+        margin: 0.5rem 0;
+    }
+    
+    .info-modal .example-box {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .info-modal .example-title {
+        font-weight: 600;
+        color: #856404;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-modal .level-indicator {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin: 0.2rem;
+    }
+    
+    .level-indicator.excellent { background: #d4edda; color: #155724; }
+    .level-indicator.good { background: #d1ecf1; color: #0c5460; }
+    .level-indicator.average { background: #fff3cd; color: #856404; }
+    .level-indicator.poor { background: #f8d7da; color: #721c24; }
+    .level-indicator.critical { background: #f8d7da; color: #721c24; }
 </style>
 @endsection
 
@@ -1078,12 +1325,18 @@
                 </div>
                 
                 <!-- Date Selector -->
-                <div class="date-selector">
-                    <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
-                        <label for="date">📅 Rapor Tarihi (Bugün):</label>
-                        <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
-                               class="form-control" onchange="this.form.submit()">
-                    </form>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="date-selector">
+                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
+                            <label for="date">📅 Rapor Tarihi (Bugün):</label>
+                            <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
+                                   class="form-control" onchange="this.form.submit()">
+                        </form>
+                        <small class="text-white-50 mt-1 d-block">
+                            <i class="fas fa-info-circle"></i> 
+                            OEE ve AI/ML içgörüler her zaman güncel tarihe göre çalışır
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1125,6 +1378,38 @@
                 </div>
             </div>
         </div>
+
+        <!-- Correction Summary -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-recycle"></i>
+                    Düzeltme Faaliyeti Özeti
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['with_correction_output'] ?? 0, 1) }}</div>
+                        <div class="stat-label">Düzeltmeli Üretim (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['without_correction_output'] ?? 0, 1) }}</div>
+                        <div class="stat-label">Düzeltmesiz Üretim (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['correction_input_used'] ?? 0, 1) }}</div>
+                        <div class="stat-label">Düzeltmede Kullanılan Red (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($dailyProduction['raw_material_used'] ?? 0, 1) }}</div>
+                        <div class="stat-label">Toplam Hammadde Kullanımı (ton)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
 
         <!-- Shift Report -->
         <div class="card-modern">
@@ -1211,7 +1496,7 @@
                             <div class="shift-stats">
                                 <p style="color: rgba(255, 255, 255, 0.8); margin: 0;">Seçilen tarih için vardiya verisi bulunamadı.</p>
                                 <button class="btn btn-light btn-sm mt-2" onclick="refreshShiftReport()">
-                                    <i class="fas fa-sync-alt"></i> Yenile
+                                    <i class="fas fa-sync-alt"></i> Yeniles
                                 </button>
                             </div>
                         </div>
@@ -1311,53 +1596,7 @@
             </div>
         </div>
 
-        <!-- Stock Age Warnings -->
-        @if(!empty($stockAgeWarnings))
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-clock"></i>
-                    Stok Yaşı Uyarıları
-                </h3>
-            </div>
-            <div class="card-body-modern">
-                @if(isset($stockAgeWarnings['critical']))
-                <h5 class="text-danger mb-3">🚨 Kritik Uyarı (30+ gün)</h5>
-                @foreach($stockAgeWarnings['critical'] as $stock)
-                <div class="warning-card warning-critical p-3">
-                    <strong>{{ $stock->name }}</strong> ({{ $stock->code }}) - 
-                    Son üretim: {{ $stock->last_production_date ? \Carbon\Carbon::parse($stock->last_production_date)->format('d.m.Y') : 'Hiç üretilmemiş' }}
-                    @if($stock->last_production_date)
-                        - <span class="text-danger">{{ $stock->days_old }} gün önce</span>
-                    @endif
-                </div>
-                @endforeach
-                @endif
 
-                @if(isset($stockAgeWarnings['warning']))
-                <h5 class="text-warning mb-3 mt-4">⚠️ Uyarı (15+ gün)</h5>
-                @foreach($stockAgeWarnings['warning'] as $stock)
-                <div class="warning-card warning-warning p-3">
-                    <strong>{{ $stock->name }}</strong> ({{ $stock->code }}) - 
-                    Son üretim: {{ \Carbon\Carbon::parse($stock->last_production_date)->format('d.m.Y') }} 
-                    - <span class="text-warning">{{ $stock->days_old }} gün önce</span>
-                </div>
-                @endforeach
-                @endif
-
-                @if(isset($stockAgeWarnings['info']))
-                <h5 class="text-info mb-3 mt-4">ℹ️ Bilgi (7+ gün)</h5>
-                @foreach($stockAgeWarnings['info'] as $stock)
-                <div class="warning-card warning-info p-3">
-                    <strong>{{ $stock->name }}</strong> ({{ $stock->code }}) - 
-                    Son üretim: {{ \Carbon\Carbon::parse($stock->last_production_date)->format('d.m.Y') }} 
-                    - <span class="text-info">{{ $stock->days_old }} gün önce</span>
-                </div>
-                @endforeach
-                @endif
-            </div>
-        </div>
-        @endif
 
         <!-- Product Kiln Analysis -->
         <div class="card-modern">
@@ -1484,13 +1723,106 @@
             </div>
         </div>
 
+        <!-- Production Efficiency Analysis -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Üretim Verimliliği Analizi (OEE) - Güncel Veriler
+                    </h3>
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#oeeInfoModal">
+                        <i class="fas fa-info-circle"></i> Bilgi
+                    </button>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-clock"></i> 
+                    Bu bölüm her zaman güncel tarihe göre hesaplanır, tarih filtresinden etkilenmez
+                </small>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="efficiency-card">
+                            <div class="efficiency-value {{ $aiInsights['production_efficiency']['level'] ?? 'average' }}">
+                                %{{ $aiInsights['production_efficiency']['oee_score'] ?? 0 }}
+                            </div>
+                            <div class="efficiency-label">Genel Verimlilik</div>
+                            <div class="efficiency-level">{{ ucfirst($aiInsights['production_efficiency']['level'] ?? 'average') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="efficiency-card">
+                            <div class="efficiency-value availability">
+                                %{{ $aiInsights['production_efficiency']['availability'] ?? 0 }}
+                            </div>
+                            <div class="efficiency-label">Erişilebilirlik</div>
+                            <div class="efficiency-desc">Makine çalışma süresi</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="efficiency-card">
+                            <div class="efficiency-value performance">
+                                %{{ $aiInsights['production_efficiency']['performance'] ?? 0 }}
+                            </div>
+                            <div class="efficiency-label">Performans</div>
+                            <div class="efficiency-desc">Üretim hızı</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="efficiency-card">
+                            <div class="efficiency-value quality">
+                                %{{ $aiInsights['production_efficiency']['quality_rate'] ?? 0 }}
+                            </div>
+                            <div class="efficiency-label">Kalite</div>
+                            <div class="efficiency-desc">Kabul oranı</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="efficiency-details mt-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-info-circle"></i> Verimlilik Detayları</h6>
+                            <ul class="efficiency-stats">
+                                <li><strong>Toplam Barkod:</strong> {{ number_format($aiInsights['production_efficiency']['total_barcodes'] ?? 0) }}</li>
+                                <li><strong>Aktif Barkod:</strong> {{ number_format($aiInsights['production_efficiency']['active_barcodes'] ?? 0) }}</li>
+                                <li><strong>Reddedilen:</strong> {{ number_format($aiInsights['production_efficiency']['rejected_barcodes'] ?? 0) }}</li>
+                                <li><strong>Birleştirilen:</strong> {{ number_format($aiInsights['production_efficiency']['merged_barcodes'] ?? 0) }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-chart-line"></i> Performans Metrikleri</h6>
+                            <ul class="efficiency-stats">
+                                <li><strong>Ortalama Miktar:</strong> {{ number_format($aiInsights['production_efficiency']['avg_quantity'] ?? 0, 1) }} KG</li>
+                                <li><strong>Verimlilik Seviyesi:</strong> 
+                                    <span class="badge badge-{{ $aiInsights['production_efficiency']['level'] ?? 'average' }}">
+                                        {{ ucfirst($aiInsights['production_efficiency']['level'] ?? 'average') }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- AI/ML Insights Section -->
         <div class="card-modern">
             <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-brain"></i>
-                    AI/ML İçgörüler & Tahmin Analizi
-                </h3>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-brain"></i>
+                        AI/ML İçgörüler & Tahmin Analizi - Güncel Veriler
+                    </h3>
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#aimlInfoModal">
+                        <i class="fas fa-info-circle"></i> Bilgi
+                    </button>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-clock"></i> 
+                    Bu bölüm her zaman güncel tarihe göre hesaplanır, tarih filtresinden etkilenmez
+                </small>
             </div>
             <div class="card-body-modern">
                 <div class="row">
@@ -1634,13 +1966,16 @@
                                 </div>
                                 <div class="status-indicator status-{{ $aiInsights['model_status']['production'] ?? 'active' }}">
                                     @if(($aiInsights['model_status']['production'] ?? 'active') === 'active')
-                                        Aktif
+                                        <i class="fas fa-check-circle text-success"></i> Aktif
                                     @else
-                                        Pasif
+                                        <i class="fas fa-times-circle text-danger"></i> Pasif
                                     @endif
                                 </div>
                                 <div class="model-accuracy">
-                                    Doğruluk: %{{ $aiInsights['model_status']['accuracy']['production'] ?? 0 }}
+                                    <div class="accuracy-bar">
+                                        <div class="accuracy-fill" style="width: {{ $aiInsights['model_status']['accuracy']['production'] ?? 0 }}%"></div>
+                                    </div>
+                                    <span class="accuracy-text">Doğruluk: %{{ $aiInsights['model_status']['accuracy']['production'] ?? 0 }}</span>
                                 </div>
                             </div>
                         </div>
@@ -1652,13 +1987,16 @@
                                 </div>
                                 <div class="status-indicator status-{{ $aiInsights['model_status']['quality'] ?? 'active' }}">
                                     @if(($aiInsights['model_status']['quality'] ?? 'active') === 'active')
-                                        Aktif
+                                        <i class="fas fa-check-circle text-success"></i> Aktif
                                     @else
-                                        Pasif
+                                        <i class="fas fa-times-circle text-danger"></i> Pasif
                                     @endif
                                 </div>
                                 <div class="model-accuracy">
-                                    Doğruluk: %{{ $aiInsights['model_status']['accuracy']['quality'] ?? 0 }}
+                                    <div class="accuracy-bar">
+                                        <div class="accuracy-fill" style="width: {{ $aiInsights['model_status']['accuracy']['quality'] ?? 0 }}%"></div>
+                                    </div>
+                                    <span class="accuracy-text">Doğruluk: %{{ $aiInsights['model_status']['accuracy']['quality'] ?? 0 }}</span>
                                 </div>
                             </div>
                         </div>
@@ -1670,13 +2008,16 @@
                                 </div>
                                 <div class="status-indicator status-{{ $aiInsights['model_status']['anomaly'] ?? 'active' }}">
                                     @if(($aiInsights['model_status']['anomaly'] ?? 'active') === 'active')
-                                        Aktif
+                                        <i class="fas fa-check-circle text-success"></i> Aktif
                                     @else
-                                        Pasif
+                                        <i class="fas fa-times-circle text-danger"></i> Pasif
                                     @endif
                                 </div>
                                 <div class="model-accuracy">
-                                    Doğruluk: %{{ $aiInsights['model_status']['accuracy']['anomaly'] ?? 0 }}
+                                    <div class="accuracy-bar">
+                                        <div class="accuracy-fill" style="width: {{ $aiInsights['model_status']['accuracy']['anomaly'] ?? 0 }}%"></div>
+                                    </div>
+                                    <span class="accuracy-text">Doğruluk: %{{ $aiInsights['model_status']['accuracy']['anomaly'] ?? 0 }}</span>
                                 </div>
                             </div>
                         </div>
@@ -1871,4 +2212,215 @@ function exportKilnPerformance() {
         });
 }
 </script>
+
+<!-- OEE Bilgi Modal -->
+<div class="modal fade info-modal" id="oeeInfoModal" tabindex="-1" role="dialog" aria-labelledby="oeeInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="oeeInfoModalLabel">
+                    <i class="fas fa-tachometer-alt"></i> OEE (Üretim Verimliliği) Nedir?
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="metric-explanation">
+                    <div class="metric-title">🎯 OEE Nedir?</div>
+                    <div class="metric-desc">
+                        OEE (Overall Equipment Effectiveness), üretim süreçlerinin verimliliğini ölçen dünya standartlarında bir metrik. 
+                        Makinelerinizin ne kadar verimli çalıştığını gösterir.
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">📊 OEE Hesaplama</div>
+                    <div class="metric-desc">
+                        OEE, 3 ana faktörün çarpımı ile hesaplanır:
+                    </div>
+                    <div class="metric-formula">
+                        OEE = Erişilebilirlik × Performans × Kalite
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">⏰ 1. Erişilebilirlik (Availability)</div>
+                    <div class="metric-desc">
+                        Makinelerinizin ne kadar süre çalıştığını gösterir. 
+                        Planlı duruşlar, arızalar ve bakım süreleri bu metriği etkiler.
+                    </div>
+                    <div class="metric-formula">
+                        Erişilebilirlik = (Aktif Barkod / Toplam Barkod) × 100
+                    </div>
+                    <div class="metric-desc">
+                        <strong>Aktif Barkod:</strong> Üretim sürecinde olan barkodlar (Beklemede, Kontrol, Onaylı, Sevk, Transfer)
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">🚀 2. Performans (Performance)</div>
+                    <div class="metric-desc">
+                        Makinelerinizin standart hızda çalışıp çalışmadığını gösterir. 
+                        Yavaş çalışma, duruşlar ve verimsizlik bu metriği etkiler.
+                    </div>
+                    <div class="metric-formula">
+                        Performans = (Ortalama Miktar / Standart Miktar) × 100
+                    </div>
+                    <div class="metric-desc">
+                        <strong>Standart Miktar:</strong> 1000 KG/barkod (ideal üretim miktarı)
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">✅ 3. Kalite (Quality)</div>
+                    <div class="metric-desc">
+                        Üretilen ürünlerin ne kadarının kabul edildiğini gösterir. 
+                        Reddedilen ürünler ve birleştirme işlemleri bu metriği etkiler.
+                    </div>
+                    <div class="metric-formula">
+                        Kalite = ((Toplam - Reddedilen - Birleştirilen) / Toplam) × 100
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">📝 Hesaplama Örneği</div>
+                    <div class="metric-desc">
+                        <strong>Senaryo:</strong> 1000 barkod üretildi, 850'si aktif, 100'ü reddedildi, 50'si birleştirildi
+                    </div>
+                    <div class="metric-formula">
+                        Erişilebilirlik = (850/1000) × 100 = %85<br>
+                        Performans = (950/1000) × 100 = %95<br>
+                        Kalite = ((1000-100-50)/1000) × 100 = %85<br><br>
+                        OEE = (85 × 95 × 85) / 10000 = %68.6
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">🏆 Verimlilik Seviyeleri</div>
+                    <div class="metric-desc">
+                        OEE skoruna göre verimlilik seviyeleri:
+                    </div>
+                    <div class="metric-desc">
+                        <span class="level-indicator excellent">90%+ Excellent</span> - Dünya standartlarında üretim<br>
+                        <span class="level-indicator good">80-89% Good</span> - İyi performans, küçük iyileştirmeler gerekli<br>
+                        <span class="level-indicator average">70-79% Average</span> - Ortalama, orta seviye iyileştirmeler gerekli<br>
+                        <span class="level-indicator poor">60-69% Poor</span> - Düşük performans, ciddi iyileştirmeler gerekli<br>
+                        <span class="level-indicator critical"><60% Critical</span> - Kritik durum, acil müdahale gerekli
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">💡 İyileştirme Önerileri</div>
+                    <div class="metric-desc">
+                        <strong>Erişilebilirlik Düşükse:</strong> Makine bakım planlaması, vardiya optimizasyonu<br>
+                        <strong>Performans Düşükse:</strong> Üretim hızı optimizasyonu, personel eğitimi<br>
+                        <strong>Kalite Düşükse:</strong> Hammadde kalite kontrolü, üretim parametreleri
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI/ML Bilgi Modal -->
+<div class="modal fade info-modal" id="aimlInfoModal" tabindex="-1" role="dialog" aria-labelledby="aimlInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="aimlInfoModalLabel">
+                    <i class="fas fa-brain"></i> AI/ML İçgörüler & Tahmin Analizi Nedir?
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="metric-explanation">
+                    <div class="metric-title">🤖 AI/ML Nedir?</div>
+                    <div class="metric-desc">
+                        AI (Yapay Zeka) ve ML (Makine Öğrenmesi), üretim verilerinizi analiz ederek 
+                        gelecekteki üretim ve kalite durumlarını tahmin eden akıllı sistemlerdir.
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">📈 1. Üretim Modeli</div>
+                    <div class="metric-desc">
+                        <strong>Ne Yapar:</strong> Geçmiş üretim verilerinizi analiz ederek gelecekteki üretim miktarlarını tahmin eder.<br>
+                        <strong>Nasıl Çalışır:</strong> Son 7 günlük gerçek üretimi, önceki 7 günlük tahminle karşılaştırır.<br>
+                        <strong>Doğruluk:</strong> Tahmin güvenilirliği %70+ olmalıdır.
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">🔍 2. Kalite Modeli</div>
+                    <div class="metric-desc">
+                        <strong>Ne Yapar:</strong> Geçmiş kalite verilerinizi analiz ederek gelecekteki red oranlarını tahmin eder.<br>
+                        <strong>Nasıl Çalışır:</strong> Son 14 günlük gerçek red oranını, önceki 14 günlük tahminle karşılaştırır.<br>
+                        <strong>Doğruluk:</strong> Tahmin güvenilirliği %70+ olmalıdır.
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">⚠️ 3. Anomali Tespit Modeli</div>
+                    <div class="metric-desc">
+                        <strong>Ne Yapar:</strong> Üretim verilerinizde normal olmayan durumları tespit eder.<br>
+                        <strong>Nasıl Çalışır:</strong> Son 30 günlük verileri analiz ederek standart sapma hesaplar.<br>
+                        <strong>Doğruluk:</strong> %5-15 arası anomali oranı normal kabul edilir.
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">📊 Model Durumu</div>
+                    <div class="metric-desc">
+                        <strong>Aktif (🟢):</strong> Model çalışıyor ve doğru tahminler yapıyor<br>
+                        <strong>Pasif (🔴):</strong> Model durmuş veya yanlış tahminler yapıyor
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">🎯 Doğruluk Oranı</div>
+                    <div class="metric-desc">
+                        <strong>%90+:</strong> Mükemmel tahmin - Güvenle kullanabilirsiniz<br>
+                        <strong>%80-89%:</strong> İyi tahmin - Çoğu durumda güvenilir<br>
+                        <strong>%70-79%:</strong> Ortalama tahmin - Dikkatli kullanın<br>
+                        <strong>%70-:</strong> Düşük tahmin - Modeli yeniden eğitmek gerekebilir
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-title">📝 Nasıl Çalışır?</div>
+                    <div class="metric-desc">
+                        <strong>1. Veri Toplama:</strong> Sistem her gün üretim verilerinizi toplar<br>
+                        <strong>2. Analiz:</strong> Geçmiş verileri analiz ederek pattern'ları bulur<br>
+                        <strong>3. Tahmin:</strong> Bulunan pattern'lara göre geleceği tahmin eder<br>
+                        <strong>4. Karşılaştırma:</strong> Tahminleri gerçek verilerle karşılaştırır<br>
+                        <strong>5. Öğrenme:</strong> Hatalardan öğrenerek daha iyi tahminler yapar
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">💡 Neden Önemli?</div>
+                    <div class="metric-desc">
+                        <strong>Planlama:</strong> Gelecekteki üretim miktarlarını önceden bilirsiniz<br>
+                        <strong>Kalite:</strong> Kalite sorunlarını önceden tespit edebilirsiniz<br>
+                        <strong>Maliyet:</strong> Gereksiz harcamaları önleyebilirsiniz<br>
+                        <strong>Verimlilik:</strong> Üretim süreçlerinizi optimize edebilirsiniz
+                    </div>
+                </div>
+
+                <div class="metric-explanation">
+                    <div class="metric-title">🚀 Gelecek Özellikler</div>
+                    <div class="metric-desc">
+                        <strong>Yakın Vadede:</strong> Daha gelişmiş tahmin algoritmaları, otomatik uyarılar<br>
+                        <strong>Orta Vadede:</strong> Görüntü işleme ile kalite kontrolü, IoT sensör entegrasyonu<br>
+                        <strong>Uzun Vadede:</strong> Tam otomatik üretim optimizasyonu, öngörücü bakım
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection

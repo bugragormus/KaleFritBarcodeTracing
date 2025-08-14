@@ -530,32 +530,9 @@
                                 <div class="correction-toggle">
                                     <input type="checkbox" name="use_correction[]" id="use_correction_{{ $index }}" value="{{ $index }}" class="correction-checkbox"/>
                                     <label for="use_correction_{{ $index }}">Düzeltme olarak kullan</label>
-                                </div>
-                            </div>
-                            
-                            <div class="correction-details" id="correction_details_{{ $index }}" style="display: none;">
-                                <div class="form-row">
-                                    <div class="form-col">
-                                        <input type="hidden" name="correction_barcodes[]" value="{{ $rejectedBarcode->id }}"/>
-                                        <div class="form-group">
-                                            <label class="form-label">
-                                                <i class="fas fa-weight-hanging"></i> Düzeltme Miktarı (KG)
-                                            </label>
-                                            <input type="number" name="correction_quantities[]" class="form-control correction-quantity" 
-                                                   min="1" max="{{ $rejectedBarcode->quantity->quantity }}" 
-                                                   placeholder="Maksimum: {{ $rejectedBarcode->quantity->quantity }} KG"/>
-                                        </div>
-                                    </div>
-                                    <div class="form-col">
-                                        <div class="form-group">
-                                            <label class="form-label">
-                                                <i class="fas fa-sticky-note"></i> Düzeltme Notu
-                                            </label>
-                                            <input type="text" name="correction_notes[]" class="form-control" 
-                                                   placeholder="Düzeltme açıklaması..." 
-                                                   value="Şarj {{ $rejectedBarcode->load_number }} düzeltme faaliyeti"/>
-                                        </div>
-                                    </div>
+                                    <input type="hidden" name="correction_barcodes[]" value="{{ $rejectedBarcode->id }}" class="correction-barcode-hidden" disabled/>
+                                    <input type="hidden" name="correction_quantities[]" value="{{ $rejectedBarcode->quantity->quantity }}" class="correction-quantity-hidden" disabled/>
+                                    <input type="hidden" name="correction_notes[]" value="Şarj {{ $rejectedBarcode->load_number }} düzeltme faaliyeti" class="correction-note-hidden" disabled/>
                                 </div>
                             </div>
                         </div>
@@ -581,36 +558,21 @@
         $(document).ready(function(){
             $('.selectpicker').selectpicker();
             
+            // Sayfa yüklendiğinde tüm hidden input'ları devre dışı bırak
+            $('.correction-quantity-hidden, .correction-barcode-hidden, .correction-note-hidden').prop('disabled', true);
+            
             // Düzeltme faaliyeti checkbox'ları için event listener
+            // Checkbox işaretlendiğinde hidden input'lar aktif olur, işaretlenmediğinde devre dışı kalır
             $('.correction-checkbox').on('change', function() {
-                var index = $(this).val();
                 var isChecked = $(this).is(':checked');
-                var detailsDiv = $('#correction_details_' + index);
+                var hiddenInputs = $(this).siblings('input[type="hidden"]');
                 
                 if (isChecked) {
-                    detailsDiv.slideDown(300);
-                    // Düzeltme miktarını otomatik olarak maksimum değere set et
-                    var maxQuantity = detailsDiv.find('.correction-quantity').attr('max');
-                    detailsDiv.find('.correction-quantity').val(maxQuantity);
+                    // Checkbox işaretlendiğinde hidden input'ları aktif hale getir
+                    hiddenInputs.prop('disabled', false);
                 } else {
-                    detailsDiv.slideUp(300);
-                    // Düzeltme miktarını temizle
-                    detailsDiv.find('.correction-quantity').val('');
-                }
-            });
-            
-            // Düzeltme miktarı validasyonu
-            $('.correction-quantity').on('input', function() {
-                var value = parseInt($(this).val());
-                var max = parseInt($(this).attr('max'));
-                var min = parseInt($(this).attr('min'));
-                
-                if (value > max) {
-                    $(this).val(max);
-                    toastr.warning('Maksimum düzeltme miktarı: ' + max + ' KG');
-                } else if (value < min) {
-                    $(this).val(min);
-                    toastr.warning('Minimum düzeltme miktarı: ' + min + ' KG');
+                    // Checkbox işaretlenmediğinde hidden input'ları devre dışı bırak
+                    hiddenInputs.prop('disabled', true);
                 }
             });
             
@@ -621,18 +583,11 @@
                 
                 $('.correction-checkbox:checked').each(function() {
                     hasCorrection = true;
-                    var index = $(this).val();
-                    var quantity = parseInt($('#correction_details_' + index + ' .correction-quantity').val());
+                    var quantity = parseInt($(this).siblings('.correction-quantity-hidden').val());
                     if (quantity > 0) {
                         totalCorrectionQuantity += quantity;
                     }
                 });
-                
-                if (hasCorrection && totalCorrectionQuantity === 0) {
-                    e.preventDefault();
-                    toastr.error('Lütfen düzeltme miktarlarını belirtiniz.');
-                    return false;
-                }
                 
                 // Başarı mesajı
                 if (hasCorrection) {
