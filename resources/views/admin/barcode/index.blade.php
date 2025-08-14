@@ -794,7 +794,7 @@
 
                         <div class="filter-item">
                             <label class="filter-label">Fırın</label>
-                            <select class="filter-select" data-column="3">
+                            <select class="filter-select" data-column="14">
                                 <option value="">Tüm Fırınlar</option>
                                 @foreach($kilns as $kiln)
                                     <option value="{{ $kiln->name }}">{{ $kiln->name }}</option>
@@ -921,7 +921,7 @@
                         var stockFilter = $('.filter-select[data-column="0"]').val();
                         var partyFilter = $('.filter-select[data-column="1"]').val();
                         var statusFilter = $('.filter-select[data-column="2"]').val();
-                        var kilnFilter = $('.filter-select[data-column="3"]').val();
+                        var kilnFilter = $('.filter-select[data-column="14"]').val();
                         var warehouseFilter = $('.filter-select[data-column="4"]').val();
                         var companyFilter = $('.filter-select[data-column="5"]').val();
                         var createdByFilter = $('.filter-select[data-column="9"]').val();
@@ -1006,20 +1006,6 @@
             console.log('applyFilters fonksiyonu çağrıldı');
             var table = $('.yajra-datatable').DataTable();
             
-            // Dropdown filtreleri
-            $('.filter-select').each(function() {
-                var columnIndex = $(this).data('column');
-                var value = $(this).val();
-                var label = $(this).prev('label').text();
-                console.log('Filtre: ' + label + ' - Sütun ' + columnIndex + ' için değer: ' + value);
-                if (value) {
-                    table.column(columnIndex).search(value);
-                    console.log('Sütun ' + columnIndex + ' için "' + value + '" değeri aranıyor');
-                } else {
-                    table.column(columnIndex).search('');
-                }
-            });
-            
             // Tarih filtrelerini global değişkenlere set et
             globalLabStart = $('#lab-date-start').val();
             globalLabEnd = $('#lab-date-end').val();
@@ -1032,8 +1018,8 @@
             console.log('Oluşturulma Başlangıç:', globalCreatedStart);
             console.log('Oluşturulma Bitiş:', globalCreatedEnd);
             
-            // Tarih filtreleri için DataTable'ı yeniden yükle
-            console.log('Tarih filtreleri için DataTable yeniden yükleniyor...');
+            // Tüm filtreler için DataTable'ı yeniden yükle (server-side filtering)
+            console.log('Tüm filtreler için DataTable yeniden yükleniyor...');
             table.ajax.reload();
         }
 
@@ -1047,10 +1033,13 @@
             globalCreatedStart = '';
             globalCreatedEnd = '';
             
+            // Tüm filtreleri temizle
             $('.filter-select').val('');
             $('.filter-date').val('');
-            table.search('').columns().search('').ajax.reload();
-            console.log('Filtreler temizlendi');
+            
+            // DataTable'ı yeniden yükle (filtresiz)
+            table.ajax.reload();
+            console.log('Filtreler temizlendi ve tablo yeniden yüklendi');
         }
     </script>
 
