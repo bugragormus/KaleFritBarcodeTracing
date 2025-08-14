@@ -135,21 +135,94 @@
         .checkbox-container {
             display: flex;
             align-items: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
+            gap: 0.5rem;
         }
-        
+
         .checkbox-container input[type="checkbox"] {
-            margin-right: 0.75rem;
+            margin: 0;
+        }
+
+        /* Düzeltme Faaliyeti Stilleri */
+        .correction-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .correction-item {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .correction-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .correction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .correction-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .correction-info strong {
+            color: #495057;
+            font-size: 1.1rem;
+        }
+
+        .correction-details {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .correction-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .correction-toggle input[type="checkbox"] {
+            margin: 0;
             transform: scale(1.2);
         }
-        
-        .checkbox-container label {
-            margin-bottom: 0;
-            font-weight: 500;
-            color: #495057;
+
+        .correction-toggle label {
+            font-weight: 600;
+            color: #667eea;
+            cursor: pointer;
+        }
+
+        .correction-details {
+            border-top: 1px solid #dee2e6;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .correction-quantity {
+            max-width: 200px;
+        }
+
+        /* Responsive düzenlemeler */
+        @media (max-width: 768px) {
+            .correction-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .correction-toggle {
+                align-self: flex-end;
+            }
         }
         
         .btn-modern {
@@ -373,7 +446,7 @@
                                         @if($errors->has('warehouse_id'))
                                     <div class="error-message">
                                         <i class="fas fa-exclamation-triangle"></i>
-                                                {{ $errors->first('warehouse_id') }}
+                                        {{ $errors->first('warehouse_id') }}
                                     </div>
                                         @endif
                                     </div>
@@ -430,6 +503,67 @@
                     </div>
                 </div>
 
+                <!-- Düzeltme Faaliyeti -->
+                @if($rejectedBarcodes->count() > 0)
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-tools"></i> Düzeltme Faaliyeti
+                    </h3>
+                    
+                    <div class="info-card" style="margin-bottom: 1.5rem;">
+                        <h6><i class="fas fa-info-circle"></i> Düzeltme Faaliyeti Nedir?</h6>
+                        <p>Önceki üretimlerden reddedilen malzemeleri, yeni üretim sırasında düzeltme faaliyeti olarak kullanabilirsiniz. Bu sayede hammadde verimliliğinizi artırabilir ve atık miktarını azaltabilirsiniz.</p>
+                    </div>
+
+                    <div class="correction-items">
+                        @foreach($rejectedBarcodes as $index => $rejectedBarcode)
+                        <div class="correction-item">
+                            <div class="correction-header">
+                                <div class="correction-info">
+                                    <strong>Şarj: {{ $rejectedBarcode->load_number }}</strong>
+                                    <span class="correction-details">
+                                        {{ $rejectedBarcode->stock->name }} - 
+                                        {{ $rejectedBarcode->quantity->quantity }} KG - 
+                                        {{ $rejectedBarcode->created_at->format('d.m.Y') }}
+                                    </span>
+                                </div>
+                                <div class="correction-toggle">
+                                    <input type="checkbox" name="use_correction[]" id="use_correction_{{ $index }}" value="{{ $index }}" class="correction-checkbox"/>
+                                    <label for="use_correction_{{ $index }}">Düzeltme olarak kullan</label>
+                                </div>
+                            </div>
+                            
+                            <div class="correction-details" id="correction_details_{{ $index }}" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <input type="hidden" name="correction_barcodes[]" value="{{ $rejectedBarcode->id }}"/>
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-weight-hanging"></i> Düzeltme Miktarı (KG)
+                                            </label>
+                                            <input type="number" name="correction_quantities[]" class="form-control correction-quantity" 
+                                                   min="1" max="{{ $rejectedBarcode->quantity->quantity }}" 
+                                                   placeholder="Maksimum: {{ $rejectedBarcode->quantity->quantity }} KG"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-sticky-note"></i> Düzeltme Notu
+                                            </label>
+                                            <input type="text" name="correction_notes[]" class="form-control" 
+                                                   placeholder="Düzeltme açıklaması..." 
+                                                   value="Şarj {{ $rejectedBarcode->load_number }} düzeltme faaliyeti"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
                 <!-- Submit Button -->
                 <div class="text-center">
                     <button type="submit" class="btn-modern">
@@ -445,7 +579,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.17/js/bootstrap-select.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-                $('.selectpicker').selectpicker();
+            $('.selectpicker').selectpicker();
+            
+            // Düzeltme faaliyeti checkbox'ları için event listener
+            $('.correction-checkbox').on('change', function() {
+                var index = $(this).val();
+                var isChecked = $(this).is(':checked');
+                var detailsDiv = $('#correction_details_' + index);
+                
+                if (isChecked) {
+                    detailsDiv.slideDown(300);
+                    // Düzeltme miktarını otomatik olarak maksimum değere set et
+                    var maxQuantity = detailsDiv.find('.correction-quantity').attr('max');
+                    detailsDiv.find('.correction-quantity').val(maxQuantity);
+                } else {
+                    detailsDiv.slideUp(300);
+                    // Düzeltme miktarını temizle
+                    detailsDiv.find('.correction-quantity').val('');
+                }
             });
+            
+            // Düzeltme miktarı validasyonu
+            $('.correction-quantity').on('input', function() {
+                var value = parseInt($(this).val());
+                var max = parseInt($(this).attr('max'));
+                var min = parseInt($(this).attr('min'));
+                
+                if (value > max) {
+                    $(this).val(max);
+                    toastr.warning('Maksimum düzeltme miktarı: ' + max + ' KG');
+                } else if (value < min) {
+                    $(this).val(min);
+                    toastr.warning('Minimum düzeltme miktarı: ' + min + ' KG');
+                }
+            });
+            
+            // Form submit öncesi validasyon
+            $('form').on('submit', function(e) {
+                var hasCorrection = false;
+                var totalCorrectionQuantity = 0;
+                
+                $('.correction-checkbox:checked').each(function() {
+                    hasCorrection = true;
+                    var index = $(this).val();
+                    var quantity = parseInt($('#correction_details_' + index + ' .correction-quantity').val());
+                    if (quantity > 0) {
+                        totalCorrectionQuantity += quantity;
+                    }
+                });
+                
+                if (hasCorrection && totalCorrectionQuantity === 0) {
+                    e.preventDefault();
+                    toastr.error('Lütfen düzeltme miktarlarını belirtiniz.');
+                    return false;
+                }
+                
+                // Başarı mesajı
+                if (hasCorrection) {
+                    toastr.info('Düzeltme faaliyeti ile ' + totalCorrectionQuantity + ' KG reddedilen malzeme kullanılacak.');
+                }
+            });
+        });
     </script>
 @endsection

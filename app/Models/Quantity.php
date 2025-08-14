@@ -33,4 +33,12 @@ class Quantity extends Model
     {
         return $this->hasMany(Barcode::class);
     }
+
+    /**
+     * Ensure quantity never goes below 0
+     */
+    public function setQuantityAttribute($value)
+    {
+        $this->attributes['quantity'] = max(0, (int) $value);
+    }
 }

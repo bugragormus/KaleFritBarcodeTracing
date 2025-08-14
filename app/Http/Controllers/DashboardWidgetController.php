@@ -182,7 +182,7 @@ class DashboardWidgetController extends Controller
             'pre_approved' => Barcode::whereDate('created_at', $today)
                 ->where('status', Barcode::STATUS_PRE_APPROVED)->count(),
             'rejected' => Barcode::whereDate('created_at', $today)
-                ->where('status', Barcode::STATUS_REJECTED)->count(),
+                ->whereIn('status', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])->count(),
         ];
 
         $monthlyStats = [
@@ -190,7 +190,7 @@ class DashboardWidgetController extends Controller
             'pre_approved' => Barcode::whereBetween('created_at', [$thisMonth, now()])
                 ->where('status', Barcode::STATUS_PRE_APPROVED)->count(),
             'rejected' => Barcode::whereBetween('created_at', [$thisMonth, now()])
-                ->where('status', Barcode::STATUS_REJECTED)->count(),
+                ->whereIn('status', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])->count(),
         ];
 
         $todayAcceptanceRate = $todayStats['total'] > 0 ? 

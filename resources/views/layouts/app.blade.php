@@ -1138,10 +1138,6 @@
                             <i class="fas fa-qrcode"></i>
                             <span>Barkod Sorgula</span>
                         </a>
-                        <a href="{{ route('barcode.merge') }}" class="action-btn tertiary">
-                            <i class="fas fa-link"></i>
-                            <span>Barkod Birleştir</span>
-                        </a>
                         <a href="{{ route('barcode.printPage.layout') }}" class="action-btn quaternary">
                             <i class="fas fa-print"></i>
                             <span>Barkod Yazdır</span>

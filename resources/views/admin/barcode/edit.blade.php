@@ -470,7 +470,7 @@
                                     <div class="form-group">
                                         <label class="info-label">Durum <span style="color: #dc3545">*</span></label>
                                         <select class="custom-select" name="status" id="status-select">
-                                            <option {{old('status') == '' ? 'selected' : ''}}>Durum seçiniz</option>
+                                            <option value="" {{old('status') == '' ? 'selected' : ''}}>Durum seçiniz</option>
                                             @php
                                                 $availableStatuses = [];
                                                 
@@ -777,15 +777,16 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Durum geçiş kuralları
+    // Durum geçiş kuralları - Barcode modelindeki güncel sabitlerle uyumlu
     const statusTransitions = {
         1: [2, 3, 5], // Beklemede -> Kontrol Tekrarı, Ön Onaylı, Reddedildi
         2: [3, 5],    // Kontrol Tekrarı -> Ön Onaylı, Reddedildi
         3: [4, 2, 5], // Ön Onaylı -> Sevk Onaylı, Kontrol Tekrarı, Reddedildi
-        4: [6, 7],    // Sevk Onaylı -> Müşteri Transfer, Teslim Edildi
+        4: [9, 10],   // Sevk Onaylı -> Müşteri Transfer, Teslim Edildi
         5: [],        // Reddedildi -> Geri dönüş yok
-        6: [7],       // Müşteri Transfer -> Teslim Edildi
-        7: []         // Teslim Edildi -> Geri dönüş yok
+        8: [],        // Düzeltme Faaliyetinde Kullanıldı -> Geri dönüş yok
+        9: [10],      // Müşteri Transfer -> Teslim Edildi
+        10: []        // Teslim Edildi -> Geri dönüş yok
     };
 
     const statusNames = {
@@ -794,8 +795,9 @@ $(document).ready(function() {
         3: 'Ön Onaylı',
         4: 'Sevk Onaylı',
         5: 'Reddedildi',
-        6: 'Müşteri Transfer',
-        7: 'Teslim Edildi'
+        8: 'Düzeltme Faaliyetinde Kullanıldı',
+        9: 'Müşteri Transfer',
+        10: 'Teslim Edildi'
     };
 
     const currentStatus = {{ $barcode->status }};
@@ -808,8 +810,8 @@ $(document).ready(function() {
         const companySelect = $('#company-select');
         const warehouseSelect = $('#warehouse-select');
         
-        // Müşteri Transfer (6) veya Teslim Edildi (7) durumlarında
-        if (selectedStatus === 6 || selectedStatus === 7) {
+        // Müşteri Transfer (9) veya Teslim Edildi (10) durumlarında
+        if (selectedStatus === 9 || selectedStatus === 10) {
             // Firma alanını göster
             companyGroup.show();
             companySelect.prop('required', true);
@@ -842,17 +844,18 @@ $(document).ready(function() {
         const statusId = selectedOption.data('status-id');
         const statusName = selectedOption.data('status-name');
         
-        console.log('Seçilen durum ID:', selectedStatus);
-        console.log('Seçilen durum metni:', selectedText);
-        console.log('Data status-id:', statusId);
-        console.log('Data status-name:', statusName);
+        // Debug bilgileri (gerekirse aktif edilebilir)
+        // console.log('Seçilen durum ID:', selectedStatus);
+        // console.log('Seçilen durum metni:', selectedText);
+        // console.log('Data status-id:', statusId);
+        // console.log('Data status-name:', statusName);
         
-        // Sadece durum değişikliği varsa kontrol et
-        if (selectedStatus && selectedStatus !== currentStatus) {
+        // Sadece durum değişikliği varsa kontrol et (undefined veya boş değer kontrolü)
+        if (selectedStatus && selectedStatus !== '' && selectedStatus !== currentStatus) {
             const allowedTransitions = statusTransitions[currentStatus] || [];
             
             if (!allowedTransitions.includes(selectedStatus)) {
-                const selectedStatusName = statusNames[selectedStatus];
+                const selectedStatusName = statusNames[selectedStatus] || 'Bilinmeyen Durum';
                 alert(`Geçersiz durum geçişi!\n\nMevcut durum: ${currentStatusName}\nSeçilen durum: ${selectedStatusName}\n\nBu geçiş laboratuvar kurallarına uygun değil.`);
                 $(this).val(currentStatus);
                 return false;
@@ -871,25 +874,26 @@ $(document).ready(function() {
         const statusId = selectedOption.data('status-id');
         const statusName = selectedOption.data('status-name');
         
-        console.log('Form submit - Seçilen durum ID:', selectedStatus);
-        console.log('Form submit - Seçilen durum metni:', selectedText);
-        console.log('Form submit - Data status-id:', statusId);
-        console.log('Form submit - Data status-name:', statusName);
+        // Debug bilgileri (gerekirse aktif edilebilir)
+        // console.log('Form submit - Seçilen durum ID:', selectedStatus);
+        // console.log('Form submit - Seçilen durum metni:', selectedText);
+        // console.log('Form submit - Data status-id:', statusId);
+        // console.log('Form submit - Data status-name:', statusName);
         
-        // Sadece durum değişikliği varsa kontrol et
-        if (selectedStatus && selectedStatus !== currentStatus) {
+        // Sadece durum değişikliği varsa kontrol et (undefined veya boş değer kontrolü)
+        if (selectedStatus && selectedStatus !== '' && selectedStatus !== currentStatus) {
             const allowedTransitions = statusTransitions[currentStatus] || [];
             
             if (!allowedTransitions.includes(selectedStatus)) {
                 e.preventDefault();
-                const selectedStatusName = statusNames[selectedStatus];
+                const selectedStatusName = statusNames[selectedStatus] || 'Bilinmeyen Durum';
                 alert(`Form gönderilemedi!\n\nGeçersiz durum geçişi: ${currentStatusName} → ${selectedStatusName}\n\nBu geçiş laboratuvar kurallarına uygun değil.`);
                 return false;
             }
         }
         
         // Durum bazında firma ve depo validasyonu
-        if (selectedStatus === 6 || selectedStatus === 7) {
+        if (selectedStatus === 9 || selectedStatus === 10) {
             // Müşteri Transfer veya Teslim Edildi durumunda firma zorunlu
             const companyValue = $('#company-select').val();
             if (!companyValue) {

@@ -529,11 +529,19 @@ class BarcodeController extends Controller
         $quantities = Quantity::all();
         $warehouses = Warehouse::all();
 
+        // Düzeltme faaliyeti için reddedilen barkodları getir
+        $rejectedBarcodes = Barcode::where('status', Barcode::STATUS_REJECTED)
+            ->whereDoesntHave('corrections') // Henüz düzeltme faaliyetinde kullanılmamış
+            ->with(['stock', 'kiln', 'quantity'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('admin.barcode.create', compact([
             'stocks',
             'kilns',
             'quantities',
-            'warehouses'
+            'warehouses',
+            'rejectedBarcodes'
         ]));
     }
 
@@ -551,35 +559,126 @@ class BarcodeController extends Controller
         }
 
         $data = $request->validated();
-
         $kiln = Kiln::where('id', $data['kiln_id'])->firstOrFail();
-
         $data['created_by'] = auth()->user()->id;
 
         $barcodeIds = [];
+        $totalCorrectionQuantity = 0;
 
-        for ($i = 0; $i < $data['quantity']; $i++) {
-            $data['load_number'] = ++$kiln->load_number;
+        // Düzeltme faaliyeti kontrolü
+        if ($request->filled('correction_barcodes') && is_array($request->input('correction_barcodes'))) {
+            $correctionBarcodes = $request->input('correction_barcodes');
+            $correctionQuantities = $request->input('correction_quantities', []);
+            
+            // Düzeltme barkodlarını oluştur
+            foreach ($correctionBarcodes as $index => $sourceBarcodeId) {
+                if (!empty($sourceBarcodeId) && !empty($correctionQuantities[$index])) {
+                    $sourceBarcode = Barcode::findOrFail($sourceBarcodeId);
+                    $correctionQuantity = (int) $correctionQuantities[$index];
+                    
+                    // Düzeltme barkodu oluştur
+                    $correctionData = [
+                        'stock_id' => $sourceBarcode->stock_id,
+                        'kiln_id' => $data['kiln_id'],
+                        'party_number' => $data['party_number'],
+                        'load_number' => ++$kiln->load_number,
+                        'quantity_id' => $sourceBarcode->quantity_id,
+                        'warehouse_id' => $data['warehouse_id'],
+                        'created_by' => auth()->user()->id,
+                        'status' => Barcode::STATUS_WAITING, // Açıkça status belirt
+                        'is_correction' => true,
+                        'correction_source_barcode_id' => $sourceBarcodeId,
+                        'correction_quantity' => $correctionQuantity,
+                        'correction_note' => 'Düzeltme faaliyeti: ' . $sourceBarcode->load_number . ' şarjından ' . $correctionQuantity . ' KG',
+                        'note' => $data['note'] ?? ''
+                    ];
 
-            $barcode = Barcode::query()->create($data);
+                    $correctionBarcode = Barcode::create($correctionData);
+                    $barcodeIds[] = $correctionBarcode->id;
+                    $totalCorrectionQuantity += $correctionQuantity;
 
-            $barcodeIds[] = $barcode->id;
+                    // Barcode history oluştur
+                    try {
+                        BarcodeHistory::create([
+                            'barcode_id' => $correctionBarcode->id,
+                            'status' => $correctionBarcode->status ?? Barcode::STATUS_WAITING,
+                            'user_id' => auth()->user()->id,
+                            'description' => Barcode::EVENT_CREATED,
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('BarcodeHistory creation error for correction barcode: ' . $e->getMessage());
+                        // Hata durumunda devam et, barkod oluşturuldu
+                    }
 
-            //TODO check $barcode
-            $barcode = Barcode::query()->findOrFail($barcode->id);
-            BarcodeHistory::query()->create([
-                'barcode_id' => $barcode->id,
-                'status' => $barcode->status,
-                'user_id' => auth()->user()->id,
-                'description' => Barcode::EVENT_CREATED,
-            ]);
+                    // Kaynak barkodu düzeltme faaliyetinde kullanıldı olarak işaretle
+                    $sourceBarcode->update([
+                        'status' => Barcode::STATUS_CORRECTED,
+                        'note' => ($sourceBarcode->note ? $sourceBarcode->note . ' | ' : '') . 
+                                 'Düzeltme faaliyetinde kullanıldı: ' . $correctionBarcode->load_number . ' şarjı'
+                    ]);
+
+                    // NOT: Quantity bilgisine dokunulmuyor, sadece status değiştiriliyor
+                    // Bu sayede merge işleminde quantity bilgisi korunuyor
+
+                    // Kaynak barkod için history kaydı oluştur
+                    try {
+                        BarcodeHistory::create([
+                            'barcode_id' => $sourceBarcode->id,
+                            'status' => Barcode::STATUS_CORRECTED,
+                            'user_id' => auth()->user()->id,
+                            'description' => 'Düzeltme faaliyetinde kullanıldı',
+                            'changes' => [
+                                'old_status' => Barcode::STATUS_REJECTED,
+                                'new_status' => Barcode::STATUS_CORRECTED,
+                                'correction_quantity' => $correctionQuantity,
+                                'correction_barcode_id' => $correctionBarcode->id,
+                                'note' => 'Quantity bilgisi korundu, sadece status değiştirildi'
+                            ]
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('BarcodeHistory creation error for source barcode: ' . $e->getMessage());
+                    }
+                }
+            }
         }
 
-        $kiln->update([
-            'load_number' => $kiln->load_number
-        ]);
+        // Normal üretim barkodlarını oluştur
+        $normalQuantity = $data['quantity'] ?? 0;
+        for ($i = 0; $i < $normalQuantity; $i++) {
+            $data['load_number'] = ++$kiln->load_number;
+            $data['is_correction'] = false;
+            $data['status'] = Barcode::STATUS_WAITING; // Açıkça status belirt
 
-        toastr()->success('Barkod başarıyla oluşturuldu.');
+            $barcode = Barcode::create($data);
+            $barcodeIds[] = $barcode->id;
+
+            // Barcode history oluştur
+            try {
+                BarcodeHistory::create([
+                    'barcode_id' => $barcode->id,
+                    'status' => $barcode->status ?? Barcode::STATUS_WAITING,
+                    'user_id' => auth()->user()->id,
+                    'description' => Barcode::EVENT_CREATED,
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('BarcodeHistory creation error for normal barcode: ' . $e->getMessage());
+                // Hata durumunda devam et, barkod oluşturuldu
+            }
+        }
+
+        // Fırın şarj numarasını güncelle
+        $kiln->update(['load_number' => $kiln->load_number]);
+
+        // Başarı mesajı
+        $message = 'Barkod başarıyla oluşturuldu.';
+        if ($totalCorrectionQuantity > 0) {
+            $message .= ' Düzeltme faaliyeti: ' . $totalCorrectionQuantity . ' KG reddedilen malzeme kullanıldı (quantity bilgisi korundu).';
+        }
+        if ($normalQuantity > 0) {
+            $message .= ' Yeni üretim: ' . $normalQuantity . ' barkod.';
+        }
+
+        toastr()->success($message);
 
         return isset($data['print'])
             ? redirect()->route('barcode.print', ['barcode_ids' => $barcodeIds])

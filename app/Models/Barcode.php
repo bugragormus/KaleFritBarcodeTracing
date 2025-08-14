@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Barcode extends Model 
 {
@@ -17,8 +18,9 @@ class Barcode extends Model
     const STATUS_PRE_APPROVED = 3; //'Ön Onaylı';
     const STATUS_SHIPMENT_APPROVED = 4; //'Sevk Onaylı';
     const STATUS_REJECTED = 5; //'Reddedildi';
-    const STATUS_CUSTOMER_TRANSFER = 6; //'Müşteri Transfer';
-    const STATUS_DELIVERED = 7; //'Teslim Edildi';
+    const STATUS_CORRECTED = 8; //'Düzeltme Faaliyetinde Kullanıldı';
+    const STATUS_CUSTOMER_TRANSFER = 9; //'Müşteri Transfer';
+    const STATUS_DELIVERED = 10; //'Teslim Edildi';
 
     // Eski durumlar (geriye uyumluluk için)
     const STATUS_ACCEPTED = 3; //'Ön Onaylı' - eski STATUS_ACCEPTED ile aynı
@@ -33,6 +35,7 @@ class Barcode extends Model
         self::STATUS_PRE_APPROVED => 'Ön Onaylı',
         self::STATUS_SHIPMENT_APPROVED => 'Sevk Onaylı',
         self::STATUS_REJECTED => 'Reddedildi',
+        self::STATUS_CORRECTED => 'Düzeltme Faaliyetinde Kullanıldı',
         self::STATUS_CUSTOMER_TRANSFER => 'Müşteri Transfer',
         self::STATUS_DELIVERED => 'Teslim Edildi',
         self::STATUS_MERGED => 'Birleştirildi',
@@ -101,7 +104,12 @@ class Barcode extends Model
         'lab_note',
         'merged_barcode_id', // Merge olunan barcodlar hasMany
         'old_barcode_id', // Merge olunduğunda, eski barcod id si
-        'is_merged' // Başka barkoda merge edildi mi?
+        'is_merged', // Başka barkoda merge edildi mi?
+        // Düzeltme faaliyeti alanları
+        'is_correction',
+        'correction_source_barcode_id',
+        'correction_quantity',
+        'correction_note'
     ];
 
     /**
@@ -112,6 +120,15 @@ class Barcode extends Model
         'warehouse_transferred_at' => 'datetime',
         'company_transferred_at' => 'datetime',
         'delivered_at' => 'datetime',
+    ];
+
+    /**
+     * Default attribute values
+     */
+    protected $attributes = [
+        'status' => self::STATUS_WAITING,
+        'is_correction' => false,
+        'is_merged' => false,
     ];
 
     /**
@@ -253,5 +270,37 @@ class Barcode extends Model
     public function deliveredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'delivered_by')->withDefault();
+    }
+
+    /**
+     * Düzeltme kaynağı barkod (eğer bu barkod düzeltme faaliyeti ise)
+     */
+    public function correctionSource(): BelongsTo
+    {
+        return $this->belongsTo(Barcode::class, 'correction_source_barcode_id')->withDefault();
+    }
+
+    /**
+     * Bu barkoddan yapılan düzeltmeler
+     */
+    public function corrections(): HasMany
+    {
+        return $this->hasMany(Barcode::class, 'correction_source_barcode_id');
+    }
+
+    /**
+     * Düzeltme faaliyeti mi kontrol et
+     */
+    public function isCorrection(): bool
+    {
+        return $this->is_correction === true;
+    }
+
+    /**
+     * Düzeltme faaliyeti için kullanılan miktar
+     */
+    public function getCorrectionQuantity(): ?int
+    {
+        return $this->correction_quantity;
     }
 }

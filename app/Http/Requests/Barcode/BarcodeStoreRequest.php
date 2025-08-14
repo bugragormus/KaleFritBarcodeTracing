@@ -37,6 +37,11 @@ class BarcodeStoreRequest extends FormRequest
             ],
             'party_number' => [
                 'required',
+                'string',
+                'max:255'
+            ],
+            'quantity' => [
+                'required',
                 'integer'
             ],
             'quantity_id' => [
@@ -51,13 +56,56 @@ class BarcodeStoreRequest extends FormRequest
                 'nullable',
                 'string'
             ],
-            'quantity' => [
-                'required',
-                'integer'
-            ],
             'print' => [
                 'nullable',
             ],
+            'correction_barcodes' => [
+                'nullable',
+                'array'
+            ],
+            'correction_barcodes.*' => [
+                'nullable',
+                Rule::exists('barcodes', 'id')->where('status', \App\Models\Barcode::STATUS_REJECTED)
+            ],
+            'correction_quantities' => [
+                'nullable',
+                'array'
+            ],
+            'correction_quantities.*' => [
+                'nullable',
+                'integer',
+                'min:1'
+            ],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $correctionBarcodes = $this->input('correction_barcodes', []);
+            $correctionQuantities = $this->input('correction_quantities', []);
+            
+            if (!empty($correctionBarcodes)) {
+                foreach ($correctionBarcodes as $index => $barcodeId) {
+                    if (!empty($barcodeId) && isset($correctionQuantities[$index])) {
+                        $barcode = \App\Models\Barcode::find($barcodeId);
+                        if ($barcode && $barcode->quantity) {
+                            $requestedQuantity = (int) $correctionQuantities[$index];
+                            $availableQuantity = $barcode->quantity->quantity;
+                            
+                            if ($requestedQuantity > $availableQuantity) {
+                                $validator->errors()->add(
+                                    "correction_quantities.{$index}",
+                                    "Düzeltme miktarı ({$requestedQuantity} KG) mevcut stok miktarını ({$availableQuantity} KG) aşamaz."
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 }
