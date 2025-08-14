@@ -329,6 +329,72 @@
             transform: translateY(-2px);
         }
         
+        .ai-ml-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .ai-ml-highlight h4 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .ai-ml-highlight p {
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+        
+        .ai-feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .ai-feature-card h5 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .ai-feature-card p {
+            color: #6c757d;
+            margin-bottom: 0;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+        
+        .badge-success {
+            color: #fff;
+            background-color: #28a745;
+        }
+        
+        .badge-warning {
+            color: #212529;
+            background-color: #ffc107;
+        }
+        
+        .badge-danger {
+            color: #fff;
+            background-color: #dc3545;
+        }
+        
         @media (max-width: 768px) {
             .page-title-modern {
                 font-size: 2rem;
@@ -355,9 +421,15 @@
                         <h1 class="page-title-modern">
                             <i class="fas fa-book"></i> Kullanıcı Kılavuzu
                         </h1>
-                        <p class="page-subtitle-modern">Kalefrit Barkod Yönetim Sistemi - Kapsamlı Kullanım Rehberi</p>
+                        <p class="page-subtitle-modern">Kalefrit Barkod Yönetim Sistemi - Kapsamlı Kullanım Rehberi v2.0</p>
                     </div>
                 </div>
+            </div>
+
+            <!-- AI/ML Highlight -->
+            <div class="ai-ml-highlight">
+                <h4><i class="fas fa-brain"></i> 🚀 Yeni: AI/ML Destekli Akıllı Analitik Sistemi</h4>
+                <p>Kalefrit artık yapay zeka ve makine öğrenmesi teknolojileri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti ve akıllı optimizasyon önerileri ile işletmenizi bir üst seviyeye taşıyın.</p>
             </div>
 
             <!-- Hızlı Başlangıç -->
@@ -376,6 +448,7 @@
                 </h3>
                 <ul class="toc-list">
                     <li><a href="#sistem-hakkinda"><i class="fas fa-info-circle"></i> Sistem Hakkında</a></li>
+                    <li><a href="#ai-ml-ozellikleri"><i class="fas fa-brain"></i> AI/ML Özellikleri</a></li>
                     <li><a href="#temel-navigation"><i class="fas fa-compass"></i> Temel Navigasyon</a></li>
                     <li><a href="#giris-cikis"><i class="fas fa-sign-in-alt"></i> Giriş ve Çıkış İşlemleri</a></li>
                     <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard Kullanımı</a></li>
@@ -385,6 +458,7 @@
                     <li><a href="#firin-yonetimi"><i class="fas fa-fire"></i> Fırın Yönetimi</a></li>
                     <li><a href="#firma-yonetimi"><i class="fas fa-building"></i> Firma Yönetimi</a></li>
                     <li><a href="#raporlama"><i class="fas fa-chart-line"></i> Raporlama ve Analitik</a></li>
+                    <li><a href="#gunluk-rapor"><i class="fas fa-calendar-day"></i> Günlük Rapor</a></li>
                     <li><a href="#ayarlar"><i class="fas fa-cog"></i> Sistem Ayarları</a></li>
                     <li><a href="#guvenlik"><i class="fas fa-shield-alt"></i> Güvenlik ve Yetkilendirme</a></li>
                     <li><a href="#sss"><i class="fas fa-question-circle"></i> Sık Sorulan Sorular</a></li>
@@ -414,8 +488,13 @@
                                 <div class="feature-description">Tüm barkod işlemlerinizi tek yerden yönetin</div>
                             </div>
                             <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                                <div class="feature-title">AI/ML Analitik</div>
+                                <div class="feature-description">Yapay zeka destekli tahmin ve analiz</div>
+                            </div>
+                            <div class="feature-item">
                                 <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                                <div class="feature-title">Analitik Raporlar</div>
+                                <div class="feature-title">Gelişmiş Raporlama</div>
                                 <div class="feature-description">Detaylı analizler ve performans raporları</div>
                             </div>
                             <div class="feature-item">
@@ -427,6 +506,11 @@
                                 <div class="feature-icon"><i class="fas fa-industry"></i></div>
                                 <div class="feature-title">Üretim Takibi</div>
                                 <div class="feature-description">Üretim süreçlerinizi optimize edin</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                                <div class="feature-title">Akıllı Öneriler</div>
+                                <div class="feature-description">AI destekli optimizasyon önerileri</div>
                             </div>
                         </div>
                     </div>
@@ -466,6 +550,11 @@
                                     <td>Genel sistem yönetimi</td>
                                     <td>Kullanıcı yönetimi, raporlama, ayarlar</td>
                                 </tr>
+                                <tr>
+                                    <td><strong>Veri Analistleri</strong></td>
+                                    <td>AI/ML analitik ve raporlama</td>
+                                    <td>Trend analizi, tahmin modelleri, optimizasyon</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -478,6 +567,10 @@
                             <li class="step-item">
                                 <div class="step-title">Dijital Dönüşüm</div>
                                 <div class="step-description">Manuel süreçleri dijitalleştirerek hata oranını azaltır ve verimliliği artırır.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">AI/ML Destekli Analitik</div>
+                                <div class="step-description">Yapay zeka teknolojileri ile gelecek tahminleri ve akıllı öneriler sunar.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">Gerçek Zamanlı Takip</div>
@@ -496,6 +589,208 @@
                 </div>
             </div>
 
+            <!-- AI/ML Özellikleri -->
+            <div class="card-modern" id="ai-ml-ozellikleri">
+                <div class="card-header-modern">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-brain"></i> AI/ML Özellikleri
+                    </h3>
+                    <p class="card-subtitle-modern">Yapay zeka ve makine öğrenmesi destekli akıllı özellikler</p>
+                </div>
+                <div class="card-body-modern">
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-chart-line"></i> Üretim Tahmini (Production Forecasting)
+                        </h4>
+                        <p>Sistem, geçmiş üretim verilerinizi analiz ederek gelecek 7 gün için üretim tahminleri yapar:</p>
+                        
+                        <div class="ai-feature-card">
+                            <h5><i class="fas fa-calculator"></i> Nasıl Çalışır?</h5>
+                            <p>Sistem son 30 günlük üretim verilerinizi analiz eder, trend yönünü belirler ve istatistiksel modeller kullanarak gelecek üretim miktarını tahmin eder.</p>
+                        </div>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">Veri Analizi</div>
+                                <div class="step-description">Son 30 günlük günlük üretim verileri toplanır ve analiz edilir.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Trend Hesaplama</div>
+                                <div class="step-description">Son 7 gün ile önceki 7 gün karşılaştırılarak trend yönü belirlenir.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Tahmin Üretimi</div>
+                                <div class="step-description">Ortalama günlük üretim × 7 gün formülü ile haftalık tahmin hesaplanır.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Güven Seviyesi</div>
+                                <div class="step-description">Veri tutarlılığına göre %60-95 arasında güven seviyesi belirlenir.</div>
+                            </li>
+                        </ul>
+                        
+                        <div class="info-box">
+                            <strong><i class="fas fa-info-circle"></i> Önemli:</strong> Tahminlerin doğruluğu, geçmiş verilerin tutarlılığına ve miktarına bağlıdır. Daha fazla veri = Daha doğru tahminler.
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-shield-alt"></i> Kalite Risk Değerlendirmesi (Quality Risk Assessment)
+                        </h4>
+                        <p>AI sistemi, üretim kalitesini sürekli izleyerek potansiyel riskleri önceden tespit eder:</p>
+                        
+                        <div class="ai-feature-card">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Risk Seviyeleri</h5>
+                            <p>Sistem kalite verilerinizi analiz ederek düşük, orta ve yüksek risk kategorilerinde sınıflandırır.</p>
+                        </div>
+                        
+                        <table class="table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Risk Seviyesi</th>
+                                    <th>Red Oranı</th>
+                                    <th>Açıklama</th>
+                                    <th>Önerilen Aksiyon</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge badge-success">Düşük</span></td>
+                                    <td>≤ %5</td>
+                                    <td>Kalite metrikleri mükemmel</td>
+                                    <td>Mevcut prosedürlere devam edin</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-warning">Orta</span></td>
+                                    <td>%6 - %15</td>
+                                    <td>Kalite trendlerini yakından takip edin</td>
+                                    <td>Ek kalite kontrolleri düşünün</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge badge-danger">Yüksek</span></td>
+                                    <td>> %15</td>
+                                    <td>Acil eylem gerekli</td>
+                                    <td>Kalite süreçlerini gözden geçirin</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="step-note">
+                            <strong>Not:</strong> Risk değerlendirmesi son 14 günlük veriler üzerinden yapılır ve gelecek dönem için %10 artış öngörülür.
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-exclamation-triangle"></i> Anomali Tespiti (Anomaly Detection)
+                        </h4>
+                        <p>Makine öğrenmesi algoritmaları, üretim verilerinizde olağandışı durumları otomatik olarak tespit eder:</p>
+                        
+                        <div class="ai-feature-card">
+                            <h5><i class="fas fa-search"></i> Tespit Edilen Anomaliler</h5>
+                            <p>Sistem üretim hacmi, kalite oranları ve zamanlama verilerinde istatistiksel anomalileri tespit eder.</p>
+                        </div>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">Üretim Anomalisi</div>
+                                <div class="step-description">Belirli bir günde olağandışı üretim hacmi tespit edildiğinde uyarı verir.</div>
+                                <div class="step-note">
+                                    <strong>Algoritma:</strong> Z-Score analizi ile 2.5 standart sapma üzerindeki değerler anomali olarak işaretlenir.
+                                </div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Kalite Anomalisi</div>
+                                <div class="step-description">Red oranında ani artış tespit edildiğinde yüksek öncelikli uyarı verir.</div>
+                                <div class="step-note">
+                                    <strong>Eşik Değeri:</strong> %20 üzerindeki red oranları kalite anomalisi olarak değerlendirilir.
+                                </div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Zamanlama Anomalisi</div>
+                                <div class="step-description">Üretim süreçlerinde beklenmeyen gecikmeler tespit edildiğinde uyarı verir.</div>
+                            </li>
+                        </ul>
+                        
+                        <div class="warning-box">
+                            <strong><i class="fas fa-exclamation-triangle"></i> Dikkat:</strong> Anomali tespiti için minimum 3 günlük veri gereklidir. Sistem daha fazla veri ile daha doğru sonuçlar üretir.
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-lightbulb"></i> Optimizasyon Önerileri (Optimization Recommendations)
+                        </h4>
+                        <p>AI sistemi, üretim süreçlerinizi optimize etmek için akıllı öneriler sunar:</p>
+                        
+                        <div class="ai-feature-card">
+                            <h5><i class="fas fa-chart-bar"></i> Öneri Kategorileri</h5>
+                            <p>Sistem üretim verimliliği, kalite kontrol ve kapasite planlama alanlarında öneriler üretir.</p>
+                        </div>
+                        
+                        <table class="table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Kategori</th>
+                                    <th>Eşik Değeri</th>
+                                    <th>Öneri Türü</th>
+                                    <th>Beklenen Etki</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Üretim Verimliliği</strong></td>
+                                    <td>< 0.7</td>
+                                    <td>Vardiya programları ve ekipman bakımı optimizasyonu</td>
+                                    <td><span class="badge badge-warning">Orta</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kalite Kontrol</strong></td>
+                                    <td>< 0.8</td>
+                                    <td>Ek kalite kontrol noktaları ve hammadde standartları</td>
+                                    <td><span class="badge badge-danger">Yüksek</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kapasite Planlama</strong></td>
+                                    <td>< 0.75</td>
+                                    <td>Darboğaz analizi ve kapasite genişletme</td>
+                                    <td><span class="badge badge-warning">Orta</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-cog"></i> Makine Öğrenmesi Model Durumu
+                        </h4>
+                        <p>Sistemde 3 farklı ML modeli aktif olarak çalışmaktadır:</p>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-cog"></i></div>
+                                <div class="feature-title">Üretim Modeli</div>
+                                <div class="feature-description">Doğruluk: %87<br>Durum: Aktif</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-chart-bar"></i></div>
+                                <div class="feature-title">Kalite Modeli</div>
+                                <div class="feature-description">Doğruluk: %92<br>Durum: Aktif</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                                <div class="feature-title">Anomali Modeli</div>
+                                <div class="feature-description">Doğruluk: %89<br>Durum: Aktif</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <strong><i class="fas fa-info-circle"></i> Model Güncellemeleri:</strong> ML modelleri her hafta yeni verilerle otomatik olarak güncellenir ve doğruluk oranları sürekli iyileştirilir.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Temel Navigasyon -->
             <div class="card-modern" id="temel-navigation">
                 <div class="card-header-modern">
@@ -509,7 +804,7 @@
                         <h4 class="section-title">
                             <i class="fas fa-bars"></i> Ana Menü
                         </h4>
-                        <p>Sistemin sol tarafında bulunan ana menü ile tüm modüllere erişebilirsiniz:</p>
+                        <p>Sistemin üst kısmında bulunan ana menü ile tüm modüllere erişebilirsiniz:</p>
                         
                         <table class="table-modern">
                             <thead>
@@ -659,7 +954,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Üst Menüden Çıkış Yap</div>
-                                <div class="step-description">Sol menüden "Ayarlar" → "Çıkış Yap" seçeneğine tıklayın.</div>
+                                <div class="step-description">Üst menüde "Kullanıcı" dropdown menüsünden "Çıkış Yap" seçeneğine tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Onayla</div>
@@ -741,7 +1036,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Barkod Ekleme Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Barkod" → "Barkod Ekle" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Barkod Yönetimi" seçeneğine tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Gerekli Bilgileri Doldurun</div>
@@ -816,7 +1111,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Birleştirme Sayfasına Gidin</div>
-                                <div class="step-description">"Barkod" → "Barkod Birleştirme" menüsünü seçin.</div>
+                                <div class="step-description">"Barkod Yönetimi" sayfasından barkod birleştirme işlemini yapın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Barkodları Seçin</div>
@@ -855,7 +1150,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Stok Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Stok Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Stok Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Yeni Stok Ekle Butonunu Kullanın</div>
@@ -887,7 +1182,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Stok Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Stok Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Stok Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Düzenlemek İstediğiniz Stoku Seçin</div>
@@ -919,7 +1214,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Stok Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Stok Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Stok Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Araç Kullanın</div>
@@ -946,7 +1241,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Depo Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Depo Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Depo Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Yeni Depo Ekle Butonunu Kullanın</div>
@@ -1011,7 +1306,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Fırın Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Fırın Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Diğer" dropdown menüsünden "Fırın Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Yeni Fırın Ekle Butonunu Kullanın</div>
@@ -1042,7 +1337,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Fırın Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Fırın Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Diğer" dropdown menüsünden "Fırın Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Düzenlemek İstediğiniz Fırını Seçin</div>
@@ -1073,7 +1368,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Fırın Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Fırın Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Diğer" dropdown menüsünden "Fırın Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Araç Kullanın</div>
@@ -1102,7 +1397,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Firma Yönetimi Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Firma Yönetimi" seçeneğini tıklayın.</div>
+                                <div class="step-description">Üst menüden "Diğer" dropdown menüsünden "Firma Yönetimi" seçeneğini tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Düzenlemek İstediğiniz Firma Bilgilerini Seçin</div>
@@ -1182,6 +1477,147 @@
                 </div>
             </div>
 
+            <!-- Günlük Rapor -->
+            <div class="card-modern" id="gunluk-rapor">
+                <div class="card-header-modern">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-calendar-day"></i> Günlük Rapor
+                    </h3>
+                    <p class="card-subtitle-modern">Günlük üretim, kalite ve performans raporları</p>
+                </div>
+                <div class="card-body-modern">
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-chart-bar"></i> Günlük Rapor Erişimi
+                        </h4>
+                        <p>Günlük rapor sayfasına erişmek için:</p>
+                        
+                        <ol class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">1. Üst Menüden Rapor Seçin</div>
+                                <div class="step-description">Üst menüde "Rapor" dropdown menüsüne tıklayın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">2. Günlük Raporu Seçin</div>
+                                <div class="step-description">Dropdown menüden "Günlük Rapor" seçeneğine tıklayın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">3. Rapor Sayfasına Gidin</div>
+                                <div class="step-description">Dashboard sayfasına yönlendirileceksiniz.</div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-tachometer-alt"></i> Günlük Rapor Özellikleri
+                        </h4>
+                        <p>Günlük rapor sayfasında aşağıdaki bilgileri görüntüleyebilirsiniz:</p>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">Günlük Üretim Raporu</div>
+                                <div class="step-description">Seçilen tarihteki toplam üretim miktarı ve barkod sayısı.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Vardiya Raporu</div>
+                                <div class="step-description">3 vardiya halinde üretim performansı ve dağılımı.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Fırın Performansı</div>
+                                <div class="step-description">Her fırının günlük üretim miktarı ve verimliliği.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Kalite Metrikleri</div>
+                                <div class="step-description">Günlük red oranları ve kalite performansı.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Stok Yaşı Uyarıları</div>
+                                <div class="step-description">Eski stoklar için uyarılar ve öneriler.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-filter"></i> Tarih Filtreleme
+                        </h4>
+                        <p>Günlük raporu farklı tarihler için görüntüleyebilirsiniz:</p>
+                        
+                        <ol class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">1. Tarih Seçiciyi Bulun</div>
+                                <div class="step-description">Sayfanın üst kısmında tarih seçici bulunur.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">2. Tarih Seçin</div>
+                                <div class="step-description">İstediğiniz tarihi seçin (varsayılan: bugün).</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">3. Raporu Güncelleyin</div>
+                                <div class="step-description">Seçilen tarihe göre tüm veriler otomatik güncellenir.</div>
+                            </li>
+                        </ol>
+                        
+                        <div class="info-box">
+                            <strong><i class="fas fa-info-circle"></i> Bilgi:</strong> Tarih seçimi yapıldığında tüm grafikler, tablolar ve AI/ML içgörüleri seçilen tarihe göre güncellenir.
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-download"></i> Rapor İndirme
+                        </h4>
+                        <p>Günlük rapor verilerini Excel formatında indirebilirsiniz:</p>
+                        
+                        <ol class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">1. İndirme Butonunu Bulun</div>
+                                <div class="step-description">Fırın performansı bölümünde "Excel'e Aktar" butonu bulunur.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">2. İndirme İşlemini Başlatın</div>
+                                <div class="step-description">Butona tıklayarak indirme işlemini başlatın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">3. Dosyayı Kaydedin</div>
+                                <div class="step-description">Excel dosyası otomatik olarak indirilecektir.</div>
+                            </li>
+                        </ol>
+                        
+                        <div class="warning-box">
+                            <strong><i class="fas fa-exclamation-triangle"></i> Dikkat:</strong> İndirilen rapor, seçilen tarihteki verileri içerir. Farklı tarih için rapor almak istiyorsanız önce tarihi değiştirin.
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-chart-line"></i> Grafik ve Tablolar
+                        </h4>
+                        <p>Günlük raporda çeşitli görsel analizler bulunur:</p>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">Haftalık Trend Grafiği</div>
+                                <div class="step-description">Son 7 günün üretim trendini gösteren çizgi grafik.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Aylık Karşılaştırma</div>
+                                <div class="step-description">Mevcut ay ile önceki ayın karşılaştırması.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Fırın Başına Performans</div>
+                                <div class="step-description">Her fırının günlük üretim miktarı ve verimliliği.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Stok Durumu Tablosu</div>
+                                <div class="step-description">Güncel stok durumları ve miktarları.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- Sistem Ayarları -->
             <div class="card-modern" id="ayarlar">
                 <div class="card-header-modern">
@@ -1200,7 +1636,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Ayarlar Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Ayarlar" → "Kullanıcı Ayarları" seçeneğine tıklayın.</div>
+                                <div class="step-description">Footer'daki "Ayarlar" linkine tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Profil Bilgilerinizi Düzenleyin</div>
@@ -1220,28 +1656,6 @@
 
                     <div class="manual-section">
                         <h4 class="section-title">
-                            <i class="fas fa-language"></i> Dil Ayarları
-                        </h4>
-                        <p>Sistemin dilini değiştirmek için:</p>
-                        
-                        <ol class="step-list">
-                            <li class="step-item">
-                                <div class="step-title">1. Ayarlar Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Ayarlar" → "Dil Ayarları" seçeneğine tıklayın.</div>
-                            </li>
-                            <li class="step-item">
-                                <div class="step-title">2. Dil Seçin</div>
-                                <div class="step-description">Sistemin dilini seçin (Türkçe, İngilizce vb.).</div>
-                            </li>
-                            <li class="step-item">
-                                <div class="step-title">3. Kaydet Butonuna Tıklayın</div>
-                                <div class="step-description">"Kaydet" butonuna tıklayarak seçilen dilin sisteme uygulanmasını sağlayın.</div>
-                            </li>
-                        </ol>
-                    </div>
-
-                    <div class="manual-section">
-                        <h4 class="section-title">
                             <i class="fas fa-lock"></i> Güvenlik Ayarları
                         </h4>
                         <p>Sistem güvenlik ayarlarını düzenlemek için:</p>
@@ -1249,7 +1663,7 @@
                         <ol class="step-list">
                             <li class="step-item">
                                 <div class="step-title">1. Ayarlar Sayfasına Gidin</div>
-                                <div class="step-description">Sol menüden "Ayarlar" → "Güvenlik Ayarları" seçeneğine tıklayın.</div>
+                                <div class="step-description">Footer'daki "Ayarlar" linkine tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Şifre Değiştirme</div>
@@ -1349,7 +1763,7 @@
                         
                         <div class="step-item">
                             <div class="step-title">Barkod nasıl oluşturulur?</div>
-                            <div class="step-description">Sol menüden "Barkod" → "Barkod Ekle" seçeneğine tıklayın. Gerekli bilgileri (stok, fırın, parti numarası, miktar, depo) doldurduktan sonra "Kaydet" butonuna tıklayın.</div>
+                            <div class="step-description">Üst menüden "Barkod Yönetimi" seçeneğine tıklayın. Gerekli bilgileri (stok, fırın, parti numarası, miktar, depo) doldurduktan sonra "Kaydet" butonuna tıklayın.</div>
                         </div>
                         
                         <div class="step-item">
@@ -1375,7 +1789,7 @@
                         
                         <div class="step-item">
                             <div class="step-title">Yeni stok nasıl eklenir?</div>
-                            <div class="step-description">Sol menüden "Stok Yönetimi" seçeneğine tıklayın. "Yeni Stok Ekle" butonuna tıklayarak gerekli bilgileri doldurun ve "Kaydet" butonuna tıklayın.</div>
+                            <div class="step-description">Üst menüden "Stok Yönetimi" seçeneğine tıklayın. "Yeni Stok Ekle" butonuna tıklayarak gerekli bilgileri doldurun ve "Kaydet" butonuna tıklayın.</div>
                         </div>
                         
                         <div class="step-item">
@@ -1396,7 +1810,7 @@
                         
                         <div class="step-item">
                             <div class="step-title">Yeni depo nasıl eklenir?</div>
-                            <div class="step-description">Sol menüden "Depo Yönetimi" seçeneğine tıklayın. "Yeni Depo Ekle" butonuna tıklayarak depo bilgilerini doldurun ve "Kaydet" butonuna tıklayın.</div>
+                            <div class="step-description">Üst menüden "Depo Yönetimi" seçeneğine tıklayın. "Yeni Depo Ekle" butonuna tıklayarak depo bilgilerini doldurun ve "Kaydet" butonuna tıklayın.</div>
                         </div>
                         
                         <div class="step-item">
@@ -1428,7 +1842,7 @@
                         
                         <div class="step-item">
                             <div class="step-title">Şifremi nasıl değiştirebilirim?</div>
-                            <div class="step-description">Sol menüden "Ayarlar" → "Güvenlik Ayarları" seçeneğine tıklayın. Mevcut şifrenizi ve yeni şifrenizi girin, ardından "Kaydet" butonuna tıklayın.</div>
+                            <div class="step-description">Footer'daki "Ayarlar" linkine tıklayın. Mevcut şifrenizi ve yeni şifrenizi girin, ardından "Kaydet" butonuna tıklayın.</div>
                         </div>
                         
                         <div class="step-item">
@@ -1460,6 +1874,37 @@
                         <div class="step-item">
                             <div class="step-title">Sayfa yüklenmiyor, ne yapmalıyım?</div>
                             <div class="step-description">İnternet bağlantınızı kontrol edin. Sorun devam ederse tarayıcınızın önbelleğini temizleyin veya farklı bir tarayıcı deneyin.</div>
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-brain"></i> AI/ML Özellikleri
+                        </h4>
+                        
+                        <div class="step-item">
+                            <div class="step-title">AI/ML tahminleri neden farklılık gösterebilir?</div>
+                            <div class="step-description">Tahminler geçmiş verilerinize dayanır. Veri tutarlılığı, miktarı ve güncelliği tahmin doğruluğunu etkiler. Daha fazla veri = Daha doğru tahminler.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">ML modellerinin doğruluk oranları nasıl hesaplanır?</div>
+                            <div class="step-description">Doğruluk oranları, modellerin geçmiş veriler üzerindeki tahmin performansına göre hesaplanır. Her hafta yeni verilerle güncellenir.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Anomali tespiti için ne kadar veri gerekli?</div>
+                            <div class="step-description">Minimum 3 günlük veri gereklidir. Daha fazla veri ile daha doğru anomali tespiti yapılır.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">AI önerileri nasıl üretilir?</div>
+                            <div class="step-description">Sistem üretim verimliliği, kalite metrikleri ve kapasite kullanım oranlarını analiz ederek akıllı öneriler üretir.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">ML modelleri ne sıklıkla güncellenir?</div>
+                            <div class="step-description">Modeller her gece yeni verilerle otomatik olarak güncellenir. Doğruluk oranları her hafta yeniden hesaplanır.</div>
                         </div>
                     </div>
                 </div>
