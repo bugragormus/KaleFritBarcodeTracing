@@ -761,9 +761,7 @@ class BarcodeController extends Controller
                     ->make(true);
             }
             
-            return view('admin.barcode.history-index', compact([
-                'histories' => collect([]),
-                'barcodeHistories' => collect([]),
+            return view('admin.barcode.history-index', compact(
                 'stocks',
                 'kilns',
                 'quantities',
@@ -771,7 +769,10 @@ class BarcodeController extends Controller
                 'wareHouses',
                 'users',
                 'descriptions'
-            ]));
+            ))->with([
+                'histories' => collect([]),
+                'barcodeHistories' => collect([])
+            ]);
         }
         
         $histories = BarcodeHistory::with([
@@ -1041,7 +1042,7 @@ class BarcodeController extends Controller
             }
         }
 
-        return view('admin.barcode.history-index', compact([
+        return view('admin.barcode.history-index', compact(
             'histories',
             'barcodeHistories',
             'stocks',
@@ -1051,7 +1052,7 @@ class BarcodeController extends Controller
             'wareHouses',
             'users',
             'descriptions'
-        ]));
+        ));
     }
 
     /**

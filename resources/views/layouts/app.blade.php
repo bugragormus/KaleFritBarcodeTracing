@@ -1274,20 +1274,11 @@
                         </div>
                     </li>
 
-                    <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Rapor</span>
+                    <li class="nav-item">
+                        <a href="{{ route('dashboard') }}" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Günlük Rapor</span>
                         </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ route('barcode.historyIndex') }}">
-                                <i class="fas fa-history"></i> Barkod Hareket Geçmişi
-                            </a>
-                            <a class="dropdown-item" href="{{ route('dashboard') }}">
-                                <i class="fas fa-chart-bar"></i>
-                                <span>Günlük Rapor</span>
-                            </a>
-                        </div>
                     </li>
 
                 </ul>

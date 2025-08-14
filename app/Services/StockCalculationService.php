@@ -331,37 +331,35 @@ class StockCalculationService
     {
         $offset = (request('page', 1) - 1) * $perPage;
         
-        return Cache::remember("production_by_kiln_{$stockId}_page_" . request('page', 1), 300, function () use ($stockId, $perPage, $offset) {
-            $data = DB::select('
-                SELECT 
-                    kilns.name as kiln_name,
-                    COUNT(barcodes.id) as barcode_count,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                    AVG(quantities.quantity) as avg_quantity
-                FROM barcodes
-                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-                GROUP BY kilns.id, kilns.name
-                ORDER BY total_quantity DESC
-                LIMIT ? OFFSET ?
-            ', [$stockId, $perPage, $offset]);
-            
-            $total = DB::select('
-                SELECT COUNT(DISTINCT kilns.id) as total
-                FROM barcodes
-                LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
-                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-            ', [$stockId])[0]->total;
-            
-            return [
-                'data' => $data,
-                'total' => $total,
-                'per_page' => $perPage,
-                'current_page' => request('page', 1),
-                'last_page' => ceil($total / $perPage)
-            ];
-        });
+        $data = DB::select('
+            SELECT 
+                kilns.name as kiln_name,
+                COUNT(barcodes.id) as barcode_count,
+                COALESCE(SUM(quantities.quantity), 0) as total_quantity,
+                AVG(quantities.quantity) as avg_quantity
+            FROM barcodes
+            LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+            GROUP BY kilns.id, kilns.name
+            ORDER BY total_quantity DESC
+            LIMIT ? OFFSET ?
+        ', [$stockId, $perPage, $offset]);
+        
+        $total = DB::select('
+            SELECT COUNT(DISTINCT kilns.id) as total
+            FROM barcodes
+            LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
+            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+        ', [$stockId])[0]->total;
+        
+        return [
+            'data' => $data,
+            'total' => $total,
+            'per_page' => $perPage,
+            'current_page' => request('page', 1),
+            'last_page' => ceil($total / $perPage)
+        ];
     }
 
     /**
@@ -371,42 +369,40 @@ class StockCalculationService
     {
         $offset = (request('page', 1) - 1) * $perPage;
         
-        return Cache::remember("sales_by_company_{$stockId}_page_" . request('page', 1), 300, function () use ($stockId, $perPage, $offset) {
-            $data = DB::select('
-                SELECT 
-                    companies.name as company_name,
-                    COUNT(barcodes.id) as barcode_count,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                    MIN(barcodes.company_transferred_at) as first_sale_date,
-                    MAX(barcodes.company_transferred_at) as last_sale_date
-                FROM barcodes
-                LEFT JOIN companies ON companies.id = barcodes.company_id
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? 
-                AND barcodes.deleted_at IS NULL
-                AND barcodes.company_id IS NOT NULL
-                GROUP BY companies.id, companies.name
-                ORDER BY total_quantity DESC
-                LIMIT ? OFFSET ?
-            ', [$stockId, $perPage, $offset]);
-            
-            $total = DB::select('
-                SELECT COUNT(DISTINCT companies.id) as total
-                FROM barcodes
-                LEFT JOIN companies ON companies.id = barcodes.company_id
-                WHERE barcodes.stock_id = ? 
-                AND barcodes.deleted_at IS NULL
-                AND barcodes.company_id IS NOT NULL
-            ', [$stockId])[0]->total;
-            
-            return [
-                'data' => $data,
-                'total' => $total,
-                'per_page' => $perPage,
-                'current_page' => request('page', 1),
-                'last_page' => ceil($total / $perPage)
-            ];
-        });
+        $data = DB::select('
+            SELECT 
+                companies.name as company_name,
+                COUNT(barcodes.id) as barcode_count,
+                COALESCE(SUM(quantities.quantity), 0) as total_quantity,
+                MIN(barcodes.company_transferred_at) as first_sale_date,
+                MAX(barcodes.company_transferred_at) as last_sale_date
+            FROM barcodes
+            LEFT JOIN companies ON companies.id = barcodes.company_id
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.stock_id = ? 
+            AND barcodes.deleted_at IS NULL
+            AND barcodes.company_id IS NOT NULL
+            GROUP BY companies.id, companies.name
+            ORDER BY total_quantity DESC
+            LIMIT ? OFFSET ?
+        ', [$stockId, $perPage, $offset]);
+        
+        $total = DB::select('
+            SELECT COUNT(DISTINCT companies.id) as total
+            FROM barcodes
+            LEFT JOIN companies ON companies.id = barcodes.company_id
+            WHERE barcodes.stock_id = ? 
+            AND barcodes.deleted_at IS NULL
+            AND barcodes.company_id IS NOT NULL
+        ', [$stockId])[0]->total;
+        
+        return [
+            'data' => $data,
+            'total' => $total,
+            'per_page' => $perPage,
+            'current_page' => request('page', 1),
+            'last_page' => ceil($total / $perPage)
+        ];
     }
 
     /**
@@ -416,34 +412,32 @@ class StockCalculationService
     {
         $offset = (request('page', 1) - 1) * $perPage;
         
-        return Cache::remember("monthly_trend_{$stockId}_page_" . request('page', 1), 300, function () use ($stockId, $perPage, $offset) {
-            $data = DB::select('
-                SELECT 
-                    YEAR(barcodes.created_at) as year,
-                    MONTH(barcodes.created_at) as month,
-                    COUNT(barcodes.id) as barcode_count,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity
-                FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-                GROUP BY YEAR(barcodes.created_at), MONTH(barcodes.created_at)
-                ORDER BY year DESC, month DESC
-                LIMIT ? OFFSET ?
-            ', [$stockId, $perPage, $offset]);
-            
-            $total = DB::select('
-                SELECT COUNT(DISTINCT CONCAT(YEAR(barcodes.created_at), "-", MONTH(barcodes.created_at))) as total
-                FROM barcodes
-                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-            ', [$stockId])[0]->total;
-            
-            return [
-                'data' => $data,
-                'total' => $total,
-                'per_page' => $perPage,
-                'current_page' => request('page', 1),
-                'last_page' => ceil($total / $perPage)
-            ];
-        });
+        $data = DB::select('
+            SELECT 
+                YEAR(barcodes.created_at) as year,
+                MONTH(barcodes.created_at) as month,
+                COUNT(barcodes.id) as barcode_count,
+                COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+            GROUP BY YEAR(barcodes.created_at), MONTH(barcodes.created_at)
+            ORDER BY year DESC, month DESC
+            LIMIT ? OFFSET ?
+        ', [$stockId, $perPage, $offset]);
+        
+        $total = DB::select('
+            SELECT COUNT(DISTINCT CONCAT(YEAR(barcodes.created_at), "-", MONTH(barcodes.created_at))) as total
+            FROM barcodes
+            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+        ', [$stockId])[0]->total;
+        
+        return [
+            'data' => $data,
+            'total' => $total,
+            'per_page' => $perPage,
+            'current_page' => request('page', 1),
+            'last_page' => ceil($total / $perPage)
+        ];
     }
 } 

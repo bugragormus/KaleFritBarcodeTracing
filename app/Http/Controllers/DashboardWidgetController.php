@@ -67,7 +67,13 @@ class DashboardWidgetController extends Controller
         $totalCompanies = \App\Models\Company::count();
         $totalKilns = \App\Models\Kiln::count();
         $totalStocks = \App\Models\Stock::count();
-        $totalQuantity = \App\Models\Quantity::count();
+        // Toplam stok miktarı (KG cinsinden) - tüm barkodlardaki miktarların toplamı
+        $totalQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.deleted_at IS NULL
+        ')[0]->total_quantity ?? 0;
         
         // Durum dağılımı - yeni durum yapısına göre
         $statusDistribution = [

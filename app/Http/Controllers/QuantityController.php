@@ -151,14 +151,42 @@ class QuantityController extends Controller
             return back()->withInput();
         }
 
-        $quantity = Quantity::findOrFail($id);
+        try {
+            $quantity = Quantity::findOrFail($id);
 
-        $quantity->delete();
-
-        if (!$quantity) {
-            toastr()->error('Adet girişi silinemedi.');
+            // Check if quantity can be deleted
+            if ($this->canQuantityBeDeleted($quantity)) {
+                $quantity->delete();
+                return response()->json(['success' => true, 'message' => 'Adet girişi başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu adet girişi silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu adet girişi silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Quantity deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu adet girişi silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu adet girişi silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Adet girişi silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json(['message' => 'Adet girişi silindi!']);
+    /**
+     * Check if quantity can be safely deleted
+     */
+    private function canQuantityBeDeleted($quantity)
+    {
+        // Check if quantity has any related barcodes
+        return !$quantity->barcodes()->exists();
     }
 }

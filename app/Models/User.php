@@ -45,6 +45,29 @@ class User extends Authenticatable
     ];
 
     /**
+     * Boot method to handle model events
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When deleting a user, handle related records
+        static::deleting(function ($user) {
+            // Update barcodes where this user is referenced
+            \App\Models\Barcode::where('created_by', $user->id)->update(['created_by' => null]);
+            \App\Models\Barcode::where('lab_by', $user->id)->update(['lab_by' => null]);
+            \App\Models\Barcode::where('warehouse_transferred_by', $user->id)->update(['warehouse_transferred_by' => null]);
+            \App\Models\Barcode::where('delivered_by', $user->id)->update(['delivered_by' => null]);
+
+            // Update barcode histories where this user is referenced
+            \App\Models\BarcodeHistory::where('user_id', $user->id)->update(['user_id' => null]);
+
+            // Detach permissions (this will remove records from user_permissions table)
+            $user->permissions()->detach();
+        });
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function permissions(): BelongsToMany

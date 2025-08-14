@@ -317,18 +317,47 @@ class StockController extends Controller
      */
     public function destroy($id)
     {
-        $stock = Stock::findOrFail($id);
+        try {
+            $stock = Stock::findOrFail($id);
 
-        $stock->delete();
-
-        if (!$stock) {
-            toastr()->error('Stok girişi silinemedi.');
+            // Check if stock can be deleted
+            if ($this->canStockBeDeleted($stock)) {
+                $stock->delete();
+                
+                // Cache temizleme
+                $this->stockCalculationService->clearCache();
+                
+                return response()->json(['success' => true, 'message' => 'Stok başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu stok silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu stok silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Stock deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu stok silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu stok silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Stok silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        // Cache temizleme
-        $this->stockCalculationService->clearCache();
-
-        return response()->json(['message' => 'Stok girişi silindi!']);
+    /**
+     * Check if stock can be safely deleted
+     */
+    private function canStockBeDeleted($stock)
+    {
+        // Check if stock has any related barcodes
+        return !$stock->barcodes()->exists();
     }
 
     /**

@@ -264,15 +264,43 @@ class WarehouseController extends Controller
             return back()->withInput();
         }
 
-        $warehouse = Warehouse::findOrFail($id);
+        try {
+            $warehouse = Warehouse::findOrFail($id);
 
-        $warehouse->delete();
-
-        if (!$warehouse) {
-            toastr()->error('Depo silinemedi.');
+            // Check if warehouse can be deleted
+            if ($this->canWarehouseBeDeleted($warehouse)) {
+                $warehouse->delete();
+                return response()->json(['success' => true, 'message' => 'Depo başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu depo silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu depo silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Warehouse deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu depo silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu depo silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Depo silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json(['message' => 'Depo silindi!']);
+    /**
+     * Check if warehouse can be safely deleted
+     */
+    private function canWarehouseBeDeleted($warehouse)
+    {
+        // Check if warehouse has any related barcodes
+        return !$warehouse->barcodes()->exists();
     }
 
     public function stockQuantity($id)

@@ -447,15 +447,43 @@ class KilnController extends Controller
             return back()->withInput();
         }
 
-        $kiln = Kiln::findOrFail($id);
+        try {
+            $kiln = Kiln::findOrFail($id);
 
-        $kiln->delete();
-
-        if (!$kiln) {
-            toastr()->error('Fırın girişi silinemedi.');
+            // Check if kiln can be deleted
+            if ($this->canKilnBeDeleted($kiln)) {
+                $kiln->delete();
+                return response()->json(['success' => true, 'message' => 'Fırın başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu fırın silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu fırın silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Kiln deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu fırın silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu fırın silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Fırın silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json(['message' => 'Fırın girişi silindi!']);
+    /**
+     * Check if kiln can be safely deleted
+     */
+    private function canKilnBeDeleted($kiln)
+    {
+        // Check if kiln has any related barcodes
+        return !$kiln->barcodes()->exists();
     }
 
     /**

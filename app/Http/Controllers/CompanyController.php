@@ -261,15 +261,43 @@ class CompanyController extends Controller
             return back()->withInput();
         }
 
-        $company = Company::findOrFail($id);
+        try {
+            $company = Company::findOrFail($id);
 
-        $company->delete();
-
-        if (!$company) {
-            toastr()->error('Firma silinemedi.');
+            // Check if company can be deleted
+            if ($this->canCompanyBeDeleted($company)) {
+                $company->delete();
+                return response()->json(['success' => true, 'message' => 'Firma başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu firma silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu firma silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Company deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu firma silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu firma silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Firma silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json(['message' => 'Firma silindi!']);
+    /**
+     * Check if company can be safely deleted
+     */
+    private function canCompanyBeDeleted($company)
+    {
+        // Check if company has any related barcodes
+        return !$company->barcodes()->exists();
     }
 
     /**

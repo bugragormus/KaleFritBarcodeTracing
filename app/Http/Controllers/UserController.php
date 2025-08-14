@@ -152,15 +152,54 @@ class UserController extends Controller
             return back()->withInput();
         }
 
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
 
-        $user->delete();
-
-        if (!$user) {
-            toastr()->error('Kullanıcı silinemedi.');
+            // Check if user can be deleted
+            if ($this->canUserBeDeleted($user)) {
+                $user->delete();
+                return response()->json(['success' => true, 'message' => 'Kullanıcı başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu kullanıcı silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu kullanıcı silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('User deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu kullanıcı silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu kullanıcı silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Kullanıcı silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        return response()->json(['message' => 'Kullanıcı silindi!']);
+    /**
+     * Check if user can be safely deleted
+     */
+    private function canUserBeDeleted($user)
+    {
+        // Check if user has any related barcodes
+        $hasBarcodes = $user->barcodesCreated()->exists() || 
+                       $user->barcodesProcessed()->exists() ||
+                       \App\Models\Barcode::where('warehouse_transferred_by', $user->id)->exists() ||
+                       \App\Models\Barcode::where('delivered_by', $user->id)->exists();
+
+        // Check if user has any barcode history records
+        $hasHistory = \App\Models\BarcodeHistory::where('user_id', $user->id)->exists();
+
+        // Check if user has any permissions
+        $hasPermissions = $user->permissions()->exists();
+
+        return !($hasBarcodes || $hasHistory || $hasPermissions);
     }
 
     /**

@@ -610,11 +610,24 @@
                         url: "{{url('/firin')}}/" + id,
                         data: data,
                         success: function (results) {
-                            if (results) {
+                            if (results.success) {
                                 swal("Başarılı!", results.message, "success");
                                 location.reload();
                             } else {
-                                swal("Hata!", "Lütfen tekrar deneyin!", "error");
+                                swal("Hata!", results.message, "error");
+                            }
+                        },
+                        error: function (xhr) {
+                            if (xhr.status === 422) {
+                                // Validation error or constraint violation
+                                var response = xhr.responseJSON;
+                                swal("Silinemez!", response.message, "warning");
+                            } else if (xhr.status === 500) {
+                                // Server error
+                                var response = xhr.responseJSON;
+                                swal("Sunucu Hatası!", response.message || "Beklenmeyen bir hata oluştu.", "error");
+                            } else {
+                                swal("Hata!", "Silme işlemi sırasında bir hata oluştu.", "error");
                             }
                         }
                     });

@@ -580,7 +580,7 @@
                         <i class="fas fa-cubes fa-3x text-indigo"></i>
                     </div>
                     <h3 class="kpi-number" id="totalQuantity">-</h3>
-                    <p class="kpi-label">Toplam Adet</p>
+                    <p class="kpi-label">Toplam Stok Miktarı (KG)</p>
                 </div>
             </div>
         </div>
