@@ -126,6 +126,7 @@ Route::middleware('auth')
             Route::get('/{firin}/duzenle', [KilnController::class, 'edit'])->name('edit');
             Route::get('/{firin}/analiz', [KilnController::class, 'analysis'])->name('analysis');
             Route::get('/{firin}/rapor-indir', [KilnController::class, 'downloadReport'])->name('download.report');
+Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadComprehensiveReport'])->name('download.comprehensive.report');
         });
 
         Route::as('quantity.')->prefix('adet')->group(function () {

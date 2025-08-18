@@ -110,7 +110,8 @@ class Barcode extends Model
         'is_correction',
         'correction_source_barcode_id',
         'correction_quantity',
-        'correction_note'
+        'correction_note',
+        'is_exceptionally_approved'
     ];
 
     /**
@@ -130,6 +131,7 @@ class Barcode extends Model
         'status' => self::STATUS_WAITING,
         'is_correction' => false,
         'is_merged' => false,
+        'is_exceptionally_approved' => false,
     ];
 
     /**
@@ -165,7 +167,8 @@ class Barcode extends Model
                 self::STATUS_DELIVERED
             ],
             self::STATUS_REJECTED => [
-                // Reddedildi durumundan geri dönüş yok
+                self::STATUS_CUSTOMER_TRANSFER,
+                self::STATUS_DELIVERED
             ],
             self::STATUS_DELIVERED => [
                 // Teslim edildi durumundan geri dönüş yok
@@ -203,11 +206,29 @@ class Barcode extends Model
             
             case self::STATUS_CUSTOMER_TRANSFER:
                 $this->company_transferred_at = now();
+                // Müşteri transfer durumunda depo bilgisini temizle
+                $this->warehouse_id = null;
+                $this->warehouse_transferred_at = null;
+                $this->warehouse_transferred_by = null;
+                
+                // Reddedildi durumundan geçiş yapıldıysa istisnai onaylı olarak işaretle
+                if ($oldStatus == self::STATUS_REJECTED) {
+                    $this->is_exceptionally_approved = true;
+                }
                 break;
             
             case self::STATUS_DELIVERED:
                 $this->delivered_at = now();
                 $this->delivered_by = $userId ?? auth()->id();
+                // Teslim edildi durumunda depo bilgisini temizle
+                $this->warehouse_id = null;
+                $this->warehouse_transferred_at = null;
+                $this->warehouse_transferred_by = null;
+                
+                // Reddedildi durumundan geçiş yapıldıysa istisnai onaylı olarak işaretle
+                if ($oldStatus == self::STATUS_REJECTED) {
+                    $this->is_exceptionally_approved = true;
+                }
                 break;
         }
 
@@ -328,5 +349,29 @@ class Barcode extends Model
     public function getRejectionReasonNamesString(): string
     {
         return implode(', ', $this->getRejectionReasonNames());
+    }
+
+    /**
+     * İstisnai onaylı mı kontrol et
+     */
+    public function isExceptionallyApproved(): bool
+    {
+        return $this->is_exceptionally_approved === true;
+    }
+
+    /**
+     * İstisnai onaylı ürünleri getir
+     */
+    public static function getExceptionallyApproved(): \Illuminate\Database\Eloquent\Collection
+    {
+        return static::where('is_exceptionally_approved', true)->get();
+    }
+
+    /**
+     * İstisnai onaylı ürün sayısını getir
+     */
+    public static function getExceptionallyApprovedCount(): int
+    {
+        return static::where('is_exceptionally_approved', true)->count();
     }
 }

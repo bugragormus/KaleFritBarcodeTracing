@@ -458,7 +458,7 @@
                     <li><a href="#firin-yonetimi"><i class="fas fa-fire"></i> Fırın Yönetimi</a></li>
                     <li><a href="#firma-yonetimi"><i class="fas fa-building"></i> Firma Yönetimi</a></li>
                     <li><a href="#raporlama"><i class="fas fa-chart-line"></i> Raporlama ve Analitik</a></li>
-                    <li><a href="#gunluk-rapor"><i class="fas fa-calendar-day"></i> Günlük Rapor</a></li>
+                    <li><a href="#gunluk-rapor"><i class="fas fa-calendar-day"></i> Üretim Raporu</a></li>
                     <li><a href="#ayarlar"><i class="fas fa-cog"></i> Sistem Ayarları</a></li>
                     <li><a href="#guvenlik"><i class="fas fa-shield-alt"></i> Güvenlik ve Yetkilendirme</a></li>
                     <li><a href="#sss"><i class="fas fa-question-circle"></i> Sık Sorulan Sorular</a></li>
@@ -1473,18 +1473,18 @@
                 </div>
             </div>
 
-            <!-- Günlük Rapor -->
+            <!-- Üretim Raporu-->
             <div class="card-modern" id="gunluk-rapor">
                 <div class="card-header-modern">
                     <h3 class="card-title-modern">
-                        <i class="fas fa-calendar-day"></i> Günlük Rapor
+                        <i class="fas fa-calendar-day"></i> Üretim Raporu
                     </h3>
                     <p class="card-subtitle-modern">Günlük üretim, kalite ve performans raporları</p>
                 </div>
                 <div class="card-body-modern">
                     <div class="manual-section">
                         <h4 class="section-title">
-                            <i class="fas fa-chart-bar"></i> Günlük Rapor Erişimi
+                            <i class="fas fa-chart-bar"></i> Üretim Raporu Erişimi
                         </h4>
                         <p>Günlük rapor sayfasına erişmek için:</p>
                         
@@ -1495,7 +1495,7 @@
                             </li>
                             <li class="step-item">
                                 <div class="step-title">2. Günlük Raporu Seçin</div>
-                                <div class="step-description">Dropdown menüden "Günlük Rapor" seçeneğine tıklayın.</div>
+                                <div class="step-description">Dropdown menüden "Üretim Raporu" seçeneğine tıklayın.</div>
                             </li>
                             <li class="step-item">
                                 <div class="step-title">3. Rapor Sayfasına Gidin</div>
@@ -1506,7 +1506,7 @@
 
                     <div class="manual-section">
                         <h4 class="section-title">
-                            <i class="fas fa-tachometer-alt"></i> Günlük Rapor Özellikleri
+                            <i class="fas fa-tachometer-alt"></i> Üretim Raporu Özellikleri
                         </h4>
                         <p>Günlük rapor sayfasında aşağıdaki bilgileri görüntüleyebilirsiniz:</p>
                         

@@ -378,8 +378,8 @@
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('kiln.download.report', ['firin' => $kiln->id]) }}" class="btn-modern btn-warning-modern mr-3">
-                            <i class="fas fa-file-excel"></i> Excel İndir
+                        <a href="{{ route('kiln.download.report', ['firin' => $kiln->id]) }}" class="btn-modern btn-warning-modern mr-2">
+                            <i class="fas fa-file-excel"></i> Detay Rapor
                         </a>
                         <a href="{{ route('kiln.index') }}" class="btn-modern btn-primary-modern">
                             <i class="fas fa-arrow-left"></i> Geri Dön
@@ -504,6 +504,20 @@
                             {{ $deliveryRate }}%
                         </div>
                         <div class="stat-label">Teslim Oranı</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">
+                            @php
+                                $exceptionallyApprovedRate = $kiln->total_barcodes > 0 ? 
+                                    round(($exceptionallyApprovedStats->exceptionally_approved_count ?? 0) / $kiln->total_barcodes * 100, 2) : 0;
+                            @endphp
+                            {{ $exceptionallyApprovedRate }}%
+                        </div>
+                        <div class="stat-label">İstisnai Onay Oranı</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ $exceptionallyApprovedStats->exceptionally_approved_count ?? 0 }}</div>
+                        <div class="stat-label">İstisnai Onaylı Ürün</div>
                     </div>
                 </div>
             </div>
@@ -912,6 +926,61 @@
         </div>
         @endif
 
+        <!-- Üretim Trendi Detaylı Tablosu -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-table"></i> Üretim Trendi Detaylı Analizi
+                </h3>
+                <p class="card-subtitle-modern">Aylık bazda üretim miktarları ve barkod sayıları</p>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ay</th>
+                                <th>Toplam Barkod</th>
+                                <th>Toplam Üretim (KG)</th>
+                                <th>Toplam Üretim (Ton)</th>
+                                <th>Ortalama Üretim/Barkod (KG)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($monthlyProduction as $data)
+                                @php
+                                    $monthName = \Carbon\Carbon::createFromDate($data->year, $data->month, 1)->format('M Y');
+                                    $totalBarcodes = $data->total_barcodes ?? 0;
+                                    $totalQuantity = $data->total_quantity ?? 0;
+                                    $totalTons = round($totalQuantity / 1000, 2);
+                                    $avgPerBarcode = $totalBarcodes > 0 ? round($totalQuantity / $totalBarcodes, 2) : 0;
+                                @endphp
+                                <tr>
+                                    <td><strong>{{ $monthName }}</strong></td>
+                                    <td class="text-center">{{ $totalBarcodes }}</td>
+                                    <td class="text-center">{{ number_format($totalQuantity, 0) }}</td>
+                                    <td class="text-center">{{ number_format($totalTons, 2) }}</td>
+                                    <td class="text-center">{{ number_format($avgPerBarcode, 2) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="table-info">
+                            <tr>
+                                <th>TOPLAM</th>
+                                <th class="text-center">{{ $monthlyProduction->sum('total_barcodes') }}</th>
+                                <th class="text-center">{{ number_format($monthlyProduction->sum('total_quantity'), 0) }}</th>
+                                <th class="text-center">{{ number_format($monthlyProduction->sum('total_quantity') / 1000, 2) }}</th>
+                                <th class="text-center">
+                                    {{ $monthlyProduction->sum('total_barcodes') > 0 ? 
+                                       number_format($monthlyProduction->sum('total_quantity') / $monthlyProduction->sum('total_barcodes'), 2) : 0 }}
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Red Oranı Trendi -->
         @if($rejectionTrend->count() > 0)
         <div class="card-modern">
@@ -927,6 +996,181 @@
             </div>
         </div>
         @endif
+
+        <!-- Red Oranı Detaylı Tablosu -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-table"></i> Red Oranı Detaylı Analizi
+                </h3>
+                <p class="card-subtitle-modern">Aylık bazda red oranları ve sayıları</p>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ay</th>
+                                <th>Toplam Ürün</th>
+                                <th>Reddedilen</th>
+                                <th>Red Oranı</th>
+                                <th>Kabul Edilen</th>
+                                <th>Kabul Oranı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($rejectionTrend as $data)
+                                @php
+                                    $monthName = \Carbon\Carbon::createFromDate($data->year, $data->month, 1)->format('M Y');
+                                    $rejectedCount = $data->rejected_count ?? 0;
+                                    $totalBarcodes = $data->total_barcodes ?? 0;
+                                    $acceptedCount = $totalBarcodes - $rejectedCount;
+                                    $rejectionRate = $totalBarcodes > 0 ? round(($rejectedCount / $totalBarcodes) * 100, 2) : 0;
+                                    $acceptanceRate = $totalBarcodes > 0 ? round(($acceptedCount / $totalBarcodes) * 100, 2) : 0;
+                                @endphp
+                                <tr>
+                                    <td><strong>{{ $monthName }}</strong></td>
+                                    <td class="text-center">{{ $totalBarcodes }}</td>
+                                    <td class="text-center">
+                                        <span class="badge badge-danger">{{ $rejectedCount }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-danger">{{ $rejectionRate }}%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success">{{ $acceptedCount }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success">{{ $acceptanceRate }}%</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="table-info">
+                            <tr>
+                                <th>TOPLAM</th>
+                                <th class="text-center">{{ $rejectionTrend->sum('total_barcodes') }}</th>
+                                <th class="text-center">
+                                    <span class="badge badge-danger">{{ $rejectionTrend->sum('rejected_count') }}</span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="badge badge-danger">
+                                        {{ $rejectionTrend->sum('total_barcodes') > 0 ? 
+                                           round(($rejectionTrend->sum('rejected_count') / $rejectionTrend->sum('total_barcodes')) * 100, 2) : 0 }}%
+                                    </span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="badge badge-success">
+                                        {{ $rejectionTrend->sum('total_barcodes') - $rejectionTrend->sum('rejected_count') }}
+                                    </span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="badge badge-success">
+                                        {{ $rejectionTrend->sum('total_barcodes') > 0 ? 
+                                           round((($rejectionTrend->sum('total_barcodes') - $rejectionTrend->sum('rejected_count')) / $rejectionTrend->sum('total_barcodes')) * 100, 2) : 0 }}%
+                                    </span>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        @if($exceptionallyApprovedTrend->count() > 0)
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-exclamation-triangle"></i> Son 12 Aylık İstisnai Onay Trendi
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="chart-container">
+                    <canvas id="exceptionallyApprovedChart"></canvas>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- İstisnai Onay Detaylı Tablosu -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-table"></i> İstisnai Onay Detaylı Analizi
+                </h3>
+                <p class="card-subtitle-modern">Aylık bazda istisnai onay oranları ve sayıları</p>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ay</th>
+                                <th>Toplam Ürün</th>
+                                <th>İstisnai Onaylı</th>
+                                <th>İstisnai Onay Oranı</th>
+                                <th>Normal Onaylı</th>
+                                <th>Normal Onay Oranı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($exceptionallyApprovedTrend as $data)
+                                @php
+                                    $monthName = \Carbon\Carbon::createFromDate($data->year, $data->month, 1)->format('M Y');
+                                    $exceptionallyApprovedCount = $data->exceptionally_approved_count ?? 0;
+                                    $totalBarcodes = $data->total_barcodes ?? 0;
+                                    $normalApprovedCount = $totalBarcodes - $exceptionallyApprovedCount;
+                                    $exceptionallyApprovedRate = $totalBarcodes > 0 ? round(($exceptionallyApprovedCount / $totalBarcodes) * 100, 2) : 0;
+                                    $normalApprovedRate = $totalBarcodes > 0 ? round(($normalApprovedCount / $totalBarcodes) * 100, 2) : 0;
+                                @endphp
+                                <tr>
+                                    <td><strong>{{ $monthName }}</strong></td>
+                                    <td class="text-center">{{ $totalBarcodes }}</td>
+                                    <td class="text-center">
+                                        <span class="badge badge-warning">{{ $exceptionallyApprovedCount }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-warning">{{ $exceptionallyApprovedRate }}%</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success">{{ $normalApprovedCount }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success">{{ $normalApprovedRate }}%</span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot class="table-info">
+                            <tr>
+                                <th>TOPLAM</th>
+                                <th class="text-center">{{ $exceptionallyApprovedTrend->sum('total_barcodes') }}</th>
+                                <th class="text-center">
+                                    <span class="badge badge-warning">{{ $exceptionallyApprovedTrend->sum('exceptionally_approved_count') }}</span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="badge badge-warning">
+                                        {{ $exceptionallyApprovedTrend->sum('total_barcodes') > 0 ? 
+                                           round(($exceptionallyApprovedTrend->sum('exceptionally_approved_count') / $exceptionallyApprovedTrend->sum('total_barcodes')) * 100, 2) : 0 }}%
+                                    </span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="badge badge-success">
+                                        {{ $exceptionallyApprovedTrend->sum('total_barcodes') - $exceptionallyApprovedTrend->sum('exceptionally_approved_count') }}
+                                    </span>
+                                </th>
+                                <th class="text-center">
+                                    <span class="badge badge-success">
+                                        {{ $exceptionallyApprovedTrend->sum('total_barcodes') > 0 ? 
+                                           round((($exceptionallyApprovedTrend->sum('total_barcodes') - $exceptionallyApprovedTrend->sum('exceptionally_approved_count')) / $exceptionallyApprovedTrend->sum('total_barcodes')) * 100, 2) : 0 }}%
+                                    </span>
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -995,6 +1239,48 @@
                 ],
                 borderColor: '#dc3545',
                 backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+    @endif
+
+    // İstisnai onay trendi grafiği
+    @if($exceptionallyApprovedTrend->count() > 0)
+    const exceptionallyApprovedCtx = document.getElementById('exceptionallyApprovedChart').getContext('2d');
+    new Chart(exceptionallyApprovedCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                @foreach($exceptionallyApprovedTrend as $data)
+                    '{{ \Carbon\Carbon::createFromDate($data->year, $data->month, 1)->format('M Y') }}',
+                @endforeach
+            ],
+            datasets: [{
+                label: 'İstisnai Onay Oranı (%)',
+                data: [
+                    @foreach($exceptionallyApprovedTrend as $data)
+                        {{ $data->total_barcodes > 0 ? round(($data->exceptionally_approved_count / $data->total_barcodes) * 100, 2) : 0 }},
+                    @endforeach
+                ],
+                borderColor: '#ffc107',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
                 tension: 0.4,
                 fill: true
             }]

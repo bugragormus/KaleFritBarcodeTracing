@@ -672,13 +672,32 @@
                             </div>
                         </div>
 
-                        @if($barcode->status === \App\Models\Barcode::STATUS_REJECTED && $barcode->rejectionReasons->count() > 0)
+                        @if($barcode->rejectionReasons->count() > 0)
                         <div class="info-card" style="grid-column: span 2;">
                             <div class="info-label">Red Sebepleri</div>
                             <div class="info-value">
                                 @foreach($barcode->rejectionReasons as $reason)
                                     <span class="badge badge-danger mr-1">{{ $reason->name }}</span>
                                 @endforeach
+                                @if($barcode->is_exceptionally_approved)
+                                    <small class="d-block mt-2 text-muted">
+                                        <i class="fas fa-info-circle"></i> Bu ürün red sebepleri olmasına rağmen istisnai onay ile ilerletilmiştir.
+                                    </small>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+
+                        @if($barcode->is_exceptionally_approved)
+                        <div class="info-card" style="grid-column: span 2;">
+                            <div class="info-label">İstisnai Onay</div>
+                            <div class="info-value">
+                                <span class="badge badge-warning" style="background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529; padding: 8px 16px; border-radius: 25px; font-weight: 700;">
+                                    <i class="fas fa-exclamation-triangle"></i> İstisnai Onaylı
+                                </span>
+                                <small class="d-block mt-2 text-muted">
+                                    Bu ürün reddedildi durumundan sonra özel onay ile müşteri transfer veya teslim edildi durumuna geçirilmiştir.
+                                </small>
                             </div>
                         </div>
                         @endif
@@ -829,7 +848,7 @@ $(document).ready(function() {
         2: [3, 5],    // Kontrol Tekrarı -> Ön Onaylı, Reddedildi
         3: [4, 2, 5], // Ön Onaylı -> Sevk Onaylı, Kontrol Tekrarı, Reddedildi
         4: [9, 10],   // Sevk Onaylı -> Müşteri Transfer, Teslim Edildi
-        5: [],        // Reddedildi -> Geri dönüş yok
+        5: [9, 10],   // Reddedildi -> Müşteri Transfer, Teslim Edildi
         8: [],        // Düzeltme Faaliyetinde Kullanıldı -> Geri dönüş yok
         9: [10],      // Müşteri Transfer -> Teslim Edildi
         10: []        // Teslim Edildi -> Geri dönüş yok
@@ -868,16 +887,16 @@ $(document).ready(function() {
             warehouseSelect.val('');
         } else {
             // Diğer durumlarda
-                    // Firma alanını gizle ve değerini temizle
-        companyGroup.hide();
-        companySelect.prop('required', false);
-        companySelect.val('');
-        
-        // Depo alanını göster
-        warehouseGroup.show();
-        warehouseSelect.prop('required', true);
+            // Firma alanını gizle ve değerini temizle
+            companyGroup.hide();
+            companySelect.prop('required', false);
+            companySelect.val('');
+            
+            // Depo alanını göster
+            warehouseGroup.show();
+            warehouseSelect.prop('required', true);
+        }
     }
-}
 
 // Red sebepleri bölümünü durum bazında göster/gizle
 function updateRejectionReasonsSection(selectedStatus) {

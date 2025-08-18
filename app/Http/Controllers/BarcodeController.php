@@ -159,6 +159,16 @@ class BarcodeController extends Controller
                         $q->where('name', 'like', '%' . $userName . '%');
                     });
                     \Log::info('CreatedBy filter applied:', ['user' => $userName]);
+                })
+                ->when($request->filled('exceptionally_approved'), function (Builder $query) use ($request) {
+                    $exceptionallyApproved = $request->input('exceptionally_approved');
+                    if ($exceptionallyApproved === '1' || $exceptionallyApproved === 'true') {
+                        $query->where('is_exceptionally_approved', true);
+                        \Log::info('Exceptionally approved filter applied: true');
+                    } elseif ($exceptionallyApproved === '0' || $exceptionallyApproved === 'false') {
+                        $query->where('is_exceptionally_approved', false);
+                        \Log::info('Exceptionally approved filter applied: false');
+                    }
                 });
             return Datatables::of($barcodes)
                 ->addColumn('stock', function ($barcode) {
@@ -336,6 +346,15 @@ class BarcodeController extends Controller
                     }
                     
                     return $barcode->id;
+                })
+                ->addColumn('exceptionallyApproved', function ($barcode) {
+                    if ($barcode->is_exceptionally_approved) {
+                        return '<span class="badge badge-warning" style="background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529;">
+                            <i class="fas fa-exclamation-triangle"></i> İstisnai Onaylı
+                        </span>';
+                    } else {
+                        return '<span class="badge badge-secondary">Normal</span>';
+                    }
                 })
                 ->addColumn('status', function ($barcode) {
                     $statusClass = '';
@@ -825,12 +844,22 @@ class BarcodeController extends Controller
             // Müşteri transfer durumu
             if ($data['status'] == Barcode::STATUS_CUSTOMER_TRANSFER) {
                 $data['company_transferred_at'] = now();
+                
+                // Reddedildi durumundan geçiş yapıldıysa istisnai onaylı olarak işaretle
+                if ($barcode->status == Barcode::STATUS_REJECTED) {
+                    $data['is_exceptionally_approved'] = true;
+                }
             }
             
             // Teslim edildi durumu
             if ($data['status'] == Barcode::STATUS_DELIVERED) {
                 $data['delivered_at'] = now();
                 $data['delivered_by'] = auth()->user()->id;
+                
+                // Reddedildi durumundan geçiş yapıldıysa istisnai onaylı olarak işaretle
+                if ($barcode->status == Barcode::STATUS_REJECTED) {
+                    $data['is_exceptionally_approved'] = true;
+                }
             }
         }
 
@@ -846,8 +875,11 @@ class BarcodeController extends Controller
                 $barcode->rejectionReasons()->detach();
             }
         } else {
-            // Red durumu değilse red sebeplerini temizle
-            $barcode->rejectionReasons()->detach();
+            // Red durumu değilse ve istisnai onay yapılmamışsa red sebeplerini temizle
+            if (!isset($data['is_exceptionally_approved']) || !$data['is_exceptionally_approved']) {
+                $barcode->rejectionReasons()->detach();
+            }
+            // İstisnai onay yapılıyorsa red sebepleri korunur
         }
 
         BarcodeHistory::create([

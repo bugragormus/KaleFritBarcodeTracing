@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class KilnReportExport implements FromArray, WithHeadings, WithStyles
+class ExceptionallyApprovedReportExport implements FromArray, WithHeadings, WithStyles
 {
     protected $data;
 
@@ -24,19 +24,19 @@ class KilnReportExport implements FromArray, WithHeadings, WithStyles
     public function headings(): array
     {
         return [
-            'Barkod ID',
-            'Stok Adı',
-            'Miktar (KG)',
-            'Durum',
-            'İstisnai Onay',
-            'Red Sebepleri',
-            'Müşteri',
-            'Depo',
-            'Oluşturulma Tarihi',
-            'Laboratuvar Tarihi',
-            'Depo Transfer Tarihi',
-            'Müşteri Transfer Tarihi',
-            'Teslim Tarihi',
+            'Ay',
+            'Toplam Ürün',
+            'İstisnai Onaylı',
+            'İstisnai Onay Oranı (%)',
+            'Normal Onaylı',
+            'Normal Onay Oranı (%)',
+            'Reddedilen',
+            'Red Oranı (%)',
+            'Kabul Edilen',
+            'Kabul Oranı (%)',
+            'Toplam Üretim (KG)',
+            'Toplam Üretim (Ton)',
+            'Ortalama Üretim/Barkod (KG)'
         ];
     }
 

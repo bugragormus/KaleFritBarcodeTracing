@@ -592,6 +592,29 @@ class KilnController extends Controller
             ->orderBy('month')
             ->get();
 
+        // İstisnai onay istatistikleri
+        $exceptionallyApprovedStats = $kiln->barcodes()
+            ->selectRaw('
+                COUNT(*) as total_exceptionally_approved,
+                SUM(CASE WHEN is_exceptionally_approved = 1 THEN 1 ELSE 0 END) as exceptionally_approved_count,
+                ROUND(
+                    (SUM(CASE WHEN is_exceptionally_approved = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2
+                ) as exceptionally_approved_percentage
+            ')
+            ->get()
+            ->first();
+
+        // İstisnai onay trendi (son 12 ay)
+        $exceptionallyApprovedTrend = $kiln->barcodes()
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, 
+                        COUNT(*) as total_barcodes,
+                        SUM(CASE WHEN is_exceptionally_approved = 1 THEN 1 ELSE 0 END) as exceptionally_approved_count')
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month', 'year')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
         // En çok üretilen stoklar (pagination ile)
         $perPage = 10;
         $topStocksQuery = $kiln->barcodes()
@@ -652,7 +675,7 @@ class KilnController extends Controller
             'last_page' => ceil($topCompaniesTotal / $perPage)
         ];
 
-        return view('admin.kiln.analysis', compact('kiln', 'statusDistribution', 'monthlyProduction', 'rejectionTrend', 'topStocks', 'topCompanies', 'topStocksPagination', 'topCompaniesPagination'));
+        return view('admin.kiln.analysis', compact('kiln', 'statusDistribution', 'monthlyProduction', 'rejectionTrend', 'exceptionallyApprovedStats', 'exceptionallyApprovedTrend', 'topStocks', 'topCompanies', 'topStocksPagination', 'topCompaniesPagination'));
     }
 
     /**
@@ -669,7 +692,7 @@ class KilnController extends Controller
         }
 
         $kiln = Kiln::with(['barcodes' => function($query) {
-            $query->with(['stock', 'company', 'warehouse']);
+            $query->with(['stock', 'company', 'warehouse', 'rejectionReasons']);
         }])->findOrFail($id);
 
         // Excel export için veri hazırlama
@@ -680,6 +703,8 @@ class KilnController extends Controller
                 'Stok Adı' => $barcode->stock ? $barcode->stock->name : '-',
                 'Miktar (KG)' => $barcode->quantity ? $barcode->quantity->quantity : 0,
                 'Durum' => \App\Models\Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor',
+                'İstisnai Onay' => $barcode->is_exceptionally_approved ? 'Evet' : 'Hayır',
+                'Red Sebepleri' => $barcode->rejectionReasons->pluck('name')->implode(', ') ?: '-',
                 'Müşteri' => $barcode->company ? $barcode->company->name : '-',
                 'Depo' => $barcode->warehouse ? $barcode->warehouse->name : '-',
                 'Oluşturulma Tarihi' => $barcode->created_at ? $barcode->created_at->format('d.m.Y H:i') : '-',
@@ -799,5 +824,110 @@ class KilnController extends Controller
         $fileName .= '.xlsx';
 
         return \Excel::download(new \App\Exports\KilnsExport(collect($kilns)), $fileName);
+    }
+
+    /**
+     * Download comprehensive report for a specific kiln including exceptionally approved data.
+     *
+     * @param  int  $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadComprehensiveReport($id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        $kiln = Kiln::with(['barcodes' => function($query) {
+            $query->with(['stock', 'company', 'warehouse', 'rejectionReasons']);
+        }])->findOrFail($id);
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    break;
+                default:
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        // Filtreleme uygula
+        if ($startDate) {
+            $kiln->barcodes = $kiln->barcodes->filter(function($barcode) use ($startDate) {
+                return $barcode->created_at >= $startDate;
+            });
+        }
+        if ($endDate) {
+            $kiln->barcodes = $kiln->barcodes->filter(function($barcode) use ($endDate) {
+                return $barcode->created_at <= $endDate . ' 23:59:59';
+            });
+        }
+
+        // Aylık trend verilerini hazırla
+        $monthlyData = [];
+        $currentDate = $startDate ? \Carbon\Carbon::parse($startDate) : now()->subMonths(12);
+        $endDateObj = $endDate ? \Carbon\Carbon::parse($endDate) : now();
+
+        while ($currentDate <= $endDateObj) {
+            $month = $currentDate->month;
+            $year = $currentDate->year;
+            
+            $monthBarcodes = $kiln->barcodes->filter(function($barcode) use ($month, $year) {
+                return $barcode->created_at->month == $month && $barcode->created_at->year == $year;
+            });
+
+            $totalBarcodes = $monthBarcodes->count();
+            $exceptionallyApprovedCount = $monthBarcodes->where('is_exceptionally_approved', true)->count();
+            $rejectedCount = $monthBarcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
+            $totalQuantity = $monthBarcodes->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+
+            $monthlyData[] = [
+                'Ay' => $currentDate->format('M Y'),
+                'Toplam Ürün' => $totalBarcodes,
+                'İstisnai Onaylı' => $exceptionallyApprovedCount,
+                'İstisnai Onay Oranı (%)' => $totalBarcodes > 0 ? round(($exceptionallyApprovedCount / $totalBarcodes) * 100, 2) : 0,
+                'Normal Onaylı' => $totalBarcodes - $exceptionallyApprovedCount,
+                'Normal Onay Oranı (%)' => $totalBarcodes > 0 ? round((($totalBarcodes - $exceptionallyApprovedCount) / $totalBarcodes) * 100, 2) : 0,
+                'Reddedilen' => $rejectedCount,
+                'Red Oranı (%)' => $totalBarcodes > 0 ? round(($rejectedCount / $totalBarcodes) * 100, 2) : 0,
+                'Kabul Edilen' => $totalBarcodes - $rejectedCount,
+                'Kabul Oranı (%)' => $totalBarcodes > 0 ? round((($totalBarcodes - $rejectedCount) / $totalBarcodes) * 100, 2) : 0,
+                'Toplam Üretim (KG)' => $totalQuantity,
+                'Toplam Üretim (Ton)' => round($totalQuantity / 1000, 2),
+                'Ortalama Üretim/Barkod (KG)' => $totalBarcodes > 0 ? round($totalQuantity / $totalBarcodes, 2) : 0
+            ];
+
+            $currentDate->addMonth();
+        }
+
+        $filename = 'Kapsamli_Firin_Raporu_' . $kiln->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return \Excel::download(new \App\Exports\ExceptionallyApprovedReportExport($monthlyData), $filename);
     }
 }

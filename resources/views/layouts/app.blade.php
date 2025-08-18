@@ -1273,7 +1273,7 @@
                     <li class="nav-item">
                         <a href="{{ route('dashboard') }}" class="nav-link">
                             <i class="fas fa-chart-bar"></i>
-                            <span>Günlük Rapor</span>
+                            <span>Üretim Raporu</span>
                         </a>
                     </li>
 

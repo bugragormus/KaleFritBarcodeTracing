@@ -793,6 +793,15 @@
                                 </select>
                             </div>
 
+                            <div class="filter-item">
+                                <label class="filter-label">İstisnai Onay</label>
+                                <select class="filter-select" id="exceptionally-approved-filter">
+                                    <option value="">Tüm Ürünler</option>
+                                    <option value="1">İstisnai Onaylı</option>
+                                    <option value="0">Normal Onaylı</option>
+                                </select>
+                            </div>
+
                         <div class="filter-item">
                             <label class="filter-label">Fırın</label>
                             <select class="filter-select" data-column="14">
@@ -923,6 +932,7 @@
                         var stockFilter = $('.filter-select[data-column="0"]').val();
                         var partyFilter = $('.filter-select[data-column="1"]').val();
                         var statusFilter = $('.filter-select[data-column="2"]').val();
+                        var exceptionallyApprovedFilter = $('#exceptionally-approved-filter').val();
                         var kilnFilter = $('.filter-select[data-column="14"]').val();
                         var warehouseFilter = $('.filter-select[data-column="4"]').val();
                         var companyFilter = $('.filter-select[data-column="5"]').val();
@@ -931,6 +941,7 @@
                         if (stockFilter) d.stock = stockFilter;
                         if (partyFilter) d.party_number = partyFilter;
                         if (statusFilter) d.status = statusFilter;
+                        if (exceptionallyApprovedFilter) d.exceptionally_approved = exceptionallyApprovedFilter;
                         if (kilnFilter) d.kiln = kilnFilter;
                         if (warehouseFilter) d.warehouse = warehouseFilter;
                         if (companyFilter) d.company = companyFilter;
@@ -1038,6 +1049,7 @@
             
             // Tüm filtreleri temizle
             $('.filter-select').val('');
+            $('#exceptionally-approved-filter').val('');
             $('.filter-date').val('');
             
             // DataTable'ı yeniden yükle (filtresiz)
