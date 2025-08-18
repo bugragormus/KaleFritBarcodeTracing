@@ -314,6 +314,50 @@
             margin-bottom: 0;
             opacity: 0.9;
         }
+        
+        /* Pagination Stilleri */
+        .pagination-container {
+            margin-top: 2rem;
+        }
+        
+        .pagination {
+            margin-bottom: 0;
+        }
+        
+        .page-link {
+            color: #667eea;
+            background-color: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 0 0.25rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .page-link:hover {
+            color: #ffffff;
+            background-color: #667eea;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pagination-info {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .pagination-info small {
+            font-weight: 500;
+        }
     </style>
 @endsection
 @section('content')
@@ -516,11 +560,11 @@
                     </div>
 
                     <div class="correction-items">
-                        @foreach($rejectedBarcodes as $index => $rejectedBarcode)
+                        @foreach($rejectedBarcodes->forPage(request()->get('correction_page', 1), 5) as $index => $rejectedBarcode)
                         <div class="correction-item">
                             <div class="correction-header">
                                 <div class="correction-info">
-                                    <strong>Şarj: {{ $rejectedBarcode->load_number }}</strong>
+                                    <strong>Şarj: {{ $rejectedBarcode->load_number }} | Barkod: #{{ $rejectedBarcode->id }}</strong>
                                     <span class="correction-details">
                                         {{ $rejectedBarcode->stock->name }} - 
                                         {{ $rejectedBarcode->quantity->quantity }} KG - 
@@ -538,6 +582,51 @@
                         </div>
                         @endforeach
                     </div>
+
+                    <!-- Pagination -->
+                    @if($rejectedBarcodes->count() > 5)
+                    <div class="pagination-container text-center mt-4">
+                        <nav aria-label="Düzeltme faaliyeti sayfaları">
+                            <ul class="pagination justify-content-center">
+                                @php
+                                    $currentPage = request()->get('correction_page', 1);
+                                    $totalPages = ceil($rejectedBarcodes->count() / 5);
+                                @endphp
+                                
+                                <!-- Önceki sayfa -->
+                                @if($currentPage > 1)
+                                <li class="page-item">
+                                    <a class="page-link" href="?correction_page={{ $currentPage - 1 }}" aria-label="Önceki">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                @endif
+                                
+                                <!-- Sayfa numaraları -->
+                                @for($i = max(1, $currentPage - 2); $i <= min($totalPages, $currentPage + 2); $i++)
+                                <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
+                                    <a class="page-link" href="?correction_page={{ $i }}">{{ $i }}</a>
+                                </li>
+                                @endfor
+                                
+                                <!-- Sonraki sayfa -->
+                                @if($currentPage < $totalPages)
+                                <li class="page-item">
+                                    <a class="page-link" href="?correction_page={{ $currentPage + 1 }}" aria-label="Sonraki">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                @endif
+                            </ul>
+                        </nav>
+                        
+                        <div class="pagination-info mt-2">
+                            <small class="text-muted">
+                                Toplam {{ $rejectedBarcodes->count() }} reddedilen barkod, {{ $totalPages }} sayfada gösteriliyor
+                            </small>
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 @endif
 
