@@ -64,6 +64,13 @@ class BarcodeUpdateRequest extends FormRequest
             'lab_note' => [
                 'nullable',
                 new UserHasLabNotePermission()
+            ],
+            'rejection_reasons' => [
+                'required_if:status,' . Barcode::STATUS_REJECTED,
+                'array'
+            ],
+            'rejection_reasons.*' => [
+                'exists:rejection_reasons,id'
             ]
         ];
     }

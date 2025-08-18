@@ -15,9 +15,13 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 15px;
         padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         color: white;
         box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+    }
+    
+    .page-title-section {
+        flex: 1;
     }
     
     .page-title-modern {
@@ -39,43 +43,210 @@
         margin-bottom: 0;
     }
 
-    .date-selector {
+
+    
+    /* Filtreler Bölümü Stilleri */
+    .filters-section {
         background: rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 1rem;
-        margin-top: 0.8rem;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin: 1.25rem 0;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        overflow: visible;
     }
 
-    .date-selector label {
-        color: white;
-        font-weight: 600;
-        margin-right: 1rem;
-        font-size: 1.1rem;
+    .filters-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        overflow: visible;
     }
 
-    .date-selector input {
+    .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-start;
+        overflow: visible;
+    }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 50px;
+        padding: 0.25rem 0;
+    }
+
+    .filter-item label {
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 1rem;
+        white-space: nowrap;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-item input[type="date"],
+    .filter-item select {
         background: rgba(255, 255, 255, 0.95);
         border: none;
-        border-radius: 12px;
-        padding: 0.75rem 1.25rem;
+        border-radius: 10px;
+        padding: 0.6rem 0.8rem;
         color: #333;
         font-weight: 500;
-        font-size: 1rem;
+        font-size: 0.95rem;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        min-width: 200px;
+        min-width: 130px;
+        height: 40px;
+        line-height: 1.2;
+        vertical-align: middle;
     }
 
-    .date-selector input:focus {
+    .filter-item input[type="date"]:focus,
+    .filter-item select:focus {
         outline: none;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         transform: translateY(-2px);
     }
 
-    .date-selector input:hover {
+    .filter-item input[type="date"]:hover,
+    .filter-item select:hover {
         box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* Select Element Özel Stilleri */
+    .filter-item select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        padding-right: 40px;
+        cursor: pointer;
+    }
+    
+    .filter-item select option {
+        padding: 8px 12px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        background: white;
+        color: #333;
+    }
+
+    .custom-date-filter {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .custom-date-filter .btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        white-space: nowrap;
+    }
+
+    .custom-date-filter .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    }
+
+    .filter-info {
+        text-align: center;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .filter-info small {
+        color: #2c3e50;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
+        display: inline-block;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .filter-info small:hover {
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        transform: translateY(-1px);
+    }
+
+    /* Responsive Tasarım */
+    @media (max-width: 768px) {
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+        
+        .filter-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.4rem;
+            min-height: auto;
+            padding: 0.5rem 0;
+        }
+        
+        .filter-item label {
+            align-self: flex-start;
+            margin-bottom: 0.2rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.9rem;
+        }
+        
+        .filter-item input[type="date"],
+        .filter-item select {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .custom-date-filter {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        
+        .custom-date-filter .btn-primary {
+            align-self: stretch;
+            margin-top: 0.4rem;
+        }
+    }
+    
+
+
+    .btn-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
     }
 
     .btn-success {
@@ -96,6 +267,45 @@
 
     .btn-success i {
         margin-right: 0.5rem;
+    }
+    
+    /* Export Button Styles */
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-lg:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-lg i {
+        font-size: 1.2rem;
+    }
+    
+    /* Export Summary Card Styles */
+    .export-summary-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #28a745;
+    }
+    
+    .export-summary-card .card-header-modern {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+    
+    .export-summary-card .card-header-modern .card-title-modern {
+        color: white;
+    }
+    
+    .export-summary-card .card-header-modern .card-title-modern i {
+        color: white;
+        background: rgba(255, 255, 255, 0.2);
     }
     
     .card-modern {
@@ -890,14 +1100,7 @@
             padding: 1rem;
         }
         
-        .date-selector {
-            padding: 0.8rem;
-        }
-        
-        .date-selector input {
-            min-width: 140px;
-            padding: 0.5rem 1rem;
-        }
+
         
         .table-modern th,
         .table-modern td {
@@ -3003,67 +3206,256 @@
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="page-header-modern">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="page-title-section">
                     <h1 class="page-title-modern">
                         <i class="fas fa-chart-bar"></i>
-                        Günlük Üretim Raporu
+                        Üretim Raporu
                     </h1>
-                    <p class="page-subtitle-modern">Sistem geneli istatistikler ve performans göstergeleri</p>
+                    <p class="page-subtitle-modern">Sistem geneli istatistikler ve performans göstergeleri - Çoklu periyot desteği</p>
                 </div>
                 
-                <!-- Date Selector -->
-                <div class="d-flex align-items-center gap-3">
-                    <div class="date-selector">
+                <!-- Quick Export Button -->
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('dashboard.export', ['date' => $selectedDate, 'period' => $period, 'start_date' => $startDate ?? '', 'end_date' => $endDate ?? '']) }}" 
+                       class="btn btn-success btn-lg" 
+                       title="Hızlı Excel Raporu İndir">
+                        <i class="fas fa-file-excel"></i>
+                        <span class="d-none d-md-inline ms-2">Excel Raporu</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Date and Period Filters -->
+        <div class="filters-section">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <div class="filter-item">
                         <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
-                            <label for="date">📅 Rapor Tarihi (Bugün):</label>
+                            <label for="date">📅 Rapor Tarihi:</label>
                             <input type="date" id="date" name="date" value="{{ $selectedDate }}" 
-                                   class="form-control" onchange="this.form.submit()">
+                                   class="form-control ml-2" onchange="this.form.submit()">
                         </form>
-                        <small class="text-white-50 mt-1 d-block">
-                            <i class="fas fa-info-circle"></i> 
-                            OEE ve AI/ML içgörüler her zaman güncel tarihe göre çalışır
-                        </small>
+                    </div>
+                    
+                    <div class="filter-item">
+                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
+                            <label for="period">📊 Periyot:</label>
+                            <select id="period" name="period" class="form-control ml-2" onchange="this.form.submit()">
+                                <option value="daily" {{ $period === 'daily' ? 'selected' : '' }}>Günlük</option>
+                                <option value="weekly" {{ $period === 'weekly' ? 'selected' : '' }}>Haftalık</option>
+                                <option value="monthly" {{ $period === 'monthly' ? 'selected' : '' }}>Aylık</option>
+                                <option value="quarterly" {{ $period === 'quarterly' ? 'selected' : '' }}>3 Aylık</option>
+                                <option value="yearly" {{ $period === 'yearly' ? 'selected' : '' }}>Yıllık</option>
+                                <option value="custom" {{ $period === 'custom' ? 'selected' : '' }}>Özel Tarih Aralığı</option>
+                            </select>
+                        </form>
+                    </div>
+                    
+                    <!-- Custom Date Range Selector -->
+                    <div class="filter-item custom-date-filter" id="customDateSelector" style="display: {{ $period === 'custom' ? 'block' : 'none' }};">
+                        <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center">
+                            <label for="start_date">📅 Başlangıç:</label>
+                            <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}" 
+                                   class="form-control ml-1 mr-1" max="{{ date('Y-m-d') }}">
+                            <label for="end_date" class="ms-3">📅 Bitiş:</label>
+                            <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}" 
+                                   class="form-control ml-1" max="{{ date('Y-m-d') }}">
+                            <input type="hidden" name="period" value="custom">
+                            <button type="submit" class="btn btn-primary btn-sm ms-3 ml-3">
+                                <i class="fas fa-search"></i> Uygula
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="filter-info">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        OEE ve AI/ML içgörüler her zaman güncel tarihe göre çalışır • 
+                        Seçilen periyoda göre veriler toplanır
+                        @if($period === 'custom')
+                            • Gelecekteki tarihler otomatik olarak bugüne sınırlanır
+                        @endif
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production Stats -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-calendar-day"></i>
+                    {{ $periodInfo['range'] }} {{ $periodInfo['name'] }} Üretim Özeti
+                </h3>
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-info-circle"></i> 
+                    Periyot: {{ $periodInfo['start_date_formatted'] }} - {{ $periodInfo['end_date_formatted'] }}
+                </small>
+            </div>
+            <div class="card-body-modern">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['total_barcodes']) }}</div>
+                        <div class="stat-label">Toplam Barkod</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['total_quantity'], 1) }}</div>
+                        <div class="stat-label">Toplam Miktar (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['accepted_quantity'], 1) }}</div>
+                        <div class="stat-label">Kabul Edilen (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['testing_quantity'], 1) }}</div>
+                        <div class="stat-label">Test Sürecinde (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['delivery_quantity'], 1) }}</div>
+                        <div class="stat-label">Teslimat Sürecinde (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['rejected_quantity'], 1) }}</div>
+                        <div class="stat-label">Reddedilen (ton)</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Daily Production Stats -->
+        <!-- Red Sebepleri Analizi -->
         <div class="card-modern">
             <div class="card-header-modern">
-                <h3 class="card-title-modern">
-                    <i class="fas fa-calendar-day"></i>
-                    {{ $date->format('d.m.Y') }} Günlük Üretim Özeti
-                </h3>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Red Sebepleri Analizi
+                    </h3>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('laboratory.stock-quality-analysis') }}" class="btn btn-success btn-sm mr-2">
+                            <i class="fas fa-chart-line"></i> Stok Kalite Analizi
+                        </a>
+                        <a href="{{ route('laboratory.kiln-performance') }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-fire"></i> Fırın Performans Analizi
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="card-body-modern">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['total_barcodes']) }}</div>
-                        <div class="stat-label">Toplam Barkod</div>
+                        <div class="stat-value text-danger">{{ number_format($rejectionReasonsAnalysis['total_rejected_today']) }}</div>
+                        <div class="stat-label">Bugün Reddedilen</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['total_quantity'], 1) }}</div>
-                        <div class="stat-label">Toplam Miktar (ton)</div>
+                        <div class="stat-value text-danger">{{ number_format($rejectionReasonsAnalysis['total_rejected_kg_today'], 1) }}</div>
+                        <div class="stat-label">Red KG (Bugün)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['accepted_quantity'], 1) }}</div>
-                        <div class="stat-label">Kabul Edilen (ton)</div>
+                        <div class="stat-value text-warning">{{ count($rejectionReasonsAnalysis['daily_reasons']) }}</div>
+                        <div class="stat-label">Farklı Red Sebebi</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['testing_quantity'], 1) }}</div>
-                        <div class="stat-label">Test Sürecinde (ton)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['delivery_quantity'], 1) }}</div>
-                        <div class="stat-label">Teslimat Sürecinde (ton)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['rejected_quantity'], 1) }}</div>
-                        <div class="stat-label">Reddedilen (ton)</div>
+                        <div class="stat-value text-info">
+                            @if(count($rejectionReasonsAnalysis['daily_reasons']) > 0)
+                                @php
+                                    $dailyReasons = $rejectionReasonsAnalysis['daily_reasons'];
+                                    if (is_array($dailyReasons)) {
+                                        $reasonName = array_keys($dailyReasons)[0] ?? 'Yok';
+                                    } else {
+                                        $reasonName = $dailyReasons->keys()->first() ?? 'Yok';
+                                    }
+                                @endphp
+                                <span class="small">{{ $reasonName }}</span>
+                            @else
+                                <span class="small">Yok</span>
+                            @endif
+                        </div>
+                        <div class="stat-label">En Çok Tekrarlanan</div>
                     </div>
                 </div>
+                
+                @if(count($rejectionReasonsAnalysis['daily_reasons']) > 0)
+                <div class="mt-4">
+                    <h6 class="text-danger mb-3">
+                        <i class="fas fa-chart-pie"></i> Bugünkü Red Sebepleri Dağılımı
+                    </h6>
+                    <div class="row">
+                        @php
+                            $totalRejectedCount = $rejectionReasonsAnalysis['total_rejected_today'];
+                            $dailyReasons = $rejectionReasonsAnalysis['daily_reasons'];
+                            
+                            if (is_array($dailyReasons)) {
+                                $displayedReasons = array_slice($dailyReasons, 0, 4, true);
+                                $displayedCount = array_sum(array_column($displayedReasons, 'count'));
+                            } else {
+                                $displayedReasons = $dailyReasons->take(4);
+                                $displayedCount = $displayedReasons->sum('count');
+                            }
+                            
+                            $otherCount = $totalRejectedCount - $displayedCount;
+                        @endphp
+                        
+                        @if(is_array($displayedReasons))
+                            @foreach($displayedReasons as $reasonName => $data)
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                        <div>
+                                            <span class="badge badge-danger">{{ $reasonName }}</span>
+                                            <div class="small text-muted mt-1">
+                                                {{ $data['count'] }} ürün ({{ number_format($data['total_kg'], 1) }} KG)
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-danger font-weight-bold">
+                                                {{ number_format(($data['count'] / $totalRejectedCount) * 100, 1) }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            @foreach($displayedReasons as $reasonName => $data)
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                        <div>
+                                            <span class="badge badge-danger">{{ $reasonName }}</span>
+                                            <div class="small text-muted mt-1">
+                                                {{ $data['count'] }} ürün ({{ number_format($data['total_kg'], 1) }} KG)
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-danger font-weight-bold">
+                                                {{ number_format(($data['count'] / $totalRejectedCount) * 100, 1) }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                        
+                        @if($otherCount > 0)
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                    <div>
+                                        <span class="badge badge-secondary">Diğer</span>
+                                        <div class="small text-muted mt-1">
+                                            {{ $otherCount }} ürün
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-secondary font-weight-bold">
+                                            {{ number_format(($otherCount / $totalRejectedCount) * 100, 1) }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -3078,19 +3470,19 @@
             <div class="card-body-modern">
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['with_correction_output'] ?? 0, 1) }}</div>
+                        <div class="stat-value">{{ number_format($productionData['with_correction_output'] ?? 0, 1) }}</div>
                         <div class="stat-label">Düzeltmeli Üretim (ton)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['without_correction_output'] ?? 0, 1) }}</div>
+                        <div class="stat-value">{{ number_format($productionData['without_correction_output'] ?? 0, 1) }}</div>
                         <div class="stat-label">Düzeltmesiz Üretim (ton)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['correction_input_used'] ?? 0, 1) }}</div>
+                        <div class="stat-value">{{ number_format($productionData['correction_input_used'] ?? 0, 1) }}</div>
                         <div class="stat-label">Düzeltmede Kullanılan Red (ton)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ number_format($dailyProduction['raw_material_used'] ?? 0, 1) }}</div>
+                        <div class="stat-value">{{ number_format($productionData['raw_material_used'] ?? 0, 1) }}</div>
                         <div class="stat-label">Toplam Hammadde Kullanımı (ton)</div>
                     </div>
                 </div>
@@ -3099,7 +3491,8 @@
 
         
 
-        <!-- Shift Report -->
+        <!-- Shift Report - Only for Daily Period -->
+        @if($period === 'daily')
         <div class="card-modern">
             <div class="card-header-modern">
                 <div class="d-flex justify-content-between align-items-center">
@@ -3113,6 +3506,10 @@
                         </button>
                     </div>
                 </div>
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-info-circle"></i> 
+                    Vardiya raporu sadece günlük periyotta mevcuttur
+                </small>
             </div>
             <div class="card-body-modern">
                 <!-- Shift Summary -->
@@ -3192,6 +3589,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Kiln Performance -->
         <div class="card-modern">
@@ -4326,9 +4724,11 @@
                         <i class="fas fa-brain"></i>
                         AI/ML İçgörüler & Tahmin Analizi - Güncel Veriler
                     </h3>
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#aimlInfoModal">
-                        <i class="fas fa-info-circle"></i> Bilgi
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#aimlInfoModal">
+                            <i class="fas fa-info-circle"></i> Bilgi
+                        </button>
+                    </div>
                 </div>
                 <small class="text-muted mt-2 d-block">
                     <i class="fas fa-clock"></i> 
@@ -4536,16 +4936,115 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Dashboard Export Summary Card -->
+        <div class="card-modern export-summary-card">
+            <div class="card-header-modern">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-download"></i>
+                        Rapor İndirme Merkezi
+                    </h3>
+                    <div class="d-flex gap-2">
+                        @if($period === 'custom')
+                            <a href="{{ route('dashboard.export', ['date' => $selectedDate, 'period' => $period, 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
+                               class="btn btn-warning btn-m" 
+                               title="Detaylı Excel Raporu İndir">
+                                <i class="fas fa-file-excel"></i>
+                                <span class="d-none d-md-inline ms-2">{{ $periodInfo['name'] }} Üretim Raporu</span>
+                            </a>
+                        @else
+                            <a href="{{ route('dashboard.export', ['date' => $selectedDate, 'period' => $period]) }}" 
+                               class="btn btn-warning btn-m" 
+                               title="Detaylı Excel Raporu İndir">
+                                <i class="fas fa-file-excel"></i>
+                                <span class="d-none d-md-inline ms-2">{{ $periodInfo['name'] }} Üretim Raporu</span>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                    <i class="fas fa-info-circle"></i> 
+                    Dashboard'daki tüm verileri kapsayan detaylı Excel raporu indirin - {{ $periodInfo['name'] }} periyot
+                </small>
+            </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-list"></i> Rapor İçeriği</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Günlük Üretim Özeti</li>
+                            <li><i class="fas fa-check text-success"></i> Vardiya Raporu</li>
+                            <li><i class="fas fa-check text-success"></i> Fırın Performansı</li>
+                            <li><i class="fas fa-check text-success"></i> Red Sebepleri Analizi</li>
+                            <li><i class="fas fa-check text-success"></i> Stok Yaşı Analizi</li>
+                            <li><i class="fas fa-check text-success"></i> Aylık Karşılaştırma</li>
+                            <li><i class="fas fa-check text-success"></i> OEE Analizi</li>
+                            <li><i class="fas fa-check text-success"></i> AI/ML İçgörüler</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle"></i> Rapor Özellikleri</h6>
+                        <ul class="list-unstyled">
+                                                    <li><i class="fas fa-star text-warning"></i> 8 ayrı sayfa (sheet)</li>
+                        <li><i class="fas fa-star text-warning"></i> 5 farklı periyot seçeneği</li>
+                        <li><i class="fas fa-star text-warning"></i> Profesyonel formatlama</li>
+                        <li><i class="fas fa-star text-warning"></i> Otomatik sütun genişliği</li>
+                        <li><i class="fas fa-star text-warning"></i> Renkli başlıklar</li>
+                        <li><i class="fas fa-star text-warning"></i> Türkçe karakter desteği</li>
+                        <li><i class="fas fa-star text-warning"></i> Anında indirme</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>İpucu:</strong> Bu rapor, dashboard'daki tüm verileri Excel formatında içerir. 
+                    5 farklı periyot seçeneği ile raporlar oluşturabilirsiniz. 
+                    Yönetici raporları, sunumlar veya veri analizi için kullanabilirsiniz.
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Weekly Trend Chart
-    const weeklyTrendCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Period selector functionality
+      const periodSelect = document.getElementById('period');
+      const customDateSelector = document.getElementById('customDateSelector');
+      
+      if (periodSelect) {
+          periodSelect.addEventListener('change', function() {
+              if (this.value === 'custom') {
+                  customDateSelector.style.display = 'block';
+              } else {
+                  customDateSelector.style.display = 'none';
+                  // Auto-submit form for other periods
+                  this.form.submit();
+              }
+          });
+      }
+      
+      // Custom date range validation
+      const startDateInput = document.getElementById('start_date');
+      const endDateInput = document.getElementById('end_date');
+      
+      if (startDateInput && endDateInput) {
+          startDateInput.addEventListener('change', function() {
+              endDateInput.min = this.value;
+          });
+          
+          endDateInput.addEventListener('change', function() {
+              startDateInput.max = this.value;
+          });
+      }
+      
+      // Weekly Trend Chart
+      const weeklyTrendCtx = document.getElementById('weeklyTrendChart').getContext('2d');
     const weeklyTrendData = @json($weeklyTrend);
     
     const labels = weeklyTrendData.map(item => item.date);

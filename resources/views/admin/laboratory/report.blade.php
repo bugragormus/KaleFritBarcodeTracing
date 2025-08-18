@@ -120,6 +120,10 @@
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
         }
+        .btn-warning-modern {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        color: #212529;
+    }
         .btn-info-modern {
             background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
             color: white;
@@ -178,9 +182,14 @@
                     <p class="page-subtitle-modern">Laboratuvar işlem istatistikleri ve raporları - İş akışı kurallarına uygun</p>
                 </div>
                 <div class="col-md-4 text-right">
-                    <a href="{{ route('laboratory.dashboard') }}" class="btn-modern btn-secondary-modern">
-                        <i class="fas fa-arrow-left"></i> Geri Dön
-                    </a>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ route('laboratory.report.export', ['start_date' => request('start_date', $startDate->format('Y-m-d')), 'end_date' => request('end_date', $endDate->format('Y-m-d'))]) }}" class="btn-modern btn-success-modern mr-2">
+                            <i class="fas fa-file-excel"></i> Excel İndir
+                        </a>
+                        <a href="{{ route('laboratory.dashboard') }}" class="btn-modern btn-secondary-modern">
+                            <i class="fas fa-arrow-left"></i> Geri Dön
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -381,6 +390,111 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+    <!-- Red Sebepleri Analizi -->
+    <div class="card-modern">
+        <div class="card-header-modern">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-exclamation-triangle"></i> Red Sebepleri Analizi
+                    </h3>
+                    <p class="card-subtitle-modern">Seçilen tarih aralığında red edilen ürünlerin sebeplere göre dağılımı</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('laboratory.stock-quality-analysis') }}" class="btn-modern btn-success-modern mr-2">
+                        <i class="fas fa-chart-line"></i> Stok Kalite Analizi
+                    </a>
+                    <a href="{{ route('laboratory.kiln-performance') }}" class="btn-modern btn-warning-modern">
+                        <i class="fas fa-fire"></i> Fırın Performans Analizi
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body-modern">
+            <!-- Genel Red Sebepleri İstatistikleri -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3"><i class="fas fa-chart-pie"></i> Genel Red Sebepleri Dağılımı</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Red Sebebi</th>
+                                    <th>Red Edilen Ürün Sayısı</th>
+                                    <th>Toplam KG</th>
+                                    <th>Oran (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php
+                                    $totalRejectedCount = $summary['rejected'];
+                                    $totalRejectedKg = $generalRejectionStats->sum('total_kg');
+                                @endphp
+                                @foreach($generalRejectionStats as $reasonName => $stats)
+                                    <tr>
+                                        <td>
+                                            <span class="badge badge-danger">{{ $reasonName }}</span>
+                                        </td>
+                                        <td>{{ $stats['count'] }}</td>
+                                        <td>{{ number_format($stats['total_kg'], 2) }} KG</td>
+                                        <td>
+                                            @if($totalRejectedCount > 0)
+                                                {{ number_format(($stats['count'] / $totalRejectedCount) * 100, 1) }}%
+                                            @else
+                                                0%
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stok Bazında Red Sebepleri -->
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3"><i class="fas fa-boxes"></i> Stok Bazında Red Sebepleri</h5>
+                    @foreach($rejectionReasonsAnalysis as $stockId => $analysis)
+                        <div class="card mb-3" style="border-left: 4px solid #dc3545;">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h6 class="card-title text-danger">
+                                            <i class="fas fa-box"></i> {{ $analysis['stock']->name }}
+                                        </h6>
+                                        <p class="text-muted mb-1">Kod: {{ $analysis['stock']->code }}</p>
+                                        <p class="mb-0">
+                                            <span class="badge badge-danger">
+                                                Toplam Red: {{ $analysis['total_rejected'] }} ürün 
+                                                ({{ number_format($analysis['total_rejected_kg'], 2) }} KG)
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            @foreach($analysis['reasons_breakdown'] as $reasonName => $reasonStats)
+                                                <div class="col-md-6 mb-2">
+                                                    <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                                                        <span class="badge badge-danger">{{ $reasonName }}</span>
+                                                        <span class="text-muted">
+                                                            {{ $reasonStats['count'] }} ürün 
+                                                            ({{ number_format($reasonStats['kg'], 2) }} KG)
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>

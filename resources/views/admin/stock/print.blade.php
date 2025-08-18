@@ -252,7 +252,10 @@
     </div>
 
     <!-- Fırın Bazında Üretim -->
-    @if($productionByKiln && count($productionByKiln) > 0)
+    @php
+        $kilnData = is_array($productionByKiln) && isset($productionByKiln['data']) ? $productionByKiln['data'] : $productionByKiln;
+    @endphp
+    @if($kilnData && count($kilnData) > 0)
     <div class="section">
         <div class="section-title">FIRIN BAZINDA ÜRETİM</div>
         
@@ -266,7 +269,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($productionByKiln as $kiln)
+                @foreach($kilnData as $kiln)
                 <tr>
                     <td>{{ $kiln->kiln_name ?? 'Belirtilmemiş' }}</td>
                     <td>{{ $kiln->barcode_count }}</td>
@@ -280,7 +283,10 @@
     @endif
 
     <!-- Müşteri Bazında Satış -->
-    @if($salesByCompany && count($salesByCompany) > 0)
+    @php
+        $companyData = is_array($salesByCompany) && isset($salesByCompany['data']) ? $salesByCompany['data'] : $salesByCompany;
+    @endphp
+    @if($companyData && count($companyData) > 0)
     <div class="section">
         <div class="section-title">MÜŞTERİ BAZINDA SATIŞ</div>
         
@@ -295,7 +301,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($salesByCompany as $company)
+                @foreach($companyData as $company)
                 <tr>
                     <td>{{ $company->company_name ?? 'Belirtilmemiş' }}</td>
                     <td>{{ $company->barcode_count }}</td>
@@ -310,7 +316,10 @@
     @endif
 
     <!-- Aylık Üretim Trendi -->
-    @if($monthlyTrend && count($monthlyTrend) > 0)
+    @php
+        $trendData = is_array($monthlyTrend) && isset($monthlyTrend['data']) ? $monthlyTrend['data'] : $monthlyTrend;
+    @endphp
+    @if($trendData && count($trendData) > 0)
     <div class="section">
         <div class="section-title">AYLIK ÜRETİM TRENDİ</div>
         
@@ -324,7 +333,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($monthlyTrend as $trend)
+                @foreach($trendData as $trend)
                 <tr>
                     <td>{{ $trend->month }}/{{ $trend->year }}</td>
                     <td>{{ $trend->barcode_count }}</td>

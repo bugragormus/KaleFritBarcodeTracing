@@ -121,7 +121,7 @@
             opacity: 0.9;
         }
         
-        /* Print Styles */
+        /* Print Styles for Thermal Label Printer */
         @media print {
             body * {
                 visibility: hidden;
@@ -133,47 +133,99 @@
                 position: absolute;
                 left: 0;
                 top: 0;
+                width: 100%;
             }
-            .page {page-break-inside: avoid;}
+            .thermal-label {
+                page-break-inside: avoid;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+            }
+            .no-print {
+                display: none !important;
+            }
         }
         
-        /* Print Content Styles */
-        .print-content {
-            font-size: 55px;
-            margin-top: 1rem;
-        }
-        
-        .print-page {
-            margin: 0 auto;
-            border: 2px solid #6c757d;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+        /* Thermal Label Specific Styles */
+        .thermal-label {
+            width: 100mm; /* Standard thermal label width */
+            min-height: 40mm; /* Minimum height for content */
+            margin: 0 auto 2mm auto; /* 2mm spacing between labels */
+            padding: 2mm;
             background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+            font-size: 10pt;
+            line-height: 1.2;
         }
         
-        .print-page .row {
-            margin-top: 1.5rem;
-        }
-        
-        .print-page .col-6 {
-            padding: 0.5rem;
-        }
-        
-        .print-page .font-weight-bold {
-            font-weight: 700;
-            color: #495057;
-        }
-        
-        .print-page .barcode-section {
+        .label-header {
             text-align: center;
-            padding-top: 3rem;
+            margin-bottom: 2mm;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1mm;
         }
         
-        .print-page .barcode-section strong {
-            font-size: 1.2em;
+        .label-title {
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .label-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2mm;
+            margin-bottom: 3mm;
+        }
+        
+        .label-field {
+            margin-bottom: 1mm;
+        }
+        
+        .label-field-label {
+            font-weight: bold;
+            font-size: 8pt;
+            color: #333;
+        }
+        
+        .label-field-value {
+            font-size: 9pt;
+            color: #000;
+            word-break: break-all;
+        }
+        
+        .barcode-section {
+            text-align: center;
+            margin-top: 2mm;
+            padding-top: 2mm;
+            border-top: 1px solid #000;
+        }
+        
+        .barcode-svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .barcode-number {
+            font-size: 10pt;
+            font-weight: bold;
+            margin-top: 1mm;
+        }
+        
+        /* Preview styles for screen */
+        .print-preview {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .print-preview h6 {
             color: #495057;
+            margin-bottom: 0.5rem;
         }
         
         @media (max-width: 768px) {
@@ -185,12 +237,14 @@
                 padding: 1.5rem;
             }
             
-            .print-content {
-                font-size: 40px;
+            .thermal-label {
+                width: 90mm;
+                font-size: 9pt;
             }
         }
     </style>
 @endsection
+
 @section('content')
     <div class="modern-print-view">
         <div class="container-fluid">
@@ -201,7 +255,7 @@
                         <h1 class="page-title-modern">
                             <i class="fas fa-print"></i> Barkod Yazdırma
                         </h1>
-                        <p class="page-subtitle-modern">Seçilen barkodların yazdırılabilir formatı</p>
+                        <p class="page-subtitle-modern">Thermal Etiket Yazıcısı için Optimize Edilmiş Format</p>
                     </div>
                     <div class="col-md-4 text-right">
                         <button class="btn-modern btn-success-modern" onclick="window.print(); return false;">
@@ -213,56 +267,82 @@
 
             <!-- Info Card -->
             <div class="info-card">
-                <h5><i class="fas fa-info-circle"></i> Yazdırma Hazır</h5>
-                <p>Barkodlar yazdırma için hazır. Yazdır butonuna tıklayarak yazdırma işlemini başlatabilirsiniz</p>
+                <h5><i class="fas fa-info-circle"></i> Thermal Yazıcı Optimizasyonu</h5>
+                <p>Barkodlar Argox OS 214 Plus Series PPLA gibi thermal etiket yazıcıları için optimize edildi. Her etiket 100mm genişliğinde ve uygun boyutlarda.</p>
+            </div>
+
+            <!-- Print Preview Info -->
+            <div class="print-preview no-print">
+                <h6><i class="fas fa-eye"></i> Yazdırma Önizlemesi</h6>
+                <p class="mb-0">Aşağıda yazdırılacak etiketlerin önizlemesi görünmektedir. Yazdır butonuna tıklayarak thermal yazıcıda çıktı alabilirsiniz.</p>
             </div>
 
             <!-- Modern Card -->
             <div class="card-modern">
                 <div class="card-header-modern">
                     <h3 class="card-title-modern">
-                        <i class="fas fa-qrcode"></i> Barkod Etiketleri
+                        <i class="fas fa-qrcode"></i> Thermal Etiket Formatı
                     </h3>
                     <p class="card-subtitle-modern">
-                        Her barkod için ayrı etiket oluşturulacak
+                        Her barkod için ayrı thermal etiket (100mm x 40mm)
                     </p>
                 </div>
                 
                 <div class="card-body-modern">
-                    <div id="section-to-print" class="print-content">
+                    <div id="section-to-print">
                         @foreach($barcodes as $barcode)
-                            <div class="print-page">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <span class="font-weight-bold">Üretim Tarihi:</span><br/>
-                                            <span class="font-weight-bold">Stok Adı:</span><br/>
-                                            <span class="font-weight-bold">Stok Kodu:</span><br/>
-                                            <span class="font-weight-bold">Fırın No:</span><br/>
-                                            <span class="font-weight-bold">Parti Numarası:</span><br/>
-                                            <span class="font-weight-bold">Şarj Numarası:</span><br/>
-                                            <span class="font-weight-bold">Miktar:</span><br/>
-                                            <span class="font-weight-bold">Oluşturan:</span><br/>
-                                        </div>
-                                        <div class="col-6">
-                                            <span style="font-size: 40px;">{{ $barcode->created_at->tz('Europe/Istanbul')->format('d-m-Y H:i') }}</span><br/>
-                                            <span>{{ $barcode->stock->name}}</span><br/>
-                                            <span>{{ $barcode->stock->code}}</span><br/>
-                                            <span>{{ $barcode->kiln->name}}</span><br/>
-                                            <span>{{ $barcode->party_number}}</span><br/>
-                                            <span>{{ $barcode->load_number }} {{ !is_null($barcode->rejected_load_number) ? ' + ' . $barcode->rejected_load_number : '' }}</span><br/>
-                                            <span>{{ $barcode->quantity->quantity . " KG"}}</span><br/>
-                                            <span>{{ $barcode->createdBy->registration_number}}</span><br/>
-                                        </div>
-                                        <div class="col-12 barcode-section">
-                                            {!! DNS1D::getBarcodeSVG((string)$barcode->id, 'C128', 8, 300); !!}
-                                            <br>
-                                            <strong>{{ $barcode->id }}</strong>
-                                        </div>
+                            <div class="thermal-label">
+                                <!-- Etiket Başlığı -->
+                                <div class="label-header">
+                                    <div class="label-title">BARKOD ETİKETİ</div>
+                                </div>
+                                
+                                <!-- Etiket İçeriği -->
+                                <div class="label-content">
+                                    <div class="label-field">
+                                        <div class="label-field-label">Üretim Tarihi:</div>
+                                        <div class="label-field-value">{{ $barcode->created_at->tz('Europe/Istanbul')->format('d-m-Y H:i') }}</div>
                                     </div>
+                                    
+                                    <div class="label-field">
+                                        <div class="label-field-label">Stok Adı:</div>
+                                        <div class="label-field-value">{{ $barcode->stock->name }}</div>
+                                    </div>
+                                    
+                                    <div class="label-field">
+                                        <div class="label-field-label">Stok Kodu:</div>
+                                        <div class="label-field-value">{{ $barcode->stock->code }}</div>
+                                    </div>
+                                    
+                                    <div class="label-field">
+                                        <div class="label-field-label">Fırın No:</div>
+                                        <div class="label-field-value">{{ $barcode->kiln->name }}</div>
+                                    </div>
+                                    
+                                    <div class="label-field">
+                                        <div class="label-field-label">Parti No:</div>
+                                        <div class="label-field-value">{{ $barcode->party_number }}</div>
+                                    </div>
+                                    
+                                    <div class="label-field">
+                                        <div class="label-field-label">Şarj No:</div>
+                                        <div class="label-field-value">{{ $barcode->load_number }}{{ !is_null($barcode->rejected_load_number) ? ' + ' . $barcode->rejected_load_number : '' }}</div>
+                                    </div>
+                                    
+                                    <div class="label-field">
+                                        <div class="label-field-label">Miktar:</div>
+                                        <div class="label-field-value">{{ $barcode->quantity->quantity }} KG</div>
+                                    </div>
+                                    
+
+                                </div>
+                                
+                                <!-- Barkod Bölümü -->
+                                <div class="barcode-section">
+                                    {!! DNS1D::getBarcodeSVG((string)$barcode->id, 'C128', 3, 80); !!}
+                                    <div class="barcode-number">{{ $barcode->id }}</div>
                                 </div>
                             </div>
-                            <div style="page-break-before: always"></div>
                         @endforeach
                     </div>
                 </div>

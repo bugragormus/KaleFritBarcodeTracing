@@ -37,9 +37,9 @@ class StockDetailExport implements WithMultipleSheets
         return [
             'Genel Bilgiler' => new GeneralInfoSheet($this->stock, $this->stockDetails),
             'Durum Dağılımı' => new StatusDistributionSheet($this->barcodesByStatus),
-            'Fırın Üretimi' => new KilnProductionSheet($this->productionByKiln),
-            'Müşteri Satışları' => new CustomerSalesSheet($this->salesByCompany),
-            'Aylık Trend' => new MonthlyTrendSheet($this->monthlyTrend),
+            'Fırın Üretimi' => new KilnProductionSheet(is_array($this->productionByKiln) && isset($this->productionByKiln['data']) ? $this->productionByKiln['data'] : $this->productionByKiln),
+            'Müşteri Satışları' => new CustomerSalesSheet(is_array($this->salesByCompany) && isset($this->salesByCompany['data']) ? $this->salesByCompany['data'] : $this->salesByCompany),
+            'Aylık Trend' => new MonthlyTrendSheet(is_array($this->monthlyTrend) && isset($this->monthlyTrend['data']) ? $this->monthlyTrend['data'] : $this->monthlyTrend),
             'Günlük Üretim' => new DailyProductionSheet($this->productionData),
         ];
     }
@@ -80,11 +80,13 @@ class GeneralInfoSheet implements FromArray, WithTitle, WithStyles
 
         if ($this->stockDetails) {
             $data[] = ['Beklemede', number_format($this->stockDetails->waiting_quantity, 0)];
+            $data[] = ['Kontrol Tekrarı', number_format($this->stockDetails->control_repeat_quantity, 0)];
             $data[] = ['Ön Onaylı', number_format($this->stockDetails->pre_approved_quantity, 0)];
             $data[] = ['Sevk Onaylı', number_format($this->stockDetails->shipment_approved_quantity, 0)];
             $data[] = ['Müşteri Transfer', number_format($this->stockDetails->customer_transfer_quantity, 0)];
             $data[] = ['Teslim Edildi', number_format($this->stockDetails->delivered_quantity, 0)];
             $data[] = ['Reddedildi', number_format($this->stockDetails->rejected_quantity, 0)];
+            $data[] = ['Birleştirildi', number_format($this->stockDetails->merged_quantity, 0)];
         }
 
         return $data;

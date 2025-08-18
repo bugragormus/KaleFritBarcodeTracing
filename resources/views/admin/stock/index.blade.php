@@ -396,6 +396,23 @@
                         </div>
                     </div>
 
+                    <!-- Ürün Kodu Arama -->
+                    <form method="GET" action="{{ route('stock.index') }}" class="mb-3" id="stock-search-form">
+                        <div class="input-group">
+                            <input type="text" name="code" class="form-control" placeholder="Ürün koduna göre ara..." value="{{ request('code') }}" id="stock-search-input">
+                            @if(request('start_date'))
+                                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                            @endif
+                            @if(request('end_date'))
+                                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                            @endif
+                            @if(request('period'))
+                                <input type="hidden" name="period" value="{{ request('period') }}">
+                            @endif
+                            
+                        </div>
+                    </form>
+                    
                     <form method="GET" action="{{ route('stock.index') }}" class="row align-items-end">
                         <div class="col-md-4">
                             <label class="form-label">Başlangıç Tarihi</label>
@@ -413,7 +430,7 @@
                             </button>
                         </div>
                     </form>
-                    @if(request('start_date') || request('end_date') || request('period'))
+                    @if(request('start_date') || request('end_date') || request('period') || request('code'))
                         <div class="mt-3">
                             <a href="{{ route('stock.index') }}" class="btn-modern btn-secondary-modern">
                                 <i class="fas fa-times"></i> Filtreleri Temizle
@@ -434,6 +451,9 @@
                                 @if(request('start_date') && request('end_date'))
                                     - {{ request('start_date') }} - {{ request('end_date') }} tarihleri arası
                                 @endif
+                                @if(request('code'))
+                                    - Ürün kodu: {{ request('code') }}
+                                @endif
                                 için filtrelenmiş sonuçlar
                             </span>
                         </div>
@@ -442,7 +462,9 @@
             </div>
 
             <!-- Stok Performans Kartları -->
+            <div class="row">
             @foreach($stocks as $stock)
+                <div class="col-md-6">
             <div class="stock-card">
                 <div class="stock-header">
                     <div class="performance-indicator 
@@ -585,7 +607,9 @@
                     </div>
                 </div>
             </div>
+                </div>
             @endforeach
+            </div>
 
             @if(empty($stocks) || count($stocks) == 0)
             <div class="card-modern">
@@ -608,6 +632,24 @@
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content') }
         });
+
+        // Ürün kodu aramasını yazdıkça filtrele (debounce)
+        (function(){
+            var searchInput = document.getElementById('stock-search-input');
+            var form = document.getElementById('stock-search-form');
+            if (!searchInput || !form) return;
+            var debounceTimer;
+            var lastSubmittedValue = searchInput.value;
+            function submitForm() {
+                if (searchInput.value === lastSubmittedValue) return;
+                lastSubmittedValue = searchInput.value;
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+            }
+            searchInput.addEventListener('input', function(){
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(submitForm, 300);
+            });
+        })();
         function deleteConfirmation(id) {
 
             swal({

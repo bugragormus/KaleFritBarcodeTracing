@@ -71,7 +71,15 @@ class CompanyController extends Controller
                 if ($startDate) { $query->where('created_at', '>=', $startDate); }
                 if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
             }
-        ])->get();
+        ]);
+
+        // Firma adına göre arama
+        $searchName = request('name');
+        if ($searchName) {
+            $companies = $companies->where('name', 'like', '%' . $searchName . '%');
+        }
+
+        $companies = $companies->get();
 
         // Her firma için detaylı istatistikler
         foreach ($companies as $company) {
@@ -488,5 +496,138 @@ class CompanyController extends Controller
         $filename = 'Firma_Raporu_' . $company->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
 
         return \Excel::download(new \App\Exports\CompanyReportExport($data), $filename);
+    }
+
+    /**
+     * Download Excel report for all companies.
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadExcel()
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        $companies = Company::withCount([
+            'barcodes' => function($query) use ($startDate, $endDate) {
+                if ($startDate) { $query->where('created_at', '>=', $startDate); }
+                if ($endDate) { $query->where('created_at', '<=', $endDate . ' 23:59:59'); }
+            }
+        ])->get();
+
+        // Her firma için detaylı istatistikler
+        foreach ($companies as $company) {
+            $barcodesQuery = $company->barcodes();
+            if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
+            if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
+            
+            // Toplam alım miktarı (KG)
+            $company->total_purchase = $barcodesQuery
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            // Durum bazında KG miktarları
+            $company->customer_transfer_kg = $company->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $company->delivered_kg = $company->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_DELIVERED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            // Teslim oranı
+            $totalBarcodes = $barcodesQuery->count();
+            $deliveredBarcodes = $barcodesQuery->where('status', \App\Models\Barcode::STATUS_DELIVERED)->count();
+            $company->delivery_rate = $totalBarcodes > 0 ? round(($deliveredBarcodes / $totalBarcodes) * 100, 2) : 0;
+            
+            // Son alım tarihi
+            $company->last_purchase_date = $barcodesQuery->latest('created_at')->value('created_at');
+            
+            // Ortalama sipariş büyüklüğü (KG)
+            $company->average_order_size = $totalBarcodes > 0 ? round($company->total_purchase / $totalBarcodes, 0) : 0;
+        }
+
+        // Dosya adına tarih bilgisi ekle
+        $fileName = 'firmalar';
+        if ($startDate && $endDate) {
+            if ($startDate === $endDate) {
+                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            } else {
+                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $periodNames = [
+                'monthly' => 'aylik',
+                'quarterly' => '3-aylik', 
+                'yearly' => 'yillik',
+                'all' => 'tum-zamanlar'
+            ];
+            $fileName .= '-' . ($periodNames[$period] ?? 'gunluk');
+        } else {
+            $fileName .= '-' . \Carbon\Carbon::now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
+
+        return \Excel::download(new \App\Exports\CompanyExport($companies), $fileName);
     }
 }

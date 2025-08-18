@@ -838,6 +838,27 @@ $(document).on('click', '.process-barcode-btn', function() {
                                     <textarea class="form-control" id="process-note-${barcodeId}" rows="3" placeholder="İşlem notu ekleyin (opsiyonel)..."></textarea>
                                 </div>
                             </div>
+                                                            <div class="row mt-3" id="rejection-reasons-row-${barcodeId}" style="display: ${action === 'reject' ? 'block' : 'none'};">
+                                    <div class="col-md-12">
+                                        <h6><i class="fas fa-exclamation-triangle"></i> Red Sebepleri <span class="text-danger">*</span></h6>
+                                        <div class="row">
+                                            @foreach(\App\Models\RejectionReason::active()->get() as $reason)
+                                            <div class="col-md-4 mb-2">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input rejection-reason-checkbox" 
+                                                           id="reason_${barcodeId}_{{ $reason->id }}" value="{{ $reason->id }}">
+                                                    <label class="custom-control-label" for="reason_${barcodeId}_{{ $reason->id }}">
+                                                        {{ $reason->name }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="alert alert-danger py-2 mt-2 mb-0">
+                                            <i class="fas fa-exclamation-triangle"></i> <strong>Zorunlu:</strong> Red işlemi için en az bir red sebebi seçmelisiniz!
+                                        </div>
+                                    </div>
+                                </div>
                             <div class="alert alert-info mt-3">
                                 <i class="fas fa-info-circle"></i>
                                 <strong>Bilgi:</strong> Bu barkodu ${action === 'reject' ? 'reddetmek' : (action === 'pre_approved' ? 'ön onaylı yapmak' : (action === 'control_repeat' ? 'kontrol tekrarı yapmak' : (action === 'shipment_approved' ? 'sevk onaylı yapmak' : 'işlemek')))} üzeresiniz. İşlem geri alınamaz.
@@ -874,11 +895,35 @@ $(document).on('click', '.process-barcode-btn', function() {
     });
 });
 
-// Modal içindeki onay butonuna tıklandığında
-$(document).on('click', '.process-confirm-btn', function() {
-    var barcodeId = $(this).data('id');
-    var action = $(this).data('action');
-    var note = $('#process-note-' + barcodeId).val();
+    // Modal içindeki onay butonuna tıklandığında
+    $(document).on('click', '.process-confirm-btn', function() {
+        var barcodeId = $(this).data('id');
+        var action = $(this).data('action');
+        var note = $('#process-note-' + barcodeId).val();
+        
+        // Red işlemi için red sebebi kontrolü
+        if (action === 'reject') {
+            var selectedReasons = $('.rejection-reason-checkbox[id^="reason_' + barcodeId + '_"]:checked').length;
+            if (selectedReasons === 0) {
+                toastr.error('Red işlemi için en az bir red sebebi seçmelisiniz!', 'Hata', {
+                    timeOut: 5000,
+                    extendedTimeOut: 2000,
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: 'toast-top-center'
+                });
+                return;
+            }
+        }
+        
+        // Red sebeplerini al
+        var rejectionReasons = [];
+        if (action === 'reject') {
+            rejectionReasons = $('.rejection-reason-checkbox[id^="reason_' + barcodeId + '_"]:checked').map(function() {
+                return $(this).val();
+            }).get();
+        }
+    
     var $btn = $(this);
     var $modal = $('#processBarcodeModal');
     
@@ -892,6 +937,7 @@ $(document).on('click', '.process-confirm-btn', function() {
             barcode_id: barcodeId,
             action: action,
             note: note,
+            rejection_reasons: rejectionReasons,
             _token: '{{ csrf_token() }}'
         },
         success: function(response) {

@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 Route::post('/dashboard/export-kiln-performance', [App\Http\Controllers\DashboardController::class, 'exportKilnPerformance'])->name('dashboard.export-kiln-performance')->middleware('auth');
+Route::get('/dashboard/export', [App\Http\Controllers\DashboardController::class, 'exportDashboard'])->name('dashboard.export')->middleware('auth');
 Route::get('/hakkinda', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
 Route::get('/kullanim-kilavuzu', [App\Http\Controllers\ManualController::class, 'index'])->name('manual');
 
@@ -51,16 +52,19 @@ Route::middleware('auth')
         });
 
         Route::as('company.')->prefix('firma')->group(function () {
-    Route::post('/', [CompanyController::class, 'store'])->name('store');
-    Route::get('/', [CompanyController::class, 'index'])->name('index');
-    Route::get('/ekle', [CompanyController::class, 'create'])->name('create');
-    Route::put('/{firma}', [CompanyController::class, 'update'])->name('update');
-    Route::get('/{firma}', [CompanyController::class, 'show'])->name('show');
-    Route::delete('/{firma}', [CompanyController::class, 'destroy'])->name('destroy');
-    Route::get('/{firma}/duzenle', [CompanyController::class, 'edit'])->name('edit');
-    Route::get('/{firma}/analiz', [CompanyController::class, 'analysis'])->name('analysis');
-    Route::get('/{firma}/rapor-indir', [CompanyController::class, 'downloadReport'])->name('download.report');
-});
+            Route::post('/', [CompanyController::class, 'store'])->name('store');
+            Route::get('/', [CompanyController::class, 'index'])->name('index');
+            Route::get('/ekle', [CompanyController::class, 'create'])->name('create');
+            // Bulk Excel indirme route'u dinamik {firma} route'larından ÖNCE gelmeli
+            Route::get('/excel-indir', [CompanyController::class, 'downloadExcel'])->name('excel.download');
+
+            Route::put('/{firma}', [CompanyController::class, 'update'])->name('update');
+            Route::get('/{firma}', [CompanyController::class, 'show'])->name('show');
+            Route::delete('/{firma}', [CompanyController::class, 'destroy'])->name('destroy');
+            Route::get('/{firma}/duzenle', [CompanyController::class, 'edit'])->name('edit');
+            Route::get('/{firma}/analiz', [CompanyController::class, 'analysis'])->name('analysis');
+            Route::get('/{firma}/rapor-indir', [CompanyController::class, 'downloadReport'])->name('download.report');
+        });
 
         Route::as('warehouse.')->prefix('depo')->group(function () {
             Route::post('/', [WarehouseController::class, 'store'])->name('store');
@@ -71,6 +75,8 @@ Route::middleware('auth')
             Route::delete('/{depo}', [WarehouseController::class, 'destroy'])->name('destroy');
             Route::get('/{depo}/duzenle', [WarehouseController::class, 'edit'])->name('edit');
             Route::get('/{depo}/stok-adetleri', [WarehouseController::class, 'stockQuantity'])->name('stock-quantity');
+            Route::get('/export/excel', [WarehouseController::class, 'downloadExcel'])->name('excel.download');
+            Route::get('/{depo}/excel', [WarehouseController::class, 'exportExcel'])->name('excel');
             Route::post('/{warehouse}/clear-cache', [WarehouseController::class, 'clearCache'])->name('clear-cache');
             Route::post('/{warehouse}/fix-data', [WarehouseController::class, 'fixData'])->name('fix-data');
         });
@@ -108,16 +114,19 @@ Route::middleware('auth')
         });
 
         Route::as('kiln.')->prefix('firin')->group(function () {
-    Route::post('/', [KilnController::class, 'store'])->name('store');
-    Route::get('/', [KilnController::class, 'index'])->name('index');
-    Route::get('/ekle', [KilnController::class, 'create'])->name('create');
-    Route::put('/{firin}', [KilnController::class, 'update'])->name('update');
-    Route::get('/{firin}', [KilnController::class, 'show'])->name('show');
-    Route::delete('/{firin}', [KilnController::class, 'destroy'])->name('destroy');
-    Route::get('/{firin}/duzenle', [KilnController::class, 'edit'])->name('edit');
-    Route::get('/{firin}/analiz', [KilnController::class, 'analysis'])->name('analysis');
-    Route::get('/{firin}/rapor-indir', [KilnController::class, 'downloadReport'])->name('download.report');
-});
+            Route::post('/', [KilnController::class, 'store'])->name('store');
+            Route::get('/', [KilnController::class, 'index'])->name('index');
+            Route::get('/ekle', [KilnController::class, 'create'])->name('create');
+            // Toplu Excel indirme - dinamik {firin} route'larından önce tanımla
+            Route::get('/excel-indir', [KilnController::class, 'downloadExcel'])->name('excel.download');
+
+            Route::put('/{firin}', [KilnController::class, 'update'])->name('update');
+            Route::get('/{firin}', [KilnController::class, 'show'])->name('show');
+            Route::delete('/{firin}', [KilnController::class, 'destroy'])->name('destroy');
+            Route::get('/{firin}/duzenle', [KilnController::class, 'edit'])->name('edit');
+            Route::get('/{firin}/analiz', [KilnController::class, 'analysis'])->name('analysis');
+            Route::get('/{firin}/rapor-indir', [KilnController::class, 'downloadReport'])->name('download.report');
+        });
 
         Route::as('quantity.')->prefix('adet')->group(function () {
             Route::post('/', [QuantityController::class, 'store'])->name('store');
@@ -144,7 +153,10 @@ Route::middleware('auth')
             Route::get('/toplu-islem', [App\Http\Controllers\LaboratoryController::class, 'bulkProcess'])->name('bulk-process');
             Route::post('/toplu-islem', [App\Http\Controllers\LaboratoryController::class, 'processBulk'])->name('process-bulk');
             Route::get('/rapor', [App\Http\Controllers\LaboratoryController::class, 'report'])->name('report');
-Route::post('/barkod-durumlar', [App\Http\Controllers\LaboratoryController::class, 'getBarcodeStatuses'])->name('barcode-statuses');
+            Route::get('/rapor/excel-indir', [App\Http\Controllers\LaboratoryController::class, 'exportReport'])->name('report.export');
+            Route::get('/stok-kalite-analizi', [App\Http\Controllers\LaboratoryController::class, 'stockQualityAnalysis'])->name('stock-quality-analysis');
+            Route::get('/firin-performans-analizi', [App\Http\Controllers\LaboratoryController::class, 'kilnPerformance'])->name('kiln-performance');
+            Route::post('/barkod-durumlar', [App\Http\Controllers\LaboratoryController::class, 'getBarcodeStatuses'])->name('barcode-statuses');
         });
 
         // Dashboard Widget route'ları

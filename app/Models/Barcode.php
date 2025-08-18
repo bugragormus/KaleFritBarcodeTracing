@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Barcode extends Model 
 {
@@ -302,5 +303,30 @@ class Barcode extends Model
     public function getCorrectionQuantity(): ?int
     {
         return $this->correction_quantity;
+    }
+
+    /**
+     * Get rejection reasons for this barcode
+     */
+    public function rejectionReasons(): BelongsToMany
+    {
+        return $this->belongsToMany(RejectionReason::class, 'barcode_rejection_reason')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get rejection reason names as array
+     */
+    public function getRejectionReasonNames(): array
+    {
+        return $this->rejectionReasons->pluck('name')->toArray();
+    }
+
+    /**
+     * Get rejection reason names as comma-separated string
+     */
+    public function getRejectionReasonNamesString(): string
+    {
+        return implode(', ', $this->getRejectionReasonNames());
     }
 }

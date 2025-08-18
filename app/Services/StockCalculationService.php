@@ -10,12 +10,65 @@ use Illuminate\Support\Facades\Cache;
 class StockCalculationService
 {
     /**
+     * Tüm stokları getir (barkod'u olmayanlar dahil)
+     */
+    public function getAllStocks()
+    {
+        return Cache::remember('all_stocks', 300, function () {
+            return DB::select("
+                SELECT 
+                    stocks.id,
+                    stocks.name,
+                    stocks.code
+                FROM stocks
+                ORDER BY stocks.name
+            ");
+        });
+    }
+
+    /**
      * Stok durumlarını hesapla (Cache ile)
      */
-    public function calculateStockStatuses()
+    public function calculateStockStatuses($startDate = null, $endDate = null)
     {
-        return Cache::remember('stock_statuses', 300, function () {
-            return DB::select('
+        // Cache key'i tarih filtrelerine göre oluştur
+        $cacheKey = 'stock_statuses';
+        if ($startDate) {
+            $cacheKey .= '_from_' . $startDate;
+        }
+        if ($endDate) {
+            $cacheKey .= '_to_' . $endDate;
+        }
+        
+        return Cache::remember($cacheKey, 300, function () use ($startDate, $endDate) {
+            $whereConditions = [];
+            $params = [
+                Barcode::STATUS_WAITING,
+                Barcode::STATUS_CONTROL_REPEAT,
+                Barcode::STATUS_PRE_APPROVED,
+                Barcode::STATUS_REJECTED,
+                Barcode::STATUS_SHIPMENT_APPROVED,
+                Barcode::STATUS_CUSTOMER_TRANSFER,
+                Barcode::STATUS_DELIVERED,
+                Barcode::STATUS_MERGED
+            ];
+            
+            // Tarih filtreleri ekle
+            if ($startDate) {
+                $whereConditions[] = 'barcodes.created_at >= ?';
+                $params[] = $startDate;
+            }
+            if ($endDate) {
+                $whereConditions[] = 'barcodes.created_at <= ?';
+                $params[] = $endDate . ' 23:59:59';
+            }
+            
+            $whereClause = '';
+            if (!empty($whereConditions)) {
+                $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+            }
+            
+            return DB::select("
                 SELECT 
                     stocks.id,
                     stocks.name,
@@ -31,18 +84,10 @@ class StockCalculationService
                 FROM stocks
                 LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+                {$whereClause}
                 GROUP BY stocks.id, stocks.name, stocks.code
                 ORDER BY stocks.name
-            ', [
-                Barcode::STATUS_WAITING,
-                Barcode::STATUS_CONTROL_REPEAT,
-                Barcode::STATUS_PRE_APPROVED,
-                Barcode::STATUS_REJECTED,
-                Barcode::STATUS_SHIPMENT_APPROVED,
-                Barcode::STATUS_CUSTOMER_TRANSFER,
-                Barcode::STATUS_DELIVERED,
-                Barcode::STATUS_MERGED
-            ]);
+            ", $params);
         });
     }
 

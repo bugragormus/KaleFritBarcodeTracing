@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\WarehouseExport;
+use Excel;
 use App\Http\Requests\Company\CompanyStoreRequest;
 use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Warehouse\WarehouseStoreRequest;
@@ -31,6 +33,9 @@ class WarehouseController extends Controller
             return back()->withInput();
         }
 
+        // Depo adına göre arama
+        $searchName = request('name');
+        
         $warehouses = Warehouse::withCount([
             'barcodes as in_warehouse_barcodes' => function($query) {
                 $query->whereNotIn('status', [
@@ -54,7 +59,14 @@ class WarehouseController extends Controller
             'barcodes as rejected_count' => function($query) {
                 $query->where('status', \App\Models\Barcode::STATUS_REJECTED);
             }
-        ])->get();
+        ]);
+        
+        // Depo adına göre filtreleme
+        if ($searchName) {
+            $warehouses = $warehouses->where('name', 'like', '%' . $searchName . '%');
+        }
+        
+        $warehouses = $warehouses->get();
 
         // Her depo için detaylı istatistikler
         foreach ($warehouses as $warehouse) {
@@ -315,6 +327,157 @@ class WarehouseController extends Controller
         $stockDetails = $this->stockCalculationService->calculateWarehouseStockDetails($id);
 
         return view('admin.warehouse.stock-quantity', compact('stockQuantities', 'stockDetails', 'debugInfo'));
+    }
+
+    /**
+     * Export all warehouses summary as Excel (bulk)
+     */
+    public function downloadExcel()
+    {
+        // Depo verilerini al (index metodundaki gibi hesaplanmış)
+        $warehouses = Warehouse::withCount([
+            'barcodes as in_warehouse_barcodes' => function($query) {
+                $query->whereNotIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED,
+                    \App\Models\Barcode::STATUS_MERGED
+                ]);
+            },
+            'barcodes as waiting_count' => function($query) {
+                $query->where('status', \App\Models\Barcode::STATUS_WAITING);
+            },
+            'barcodes as control_repeat_count' => function($query) {
+                $query->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT);
+            },
+            'barcodes as pre_approved_count' => function($query) {
+                $query->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED);
+            },
+            'barcodes as shipment_approved_count' => function($query) {
+                $query->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED);
+            },
+            'barcodes as rejected_count' => function($query) {
+                $query->where('status', \App\Models\Barcode::STATUS_REJECTED);
+            }
+        ])->get();
+
+        // Her depo için detaylı istatistikler (index metodundaki gibi)
+        foreach ($warehouses as $warehouse) {
+            $warehouse->current_stock_kg = $warehouse->barcodes()
+                ->whereNotIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED,
+                    \App\Models\Barcode::STATUS_MERGED
+                ])
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->current_barcodes = $warehouse->in_warehouse_barcodes;
+            
+            // Durum bazında KG miktarları
+            $warehouse->waiting_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_WAITING)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->control_repeat_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->pre_approved_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->shipment_approved_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $warehouse->rejected_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $lastBarcode = $warehouse->barcodes()
+                ->whereNotIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED,
+                    \App\Models\Barcode::STATUS_MERGED
+                ])
+                ->latest('created_at')
+                ->first();
+            $warehouse->last_activity_date = $lastBarcode ? $lastBarcode->created_at : null;
+            
+            $recentActivity = $warehouse->barcodes()
+                ->whereNotIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED,
+                    \App\Models\Barcode::STATUS_MERGED
+                ])
+                ->where('created_at', '>=', now()->subDays(90))
+                ->count();
+            $warehouse->is_active = $recentActivity > 0;
+            
+            $totalBarcodes = $warehouse->current_barcodes;
+            $rejectedBarcodes = $warehouse->rejected_count;
+            $warehouse->rejection_rate = $totalBarcodes > 0 ? 
+                round(($rejectedBarcodes / $totalBarcodes) * 100, 2) : 0;
+            
+            $shipmentApprovedBarcodes = $warehouse->shipment_approved_count;
+            $warehouse->shipment_approval_rate = $totalBarcodes > 0 ? 
+                round(($shipmentApprovedBarcodes / $totalBarcodes) * 100, 2) : 0;
+        }
+
+        return Excel::download(new WarehouseExport(collect($warehouses)), 'depolar-'.date('d-m-Y H:i').'.xlsx');
+    }
+
+    /**
+     * Export single warehouse stock quantities as Excel
+     */
+    public function exportExcel($id)
+    {
+        // Tek depo için içerik: depodaki stok durumlarını alıp basit bir view export yapalım
+        $warehouse = Warehouse::findOrFail($id);
+        $stockDetails = $this->stockCalculationService->calculateWarehouseStockDetails($id);
+        $stockQuantities = $this->stockCalculationService->calculateWarehouseStockStatuses($id);
+
+        $export = new class($warehouse, $stockQuantities, $stockDetails) implements \Maatwebsite\Excel\Concerns\FromView, \Maatwebsite\Excel\Concerns\ShouldAutoSize {
+            use \Maatwebsite\Excel\Concerns\Exportable;
+            private $warehouse, $stockQuantities, $stockDetails;
+            public function __construct($warehouse, $stockQuantities, $stockDetails){ 
+                $this->warehouse = $warehouse; 
+                $this->stockQuantities = $stockQuantities; 
+                $this->stockDetails = $stockDetails; 
+            }
+            public function view(): \Illuminate\Contracts\View\View {
+                return view('exports.warehouse', [
+                    'warehouse' => $this->warehouse,
+                    'stockQuantities' => $this->stockQuantities,
+                    'stockDetails' => $this->stockDetails,
+                ]);
+            }
+        };
+
+        return Excel::download($export, 'depo-raporu-'.$warehouse->name.'-'.date('Y-m-d').'.xlsx');
     }
 
     /**

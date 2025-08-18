@@ -329,9 +329,14 @@
                         <p class="page-subtitle-modern">Firma performanslarını analiz edin, alım verilerini takip edin ve müşteri memnuniyetini ölçün</p>
                     </div>
                     <div class="col-md-4 text-right">
-                        <a href="{{ route('company.create') }}" class="btn-modern btn-success-modern">
-                            <i class="fas fa-plus"></i> Yeni Firma Ekle
-                        </a>
+                        <div class="d-flex gap-4 justify-content-end">
+                        <a href="{{ route('company.create') }}" class="btn-modern btn-success-modern mr-2">
+                                <i class="fas fa-plus"></i> Yeni Firma Ekle
+                            </a>
+                            <a href="{{ route('company.excel.download') }}" class="btn-modern btn-warning-modern">
+                                <i class="fas fa-file-excel"></i>Excel İndir
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -364,6 +369,38 @@
                                 <i class="fas fa-infinity"></i> Tüm Zamanlar
                             </a>
                         </div>
+                    </div>
+
+                    <!-- Arama Çubuğu -->
+                    <div class="mb-4">
+                        <form id="company-search-form" method="GET" action="{{ route('company.index') }}" class="row align-items-end">
+                            @if(request('start_date'))
+                                <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                            @endif
+                            @if(request('end_date'))
+                                <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                            @endif
+                            @if(request('period'))
+                                <input type="hidden" name="period" value="{{ request('period') }}">
+                            @endif
+                            <div class="col-md-12">
+                                <label class="form-label">Firma Adına Göre Arama</label>
+                                <input type="text" 
+                                       id="company-search-input"
+                                       name="name" 
+                                       class="form-control" 
+                                       placeholder="Firma adına göre arama yapın..." 
+                                       value="{{ request('name') }}">
+                            </div>
+                        </form>
+                        @if(request('name'))
+                            <div class="mt-2">
+                                <span class="text-muted">
+                                    <i class="fas fa-search"></i>
+                                    "{{ request('name') }}" için arama sonuçları
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
                     <form method="GET" action="{{ route('company.index') }}" class="row align-items-end">
@@ -408,11 +445,17 @@
                             </span>
                         </div>
                     @endif
+
+
                 </div>
             </div>
 
+
+
             <!-- Firma Performans Kartları -->
+            <div class="row">
             @foreach($companies as $company)
+            <div class="col-md-6 mb-3">
             <div class="company-card">
                 <div class="company-header">
                     <div class="performance-indicator 
@@ -511,7 +554,9 @@
                     </div>
                 </div>
             </div>
+            </div>
             @endforeach
+            </div>
 
             @if($companies->isEmpty())
             <div class="card-modern">
@@ -531,6 +576,27 @@
 
 @section('scripts')
     <script type="text/javascript">
+        // Arama fonksiyonu (debounce ile)
+        (function(){
+            var searchInput = document.getElementById('company-search-input');
+            var form = document.getElementById('company-search-form');
+            if (!searchInput || !form) return;
+            
+            var debounceTimer;
+            var lastSubmittedValue = searchInput.value;
+            
+            function submitForm() {
+                if (searchInput.value === lastSubmittedValue) return;
+                lastSubmittedValue = searchInput.value;
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+            }
+            
+            searchInput.addEventListener('input', function(){
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(submitForm, 300);
+            });
+        })();
+
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content') }
         });

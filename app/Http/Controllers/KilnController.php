@@ -26,6 +26,7 @@ class KilnController extends Controller
         $endDate = request('end_date');
         $kilnId = request('kiln_id');
         $period = request('period');
+        $searchName = request('name');
         
         // Period parametresine göre varsayılan tarihleri ayarla
         if (!$startDate && !$endDate && $period) {
@@ -59,6 +60,11 @@ class KilnController extends Controller
 
         // Fırınları getir
         $kilnsQuery = Kiln::query();
+        
+        // Fırın adına göre arama
+        if ($searchName) {
+            $kilnsQuery->where('name', 'like', '%' . $searchName . '%');
+        }
         
         // Fırın ID filtresi
         if ($kilnId) {
@@ -687,5 +693,111 @@ class KilnController extends Controller
         $filename = 'Firin_Raporu_' . $kiln->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
 
         return \Excel::download(new \App\Exports\KilnReportExport($data), $filename);
+    }
+
+    /**
+     * Download bulk Excel report for kilns (respects date filters).
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadExcel()
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // no filter
+                    break;
+                default:
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        // Verileri hazırla
+        $kilns = Kiln::all();
+        foreach ($kilns as $kiln) {
+            $barcodesQuery = $kiln->barcodes();
+            if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
+            if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
+
+            $kiln->total_production = $barcodesQuery->with('quantity')->get()->sum(function($barcode){
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+
+            $kiln->waiting_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_WAITING)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->control_repeat_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->pre_approved_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->shipment_approved_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->customer_transfer_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->delivered_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_DELIVERED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->rejected_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->merged_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_MERGED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+        }
+
+        $fileName = 'firinlar';
+        if ($startDate && $endDate) {
+            $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            if ($startDate !== $endDate) {
+                $fileName .= '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $map = ['monthly'=>'aylik','quarterly'=>'3-aylik','yearly'=>'yillik','all'=>'tum-zamanlar'];
+            $fileName .= '-' . ($map[$period] ?? 'gunluk');
+        } else {
+            $fileName .= '-' . now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
+
+        return \Excel::download(new \App\Exports\KilnsExport(collect($kilns)), $fileName);
     }
 }

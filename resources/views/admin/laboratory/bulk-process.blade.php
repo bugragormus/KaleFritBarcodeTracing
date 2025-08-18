@@ -203,6 +203,62 @@
         height: 1rem;
     }
     
+    /* Rejection Reasons Styling */
+    .rejection-reason-checkbox {
+        margin-right: 0.5rem;
+    }
+    
+    .custom-control-label {
+        font-size: 0.9rem;
+        color: #495057;
+        cursor: pointer;
+    }
+    
+    .custom-control-input:checked ~ .custom-control-label {
+        color: #dc3545;
+        font-weight: 600;
+    }
+    
+    /* Bulk Process Panel Improvements */
+    .fs-6 {
+        font-size: 1rem !important;
+    }
+    
+    .gap-3 {
+        gap: 1rem !important;
+    }
+    
+    .flex-fill {
+        flex: 1 1 auto !important;
+        min-width: 200px;
+    }
+    
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border: 2px solid #17a2b8;
+        border-radius: 15px;
+    }
+    
+    .alert-warning {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 2px solid #ffc107;
+        border-radius: 15px;
+    }
+    
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+    }
+    
+    .badge-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .badge-secondary {
+        background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%);
+    }
+    
     /* Inline Confirmation Styles */
     .inline-confirmation {
         display: none;
@@ -396,9 +452,9 @@
                 </p>
             </div>
             <div class="card-body-modern">
-                <div class="row">
-                    <!-- Seçim Kontrolü -->
-                    <div class="col-lg-3 col-md-6 mb-3">
+                <!-- Seçim ve İstatistikler -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="fas fa-clipboard-list"></i> Barkod Seçimi
@@ -409,23 +465,25 @@
                                     <strong>Tümünü Seç</strong>
                                 </label>
                             </div>
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    Seçili: <span class="badge badge-primary" id="selectedCount">0</span> / 
-                                    <span class="badge badge-secondary" id="totalCount">{{ $pendingBarcodes->count() }}</span>
-                                </small>
-                                <div class="mt-1" id="selectionWarning" style="display: none;">
-                                    <small class="text-warning">
+                            <div class="mt-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge badge-primary fs-6">
+                                        <i class="fas fa-check-circle"></i> Seçili: <span id="selectedCount">0</span>
+                                    </span>
+                                    <span class="badge badge-secondary fs-6">
+                                        <i class="fas fa-list"></i> Toplam: <span id="totalCount">{{ $pendingBarcodes->count() }}</span>
+                                    </span>
+                                </div>
+                                <div class="mt-2" id="selectionWarning" style="display: none;">
+                                    <div class="alert alert-warning py-2 px-3 mb-0">
                                         <i class="fas fa-exclamation-triangle"></i> 
                                         İşlem yapmak için en az bir barkod seçmelisiniz
-                                    </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- İşlem Notu -->
-                    <div class="col-lg-6 col-md-6 mb-3">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label class="form-label">
                                 <i class="fas fa-sticky-note"></i> İşlem Notu
@@ -437,27 +495,58 @@
                             </small>
                         </div>
                     </div>
+                </div>
 
-                    <!-- İşlem Butonları -->
-                    <div class="col-lg-3 col-md-12 mb-3">
+                <!-- Red Sebepleri -->
+                <div class="row mb-4" id="rejectionReasonsSection" style="display: none;">
+                    <div class="col-12">
                         <div class="form-group">
                             <label class="form-label">
+                                <i class="fas fa-exclamation-triangle"></i> Red Sebepleri <span class="text-danger">*</span>
+                            </label>
+                            <div class="alert alert-warning py-3">
+                                <div class="row">
+                                    @foreach(\App\Models\RejectionReason::active()->get() as $reason)
+                                    <div class="col-md-3 col-sm-6 mb-2">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input rejection-reason-checkbox" 
+                                                   id="reason_{{ $reason->id }}" value="{{ $reason->id }}">
+                                            <label class="custom-control-label" for="reason_{{ $reason->id }}">
+                                                {{ $reason->name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                                <div class="alert alert-danger py-2 mt-2 mb-0">
+                                    <i class="fas fa-exclamation-triangle"></i> <strong>Zorunlu:</strong> Red işlemi için en az bir red sebebi seçmelisiniz!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İşlem Butonları -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="form-label mb-3">
                                 <i class="fas fa-play-circle"></i> İşlem Seçenekleri
                             </label>
-                            <div class="d-grid gap-2">
-                                <button class="btn-modern btn-success-modern" onclick="showConfirmation('pre_approved')" disabled id="preApprovedBtn" 
+                            <div class="d-flex flex-wrap gap-3">
+                                <button class="btn-modern btn-success-modern flex-fill" onclick="showConfirmation('pre_approved')" disabled id="preApprovedBtn" 
                                         title="Barkod seçmek için yukarıdaki checkbox'ları işaretleyin">
                                     <i class="fas fa-check"></i> Ön Onaylı
                                 </button>
-                                <button class="btn-modern btn-info-modern" onclick="showConfirmation('control_repeat')" disabled id="controlRepeatBtn"
+                                <button class="btn-modern btn-info-modern flex-fill" onclick="showConfirmation('control_repeat')" disabled id="controlRepeatBtn"
                                         title="Barkod seçmek için yukarıdaki checkbox'ları işaretleyin">
                                     <i class="fas fa-redo"></i> Kontrol Tekrarı
                                 </button>
-                                <button class="btn-modern btn-primary-modern" onclick="showConfirmation('shipment_approved')" disabled id="shipmentApprovedBtn"
+                                <button class="btn-modern btn-primary-modern flex-fill" onclick="showConfirmation('shipment_approved')" disabled id="shipmentApprovedBtn"
                                         title="Sadece ön onaylı barkodlar için kullanılabilir">
                                     <i class="fas fa-shipping-fast"></i> Sevk Onaylı
                                 </button>
-                                <button class="btn-modern btn-danger-modern" onclick="showConfirmation('reject')" disabled id="rejectBtn"
+                                <button class="btn-modern btn-danger-modern flex-fill" onclick="showConfirmation('reject')" disabled id="rejectBtn"
                                         title="Barkod seçmek için yukarıdaki checkbox'ları işaretleyin">
                                     <i class="fas fa-times"></i> Reddet
                                 </button>
@@ -489,6 +578,7 @@
                 <p><strong>İşlem Türü:</strong> <span id="confirmAction"></span></p>
                 <p><strong>Seçili Barkod Sayısı:</strong> <span id="confirmCount"></span></p>
                 <p><strong>Not:</strong> <span id="confirmNote"></span></p>
+                <p id="rejectionReasonsRow" style="display: none;"><strong>Red Sebepleri:</strong> <span id="confirmRejectionReasons"></span></p>
                 <p class="text-muted mb-0"><i class="fas fa-info-circle mr-1"></i>Bu işlem seçili tüm barkodları aynı anda işleyecektir ve geri alınamaz.</p>
             </div>
             <div class="confirmation-actions">
@@ -619,6 +709,11 @@ function updateSelectedBarcodes() {
     $('.barcode-checkbox:checked').each(function() {
         selectedBarcodes.push($(this).val());
     });
+    
+    // Seçili barkodlar değiştiğinde durumlarını yeniden yükle
+    if (selectedBarcodes.length > 0) {
+        loadBarcodeStatuses();
+    }
 }
 
 function updateSelectedCount() {
@@ -645,6 +740,11 @@ function updateBulkButtons() {
         // Seçili barkodların durumlarını kontrol et
         for (let barcodeId of selectedBarcodes) {
             const status = barcodeStatuses[barcodeId];
+            
+            // Eğer barkod durumu henüz yüklenmemişse, varsayılan olarak işleme izin ver
+            if (status === undefined) {
+                continue;
+            }
             
             // Beklemede (1) durumundaki barkodlar için
             if (status === 1) {
@@ -677,6 +777,13 @@ function updateBulkButtons() {
     $controlRepeatBtn.prop('disabled', !canControlRepeat);
     $shipmentApprovedBtn.prop('disabled', !canShipmentApprove);
     $rejectBtn.prop('disabled', !canReject);
+
+    // Red sebeplerini göster/gizle
+    if (canReject && hasSelection) {
+        $('#rejectionReasonsSection').show();
+    } else {
+        $('#rejectionReasonsSection').hide();
+    }
     
     if (hasSelection) {
         $preApprovedBtn.attr('title', canPreApprove ? 
@@ -702,11 +809,8 @@ function updateBulkButtons() {
 }
 
 function loadBarcodeStatuses() {
-    // Tüm barkod ID'lerini al
-    const barcodeIds = [];
-    $('.barcode-checkbox').each(function() {
-        barcodeIds.push($(this).val());
-    });
+    // Sadece seçili barkod ID'lerini al
+    const barcodeIds = selectedBarcodes.length > 0 ? selectedBarcodes : [];
     
     if (barcodeIds.length > 0) {
         // Barkod durumlarını AJAX ile getir
@@ -719,7 +823,8 @@ function loadBarcodeStatuses() {
             },
             success: function(response) {
                 if (response.success) {
-                    barcodeStatuses = response.statuses;
+                    // Mevcut durumları koru, sadece yeni olanları ekle
+                    barcodeStatuses = { ...barcodeStatuses, ...response.statuses };
                     updateBulkButtons();
                 }
             }
@@ -750,6 +855,21 @@ function showConfirmation(action) {
             positionClass: 'toast-top-center'
         });
         return;
+    }
+    
+    // Red işlemi için red sebebi kontrolü
+    if (action === 'reject') {
+        const selectedReasons = $('.rejection-reason-checkbox:checked').length;
+        if (selectedReasons === 0) {
+            toastr.error('Red işlemi için en az bir red sebebi seçmelisiniz!', 'Hata', {
+                timeOut: 5000,
+                extendedTimeOut: 2000,
+                closeButton: true,
+                progressBar: true,
+                positionClass: 'toast-top-center'
+            });
+            return;
+        }
     }
 
     // İşlem kontrolü
@@ -819,10 +939,27 @@ function showConfirmation(action) {
             break;
     }
     const note = $('#bulkNote').val() || 'Toplu işlem notu yok';
+    
+    // Red sebeplerini al
+    let rejectionReasonsText = 'Seçilmedi';
+    if (action === 'reject') {
+        const selectedReasons = $('.rejection-reason-checkbox:checked').map(function() {
+            return $(this).next('label').text();
+        }).get();
+        rejectionReasonsText = selectedReasons.length > 0 ? selectedReasons.join(', ') : 'Seçilmedi';
+    }
 
     $('#confirmAction').text(actionText);
     $('#confirmCount').text(selectedBarcodes.length);
     $('#confirmNote').text(note);
+    $('#confirmRejectionReasons').text(rejectionReasonsText);
+    
+    // Red sebepleri satırını göster/gizle
+    if (action === 'reject') {
+        $('#rejectionReasonsRow').show();
+    } else {
+        $('#rejectionReasonsRow').hide();
+    }
     
     // Hide result display if visible
     hideResult();
@@ -865,6 +1002,11 @@ $('#confirmProcessBtn').click(function() {
         scrollTop: $('#resultDisplay').offset().top - 100
     }, 500);
 
+    // Red sebeplerini al
+    const rejectionReasons = $('.rejection-reason-checkbox:checked').map(function() {
+        return $(this).val();
+    }).get();
+
     // AJAX isteği
     $.ajax({
         url: '{{ route("laboratory.process-bulk") }}',
@@ -873,7 +1015,8 @@ $('#confirmProcessBtn').click(function() {
             _token: '{{ csrf_token() }}',
             barcode_ids: selectedBarcodes,
             action: currentAction,
-            note: note
+            note: note,
+            rejection_reasons: rejectionReasons
         },
         success: function(response) {
             if (response.success) {

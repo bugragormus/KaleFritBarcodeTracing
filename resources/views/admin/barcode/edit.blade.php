@@ -580,6 +580,41 @@
                             </div>
                         </div>
 
+                        <!-- Red Sebepleri Seçimi -->
+                        <div class="row" id="rejection-reasons-section" style="display: none;">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label class="info-label">Red Sebepleri <span class="text-danger">*</span></label>
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Red işlemi için en az bir sebep seçilmelidir.
+                                    </div>
+                                    <div class="row">
+                                        @foreach($rejectionReasons as $reason)
+                                            <div class="col-md-3 mb-2">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" 
+                                                           class="custom-control-input" 
+                                                           id="rejection_reason_{{ $reason->id }}" 
+                                                           name="rejection_reasons[]" 
+                                                           value="{{ $reason->id }}"
+                                                           {{ in_array($reason->id, old('rejection_reasons', $barcode->rejectionReasons->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label" for="rejection_reason_{{ $reason->id }}">
+                                                        {{ $reason->name }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    @if($errors->has('rejection_reasons'))
+                                        <small class="form-text text-danger">
+                                            {{ $errors->first('rejection_reasons') }}
+                                        </small>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="divider"></div>
 
                         <div class="form-group">
@@ -636,6 +671,17 @@
                                 {{ isset(\App\Models\Barcode::STATUSES[$barcode->status]) ? \App\Models\Barcode::STATUSES[$barcode->status] : 'Bilinmeyen Durum' }}
                             </div>
                         </div>
+
+                        @if($barcode->status === \App\Models\Barcode::STATUS_REJECTED && $barcode->rejectionReasons->count() > 0)
+                        <div class="info-card" style="grid-column: span 2;">
+                            <div class="info-label">Red Sebepleri</div>
+                            <div class="info-value">
+                                @foreach($barcode->rejectionReasons as $reason)
+                                    <span class="badge badge-danger mr-1">{{ $reason->name }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                         
 
                         
@@ -822,19 +868,33 @@ $(document).ready(function() {
             warehouseSelect.val('');
         } else {
             // Diğer durumlarda
-            // Firma alanını gizle ve değerini temizle
-            companyGroup.hide();
-            companySelect.prop('required', false);
-            companySelect.val('');
-            
-            // Depo alanını göster
-            warehouseGroup.show();
-            warehouseSelect.prop('required', true);
-        }
+                    // Firma alanını gizle ve değerini temizle
+        companyGroup.hide();
+        companySelect.prop('required', false);
+        companySelect.val('');
+        
+        // Depo alanını göster
+        warehouseGroup.show();
+        warehouseSelect.prop('required', true);
     }
+}
+
+// Red sebepleri bölümünü durum bazında göster/gizle
+function updateRejectionReasonsSection(selectedStatus) {
+    const rejectionReasonsSection = $('#rejection-reasons-section');
+    
+    if (selectedStatus === 5) { // STATUS_REJECTED
+        rejectionReasonsSection.show();
+    } else {
+        rejectionReasonsSection.hide();
+        // Red sebeplerini temizle
+        $('input[name="rejection_reasons[]"]').prop('checked', false);
+    }
+}
 
     // Sayfa yüklendiğinde mevcut duruma göre alanları ayarla
     updateCompanyAndWarehouseFields(currentStatus);
+    updateRejectionReasonsSection(currentStatus);
 
     // Durum seçimi değiştiğinde kontrol
     $('#status-select').on('change', function() {
@@ -861,6 +921,9 @@ $(document).ready(function() {
                 return false;
             }
         }
+        
+        // Red sebepleri bölümünü göster/gizle
+        updateRejectionReasonsSection(selectedStatus);
         
         // Firma ve depo alanlarını güncelle
         updateCompanyAndWarehouseFields(selectedStatus);
@@ -907,6 +970,16 @@ $(document).ready(function() {
             if (!warehouseValue) {
                 e.preventDefault();
                 alert('Bu durumda depo seçimi zorunludur!');
+                return false;
+            }
+        }
+
+        // Red durumunda red sebepleri validasyonu
+        if (selectedStatus === 5) { // STATUS_REJECTED
+            const selectedReasons = $('input[name="rejection_reasons[]"]:checked').length;
+            if (selectedReasons === 0) {
+                e.preventDefault();
+                alert('Red işlemi için en az bir red sebebi seçilmelidir!');
                 return false;
             }
         }

@@ -192,12 +192,216 @@
                 gap: 0.5rem;
             }
             .action-buttons .btn-modern,
-            .action-buttons .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
+                    .action-buttons .btn {
+            width: 100%;
+            justify-content: center;
         }
+    }
+    
+    /* Red Sebepleri Sütunu İyileştirmeleri */
+    .badge-danger {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    /* DataTables Tasarımı */
+    .dataTables_wrapper {
+        margin-top: 1rem;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    /* Tablo başlığı */
+    .dataTables_scrollHead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .dataTables_scrollHead th {
+        background: transparent !important;
+        color: white !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 12px 15px !important;
+        border: none !important;
+        text-align: center;
+    }
+    
+    /* Tablo gövdesi */
+    .dataTables_scrollBody {
+        background: #ffffff;
+    }
+    
+    /* Tablo genişliği kontrolü */
+    #barcodeTable {
+        width: 100% !important;
+        min-width: 1200px;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
+    }
+    
+    /* Tablo satırları */
+    #barcodeTable tbody tr {
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    #barcodeTable tbody tr:hover {
+        background: #f8f9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+    
+    #barcodeTable tbody tr:nth-child(even) {
+        background: #fafbfc;
+    }
+    
+    #barcodeTable tbody tr:nth-child(even):hover {
+        background: #f8f9ff;
+    }
+    
+    /* Tablo hücreleri */
+    #barcodeTable th,
+    #barcodeTable td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 10px 15px;
+        vertical-align: middle;
+        border: none;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+    
+    #barcodeTable td {
+        color: #495057;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    /* İşlemler sütunu için özel stil */
+    #barcodeTable td:last-child {
+        white-space: nowrap;
+        min-width: 200px;
+        background: #f8f9fa;
+    }
+    
+    /* Red sebepleri sütunu için özel stil */
+    #barcodeTable td:nth-child(6) {
+        max-width: 150px;
+        min-width: 150px;
+    }
+    
+    /* Badge'ler için stil */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        white-space: nowrap;
+        border-radius: 15px;
+        font-weight: 600;
+    }
+    
+    .badge-warning {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .badge-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .badge-info {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .badge-primary {
+        background: #007bff;
+        color: white;
+    }
+    
+    .badge-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .badge-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    /* İşlem butonları için stil */
+    .btn-group .btn {
+        border-radius: 6px;
+        margin: 0 2px;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+        border: none;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-info {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    /* Tablo gövdesi scroll yok */
+    .dataTables_scrollBody {
+        overflow-y: visible;
+    }
+    
+    /* Horizontal scroll */
+    .dataTables_wrapper .dataTables_scroll {
+        overflow-x: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+    }
+    
+    .dataTables_wrapper .dataTables_scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .dataTables_wrapper .dataTables_scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    .dataTables_wrapper .dataTables_scroll::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+    
+    .dataTables_wrapper .dataTables_scroll::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
     </style>
 @endsection
 
@@ -294,22 +498,21 @@
                 </p>
             </div>
             <div class="card-body-modern">
-                <div class="table-responsive">
-                    <table id="barcodeTable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Stok Bilgisi</th>
-                                <th>Fırın/Şarj</th>
-                                <th>Miktar</th>
-                                <th>Durum</th>
-                                <th>Oluşturan</th>
-                                <th>Lab Personeli</th>
-                                <th>İşlemler</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
+                <table id="barcodeTable" class="table table-bordered" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Stok Bilgisi</th>
+                            <th>Fırın/Şarj</th>
+                            <th>Miktar</th>
+                            <th>Durum</th>
+                            <th>Red Sebepleri</th>
+                            <th>Oluşturan</th>
+                            <th>Lab Personeli</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
@@ -342,6 +545,8 @@ $(document).ready(function() {
     dataTable = $('#barcodeTable').DataTable({
         processing: true,
         serverSide: true,
+        scrollX: true,
+        autoWidth: false,
         ajax: {
             url: '{{ route("laboratory.barcode-list") }}',
             data: function(d) {
@@ -349,14 +554,15 @@ $(document).ready(function() {
             }
         },
         columns: [
-            {data: 'id', name: 'id'},
-            {data: 'stock_info', name: 'stock_info'},
-            {data: 'load_info', name: 'load_info'},
-            {data: 'quantity_info', name: 'quantity_info'},
-            {data: 'status_badge', name: 'status_badge'},
-            {data: 'created_info', name: 'created_info'},
-            {data: 'lab_info', name: 'lab_info'},
-            {data: 'actions', name: 'actions', orderable: false, searchable: false}
+            {data: 'id', name: 'id', width: '80px'},
+            {data: 'stock_info', name: 'stock_info', width: '200px'},
+            {data: 'load_info', name: 'load_info', width: '180px'},
+            {data: 'quantity_info', name: 'quantity_info', width: '100px'},
+            {data: 'status_badge', name: 'status_badge', width: '120px'},
+            {data: 'rejection_reasons', name: 'rejection_reasons', orderable: false, searchable: false, width: '150px'},
+            {data: 'created_info', name: 'created_info', width: '140px'},
+            {data: 'lab_info', name: 'lab_info', width: '120px'},
+            {data: 'actions', name: 'actions', orderable: false, searchable: false, width: '200px'}
         ],
         order: [[0, 'desc']],
         pageLength: 25,
@@ -368,6 +574,41 @@ $(document).ready(function() {
             url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json'
         }
     });
+
+    // Tooltip'leri başlat
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // DataTables draw event'inde tooltip'leri yeniden başlat
+    dataTable.on('draw', function() {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+    // Buton metni oluşturma fonksiyonu
+    function getButtonText(action) {
+        var actionText = '';
+        var actionIcon = '';
+        
+        switch(action) {
+            case 'pre_approved':
+                actionText = 'Ön Onaylı';
+                actionIcon = 'check';
+                break;
+            case 'control_repeat':
+                actionText = 'Kontrol Tekrarı';
+                actionIcon = 'redo';
+                break;
+            case 'shipment_approved':
+                actionText = 'Sevk Onaylı';
+                actionIcon = 'shipping-fast';
+                break;
+            case 'reject':
+                actionText = 'Reddet';
+                actionIcon = 'times';
+                break;
+        }
+        
+        return '<i class="fas fa-' + actionIcon + '"></i> ' + actionText;
+    }
 
     // Global processBarcode fonksiyonu - modal açmak için
     window.processBarcode = function(barcodeId, action) {
@@ -445,6 +686,13 @@ $(document).ready(function() {
                         break;
                 }
                 
+                // Red sebeplerini göster/gizle
+                if (action === 'reject') {
+                    $('#rejection-reasons-row-' + barcodeId).show();
+                } else {
+                    $('#rejection-reasons-row-' + barcodeId).hide();
+                }
+                
                 var html = `
                 <div class="modal fade" id="processBarcodeModal" tabindex="-1" role="dialog">
                     <div class="modal-dialog modal-lg" role="document">
@@ -481,6 +729,27 @@ $(document).ready(function() {
                                     <div class="col-md-6">
                                         <h6><i class="fas fa-edit"></i> İşlem Notu</h6>
                                         <textarea class="form-control" id="process-note-${barcodeId}" rows="3" placeholder="İşlem notu ekleyin (opsiyonel)..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="row mt-3" id="rejection-reasons-row-${barcodeId}" style="display: ${action === 'reject' ? 'block' : 'none'};">
+                                    <div class="col-md-12">
+                                        <h6><i class="fas fa-exclamation-triangle"></i> Red Sebepleri <span class="text-danger">*</span></h6>
+                                        <div class="row">
+                                            @foreach(\App\Models\RejectionReason::active()->get() as $reason)
+                                            <div class="col-md-4 mb-2">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input rejection-reason-checkbox" 
+                                                           id="reason_${barcodeId}_{{ $reason->id }}" value="{{ $reason->id }}">
+                                                    <label class="custom-control-label" for="reason_${barcodeId}_{{ $reason->id }}">
+                                                        {{ $reason->name }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="alert alert-danger py-2 mt-2 mb-0">
+                                            <i class="fas fa-exclamation-triangle"></i> <strong>Zorunlu:</strong> Red işlemi için en az bir red sebebi seçmelisiniz!
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="alert alert-info mt-3">
@@ -524,6 +793,30 @@ $(document).ready(function() {
         var barcodeId = $(this).data('id');
         var action = $(this).data('action');
         var note = $('#process-note-' + barcodeId).val();
+        
+        // Red işlemi için red sebebi kontrolü
+        if (action === 'reject') {
+            var selectedReasons = $('.rejection-reason-checkbox[id^="reason_' + barcodeId + '_"]:checked').length;
+            if (selectedReasons === 0) {
+                toastr.error('Red işlemi için en az bir red sebebi seçmelisiniz!', 'Hata', {
+                    timeOut: 5000,
+                    extendedTimeOut: 2000,
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: 'toast-top-center'
+                });
+                return;
+            }
+        }
+        
+        // Red sebeplerini al
+        var rejectionReasons = [];
+        if (action === 'reject') {
+            rejectionReasons = $('.rejection-reason-checkbox[id^="reason_' + barcodeId + '_"]:checked').map(function() {
+                return $(this).val();
+            }).get();
+        }
+        
         var $btn = $(this);
         var $modal = $('#processBarcodeModal');
         
@@ -537,6 +830,7 @@ $(document).ready(function() {
                 barcode_id: barcodeId,
                 action: action,
                 note: note,
+                rejection_reasons: rejectionReasons,
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
@@ -550,12 +844,16 @@ $(document).ready(function() {
                     toastr.success(response.message);
                 } else {
                     toastr.error(response.message);
-                    $btn.prop('disabled', false).html('<i class="fas fa-' + actionIcon + '"></i> ' + actionText);
+                    // Buton metnini geri yükle
+                    var btnText = getButtonText(action);
+                    $btn.prop('disabled', false).html(btnText);
                 }
             },
             error: function() {
                 toastr.error('İşlem sırasında hata oluştu!');
-                $btn.prop('disabled', false).html('<i class="fas fa-' + actionIcon + '"></i> ' + actionText);
+                // Buton metnini geri yükle
+                var btnText = getButtonText(action);
+                $btn.prop('disabled', false).html(btnText);
             }
         });
     });
@@ -612,6 +910,21 @@ $(document).ready(function() {
                                         <p><strong>Not:</strong> ${barcode.lab_note || '-'}</p>
                                     </div>
                                 </div>
+                                ${barcode.status === 5 ? `
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <h6><i class="fas fa-exclamation-triangle"></i> Red Sebepleri</h6>
+                                        <div class="alert alert-danger">
+                                            ${barcode.rejection_reasons && barcode.rejection_reasons.length > 0 ? 
+                                                barcode.rejection_reasons.map(reason => 
+                                                    `<span class="badge badge-danger mr-2">${reason.name}</span>`
+                                                ).join('') : 
+                                                '<span class="text-muted">Red sebebi belirtilmemiş</span>'
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                ` : ''}
                                 ${barcode.lab_note ? `
                                 <div class="row mt-3">
                                     <div class="col-12">

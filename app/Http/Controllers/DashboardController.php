@@ -23,15 +23,21 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // Tarih seçimi (varsayılan: bugün)
+        // Periyot seçimi (varsayılan: günlük)
+        $period = request('period', 'daily');
         $selectedDate = request('date', Carbon::today('Europe/Istanbul')->format('Y-m-d'));
+        $startDate = request('start_date');
+        $endDate = request('end_date');
         $date = Carbon::parse($selectedDate)->setTimezone('Europe/Istanbul');
         
-        // Günlük üretim raporu
-        $dailyProduction = $this->getDailyProduction($date);
+        // Periyot bilgilerini hesapla
+        $periodInfo = $this->calculatePeriodInfo($date, $period, $startDate, $endDate);
         
-        // Vardiya raporu (3 vardiya)
-        $shiftReport = $this->getShiftReport($date);
+        // Periyot bazında üretim raporu
+        $productionData = $this->getProductionData($date, $period, $periodInfo);
+        
+        // Vardiya raporu (3 vardiya) - sadece günlük periyotta
+        $shiftReport = $period === 'daily' ? $this->getShiftReport($date) : [];
         
         // Fırın başına üretim performansı
         $kilnPerformance = $this->getKilnPerformance($date);
@@ -39,11 +45,14 @@ class DashboardController extends Controller
         // Fırın başına red oranları
         $kilnRejectionRates = $this->getKilnRejectionRates($date);
         
+        // Red sebepleri analizi
+        $rejectionReasonsAnalysis = $this->getRejectionReasonsAnalysis($date);
+        
         // Ürün özelinde fırın kapasite analizi
         $productKilnAnalysis = $this->getProductKilnAnalysis($date);
         
-        // Günlük genel istatistikler
-        $dailyStats = $this->getDailyStats($date);
+        // Genel istatistikler
+        $generalStats = $this->getGeneralStats($date, $period, $periodInfo);
         
         // Haftalık trend
         $weeklyTrend = $this->getWeeklyTrend($date);
@@ -51,8 +60,8 @@ class DashboardController extends Controller
         // Aylık karşılaştırma
         $monthlyComparison = $this->getMonthlyComparison($date);
         
-        // AI/ML Insights
-        $aiInsights = $this->generateAIInsights($date);
+        // AI/ML Insights - her zaman güncel tarihe göre
+        $aiInsights = $this->generateAIInsights(Carbon::today('Europe/Istanbul'));
         
         // Stok yaşı analizi
         $stockAgeAnalysis = $this->getStockAgeAnalysis();
@@ -65,12 +74,17 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact(
             'selectedDate',
             'date',
-            'dailyProduction',
+            'period',
+            'periodInfo',
+            'startDate',
+            'endDate',
+            'productionData',
             'shiftReport',
             'kilnPerformance',
             'kilnRejectionRates',
+            'rejectionReasonsAnalysis',
             'productKilnAnalysis',
-            'dailyStats',
+            'generalStats',
             'weeklyTrend',
             'monthlyComparison',
             'aiInsights',
@@ -79,6 +93,251 @@ class DashboardController extends Controller
             'warehouseInfo',
             'kilnInfo'
         ));
+    }
+
+    /**
+     * Periyot bilgilerini hesapla
+     */
+    private function calculatePeriodInfo($date, $period, $startDate = null, $endDate = null)
+    {
+        $today = Carbon::today('Europe/Istanbul');
+        
+        // Özel tarih aralığı seçilmişse
+        if ($startDate && $endDate) {
+            $start = Carbon::parse($startDate)->setTimezone('Europe/Istanbul');
+            $end = Carbon::parse($endDate)->setTimezone('Europe/Istanbul');
+            
+            // Gelecekteki tarihleri bugüne sınırla
+            if ($end->isAfter($today)) {
+                $end = $today->copy();
+            }
+            
+            return [
+                'name' => 'Özel Tarih Aralığı',
+                'range' => $start->format('d.m.Y') . ' - ' . $end->format('d.m.Y'),
+                'start_date' => $start,
+                'end_date' => $end,
+                'start_date_formatted' => $start->format('d.m.Y'),
+                'end_date_formatted' => $end->format('d.m.Y'),
+                'is_custom' => true
+            ];
+        }
+        
+        $startDate = $date->copy();
+        $endDate = $date->copy();
+        
+        switch ($period) {
+            case 'daily':
+                $startDate = $date->copy()->startOfDay();
+                $endDate = $date->copy()->endOfDay();
+                $periodName = 'Günlük';
+                $periodRange = $date->format('d.m.Y');
+                break;
+                
+            case 'weekly':
+                $startDate = $date->copy()->startOfWeek();
+                $endDate = $date->copy()->endOfWeek();
+                
+                // Gelecekteki tarihleri bugüne sınırla
+                if ($endDate->isAfter($today)) {
+                    $endDate = $today->copy()->endOfDay();
+                }
+                
+                $periodName = 'Haftalık';
+                $periodRange = $startDate->format('d.m.Y') . ' - ' . $endDate->format('d.m.Y');
+                break;
+                
+            case 'monthly':
+                $startDate = $date->copy()->startOfMonth();
+                $endDate = $date->copy()->endOfMonth();
+                
+                // Gelecekteki tarihleri bugüne sınırla
+                if ($endDate->isAfter($today)) {
+                    $endDate = $today->copy()->endOfDay();
+                }
+                
+                $periodName = 'Aylık';
+                $periodRange = $startDate->format('F Y');
+                break;
+                
+            case 'quarterly':
+                $startDate = $date->copy()->startOfQuarter();
+                $endDate = $date->copy()->endOfQuarter();
+                
+                // Gelecekteki tarihleri bugüne sınırla
+                if ($endDate->isAfter($today)) {
+                    $endDate = $today->copy()->endOfDay();
+                }
+                
+                $periodName = '3 Aylık';
+                $periodRange = $startDate->format('d.m.Y') . ' - ' . $endDate->format('d.m.Y');
+                break;
+                
+            case 'yearly':
+                $startDate = $date->copy()->startOfYear();
+                $endDate = $date->copy()->endOfYear();
+                
+                // Gelecekteki tarihleri bugüne sınırla
+                if ($endDate->isAfter($today)) {
+                    $endDate = $today->copy()->endOfDay();
+                }
+                
+                $periodName = 'Yıllık';
+                $periodRange = $startDate->format('Y');
+                break;
+                
+            default:
+                $startDate = $date->copy()->startOfDay();
+                $endDate = $date->copy()->endOfDay();
+                $periodName = 'Günlük';
+                $periodRange = $date->format('d.m.Y');
+        }
+        
+        return [
+            'name' => $periodName,
+            'range' => $periodRange,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'start_date_formatted' => $startDate->format('d.m.Y'),
+            'end_date_formatted' => $endDate->format('d.m.Y'),
+            'is_custom' => false
+        ];
+    }
+    
+    /**
+     * Periyot bazında üretim verilerini topla
+     */
+    private function getProductionData($date, $period, $periodInfo)
+    {
+        $startDate = $periodInfo['start_date'];
+        $endDate = $periodInfo['end_date'];
+        
+        // Kabul edilen miktar (ton)
+        $acceptedQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status = ?
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
+        
+        // Test sürecinde olan miktar (ton)
+        $testingQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status IN (?, ?, ?)
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
+        
+        // Teslimat sürecinde olan miktar (ton)
+        $deliveryQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status IN (?, ?)
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
+        
+        // Reddedilen miktar (ton)
+        $rejectedQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status IN (?, ?)
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
+
+        // Toplam barkod sayısı
+        $totalBarcodes = DB::select('
+            SELECT COUNT(*) as total_count
+            FROM barcodes
+            WHERE created_at BETWEEN ? AND ?
+            AND deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_count ?? 0;
+
+        // Toplam miktar
+        $totalQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Düzeltme faaliyeti ile oluşturulan üretim çıktısı (ton)
+        $correctionOutputQuantity = DB::select('
+            SELECT COALESCE(SUM(q.quantity), 0) as total_quantity
+            FROM barcodes b
+            LEFT JOIN quantities q ON q.id = b.quantity_id
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 1
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Düzeltme faaliyeti kapsamında kullanılan red miktarı (ton)
+        $correctionInputUsed = DB::select('
+            SELECT COALESCE(SUM(b.correction_quantity), 0) as total_quantity
+            FROM barcodes b
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 1
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Düzeltmesiz üretim çıktısı (ton)
+        $nonCorrectionOutputQuantity = DB::select('
+            SELECT COALESCE(SUM(q.quantity), 0) as total_quantity
+            FROM barcodes b
+            LEFT JOIN quantities q ON q.id = b.quantity_id
+            WHERE b.created_at BETWEEN ? AND ?
+            AND IFNULL(b.is_correction, 0) = 0
+            AND b.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        // Hammadde kullanımı (ton)
+        $rawMaterialUsed = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate])[0]->total_quantity ?? 0;
+
+        return [
+            'total_barcodes' => $totalBarcodes,
+            'total_quantity' => $totalQuantity,
+            'accepted_quantity' => $acceptedQuantity,
+            'testing_quantity' => $testingQuantity,
+            'delivery_quantity' => $deliveryQuantity,
+            'rejected_quantity' => $rejectedQuantity,
+            'with_correction_output' => $correctionOutputQuantity,
+            'without_correction_output' => $nonCorrectionOutputQuantity,
+            'correction_input_used' => $correctionInputUsed,
+            'raw_material_used' => $rawMaterialUsed,
+        ];
+    }
+    
+    /**
+     * Genel istatistikler
+     */
+    private function getGeneralStats($date, $period)
+    {
+        $periodInfo = $this->calculatePeriodInfo($date, $period);
+        $startDate = $periodInfo['start_date'];
+        $endDate = $periodInfo['end_date'];
+        
+        // Bu metod eski getDailyStats metodunun yerine geçer
+        // Periyot bazında genel istatistikler toplanır
+        return [
+            'period_name' => $periodInfo['name'],
+            'period_range' => $periodInfo['range'],
+            'start_date' => $periodInfo['start_date_formatted'],
+            'end_date' => $periodInfo['end_date_formatted']
+        ];
     }
 
     /**
@@ -114,6 +373,68 @@ class DashboardController extends Controller
                 'error' => $e->getMessage()
             ], 500);
             
+        }
+    }
+
+    /**
+     * Excel export for complete dashboard report
+     */
+    public function exportDashboard(Request $request)
+    {
+        try {
+            \Log::info('Dashboard export request received', ['request' => $request->all()]);
+            
+            $selectedDate = $request->input('date', Carbon::today('Europe/Istanbul')->format('Y-m-d'));
+            $period = $request->input('period', 'daily');
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+            $date = Carbon::parse($selectedDate)->setTimezone('Europe/Istanbul');
+            
+            \Log::info('Date and period parsed for dashboard export', [
+                'selectedDate' => $selectedDate, 
+                'period' => $period,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'parsedDate' => $date->toDateTimeString()
+            ]);
+            
+            // Periyot bilgilerini hesapla
+            $periodInfo = $this->calculatePeriodInfo($date, $period, $startDate, $endDate);
+            
+            // Tüm dashboard verilerini topla
+            $dashboardData = [
+                'selectedDate' => $date->format('d.m.Y'),
+                'period' => $period,
+                'periodInfo' => $periodInfo,
+                'productionData' => $this->getProductionData($date, $period, $periodInfo),
+                'shiftReport' => $period === 'daily' ? $this->getShiftReport($date) : [],
+                'kilnPerformance' => $this->getKilnPerformance($date),
+                'kilnRejectionRates' => $this->getKilnRejectionRates($date),
+                'rejectionReasonsAnalysis' => $this->getRejectionReasonsAnalysis($date),
+                'productKilnAnalysis' => $this->getProductKilnAnalysis($date),
+                'monthlyComparison' => $this->getMonthlyComparison($date),
+                'aiInsights' => $this->generateAIInsights(Carbon::today('Europe/Istanbul')),
+                'stockAgeAnalysis' => $this->getStockAgeAnalysis(),
+            ];
+            
+            \Log::info('Dashboard data collected', ['dataKeys' => array_keys($dashboardData)]);
+            
+            // Excel export sınıfını kullan
+            $export = new \App\Exports\DashboardExport($dashboardData);
+            
+            $filename = 'uretim_raporu_' . $period . '_' . $date->format('Y-m-d') . '.xlsx';
+            
+            \Log::info('Dashboard export completed', ['filename' => $filename]);
+            
+            return \Maatwebsite\Excel\Facades\Excel::download($export, $filename);
+            
+        } catch (\Exception $e) {
+            \Log::error('Dashboard export error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Dashboard export sırasında bir hata oluştu: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -343,7 +664,7 @@ class DashboardController extends Controller
     /**
      * Fırın başına üretim performansı
      */
-    private function getKilnPerformance($date)
+    private function getKilnPerformance($date, $period = 'daily', $periodInfo = null)
     {
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
@@ -393,7 +714,7 @@ class DashboardController extends Controller
     /**
      * Fırın başına red oranları
      */
-    private function getKilnRejectionRates($date)
+    private function getKilnRejectionRates($date, $period = 'daily', $periodInfo = null)
     {
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
@@ -428,7 +749,7 @@ class DashboardController extends Controller
     /**
      * Ürün özelinde fırın kapasite analizi
      */
-    private function getProductKilnAnalysis($date)
+    private function getProductKilnAnalysis($date, $period = 'daily', $periodInfo = null)
     {
         $startDate = $date->copy()->startOfDay();
         $endDate = $date->copy()->endOfDay();
@@ -1844,6 +2165,99 @@ class DashboardController extends Controller
             'product_analysis' => array_slice($productAnalysis, 0, 20), // En kritik 20 ürün
             'age_categories' => $ageCategories,
             'current_date' => $currentDate->format('d.m.Y H:i')
+        ];
+    }
+
+    /**
+     * Red sebepleri analizi
+     */
+    private function getRejectionReasonsAnalysis($date, $period = 'daily', $periodInfo = null)
+    {
+        $startDate = $date->copy()->startOfDay();
+        $endDate = $date->copy()->endOfDay();
+
+        // Günlük red sebepleri analizi
+        $dailyRejectionReasons = Barcode::with(['rejectionReasons', 'quantity', 'stock', 'kiln'])
+            ->whereBetween('lab_at', [$startDate, $endDate])
+            ->where('status', Barcode::STATUS_REJECTED)
+            ->get()
+            ->flatMap(function ($barcode) {
+                return $barcode->rejectionReasons->map(function ($reason) use ($barcode) {
+                    return [
+                        'reason_name' => $reason->name,
+                        'reason_code' => $reason->code,
+                        'kg' => $barcode->quantity->quantity ?? 0,
+                        'stock_name' => $barcode->stock->name ?? 'Bilinmiyor',
+                        'kiln_name' => $barcode->kiln->name ?? 'Bilinmiyor',
+                        'lab_at' => $barcode->lab_at
+                    ];
+                });
+            })
+            ->groupBy('reason_name')
+            ->map(function ($items) {
+                return [
+                    'count' => $items->count(),
+                    'total_kg' => $items->sum('kg'),
+                    'stocks' => $items->pluck('stock_name')->unique()->values(),
+                    'kilns' => $items->pluck('kiln_name')->unique()->values(),
+                    'avg_kg_per_rejection' => $items->avg('kg')
+                ];
+            })
+            ->sortByDesc('count');
+
+        // Son 7 günlük trend
+        $weeklyTrend = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $trendDate = $date->copy()->subDays($i);
+            $trendStart = $trendDate->copy()->startOfDay();
+            $trendEnd = $trendDate->copy()->endOfDay();
+            
+            $dailyCount = Barcode::whereBetween('lab_at', [$trendStart, $trendEnd])
+                ->where('status', Barcode::STATUS_REJECTED)
+                ->count();
+            
+            $weeklyTrend[] = [
+                'date' => $trendDate->format('d.m'),
+                'count' => $dailyCount
+            ];
+        }
+
+        // En kritik red sebepleri (son 30 gün)
+        $criticalReasons = Barcode::with(['rejectionReasons', 'quantity'])
+            ->whereBetween('lab_at', [$date->copy()->subDays(30), $endDate])
+            ->where('status', Barcode::STATUS_REJECTED)
+            ->get()
+            ->flatMap(function ($barcode) {
+                return $barcode->rejectionReasons->map(function ($reason) use ($barcode) {
+                    return [
+                        'reason_name' => $reason->name,
+                        'kg' => $barcode->quantity->quantity ?? 0
+                    ];
+                });
+            })
+            ->groupBy('reason_name')
+            ->map(function ($items) {
+                return [
+                    'count' => $items->count(),
+                    'total_kg' => $items->sum('kg'),
+                    'trend' => 'stable' // Basit trend analizi
+                ];
+            })
+            ->sortByDesc('count')
+            ->take(5);
+
+        return [
+            'daily_reasons' => $dailyRejectionReasons,
+            'weekly_trend' => $weeklyTrend,
+            'critical_reasons' => $criticalReasons,
+            'total_rejected_today' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_REJECTED)
+                ->count(),
+            'total_rejected_kg_today' => Barcode::with(['quantity'])
+                ->whereBetween('lab_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_REJECTED)
+                ->get()
+                ->sum('quantity.quantity')
         ];
     }
 }

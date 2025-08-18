@@ -342,9 +342,14 @@
                         <p class="page-subtitle-modern">Fırın performanslarını analiz edin, üretim verilerini takip edin ve kalite kontrolü yapın</p>
                     </div>
                     <div class="col-md-4 text-right">
-                        <a href="{{ route('kiln.create') }}" class="btn-modern btn-success-modern">
-                            <i class="fas fa-plus"></i> Yeni Fırın Ekle
-                        </a>
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ route('kiln.create') }}" class="btn-modern btn-success-modern mr-2">
+                                <i class="fas fa-plus"></i> Yeni Fırın Ekle
+                            </a>
+                            <a href="{{ route('kiln.excel.download') }}" class="btn-modern btn-warning-modern">
+                                <i class="fas fa-file-excel"></i> Excel İndir
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -378,6 +383,32 @@
                         </a>
                     </div>
                 </div>
+                <!-- Arama -->
+                <div class="mb-3">
+                    <form id="kiln-search-form" method="GET" action="{{ route('kiln.index') }}" class="row align-items-end">
+                        @if(request('start_date'))
+                            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                        @endif
+                        @if(request('end_date'))
+                            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                        @endif
+                        @if(request('period'))
+                            <input type="hidden" name="period" value="{{ request('period') }}">
+                        @endif
+                        <div class="col-md-12">
+                            <label class="form-label">Fırın Adına Göre Arama</label>
+                            <input type="text" id="kiln-search-input" name="name" class="form-control" placeholder="Fırın adına göre arayın..." value="{{ request('name') }}">
+                        </div>
+                    </form>
+                    @if(request('name'))
+                        <div class="mt-2">
+                            <span class="text-muted">
+                                <i class="fas fa-search"></i>
+                                "{{ request('name') }}" için arama sonuçları
+                            </span>
+                        </div>
+                    @endif
+                </div>
 
                 <form method="GET" action="{{ route('kiln.index') }}" class="row align-items-end">
                     <div class="col-md-3">
@@ -407,7 +438,7 @@
                         </button>
                     </div>
                 </form>
-                @if(request('start_date') || request('end_date') || request('kiln_id') || request('period'))
+                @if(request('start_date') || request('end_date') || request('kiln_id') || request('period') || request('name'))
                     <div class="mt-3">
                         <a href="{{ route('kiln.index') }}" class="btn-modern btn-secondary-modern">
                             <i class="fas fa-times"></i> Filtreleri Temizle
@@ -436,6 +467,9 @@
                                     - {{ $selectedKiln->name }} fırını
                                 @endif
                             @endif
+                            @if(request('name'))
+                                - "{{ request('name') }}" arama sonucu
+                            @endif
                             için filtrelenmiş sonuçlar
                         </span>
                     </div>
@@ -444,7 +478,9 @@
         </div>
 
             <!-- Fırın Performans Kartları -->
+            <div class="row">
             @foreach($kilns as $kiln)
+            <div class="col-md-6 mb-3">
             <div class="kiln-card">
                 <div class="kiln-header">
                     <div class="performance-indicator 
@@ -563,7 +599,9 @@
                                     </div>
                 </div>
             </div>
-                            @endforeach
+            </div>
+            @endforeach
+            </div>
 
             @if($kilns->isEmpty())
             <div class="card-modern">
@@ -583,6 +621,26 @@
 
 @section('scripts')
     <script type="text/javascript">
+        // Arama debounce
+        (function(){
+            var input = document.getElementById('kiln-search-input');
+            var form = document.getElementById('kiln-search-form');
+            if (!input || !form) return;
+            var t, last = input.value;
+            function submit(){
+                if (input.value === last) return;
+                last = input.value;
+                if (form.requestSubmit) {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+            input.addEventListener('input', function(){
+                clearTimeout(t);
+                t = setTimeout(submit, 300);
+            });
+        })();
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content') }
         });

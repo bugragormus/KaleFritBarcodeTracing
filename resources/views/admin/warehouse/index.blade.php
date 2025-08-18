@@ -338,13 +338,47 @@
                             <a href="{{ route('warehouse.create') }}" class="btn-modern btn-success-modern">
                                 <i class="fas fa-plus"></i> Yeni Depo Ekle
                             </a>
+                            <a href="{{ route('warehouse.excel.download') }}" class="btn-modern btn-warning-modern ml-2">
+                                <i class="fas fa-file-excel"></i>Excel İndir
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Depo Adı Arama -->
+            <div class="card-modern">
+                <div class="card-header-modern">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-search"></i> Depo Arama
+                    </h3>
+                    <p class="card-subtitle-modern">Depo adına göre arama yapın</p>
+                </div>
+                <div class="card-body-modern">
+                    <form method="GET" action="{{ route('warehouse.index') }}" class="mb-3" id="warehouse-search-form">
+                        <div class="input-group">
+                            <input type="text" name="name" class="form-control" placeholder="Depo adına göre ara..." value="{{ request('name') }}" id="warehouse-search-input">
+                        </div>
+                    </form>
+                    
+                    @if(request('name'))
+                        <div class="mt-3">
+                            <a href="{{ route('warehouse.index') }}" class="btn-modern btn-secondary-modern">
+                                <i class="fas fa-times"></i> Aramayı Temizle
+                            </a>
+                            <span class="ml-3 text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                "{{ request('name') }}" için filtrelenmiş sonuçlar
+                            </span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <!-- Depo Performans Kartları -->
+            <div class="row">
             @foreach($warehouses as $warehouse)
+                <div class="col-md-6">
             <div class="warehouse-card">
                 <div class="warehouse-header">
                     <div class="performance-indicator 
@@ -466,7 +500,7 @@
                         <a href="{{ route('warehouse.edit', ['depo' => $warehouse->id]) }}" class="btn-modern btn-success-modern btn-xs-modern">
                             <i class="fas fa-edit"></i> Düzenle
                         </a>
-                        <a href="#" class="btn-modern btn-warning-modern btn-xs-modern">
+                        <a href="{{ route('warehouse.excel', ['depo' => $warehouse->id]) }}" class="btn-modern btn-warning-modern btn-xs-modern">
                             <i class="fas fa-file-excel"></i> Rapor İndir
                         </a>
                         <button class="btn-modern btn-danger-modern btn-xs-modern" data-id="{{ $warehouse->id }}" data-action="{{ route('warehouse.destroy', $warehouse->id) }}" onclick='deleteConfirmation("{{$warehouse->id}}")'>
@@ -475,7 +509,9 @@
                     </div>
                 </div>
             </div>
+                </div>
             @endforeach
+            </div>
 
             @if(empty($warehouses) || count($warehouses) == 0)
             <div class="card-modern">
@@ -498,6 +534,25 @@
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content') }
         });
+
+        // Depo adı aramasını yazdıkça filtrele (debounce)
+        (function(){
+            var searchInput = document.getElementById('warehouse-search-input');
+            var form = document.getElementById('warehouse-search-form');
+            if (!searchInput || !form) return;
+            var debounceTimer;
+            var lastSubmittedValue = searchInput.value;
+            function submitForm() {
+                if (searchInput.value === lastSubmittedValue) return;
+                lastSubmittedValue = searchInput.value;
+                form.requestSubmit ? form.requestSubmit() : form.submit();
+            }
+            searchInput.addEventListener('input', function(){
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(submitForm, 300);
+            });
+        })();
+
         function deleteConfirmation(id) {
 
             swal({

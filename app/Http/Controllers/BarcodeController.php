@@ -751,16 +751,19 @@ class BarcodeController extends Controller
      */
     public function edit($id)
     {
-        $barcode = Barcode::findOrFail($id);
+        $barcode = Barcode::with(['rejectionReasons'])->findOrFail($id);
 
         $wareHouses = Warehouse::all();
 
         $companies = Company::all();
 
+        $rejectionReasons = \App\Models\RejectionReason::active()->get();
+
         return view('admin.barcode.edit', compact([
             'barcode',
             'wareHouses',
-            'companies'
+            'companies',
+            'rejectionReasons'
         ]));
     }
 
@@ -834,6 +837,18 @@ class BarcodeController extends Controller
         // Transfer status artık kullanılmıyor - sadece ana durum kullanılıyor
 
         $barcode->update($data);
+
+        // Red sebeplerini işle
+        if (isset($data['status']) && $data['status'] == Barcode::STATUS_REJECTED) {
+            if ($request->has('rejection_reasons') && is_array($request->rejection_reasons)) {
+                $barcode->rejectionReasons()->sync($request->rejection_reasons);
+            } else {
+                $barcode->rejectionReasons()->detach();
+            }
+        } else {
+            // Red durumu değilse red sebeplerini temizle
+            $barcode->rejectionReasons()->detach();
+        }
 
         BarcodeHistory::create([
             'barcode_id' => $barcode->id,

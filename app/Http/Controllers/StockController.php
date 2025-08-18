@@ -63,51 +63,58 @@ class StockController extends Controller
             $endDate = now()->format('Y-m-d');
         }
 
-        $stocks = $this->stockCalculationService->calculateStockStatuses();
+        // Önce tüm stokları al
+        $allStocks = $this->stockCalculationService->getAllStocks();
+        $allStocks = collect($allStocks);
+        
+        // Tarih filtrelenmiş verileri al
+        $filteredStocks = $this->stockCalculationService->calculateStockStatuses($startDate, $endDate);
+        $filteredStocks = collect($filteredStocks);
+        
+        // Tüm stokları birleştir ve tarih filtrelenmiş verileri ekle
+        $stocks = $allStocks->map(function ($stock) use ($filteredStocks) {
+            $filteredStock = $filteredStocks->firstWhere('id', $stock->id);
+            
+            if ($filteredStock) {
+                // Tarih filtrelenmiş veri varsa onu kullan
+                $stock->waiting_quantity = $filteredStock->waiting_quantity;
+                $stock->control_repeat_quantity = $filteredStock->control_repeat_quantity;
+                $stock->accepted_quantity = $filteredStock->accepted_quantity;
+                $stock->rejected_quantity = $filteredStock->rejected_quantity;
+                $stock->in_warehouse_quantity = $filteredStock->in_warehouse_quantity;
+                $stock->on_delivery_in_warehouse_quantity = $filteredStock->on_delivery_in_warehouse_quantity;
+                $stock->delivered_quantity = $filteredStock->delivered_quantity;
+                $stock->merged_quantity = $filteredStock->merged_quantity;
+            } else {
+                // Tarih filtrelenmiş veri yoksa 0 olarak ayarla
+                $stock->waiting_quantity = 0;
+                $stock->control_repeat_quantity = 0;
+                $stock->accepted_quantity = 0;
+                $stock->rejected_quantity = 0;
+                $stock->in_warehouse_quantity = 0;
+                $stock->on_delivery_in_warehouse_quantity = 0;
+                $stock->delivered_quantity = 0;
+                $stock->merged_quantity = 0;
+            }
+            
+            return $stock;
+        });
 
-        // Array'i Collection'a çevir
-        $stocks = collect($stocks);
+        // Ürün koduna göre arama
+        $searchCode = request('code');
+        if ($searchCode) {
+            $stocks = $stocks->filter(function ($stock) use ($searchCode) {
+                return stripos($stock->code ?? '', $searchCode) !== false;
+            })->values();
+        }
 
-        // Her stok için detaylı istatistikler
+        // Her stok için ek hesaplamalar (tarih filtrelenmiş veriler üzerinden)
         foreach ($stocks as $stock) {
-            // Barkod sorgusu oluştur
-            $barcodesQuery = Barcode::where('stock_id', $stock->id);
-            if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
-            if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
-            
-            // Tarih filtrelenmiş miktarlar
-            $filteredBarcodes = $barcodesQuery->with('quantity')->get();
-            
-            // Toplam üretim miktarı (filtrelenmiş)
-            $stock->total_production = $filteredBarcodes->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            
-            // Durum bazında miktarlar (filtrelenmiş)
-            $stock->waiting_quantity = $filteredBarcodes->where('status', Barcode::STATUS_WAITING)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->control_repeat_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CONTROL_REPEAT)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->accepted_quantity = $filteredBarcodes->where('status', Barcode::STATUS_PRE_APPROVED)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->rejected_quantity = $filteredBarcodes->where('status', Barcode::STATUS_REJECTED)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_SHIPMENT_APPROVED)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->on_delivery_in_warehouse_quantity = $filteredBarcodes->where('status', Barcode::STATUS_CUSTOMER_TRANSFER)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->delivered_quantity = $filteredBarcodes->where('status', Barcode::STATUS_DELIVERED)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
-            $stock->merged_quantity = $filteredBarcodes->where('status', Barcode::STATUS_MERGED)->sum(function($barcode) {
-                return $barcode->quantity ? $barcode->quantity->quantity : 0;
-            });
+            // Toplam üretim miktarı
+            $stock->total_production = $stock->waiting_quantity + $stock->control_repeat_quantity + 
+                                     $stock->accepted_quantity + $stock->rejected_quantity + 
+                                     $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity + 
+                                     $stock->delivered_quantity + $stock->merged_quantity;
             
             // Red oranı
             $totalQuantity = $stock->total_production;
@@ -117,18 +124,28 @@ class StockController extends Controller
             $stock->delivery_rate = $totalQuantity > 0 ? round(($stock->delivered_quantity / $totalQuantity) * 100, 2) : 0;
             
             // Stokta kalan miktar
-            $stock->remaining_stock = $stock->waiting_quantity + $stock->control_repeat_quantity + $stock->accepted_quantity + 
-                                    $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity;
+            $stock->remaining_stock = $stock->waiting_quantity + $stock->control_repeat_quantity + 
+                                    $stock->accepted_quantity + $stock->in_warehouse_quantity + 
+                                    $stock->on_delivery_in_warehouse_quantity;
             
-            // Son üretim tarihi (filtrelenmiş)
-            $lastBarcode = $barcodesQuery->latest('created_at')->first();
-            $stock->last_production_date = $lastBarcode ? $lastBarcode->created_at : null;
+            // Aktiflik durumu (son 90 günde üretim var mı?)
+            $stock->is_active = ($stock->total_production > 0);
             
-            // Aktiflik durumu (filtrelenmiş)
-            $recentProduction = $barcodesQuery
-                ->where('created_at', '>=', now()->subDays(90))
-                ->count();
-            $stock->is_active = $recentProduction > 0;
+            // Son üretim tarihi (tarih filtrelenmiş veriler üzerinden)
+            if ($stock->total_production > 0) {
+                $lastBarcode = \App\Models\Barcode::where('stock_id', $stock->id)
+                    ->when($startDate, function($query) use ($startDate) {
+                        return $query->where('created_at', '>=', $startDate);
+                    })
+                    ->when($endDate, function($query) use ($endDate) {
+                        return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                    })
+                    ->latest('created_at')
+                    ->first();
+                $stock->last_production_date = $lastBarcode ? $lastBarcode->created_at : null;
+            } else {
+                $stock->last_production_date = null;
+            }
         }
 
         return view('admin.stock.index', compact('stocks'));
@@ -264,13 +281,69 @@ class StockController extends Controller
     {
         $stock = Stock::findOrFail($id);
         
-        // Stok detaylarını hesapla
+        // Tarih filtreleme parametreleri (index metoduyla aynı)
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+        
+        // Stok detaylarını hesapla (tarih filtresi ile)
         $stockDetails = $this->stockCalculationService->getStockDetails($id);
         $productionData = $this->stockCalculationService->getProductionChartData($id);
         $barcodesByStatus = $this->stockCalculationService->getBarcodesByStatus($id);
         $productionByKiln = $this->stockCalculationService->getProductionByKiln($id);
         $salesByCompany = $this->stockCalculationService->getSalesByCompany($id);
         $monthlyTrend = $this->stockCalculationService->getMonthlyTrend($id);
+        
+        // Dosya adına tarih bilgisi ekle
+        $fileName = "stok-raporu-{$stock->code}";
+        if ($startDate && $endDate) {
+            if ($startDate === $endDate) {
+                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            } else {
+                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $periodNames = [
+                'monthly' => 'aylik',
+                'quarterly' => '3-aylik', 
+                'yearly' => 'yillik',
+                'all' => 'tum-zamanlar'
+            ];
+            $fileName .= '-' . ($periodNames[$period] ?? 'gunluk');
+        } else {
+            $fileName .= '-' . date('d-m-Y');
+        }
+        $fileName .= '.xlsx';
         
         return Excel::download(new \App\Exports\StockDetailExport(
             $stock, 
@@ -280,7 +353,7 @@ class StockController extends Controller
             $productionByKiln,
             $salesByCompany,
             $monthlyTrend
-        ), "stok-raporu-{$stock->code}-" . date('Y-m-d') . ".xlsx");
+        ), $fileName);
     }
 
     /**
@@ -365,8 +438,107 @@ class StockController extends Controller
      */
     public function downloadExcel()
     {
-        $stocks = $this->stockCalculationService->calculateStockStatuses();
+        // Tarih filtreleme parametreleri (index metoduyla aynı)
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
 
-        return Excel::download(new StockExport(collect($stocks)), 'stoklar-'.Carbon::now()->format('d-m-Y H:i').'.xlsx');
+        $stocks = $this->stockCalculationService->calculateStockStatuses($startDate, $endDate);
+
+        // Array'i Collection'a çevir
+        $stocks = collect($stocks);
+
+        // Her stok için ek hesaplamalar (tarih filtrelenmiş veriler üzerinden)
+        foreach ($stocks as $stock) {
+            // Toplam üretim miktarı
+            $stock->total_production = $stock->waiting_quantity + $stock->control_repeat_quantity + 
+                                     $stock->accepted_quantity + $stock->rejected_quantity + 
+                                     $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity + 
+                                     $stock->delivered_quantity + $stock->merged_quantity;
+            
+            // Red oranı
+            $totalQuantity = $stock->total_production;
+            $stock->rejection_rate = $totalQuantity > 0 ? round(($stock->rejected_quantity / $totalQuantity) * 100, 2) : 0;
+            
+            // Teslim oranı
+            $stock->delivery_rate = $totalQuantity > 0 ? round(($stock->delivered_quantity / $totalQuantity) * 100, 2) : 0;
+            
+            // Stokta kalan miktar
+            $stock->remaining_stock = $stock->waiting_quantity + $stock->control_repeat_quantity + 
+                                    $stock->accepted_quantity + $stock->in_warehouse_quantity + 
+                                    $stock->on_delivery_in_warehouse_quantity;
+            
+            // Aktiflik durumu (son 90 günde üretim var mı?)
+            $stock->is_active = ($stock->total_production > 0);
+            
+            // Son üretim tarihi (tarih filtrelenmiş veriler üzerinden)
+            if ($stock->total_production > 0) {
+                $lastBarcode = \App\Models\Barcode::where('stock_id', $stock->id)
+                    ->when($startDate, function($query) use ($startDate) {
+                        return $query->where('created_at', '>=', $startDate);
+                    })
+                    ->when($endDate, function($query) use ($endDate) {
+                        return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                    })
+                    ->latest('created_at')
+                    ->first();
+                $stock->last_production_date = $lastBarcode ? $lastBarcode->created_at : null;
+            } else {
+                $stock->last_production_date = null;
+            }
+        }
+
+        // Dosya adına tarih bilgisi ekle
+        $fileName = 'stoklar';
+        if ($startDate && $endDate) {
+            if ($startDate === $endDate) {
+                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            } else {
+                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $periodNames = [
+                'monthly' => 'aylik',
+                'quarterly' => '3-aylik', 
+                'yearly' => 'yillik',
+                'all' => 'tum-zamanlar'
+            ];
+            $fileName .= '-' . ($periodNames[$period] ?? 'gunluk');
+        } else {
+            $fileName .= '-' . \Carbon\Carbon::now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
+
+        return Excel::download(new StockExport(collect($stocks)), $fileName);
     }
 }
