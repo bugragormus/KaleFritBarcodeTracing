@@ -112,6 +112,9 @@ class Barcode extends Model
         'correction_quantity',
         'correction_note',
         'is_exceptionally_approved'
+        , 'is_returned'
+        , 'returned_at'
+        , 'returned_by'
     ];
 
     /**
@@ -122,6 +125,7 @@ class Barcode extends Model
         'warehouse_transferred_at' => 'datetime',
         'company_transferred_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'returned_at' => 'datetime',
     ];
 
     /**
@@ -132,6 +136,7 @@ class Barcode extends Model
         'is_correction' => false,
         'is_merged' => false,
         'is_exceptionally_approved' => false,
+        'is_returned' => false,
     ];
 
     /**
@@ -171,7 +176,8 @@ class Barcode extends Model
                 self::STATUS_DELIVERED
             ],
             self::STATUS_DELIVERED => [
-                // Teslim edildi durumundan geri dönüş yok
+                // Teslim edildi durumundan Ön Onaylı'ya dönüşe izin ver (iade)
+                self::STATUS_PRE_APPROVED
             ]
         ];
 
@@ -197,6 +203,12 @@ class Barcode extends Model
             case self::STATUS_REJECTED:
                 $this->lab_at = now();
                 $this->lab_by = $userId ?? auth()->id();
+                // Teslim edildi -> Ön Onaylı geçişinde iade olarak işaretle
+                if ($newStatus === self::STATUS_PRE_APPROVED && $oldStatus == self::STATUS_DELIVERED) {
+                    $this->is_returned = true;
+                    $this->returned_at = now();
+                    $this->returned_by = $userId ?? auth()->id();
+                }
                 break;
             
             case self::STATUS_SHIPMENT_APPROVED:
@@ -294,6 +306,11 @@ class Barcode extends Model
         return $this->belongsTo(User::class, 'delivered_by')->withDefault();
     }
 
+    public function returnedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'returned_by')->withDefault();
+    }
+
     /**
      * Düzeltme kaynağı barkod (eğer bu barkod düzeltme faaliyeti ise)
      */
@@ -357,6 +374,14 @@ class Barcode extends Model
     public function isExceptionallyApproved(): bool
     {
         return $this->is_exceptionally_approved === true;
+    }
+
+    /**
+     * İade edilmiş mi kontrol et
+     */
+    public function isReturned(): bool
+    {
+        return $this->is_returned === true;
     }
 
     /**

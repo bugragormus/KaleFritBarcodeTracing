@@ -802,6 +802,15 @@
                                 </select>
                             </div>
 
+                            <div class="filter-item">
+                                <label class="filter-label">İade</label>
+                                <select class="filter-select" id="returned-filter">
+                                    <option value="">Tüm Ürünler</option>
+                                    <option value="1">İade Edildi</option>
+                                    <option value="0">İade Değil</option>
+                                </select>
+                            </div>
+
                         <div class="filter-item">
                             <label class="filter-label">Fırın</label>
                             <select class="filter-select" data-column="14">
@@ -937,6 +946,7 @@
                         var warehouseFilter = $('.filter-select[data-column="4"]').val();
                         var companyFilter = $('.filter-select[data-column="5"]').val();
                         var createdByFilter = $('.filter-select[data-column="9"]').val();
+                        var returnedFilter = $('#returned-filter').val();
                         
                         if (stockFilter) d.stock = stockFilter;
                         if (partyFilter) d.party_number = partyFilter;
@@ -946,6 +956,7 @@
                         if (warehouseFilter) d.warehouse = warehouseFilter;
                         if (companyFilter) d.company = companyFilter;
                         if (createdByFilter) d.createdBy = createdByFilter;
+                        if (returnedFilter) d.returned = returnedFilter;
                         
                         console.log('AJAX data gönderiliyor:', d);
                         return d;

@@ -688,6 +688,20 @@
                         </div>
                         @endif
 
+                        @if($barcode->is_returned)
+                        <div class="info-card" style="grid-column: span 2;">
+                            <div class="info-label">İade Durumu</div>
+                            <div class="info-value">
+                                <span class="badge badge-warning" style="background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529; padding: 8px 16px; border-radius: 25px; font-weight: 700;">
+                                    <i class="fas fa-undo"></i> İade Edildi
+                                </span>
+                                <small class="d-block mt-2 text-muted">
+                                    Bu ürün teslim edildi durumundan sonra ön onaylı durumuna alınarak iade edilmiştir.
+                                </small>
+                            </div>
+                        </div>
+                        @endif
+
                         @if($barcode->is_exceptionally_approved)
                         <div class="info-card" style="grid-column: span 2;">
                             <div class="info-label">İstisnai Onay</div>
@@ -832,6 +846,16 @@
                             <div class="info-label">Teslim Edilme Tarihi</div>
                             <div class="info-value">{{ $barcode->delivered_at ? \Carbon\Carbon::parse($barcode->delivered_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }}</div>
                         </div>
+                        @if($barcode->is_returned)
+                        <div class="info-card">
+                            <div class="info-label">İade İşlemi</div>
+                            <div class="info-value">
+                                {{ $barcode->returned_at ? \Carbon\Carbon::parse($barcode->returned_at)->format('d.m.Y H:i') : 'Belirtilmemiş' }}
+                                <br>
+                                <small>İade Eden: {{ optional($barcode->returnedBy)->name ?? 'Belirtilmemiş' }}</small>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -851,7 +875,7 @@ $(document).ready(function() {
         5: [9, 10],   // Reddedildi -> Müşteri Transfer, Teslim Edildi
         8: [],        // Düzeltme Faaliyetinde Kullanıldı -> Geri dönüş yok
         9: [10],      // Müşteri Transfer -> Teslim Edildi
-        10: []        // Teslim Edildi -> Geri dönüş yok
+        10: [3]       // Teslim Edildi -> Ön Onaylı (iade)
     };
 
     const statusNames = {

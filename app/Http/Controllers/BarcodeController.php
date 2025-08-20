@@ -169,6 +169,16 @@ class BarcodeController extends Controller
                         $query->where('is_exceptionally_approved', false);
                         \Log::info('Exceptionally approved filter applied: false');
                     }
+                })
+                ->when($request->filled('returned'), function (Builder $query) use ($request) {
+                    $returned = $request->input('returned');
+                    if ($returned === '1' || $returned === 'true') {
+                        $query->where('is_returned', true);
+                        \Log::info('Returned filter applied: true');
+                    } elseif ($returned === '0' || $returned === 'false') {
+                        $query->where('is_returned', false);
+                        \Log::info('Returned filter applied: false');
+                    }
                 });
             return Datatables::of($barcodes)
                 ->addColumn('stock', function ($barcode) {
@@ -833,6 +843,13 @@ class BarcodeController extends Controller
             ])) {
                 $data['lab_at'] = now();
                 $data['lab_by'] = auth()->user()->id;
+
+                // Teslim edildi -> Ön Onaylı geçişinde iade olarak işaretle
+                if ($data['status'] == Barcode::STATUS_PRE_APPROVED && $barcode->status == Barcode::STATUS_DELIVERED) {
+                    $data['is_returned'] = true;
+                    $data['returned_at'] = now();
+                    $data['returned_by'] = auth()->user()->id;
+                }
             }
             
             // Sevk onayı durumu
@@ -875,11 +892,11 @@ class BarcodeController extends Controller
                 $barcode->rejectionReasons()->detach();
             }
         } else {
-            // Red durumu değilse ve istisnai onay yapılmamışsa red sebeplerini temizle
-            if (!isset($data['is_exceptionally_approved']) || !$data['is_exceptionally_approved']) {
+            // Red durumu değilse: İstisnai onaylı ya da iade edilmiş ürünlerin red sebeplerini KORU
+            // Not: $barcode modeli update edildiği için mevcut bayrakları doğrudan kontrol ediyoruz
+            if (!$barcode->is_exceptionally_approved && !$barcode->is_returned) {
                 $barcode->rejectionReasons()->detach();
             }
-            // İstisnai onay yapılıyorsa red sebepleri korunur
         }
 
         BarcodeHistory::create([
