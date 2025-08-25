@@ -29,7 +29,7 @@ class StockUpdateRequest extends FormRequest
         return [
             'code' => [
                 'required',
-                Rule::unique('stocks','code')->whereNull('deleted_at')->ignore(request()->route('stok'), 'id')
+                Rule::unique('stocks','code')->ignore(request()->route('stok'), 'id')
             ],
             'name' => [
                 'required',

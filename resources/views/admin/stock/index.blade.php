@@ -1,11 +1,5 @@
 @extends('layouts.app')
 
-@section('meta')
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-@endsection
-
 @section('styles')
     <style>
         body, .main-content, .modern-stock-management {
@@ -378,7 +372,10 @@
                     <!-- Hızlı Filtre Butonları -->
                     <div class="quick-filters mb-3">
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('stock.index') }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <a href="{{ route('stock.index') }}" class="btn-modern btn-sm {{ !request('period') || request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                                <i class="fas fa-infinity"></i> Tüm Zamanlar
+                            </a>
+                            <a href="{{ route('stock.index', ['period' => 'daily']) }}" class="btn-modern btn-sm {{ request('period') == 'daily' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
                                 <i class="fas fa-calendar-day"></i> Günlük
                             </a>
                             <a href="{{ route('stock.index', ['period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
@@ -389,9 +386,6 @@
                             </a>
                             <a href="{{ route('stock.index', ['period' => 'yearly']) }}" class="btn-modern btn-sm {{ request('period') == 'yearly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
                                 <i class="fas fa-calendar"></i> Yıllık
-                            </a>
-                            <a href="{{ route('stock.index', ['period' => 'all']) }}" class="btn-modern btn-sm {{ request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
-                                <i class="fas fa-infinity"></i> Tüm Zamanlar
                             </a>
                         </div>
                     </div>
@@ -440,6 +434,7 @@
                                 @if(request('period'))
                                     @php
                                         $periodNames = [
+                                            'daily' => 'Günlük',
                                             'monthly' => 'Aylık',
                                             'quarterly' => '3 Aylık',
                                             'yearly' => 'Yıllık',

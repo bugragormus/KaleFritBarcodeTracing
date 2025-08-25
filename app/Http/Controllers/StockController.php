@@ -48,19 +48,17 @@ class StockController extends Controller
                     $startDate = now()->startOfYear()->format('Y-m-d');
                     $endDate = now()->endOfYear()->format('Y-m-d');
                     break;
+                case 'daily':
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
                 case 'all':
                     // Tüm zamanlar için tarih filtresi yok
                     break;
                 default:
-                    // Günlük - bugün
-                    $startDate = now()->format('Y-m-d');
-                    $endDate = now()->format('Y-m-d');
+                    // Bilinmeyen period - tarih filtresi yok
                     break;
             }
-        } elseif (!$startDate && !$endDate) {
-            // Varsayılan olarak bugün
-            $startDate = now()->format('Y-m-d');
-            $endDate = now()->format('Y-m-d');
         }
 
         // Önce tüm stokları al
@@ -301,19 +299,17 @@ class StockController extends Controller
                     $startDate = now()->startOfYear()->format('Y-m-d');
                     $endDate = now()->endOfYear()->format('Y-m-d');
                     break;
+                case 'daily':
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
                 case 'all':
                     // Tüm zamanlar için tarih filtresi yok
                     break;
                 default:
-                    // Günlük - bugün
-                    $startDate = now()->format('Y-m-d');
-                    $endDate = now()->format('Y-m-d');
+                    // Bilinmeyen period - tarih filtresi yok
                     break;
             }
-        } elseif (!$startDate && !$endDate) {
-            // Varsayılan olarak bugün
-            $startDate = now()->format('Y-m-d');
-            $endDate = now()->format('Y-m-d');
         }
         
         // Stok detaylarını hesapla (tarih filtresi ile)

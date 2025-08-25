@@ -226,6 +226,7 @@ class StockCalculationService
     public function clearCache()
     {
         Cache::forget('stock_statuses');
+        Cache::forget('all_stocks');
         
         // Warehouse cache'lerini temizle
         $warehouses = DB::table('warehouses')->pluck('id');
