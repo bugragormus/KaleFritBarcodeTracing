@@ -513,6 +513,18 @@
                         
                         <div class="row">
                             <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="info-label">Şarj Numarası <span style="color: #dc3545">*</span></label>
+                                    <input type="number" name="load_number" id="load_number" class="form-control" placeholder="Şarj numarası giriniz" value="{{ old('load_number', $barcode->load_number) }}" min="1"/>
+                                    @if($errors->has('load_number'))
+                                        <small class="form-text text-danger">
+                                            {{ $errors->first('load_number') }}
+                                        </small>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
                                 <div class="form-group" id="company-group" style="display: none;">
                                     <label class="info-label">Firma</label>
                                     <select class="custom-select" name="company_id" id="company-select">

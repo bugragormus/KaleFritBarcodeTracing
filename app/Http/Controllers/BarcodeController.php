@@ -179,6 +179,16 @@ class BarcodeController extends Controller
                         $query->where('is_returned', false);
                         \Log::info('Returned filter applied: false');
                     }
+                })
+                ->when($request->filled('barcode_id'), function (Builder $query) use ($request) {
+                    $barcodeId = $request->input('barcode_id');
+                    $query->where('id', 'like', '%' . $barcodeId . '%');
+                    \Log::info('Barcode ID filter applied:', ['barcode_id' => $barcodeId]);
+                })
+                ->when($request->filled('load_number'), function (Builder $query) use ($request) {
+                    $loadNumber = $request->input('load_number');
+                    $query->where('load_number', 'like', '%' . $loadNumber . '%');
+                    \Log::info('Load number filter applied:', ['load_number' => $loadNumber]);
                 });
             return Datatables::of($barcodes)
                 ->addColumn('stock', function ($barcode) {
@@ -638,6 +648,8 @@ class BarcodeController extends Controller
 
         $barcodeIds = [];
         $totalCorrectionQuantity = 0;
+        $startLoadNumber = (int) $data['load_number']; // Şarj numarasını başta tanımla
+        $normalQuantity = (int) ($data['quantity'] ?? 0); // Normal üretim miktarını başta tanımla
 
         // Düzeltme faaliyeti kontrolü
         if ($request->filled('correction_barcodes') && is_array($request->input('correction_barcodes'))) {
@@ -655,7 +667,7 @@ class BarcodeController extends Controller
                         'stock_id' => $sourceBarcode->stock_id,
                         'kiln_id' => $data['kiln_id'],
                         'party_number' => $data['party_number'],
-                        'load_number' => ++$kiln->load_number,
+                        'load_number' => $startLoadNumber + $normalQuantity + $totalCorrectionQuantity, // Normal üretimden sonra düzeltme barkodları
                         'quantity_id' => $sourceBarcode->quantity_id,
                         'warehouse_id' => $data['warehouse_id'],
                         'created_by' => auth()->user()->id,
@@ -717,13 +729,13 @@ class BarcodeController extends Controller
         }
 
         // Normal üretim barkodlarını oluştur
-        $normalQuantity = $data['quantity'] ?? 0;
         for ($i = 0; $i < $normalQuantity; $i++) {
-            $data['load_number'] = ++$kiln->load_number;
-            $data['is_correction'] = false;
-            $data['status'] = Barcode::STATUS_WAITING; // Açıkça status belirt
+            $barcodeData = $data;
+            $barcodeData['load_number'] = $startLoadNumber + $i; // Her barkod için artan şarj numarası
+            $barcodeData['is_correction'] = false;
+            $barcodeData['status'] = Barcode::STATUS_WAITING; // Açıkça status belirt
 
-            $barcode = Barcode::create($data);
+            $barcode = Barcode::create($barcodeData);
             $barcodeIds[] = $barcode->id;
 
             // Barcode history oluştur
@@ -740,8 +752,17 @@ class BarcodeController extends Controller
             }
         }
 
-        // Fırın şarj numarasını güncelle
-        $kiln->update(['load_number' => $kiln->load_number]);
+        // Fırın şarj numarasını güncelle (en yüksek şarj numarasını yansıt)
+        try {
+            $maxLoadNumber = DB::table('barcodes')
+                ->where('kiln_id', $kiln->id)
+                ->max('load_number');
+            
+            $kiln->update(['load_number' => $maxLoadNumber ?: 0]);
+        } catch (\Exception $e) {
+            \Log::error('Kiln load number update error: ' . $e->getMessage());
+            // Hata durumunda devam et, barkod oluşturuldu
+        }
 
         // Başarı mesajı
         $message = 'Barkod başarıyla oluşturuldu.';
@@ -929,21 +950,57 @@ class BarcodeController extends Controller
         DB::beginTransaction();
         
         try {
-            // Kiln load number'ı güvenli şekilde azalt
-            $kiln = $barcode->kiln;
-            if ($kiln && $kiln->load_number > 0) {
-                $kiln->decrement('load_number', 1);
-            }
+            // İlişkili kayıtları da sil
+            $barcode->rejectionReasons()->detach(); // Red sebeplerini kaldır
+            BarcodeHistory::where('barcode_id', $id)->delete(); // Geçmiş kayıtlarını sil
             
-            $barcode->delete();
+            // Barkodu tamamen sil (hard delete)
+            $barcode->forceDelete();
+            
+            // Auto-increment'i optimize et (boşlukları doldur)
+            $this->optimizeAutoIncrement();
+            
+            // Fırın şarj numarasını güncelle (en yüksek şarj numarasını yansıt)
+            try {
+                $maxLoadNumber = DB::table('barcodes')
+                    ->where('kiln_id', $barcode->kiln_id)
+                    ->max('load_number');
+                
+                $kiln = Kiln::find($barcode->kiln_id);
+                if ($kiln) {
+                    $kiln->update(['load_number' => $maxLoadNumber ?: 0]);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Kiln load number update error after delete: ' . $e->getMessage());
+                // Hata durumunda devam et, barkod silindi
+            }
             
             DB::commit();
             
-            return response()->json(['message' => 'Barkod silindi!']);
+            return response()->json(['message' => 'Barkod tamamen silindi!']);
             
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['error' => 'Barkod silinirken hata oluştu: ' . $e->getMessage()], 500);
+        }
+    }
+    
+    /**
+     * Auto-increment'i optimize eder, boşlukları doldurur
+     */
+    private function optimizeAutoIncrement()
+    {
+        try {
+            // Mevcut en yüksek ID'yi bul
+            $maxId = DB::table('barcodes')->max('id');
+            
+            if ($maxId) {
+                // Auto-increment'i bir sonraki değere ayarla
+                DB::statement("ALTER TABLE barcodes AUTO_INCREMENT = " . ($maxId + 1));
+            }
+        } catch (\Exception $e) {
+            // Hata durumunda log'la ama işlemi durdurma
+            \Log::error('Auto-increment optimization failed: ' . $e->getMessage());
         }
     }
 

@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@php
+    // Yetki kontrolü
+    if (!auth()->user() || !auth()->user()->hasPermission(\App\Models\Permission::USER_MANAGE)) {
+        abort(403, 'Bu sayfaya erişim yetkiniz bulunmamaktadır.');
+    }
+@endphp
+
 @section('styles')
     <style>
         body, .main-content, .modern-settings {
@@ -308,6 +315,20 @@
                             <i class="fas fa-eraser"></i> Seçili Fırını Sıfırla
                         </button>
                     </div>
+                    
+                    <div class="settings-item">
+                        <div class="settings-info">
+                            <div class="settings-title">
+                                <i class="fas fa-sync-alt"></i> Fırın Şarj Numaralarını Güncelle
+                            </div>
+                            <div class="settings-description">
+                                Tüm fırınların mevcut şarj numarası durumunu günceller. Bu işlem mevcut barkodlardaki en yüksek şarj numaralarını fırın tablosuna yansıtır.
+                            </div>
+                        </div>
+                        <button class="btn-modern btn-info-modern" onclick="updateKilnLoadNumbers()">
+                            <i class="fas fa-sync-alt"></i> Şarj Numaralarını Güncelle
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -429,6 +450,66 @@
                     $.ajax({
                         type: 'post',
                         url: "{{route('settings.resetSingleKilnLoadNumber')}}",
+                        data: data,
+                        success: function (results) {
+                            if (results) {
+                                swal({
+                                    title: "Başarılı!",
+                                    text: results.message,
+                                    type: "success",
+                                    confirmButtonClass: 'btn btn-success btn-lg',
+                                    confirmButtonText: "Tamam",
+                                    buttonsStyling: false
+                                }).then(function() {
+                                    location.reload();
+                                });
+                            } else {
+                                swal({
+                                    title: "Hata!",
+                                    text: "Lütfen tekrar deneyin!",
+                                    type: "error",
+                                    confirmButtonClass: 'btn btn-danger btn-lg',
+                                    confirmButtonText: "Tamam",
+                                    buttonsStyling: false
+                                });
+                            }
+                        },
+                        error: function() {
+                            swal({
+                                title: "Hata!",
+                                text: "Bir hata oluştu. Lütfen tekrar deneyin!",
+                                type: "error",
+                                confirmButtonClass: 'btn btn-danger btn-lg',
+                                confirmButtonText: "Tamam",
+                                buttonsStyling: false
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        
+        function updateKilnLoadNumbers() {
+            swal({
+                title: "Fırın şarj numaralarını güncellemek istediğinizden emin misiniz?",
+                text: "Bu işlem mevcut barkodlardaki en yüksek şarj numaralarını fırın tablosuna yansıtacak.",
+                type: "info",
+                showCancelButton: true,
+                confirmButtonClass: 'btn btn-info btn-lg',
+                confirmButtonText: "Evet, Güncelle",
+                cancelButtonClass: 'btn btn-primary btn-lg m-l-10',
+                cancelButtonText: "Vazgeç",
+                buttonsStyling: false,
+                reverseButtons: true
+            }).then(function (e) {
+                if (e.value === true) {
+                    var data = {
+                        "_token": $('input[name="_token"]').val(),
+                    }
+                    
+                    $.ajax({
+                        type: 'post',
+                        url: "{{route('settings.updateKilnLoadNumbers')}}",
                         data: data,
                         success: function (results) {
                             if (results) {

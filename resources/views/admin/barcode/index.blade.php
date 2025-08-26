@@ -777,6 +777,16 @@
                                 @endforeach 
                             </select>
                         </div>
+                        
+                        <div class="filter-item">
+                            <label class="filter-label">Barkod No</label>
+                            <input type="text" class="filter-select" id="barcode-id-filter" placeholder="Barkod numarası giriniz">
+                        </div>
+                        
+                        <div class="filter-item">
+                            <label class="filter-label">Şarj No</label>
+                            <input type="text" class="filter-select" id="load-number-filter" placeholder="Şarj numarası giriniz">
+                        </div>
                             <div class="filter-item">
                                 <label class="filter-label">Durum</label>
                                 <select class="filter-select" data-column="2">
@@ -871,7 +881,7 @@
                         <thead>
                             <tr>
                                 <th>Stok</th>
-                                <th>Parti No</th>
+                                <th>Şarj No</th>
                                 <th class="text-center">Durum</th>
                                 <th>Miktar</th>
                                 <th>Depo</th>
@@ -886,7 +896,7 @@
                                 <th>Depo Transfer Tarihi</th>
                                 <th>Fırın No</th>
                                 <th>Müşteri Transfer Tarihi</th>
-                                <th>Şarj No</th>
+                                <th>Parti No</th>
                                 <th>Barkod No</th>
                                 <th>Genel Not</th>
                                 <th>Lab Notu</th>
@@ -917,6 +927,7 @@
             var table = $('.yajra-datatable').DataTable({
                 processing: true,
                 serverSide: true,
+                searching: false, // Search bar'ı kaldır
                 order: [[ 7, "desc"], [8, "desc"]],
                 columnDefs: [
                     {
@@ -947,6 +958,8 @@
                         var companyFilter = $('.filter-select[data-column="5"]').val();
                         var createdByFilter = $('.filter-select[data-column="9"]').val();
                         var returnedFilter = $('#returned-filter').val();
+                        var barcodeIdFilter = $('#barcode-id-filter').val();
+                        var loadNumberFilter = $('#load-number-filter').val();
                         
                         if (stockFilter) d.stock = stockFilter;
                         if (partyFilter) d.party_number = partyFilter;
@@ -957,35 +970,37 @@
                         if (companyFilter) d.company = companyFilter;
                         if (createdByFilter) d.createdBy = createdByFilter;
                         if (returnedFilter) d.returned = returnedFilter;
+                        if (barcodeIdFilter) d.barcode_id = barcodeIdFilter;
+                        if (loadNumberFilter) d.load_number = loadNumberFilter;
                         
                         console.log('AJAX data gönderiliyor:', d);
                         return d;
                     }
                 },
                 columns: [
-                    {data: 'stock', name: 'stock.name'},
+                    {data: 'stock', name: 'stock.name', searchable: false},
+                    {data: 'loadNumber', name: 'load_number', searchable: false},
+                    {data: 'status', name: 'status', searchable: false},
+                    {data: 'quantity', name: 'quantity.quantity', searchable: false},
+                    {data: 'warehouse', name: 'warehouse.name', searchable: false},
+                    {data: 'company', name: 'company.name', searchable: false},
+                    {data: 'lab_at', name: 'lab_at', searchable: false},
+                    {data: 'createdAt', name: 'created_at', searchable: false},
+                    {data: 'action', name: 'action', searchable: false},
+                    {data: 'createdBy', name: 'createdBy.name', searchable: false},
+                    {data: 'labBy', name: 'labBy.name', searchable: false},
+                    {data: 'warehouseTransferredBy', name: 'warehouseTransferredBy.name', searchable: false},
+                    {data: 'deliveredBy', name: 'deliveredBy.name', searchable: false},
+                    {data: 'warehouseTransferredAt', name: 'warehouse_transferred_at', searchable: false},
+                    {data: 'kiln', name: 'kiln.name', searchable: false},
+                    {data: 'companyTransferredAt', name: 'company_transferred_at', searchable: false},
                     {data: 'party_number', name: 'party_number'},
-                    {data: 'status', name: 'status'},
-                    {data: 'quantity', name: 'quantity.quantity'},
-                    {data: 'warehouse', name: 'warehouse.name'},
-                    {data: 'company', name: 'company.name'},
-                    {data: 'lab_at', name: 'lab_at'},
-                    {data: 'createdAt', name: 'created_at'},
-                    {data: 'action', name: 'action'},
-                    {data: 'createdBy', name: 'createdBy.name'},
-                    {data: 'labBy', name: 'labBy.name'},
-                    {data: 'warehouseTransferredBy', name: 'warehouseTransferredBy.name'},
-                    {data: 'deliveredBy', name: 'deliveredBy.name'},
-                    {data: 'warehouseTransferredAt', name: 'warehouse_transferred_at'},
-                    {data: 'kiln', name: 'kiln.name'},
-                    {data: 'companyTransferredAt', name: 'company_transferred_at'},
-                    {data: 'loadNumber', name: 'load_number'},
-                    {data: 'barcodeId', name: 'id'},
-                    {data: 'note', name: 'note'},
-                    {data: 'labNote', name: 'lab_note'},
-                    {data: 'isMerged', name: 'is_merged'},
-                    {data: 'isCorrection', name: 'is_correction'},
-                    {data: 'processingTime', name: 'processing_time'},
+                    {data: 'barcodeId', name: 'id', searchable: false},
+                    {data: 'note', name: 'note', searchable: false},
+                    {data: 'labNote', name: 'lab_note', searchable: false},
+                    {data: 'isMerged', name: 'is_merged', searchable: false},
+                    {data: 'isCorrection', name: 'is_correction', searchable: false},
+                    {data: 'processingTime', name: 'processing_time', searchable: false},
                 ]
             });
 
@@ -1062,6 +1077,8 @@
             $('.filter-select').val('');
             $('#exceptionally-approved-filter').val('');
             $('.filter-date').val('');
+            $('#barcode-id-filter').val('');
+            $('#load-number-filter').val('');
             
             // DataTable'ı yeniden yükle (filtresiz)
             table.ajax.reload();

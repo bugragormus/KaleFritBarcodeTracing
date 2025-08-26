@@ -40,9 +40,16 @@ class BarcodeStoreRequest extends FormRequest
                 'string',
                 'max:255'
             ],
+            'load_number' => [
+                'required',
+                'integer',
+                'min:1'
+            ],
             'quantity' => [
                 'required',
-                'integer'
+                'integer',
+                'min:1',
+                'max:50'
             ],
             'quantity_id' => [
                 'required',

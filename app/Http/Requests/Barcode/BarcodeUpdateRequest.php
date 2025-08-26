@@ -34,6 +34,11 @@ class BarcodeUpdateRequest extends FormRequest
         $barcode = Barcode::find($this->route('barcode'));
         
         return [
+            'load_number' => [
+                'required',
+                'integer',
+                'min:1'
+            ],
             'status' => [
                 'nullable',
                 'integer',

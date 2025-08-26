@@ -374,7 +374,7 @@
             <!-- Info Card -->
             <div class="info-card">
                 <h5><i class="fas fa-info-circle"></i> Bilgilendirme</h5>
-                <p>Lütfen tüm zorunlu alanları (*) doldurun. Barkod oluşturulduktan sonra otomatik olarak yazdırılacaktır.</p>
+                <p>Lütfen tüm zorunlu alanları (*) doldurun. Başlangıç şarj numarasını girin, sistem otomatik olarak her barkod için artırarak devam edecektir. Barkod adedi açılır menüden seçilir. Barkod oluşturulduktan sonra otomatik olarak yazdırılacaktır.</p>
             </div>
 
             <form method="POST" action="{{ route('barcode.store') }}">
@@ -465,6 +465,26 @@
                                 @endif
                             </div>
                         </div>
+
+                        <div class="form-col">
+                                    <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-hashtag"></i> Başlangıç Şarj Numarası
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="number" name="load_number" id="load_number" class="form-control" placeholder="Başlangıç şarj numarası giriniz" value="{{ old('load_number') }}" min="1"/>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Her barkod için otomatik olarak artacak şarj numarası
+                                </small>
+                                @if($errors->has('load_number'))
+                                    <div class="error-message">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {{ $errors->first('load_number') }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -511,13 +531,22 @@
                             </div>
                             </div>
 
-                        <div class="form-col">
+                                                <div class="form-col">
                                     <div class="form-group">
                                 <label class="form-label">
                                     <i class="fas fa-barcode"></i> Barkod Adedi
                                     <span class="required">*</span>
                                 </label>
-                                <input type="text" name="quantity" id="quantity" class="form-control" placeholder="Barkod adedi giriniz" value="{{ old('quantity') }}"/>
+                                <select class="form-control selectpicker" name="quantity" id="quantity" data-live-search="true">
+                                    <option {{old('quantity') == '' ? 'selected' : ''}} disabled>Barkod adedi seçiniz</option>
+                                    @for($i = 1; $i <= 50; $i++)
+                                        <option {{old('quantity') == $i ? 'selected' : ''}} value="{{$i}}">{{$i}} adet</option>
+                                    @endfor
+                                </select>
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Seçilen adet kadar barkod oluşturulacak
+                                </small>
                                 @if($errors->has('quantity'))
                                     <div class="error-message">
                                         <i class="fas fa-exclamation-triangle"></i>
@@ -525,7 +554,7 @@
                                     </div>
                                 @endif
                             </div>
-                            </div>
+                        </div>
 
                         <div class="form-col">
                             <div class="form-group">
@@ -670,6 +699,14 @@
                 var hasCorrection = false;
                 var totalCorrectionQuantity = 0;
                 
+                // Şarj numarası kontrolü
+                var loadNumber = $('#load_number').val().trim();
+                if (loadNumber === '') {
+                    toastr.error('Lütfen şarj numarasını giriniz.');
+                    e.preventDefault();
+                    return false;
+                }
+                
                 $('.correction-checkbox:checked').each(function() {
                     hasCorrection = true;
                     var quantity = parseInt($(this).siblings('.correction-quantity-hidden').val());
@@ -682,6 +719,36 @@
                 if (hasCorrection) {
                     toastr.info('Düzeltme faaliyeti ile ' + totalCorrectionQuantity + ' KG reddedilen malzeme kullanılacak.');
                 }
+            });
+            
+            // Şarj numarası ve barkod adedi için bilgilendirme
+            $('#load_number').on('focus', function() {
+                if (!$(this).val()) {
+                    $(this).attr('placeholder', 'Örnek: 1001');
+                }
+            });
+            
+            // Barkod adedi değiştiğinde şarj numarası bilgisini güncelle
+            $('#quantity').on('change', function() {
+                var quantity = parseInt($(this).val()) || 0;
+                var startLoadNumber = parseInt($('#load_number').val()) || 0;
+                
+                if (quantity > 0 && startLoadNumber > 0) {
+                    var endLoadNumber = startLoadNumber + quantity - 1;
+                    var infoText = 'Şarj numaraları: ' + startLoadNumber + ' - ' + endLoadNumber;
+                    
+                    // Bilgilendirme metnini güncelle
+                    if ($('#load_number').siblings('.form-text').length === 0) {
+                        $('#load_number').after('<small class="form-text text-info" id="load_number_info"><i class="fas fa-info-circle"></i> ' + infoText + '</small>');
+                    } else {
+                        $('#load_number_info').html('<i class="fas fa-info-circle"></i> ' + infoText);
+                    }
+                }
+            });
+            
+            // Şarj numarası değiştiğinde de bilgilendirmeyi güncelle
+            $('#load_number').on('input', function() {
+                $('#quantity').trigger('change');
             });
         });
     </script>
