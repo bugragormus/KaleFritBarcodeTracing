@@ -1,4 +1,4 @@
-# Kalefrit - Yönetim Sistemi v2.0
+# Kalefrit - Yönetim Sistemi v2.1.1
 
 <p align="center">
   <img src="public/assets/images/kale-logo.png" alt="Kalefrit Logo" width="200">
