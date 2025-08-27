@@ -1,0 +1,933 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\Kiln\KilnStoreRequest;
+use App\Http\Requests\Kiln\KilnUpdateRequest;
+use App\Models\Kiln;
+use App\Models\Permission;
+
+class KilnController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\Response
+     */
+    public function index()
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $kilnId = request('kiln_id');
+        $period = request('period');
+        $searchName = request('name');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        // Fırınları getir
+        $kilnsQuery = Kiln::query();
+        
+        // Fırın adına göre arama
+        if ($searchName) {
+            $kilnsQuery->where('name', 'like', '%' . $searchName . '%');
+        }
+        
+        // Fırın ID filtresi
+        if ($kilnId) {
+            $kilnsQuery->where('id', $kilnId);
+        }
+        
+        $kilns = $kilnsQuery->withCount([
+            'barcodes' => function($query) use ($startDate, $endDate) {
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as waiting_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_WAITING);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as control_repeat_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as pre_approved_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as shipment_approved_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as customer_transfer_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as delivered_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_DELIVERED);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as rejected_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_REJECTED);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            },
+            'barcodes as merged_count' => function($query) use ($startDate, $endDate) {
+                $query->where('status', \App\Models\Barcode::STATUS_MERGED);
+                if ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                }
+                if ($endDate) {
+                    $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                }
+            }
+        ])->get();
+
+        // Her fırın için detaylı istatistikler
+        foreach ($kilns as $kiln) {
+            // Tarih filtrelenmiş barcodes sorgusu
+            $barcodesQuery = $kiln->barcodes();
+            if ($startDate) {
+                $barcodesQuery->where('created_at', '>=', $startDate);
+            }
+            if ($endDate) {
+                $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59');
+            }
+            
+            // Toplam üretim miktarı (KG)
+            $kiln->total_production = $barcodesQuery
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            // Son 30 günlük üretim (KG) - tarih filtresi varsa sadece o aralıkta
+            if ($startDate || $endDate) {
+                $kiln->last_30_days_production = $kiln->total_production;
+            } else {
+                $kiln->last_30_days_production = $kiln->barcodes()
+                    ->where('created_at', '>=', now()->subDays(30))
+                    ->with('quantity')
+                    ->get()
+                    ->sum(function($barcode) {
+                        return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                    });
+            }
+            
+            // Durum bazında KG miktarları
+            $kiln->waiting_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_WAITING)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->control_repeat_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->pre_approved_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->shipment_approved_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->customer_transfer_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->delivered_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_DELIVERED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->rejected_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            $kiln->merged_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_MERGED)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
+            // Günlük ortalama üretim (KG)
+            $barcodes = $barcodesQuery->get();
+            $activeDays = $barcodes->groupBy(function($item) {
+                return $item->created_at->format('Y-m-d');
+            })->count();
+            $kiln->daily_average_30_days = $activeDays > 0 ? round($kiln->total_production / $activeDays, 2) : 0;
+            
+            // Aylık ortalama üretim (KG) - son 12 ay
+            $last12MonthsBarcodes = $kiln->barcodes()
+                ->where('created_at', '>=', now()->subMonths(12))
+                ->with('quantity')
+                ->get();
+            $activeMonths12 = $last12MonthsBarcodes->groupBy(function($item) {
+                return $item->created_at->format('Y-m');
+            })->count();
+            $totalProduction12Months = $last12MonthsBarcodes->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+            $kiln->monthly_average_12_months = $activeMonths12 > 0 ? round($totalProduction12Months / $activeMonths12, 2) : 0;
+            
+            // Genel günlük ortalama (KG) - tüm zamanlar
+            $allBarcodes = $kiln->barcodes()
+                ->with('quantity')
+                ->get();
+            $activeDaysTotal = $allBarcodes->groupBy(function($item) {
+                return $item->created_at->format('Y-m-d');
+            })->count();
+            $kiln->daily_average_total = $activeDaysTotal > 0 ? round($kiln->total_production / $activeDaysTotal, 2) : 0;
+            
+            // Red oranı
+            $totalBarcodes = $barcodes->count();
+            $rejectedBarcodes = $barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
+            $kiln->rejection_rate = $totalBarcodes > 0 ? round(($rejectedBarcodes / $totalBarcodes) * 100, 2) : 0;
+            
+            // Teslim oranı
+            $deliveredBarcodes = $barcodes->where('status', \App\Models\Barcode::STATUS_DELIVERED)->count();
+            $kiln->delivery_rate = $totalBarcodes > 0 ? round(($deliveredBarcodes / $totalBarcodes) * 100, 2) : 0;
+        }
+
+        return view('admin.kiln.index', compact('kilns'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\Response
+     */
+    public function create()
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        return view('admin.kiln.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param \App\Http\Requests\Kiln\KilnStoreRequest $request
+     * @return string
+     */
+    public function store(KilnStoreRequest $request)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        $data = $request->validated();
+
+        $kiln = Kiln::create($data);
+
+        if (!$kiln) {
+            toastr()->error('Fırın girişi yapılamadı.');
+        }
+
+        toastr()->success('Fırın girişi başarılı.');
+
+        return redirect()->route('kiln.index');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        $kiln = Kiln::findOrFail($id);
+
+        return view('admin.kiln.edit', compact('kiln'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param \App\Http\Requests\Kiln\KilnUpdateRequest $request
+     * @param int $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     */
+    public function update(KilnUpdateRequest $request, $id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        $data = $request->validated();
+
+        $kiln = Kiln::findOrFail($id);
+
+        $kiln->update($data);
+
+        if (!$kiln) {
+            toastr()->error('Fırın girişi düzenlenemedi.');
+        }
+
+        toastr()->success('Fırın girişi başarıyla düzenlendi.');
+
+        return redirect()->route('kiln.index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        try {
+            $kiln = Kiln::findOrFail($id);
+
+            // Check if kiln can be deleted
+            if ($this->canKilnBeDeleted($kiln)) {
+                $kiln->delete();
+                return response()->json(['success' => true, 'message' => 'Fırın başarıyla silindi!']);
+            } else {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu fırın silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu fırın silinemez.'
+                ], 422);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Kiln deletion error: ' . $e->getMessage());
+            
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Bu fırın silinemez çünkü sistemde aktif olarak kullanılmaktadır. İlişkili kayıtlar silinene kadar bu fırın silinemez.'
+                ], 422);
+            }
+            
+            return response()->json([
+                'success' => false, 
+                'message' => 'Fırın silinirken bir hata oluştu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Check if kiln can be safely deleted
+     */
+    private function canKilnBeDeleted($kiln)
+    {
+        // Check if kiln has any related barcodes
+        return !$kiln->barcodes()->exists();
+    }
+
+    /**
+     * Show detailed analysis for a specific kiln.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function analysis($id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Günlük - bugün
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak bugün
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        $kiln = Kiln::with(['barcodes' => function($query) use ($startDate, $endDate) {
+            $query->with(['stock', 'company', 'warehouse']);
+            
+            // Tarih filtreleme
+            if ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->where('created_at', '<=', $endDate . ' 23:59:59');
+            }
+        }])->findOrFail($id);
+
+        // Detaylı istatistikler
+        $kiln->total_production = $kiln->barcodes->sum(function($barcode) {
+            return $barcode->quantity ? $barcode->quantity->quantity : 0;
+        });
+        $kiln->total_barcodes = $kiln->barcodes->count();
+        
+        // Durum bazında dağılım
+        $statusDistribution = $kiln->barcodes->groupBy('status')->map->count();
+        
+        // Aylık üretim trendi (son 12 ay)
+        $monthlyProduction = $kiln->barcodes()
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as total_barcodes')
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month', 'year')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($monthlyProduction as $month) {
+            $month->total_quantity = $kiln->barcodes()
+                ->whereRaw('MONTH(created_at) = ? AND YEAR(created_at) = ?', [$month->month, $month->year])
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
+
+        // Red oranı trendi
+        $rejectionTrend = $kiln->barcodes()
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, 
+                        COUNT(*) as total_barcodes,
+                        SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as rejected_count', [\App\Models\Barcode::STATUS_REJECTED])
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month', 'year')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        // İstisnai onay istatistikleri
+        $exceptionallyApprovedStats = $kiln->barcodes()
+            ->selectRaw('
+                COUNT(*) as total_exceptionally_approved,
+                SUM(CASE WHEN is_exceptionally_approved = 1 THEN 1 ELSE 0 END) as exceptionally_approved_count,
+                ROUND(
+                    (SUM(CASE WHEN is_exceptionally_approved = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2
+                ) as exceptionally_approved_percentage
+            ')
+            ->get()
+            ->first();
+
+        // İstisnai onay trendi (son 12 ay)
+        $exceptionallyApprovedTrend = $kiln->barcodes()
+            ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, 
+                        COUNT(*) as total_barcodes,
+                        SUM(CASE WHEN is_exceptionally_approved = 1 THEN 1 ELSE 0 END) as exceptionally_approved_count')
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('month', 'year')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+
+        // En çok üretilen stoklar (pagination ile)
+        $perPage = 10;
+        $topStocksQuery = $kiln->barcodes()
+            ->with('stock')
+            ->selectRaw('stock_id, COUNT(*) as total_barcodes')
+            ->groupBy('stock_id')
+            ->orderByDesc('total_barcodes');
+        
+        $topStocksTotal = $topStocksQuery->get()->count();
+        $topStocks = $topStocksQuery->skip((request('stocks_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($topStocks as $stock) {
+            $stock->total_quantity = $kiln->barcodes()
+                ->where('stock_id', $stock->stock_id)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
+        
+        $topStocksPagination = [
+            'data' => $topStocks,
+            'total' => $topStocksTotal,
+            'per_page' => $perPage,
+            'current_page' => request('stocks_page', 1),
+            'last_page' => ceil($topStocksTotal / $perPage)
+        ];
+
+        // En çok çalışılan müşteriler (pagination ile)
+        $topCompaniesQuery = $kiln->barcodes()
+            ->with('company')
+            ->selectRaw('company_id, COUNT(*) as total_barcodes')
+            ->whereNotNull('company_id')
+            ->groupBy('company_id')
+            ->orderByDesc('total_barcodes');
+        
+        $topCompaniesTotal = $topCompaniesQuery->get()->count();
+        $topCompanies = $topCompaniesQuery->skip((request('companies_page', 1) - 1) * $perPage)->take($perPage)->get();
+        
+        // KG değerlerini ayrıca hesapla
+        foreach ($topCompanies as $company) {
+            $company->total_quantity = $kiln->barcodes()
+                ->where('company_id', $company->company_id)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+        }
+        
+        $topCompaniesPagination = [
+            'data' => $topCompanies,
+            'total' => $topCompaniesTotal,
+            'per_page' => $perPage,
+            'current_page' => request('companies_page', 1),
+            'last_page' => ceil($topCompaniesTotal / $perPage)
+        ];
+
+        return view('admin.kiln.analysis', compact('kiln', 'statusDistribution', 'monthlyProduction', 'rejectionTrend', 'exceptionallyApprovedStats', 'exceptionallyApprovedTrend', 'topStocks', 'topCompanies', 'topStocksPagination', 'topCompaniesPagination'));
+    }
+
+    /**
+     * Download Excel report for a specific kiln.
+     *
+     * @param  int  $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadReport($id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        $kiln = Kiln::with(['barcodes' => function($query) {
+            $query->with(['stock', 'company', 'warehouse', 'rejectionReasons']);
+        }])->findOrFail($id);
+
+        // Excel export için veri hazırlama
+        $data = [];
+        foreach ($kiln->barcodes as $barcode) {
+            $data[] = [
+                'Barkod ID' => $barcode->id,
+                'Stok Adı' => $barcode->stock ? $barcode->stock->name : '-',
+                'Miktar (KG)' => $barcode->quantity ? $barcode->quantity->quantity : 0,
+                'Durum' => \App\Models\Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor',
+                'İstisnai Onay' => $barcode->is_exceptionally_approved ? 'Evet' : 'Hayır',
+                'Red Sebepleri' => $barcode->rejectionReasons->pluck('name')->implode(', ') ?: '-',
+                'Müşteri' => $barcode->company ? $barcode->company->name : '-',
+                'Depo' => $barcode->warehouse ? $barcode->warehouse->name : '-',
+                'Oluşturulma Tarihi' => $barcode->created_at ? $barcode->created_at->format('d.m.Y H:i') : '-',
+                'Laboratuvar Tarihi' => $barcode->lab_at ? \Carbon\Carbon::parse($barcode->lab_at)->format('d.m.Y H:i') : '-',
+                'Depo Transfer Tarihi' => $barcode->warehouse_transferred_at ? \Carbon\Carbon::parse($barcode->warehouse_transferred_at)->format('d.m.Y H:i') : '-',
+                'Müşteri Transfer Tarihi' => $barcode->company_transferred_at ? \Carbon\Carbon::parse($barcode->company_transferred_at)->format('d.m.Y H:i') : '-',
+                'Teslim Tarihi' => $barcode->delivered_at ? \Carbon\Carbon::parse($barcode->delivered_at)->format('d.m.Y H:i') : '-',
+            ];
+        }
+
+        $filename = 'Firin_Raporu_' . $kiln->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return \Excel::download(new \App\Exports\KilnReportExport($data), $filename);
+    }
+
+    /**
+     * Download bulk Excel report for kilns (respects date filters).
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadExcel()
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // no filter
+                    break;
+                default:
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        // Verileri hazırla
+        $kilns = Kiln::all();
+        foreach ($kilns as $kiln) {
+            $barcodesQuery = $kiln->barcodes();
+            if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
+            if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
+
+            $kiln->total_production = $barcodesQuery->with('quantity')->get()->sum(function($barcode){
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+
+            $kiln->waiting_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_WAITING)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->control_repeat_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->pre_approved_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->shipment_approved_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_SHIPMENT_APPROVED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->customer_transfer_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->delivered_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_DELIVERED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->rejected_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->merged_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_MERGED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+        }
+
+        $fileName = 'firinlar';
+        if ($startDate && $endDate) {
+            $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            if ($startDate !== $endDate) {
+                $fileName .= '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $map = ['monthly'=>'aylik','quarterly'=>'3-aylik','yearly'=>'yillik','all'=>'tum-zamanlar'];
+            $fileName .= '-' . ($map[$period] ?? 'gunluk');
+        } else {
+            $fileName .= '-' . now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
+
+        return \Excel::download(new \App\Exports\KilnsExport(collect($kilns)), $fileName);
+    }
+
+    /**
+     * Download comprehensive report for a specific kiln including exceptionally approved data.
+     *
+     * @param  int  $id
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function downloadComprehensiveReport($id)
+    {
+        if (!auth()->user()->hasPermission(Permission::MANAGEMENT)) {
+            toastr()->error('Yönetim izniniz bulunmamaktadır.');
+            return back()->withInput();
+        }
+
+        $kiln = Kiln::with(['barcodes' => function($query) {
+            $query->with(['stock', 'company', 'warehouse', 'rejectionReasons']);
+        }])->findOrFail($id);
+
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    break;
+                default:
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            $startDate = now()->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        // Filtreleme uygula
+        if ($startDate) {
+            $kiln->barcodes = $kiln->barcodes->filter(function($barcode) use ($startDate) {
+                return $barcode->created_at >= $startDate;
+            });
+        }
+        if ($endDate) {
+            $kiln->barcodes = $kiln->barcodes->filter(function($barcode) use ($endDate) {
+                return $barcode->created_at <= $endDate . ' 23:59:59';
+            });
+        }
+
+        // Aylık trend verilerini hazırla
+        $monthlyData = [];
+        $currentDate = $startDate ? \Carbon\Carbon::parse($startDate) : now()->subMonths(12);
+        $endDateObj = $endDate ? \Carbon\Carbon::parse($endDate) : now();
+
+        while ($currentDate <= $endDateObj) {
+            $month = $currentDate->month;
+            $year = $currentDate->year;
+            
+            $monthBarcodes = $kiln->barcodes->filter(function($barcode) use ($month, $year) {
+                return $barcode->created_at->month == $month && $barcode->created_at->year == $year;
+            });
+
+            $totalBarcodes = $monthBarcodes->count();
+            $exceptionallyApprovedCount = $monthBarcodes->where('is_exceptionally_approved', true)->count();
+            $rejectedCount = $monthBarcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
+            $totalQuantity = $monthBarcodes->sum(function($barcode) {
+                return $barcode->quantity ? $barcode->quantity->quantity : 0;
+            });
+
+            $monthlyData[] = [
+                'Ay' => $currentDate->format('M Y'),
+                'Toplam Ürün' => $totalBarcodes,
+                'İstisnai Onaylı' => $exceptionallyApprovedCount,
+                'İstisnai Onay Oranı (%)' => $totalBarcodes > 0 ? round(($exceptionallyApprovedCount / $totalBarcodes) * 100, 2) : 0,
+                'Normal Onaylı' => $totalBarcodes - $exceptionallyApprovedCount,
+                'Normal Onay Oranı (%)' => $totalBarcodes > 0 ? round((($totalBarcodes - $exceptionallyApprovedCount) / $totalBarcodes) * 100, 2) : 0,
+                'Reddedilen' => $rejectedCount,
+                'Red Oranı (%)' => $totalBarcodes > 0 ? round(($rejectedCount / $totalBarcodes) * 100, 2) : 0,
+                'Kabul Edilen' => $totalBarcodes - $rejectedCount,
+                'Kabul Oranı (%)' => $totalBarcodes > 0 ? round((($totalBarcodes - $rejectedCount) / $totalBarcodes) * 100, 2) : 0,
+                'Toplam Üretim (KG)' => $totalQuantity,
+                'Toplam Üretim (Ton)' => round($totalQuantity / 1000, 2),
+                'Ortalama Üretim/Barkod (KG)' => $totalBarcodes > 0 ? round($totalQuantity / $totalBarcodes, 2) : 0
+            ];
+
+            $currentDate->addMonth();
+        }
+
+        $filename = 'Kapsamli_Firin_Raporu_' . $kiln->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+
+        return \Excel::download(new \App\Exports\ExceptionallyApprovedReportExport($monthlyData), $filename);
+    }
+}
