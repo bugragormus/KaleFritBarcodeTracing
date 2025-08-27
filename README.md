@@ -277,7 +277,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ---
 
-# Kalefrit - Management System v2.0
+# Kalefrit - Management System v2.1.1
 
 <p align="center">
   <img src="public/assets/images/kale-logo.png" alt="Kalefrit Logo" width="200">
