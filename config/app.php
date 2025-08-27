@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://kalefrit.test'),
+    'url' => env('APP_URL', 'https://kalefrit.live'),
 
     'asset_url' => env('ASSET_URL', null),
 

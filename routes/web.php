@@ -140,11 +140,11 @@ Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadCom
         });
 
         Route::as('settings.')->prefix('ayarlar')->group(function () {
-    Route::get('/', [SettingsController::class, 'show'])->name('show');
-    Route::put('/firin-sarj-numaralarini-sifirla', [SettingsController::class, 'resetKilnLoadNumber'])->name('resetKilnLoadNumber');
-    Route::post('/tek-firin-sarj-sifirla', [SettingsController::class, 'resetSingleKilnLoadNumber'])->name('resetSingleKilnLoadNumber');
-    Route::post('/firin-sarj-numaralarini-guncelle', [SettingsController::class, 'updateKilnLoadNumbers'])->name('updateKilnLoadNumbers');
-});
+            Route::get('/', [SettingsController::class, 'show'])->name('show');
+            Route::put('/firin-sarj-numaralarini-sifirla', [SettingsController::class, 'resetKilnLoadNumber'])->name('resetKilnLoadNumber');
+            Route::post('/tek-firin-sarj-sifirla', [SettingsController::class, 'resetSingleKilnLoadNumber'])->name('resetSingleKilnLoadNumber');
+            Route::post('/firin-sarj-numaralarini-guncelle', [SettingsController::class, 'updateKilnLoadNumbers'])->name('updateKilnLoadNumbers');
+        });
 
         // Laboratuvar ekibi route'ları
         Route::as('laboratory.')->prefix('laboratuvar')->group(function () {

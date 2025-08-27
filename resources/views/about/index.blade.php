@@ -387,7 +387,7 @@
                                     <i class="fas fa-code-branch"></i>
                                 </div>
                                 <div class="info-title">Versiyon</div>
-                                <div class="info-description">2.1.1</div>
+                                <div class="info-description">2.0.0</div>
                             </div>
                         </div>
 
