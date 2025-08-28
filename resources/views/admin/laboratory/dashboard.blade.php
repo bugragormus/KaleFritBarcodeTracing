@@ -498,8 +498,8 @@
                                     @forelse($pendingBarcodes as $barcode)
                                     <tr id="barcode-row-{{ $barcode->id }}">
                                         <td>
-                                            <strong>{{ $barcode->stock->code }}</strong><br>
-                                            <small>{{ $barcode->stock->name }}</small>
+                                            <strong>{{ $barcode->stock->name }}</strong><br>
+                                            <small>{{ $barcode->stock->code }}</small>
                                             <br>
                                             <span class="badge badge-{{ 
                                                 $barcode->status == \App\Models\Barcode::STATUS_WAITING ? 'warning' : 

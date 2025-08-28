@@ -89,6 +89,25 @@
         border-color: #007bff;
         background-color: #f8f9ff;
     }
+    
+    /* Tıklanabilir card stili */
+    .clickable-card {
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .clickable-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .clickable-card .custom-control {
+        pointer-events: none;
+    }
+    
+    .clickable-card .custom-control-input {
+        pointer-events: auto;
+    }
     .btn-modern {
         border-radius: 10px;
         padding: 0.75rem 1.5rem;
@@ -107,8 +126,6 @@
     .btn-modern:disabled:hover {
         transform: none !important;
         box-shadow: none !important;
-    }
-        font-size: 1rem;
     }
     .btn-modern:hover {
         transform: translateY(-2px);
@@ -197,6 +214,146 @@
     .alert-info {
         background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
         color: #0c5460;
+    }
+    
+    /* Filtre Bölümü Stilleri */
+    .form-label-modern {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.95rem;
+    }
+    .form-label-modern i {
+        margin-right: 0.5rem;
+        color: #667eea;
+        font-size: 0.9rem;
+    }
+    .form-control-modern {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .form-control-modern:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+        transform: translateY(-1px);
+    }
+    .form-control-modern:hover {
+        border-color: #667eea;
+        transform: translateY(-1px);
+    }
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: white;
+        box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    }
+    
+    /* Gelişmiş Filtre Bölümü Stilleri */
+    .filter-section-modern {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        border: 1px solid #dee2e6;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .filter-header-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .filter-title-modern {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-title-modern i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .filter-content-modern {
+        padding: 1.5rem;
+        background: white;
+    }
+    
+    .filter-actions-modern {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        height: 100%;
+        padding-top: 1.5rem;
+    }
+    
+    .btn-clear-filter {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        min-width: 140px;
+        height: 45px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: none !important;
+    }
+    
+    .btn-clear-filter:hover {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    .form-group.mb-0 {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Filtre vurgulama stili */
+    .filter-highlight {
+        padding: 0.25rem 0.5rem;
+        margin: 0 0.25rem;
+        border-radius: 4px;
+        background-color: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+    
+    /* Responsive düzenlemeler */
+    @media (max-width: 768px) {
+        .filter-content-modern .row {
+            flex-direction: column;
+        }
+        
+        .filter-content-modern .col-md-3 {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-actions-modern {
+            justify-content: center;
+        }
+        
+        .btn-clear-filter {
+            width: 100%;
+            min-width: auto;
+        }
     }
     .spinner-border-sm {
         width: 1rem;
@@ -577,6 +734,7 @@
             <div class="confirmation-details">
                 <p><strong>İşlem Türü:</strong> <span id="confirmAction"></span></p>
                 <p><strong>Seçili Barkod Sayısı:</strong> <span id="confirmCount"></span></p>
+                <p><strong>Stok Bilgileri:</strong> <span id="confirmStockInfo"></span></p>
                 <p><strong>Not:</strong> <span id="confirmNote"></span></p>
                 <p id="rejectionReasonsRow" style="display: none;"><strong>Red Sebepleri:</strong> <span id="confirmRejectionReasons"></span></p>
                 <p class="text-muted mb-0"><i class="fas fa-info-circle mr-1"></i>Bu işlem seçili tüm barkodları aynı anda işleyecektir ve geri alınamaz.</p>
@@ -616,10 +774,68 @@
                     </div>
                     <div class="card-body-modern">
                         @if($pendingBarcodes->count() > 0)
+                        <!-- Filtre Bölümü -->
+                        <div class="filter-section-modern mb-4">
+                            <div class="filter-header-modern">
+                                <h5 class="filter-title-modern">
+                                    <i class="fas fa-filter mr-2"></i>Filtreleme Seçenekleri
+                                </h5>
+                            </div>
+                            <div class="filter-content-modern">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-0">
+                                            <label for="stockSearch" class="form-label-modern">
+                                                <i class="fas fa-search mr-2"></i>Stok Adı Ara
+                                            </label>
+                                            <input type="text" class="form-control-modern" id="stockSearch" 
+                                                   placeholder="Stok adı yazın..." autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-0">
+                                            <label for="stockFilter" class="form-label-modern">
+                                                <i class="fas fa-list mr-2"></i>Stok Seç
+                                            </label>
+                                            <select class="form-control-modern" id="stockFilter">
+                                                <option value="">Tüm Stoklar</option>
+                                                @php
+                                                    $uniqueStocks = $pendingBarcodes->pluck('stock.name')->unique()->sort();
+                                                @endphp
+                                                @foreach($uniqueStocks as $stockName)
+                                                    <option value="{{ $stockName }}">{{ $stockName }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-0">
+                                            <label for="statusFilter" class="form-label-modern">
+                                                <i class="fas fa-info-circle mr-2"></i>Durum Seç
+                                            </label>
+                                            <select class="form-control-modern" id="statusFilter">
+                                                <option value="">Tüm Durumlar</option>
+                                                @foreach(\App\Models\Barcode::STATUSES as $statusKey => $statusName)
+                                                    <option value="{{ $statusKey }}">{{ $statusName }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="filter-actions-modern">
+                                            <button type="button" class="btn btn-modern btn-outline-secondary btn-clear-filter" id="clearFilter">
+                                                <i class="fas fa-times mr-2"></i>Filtreyi Temizle
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="row" id="barcodeList">
                             @foreach($pendingBarcodes as $barcode)
                             <div class="col-md-6 col-lg-4">
-                                <div class="barcode-item-modern" data-barcode-id="{{ $barcode->id }}">
+                                <div class="barcode-item-modern clickable-card" data-barcode-id="{{ $barcode->id }}">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input barcode-checkbox" 
                                                id="barcode_{{ $barcode->id }}" value="{{ $barcode->id }}">
@@ -627,21 +843,24 @@
                                     </div>
                                     <div class="mt-2">
                                         <h6 class="mb-1">
-                                            <strong>{{ $barcode->stock->code }}</strong> - {{ $barcode->stock->name }}
-                                            <br>
-                                            <span class="badge badge-{{ 
-                                                $barcode->status == \App\Models\Barcode::STATUS_WAITING ? 'warning' : 
-                                                ($barcode->status == \App\Models\Barcode::STATUS_PRE_APPROVED ? 'success' : 
-                                                ($barcode->status == \App\Models\Barcode::STATUS_CONTROL_REPEAT ? 'info' : 'secondary')) 
-                                            }}">
-                                                {{ \App\Models\Barcode::STATUSES[$barcode->status] }}
-                                            </span>
+                                            <div class="stock-info mb-2">
+                                                <strong>{{ $barcode->stock->name }}</strong> - Şarj No: {{ $barcode->load_number }}
+                                            </div>
+                                            <div class="status-badge-container">
+                                                <span class="badge badge-{{ 
+                                                    $barcode->status == \App\Models\Barcode::STATUS_WAITING ? 'warning' : 
+                                                    ($barcode->status == \App\Models\Barcode::STATUS_PRE_APPROVED ? 'success' : 
+                                                    ($barcode->status == \App\Models\Barcode::STATUS_CONTROL_REPEAT ? 'info' : 'secondary')) 
+                                                }}">
+                                                    {{ \App\Models\Barcode::STATUSES[$barcode->status] }}
+                                                </span>
+                                            </div>
                                         </h6>
                                         <p class="mb-1 text-muted">
                                             <i class="fas fa-fire mr-1"></i>{{ $barcode->kiln->name }}
                                         </p>
                                         <p class="mb-1 text-muted">
-                                            <i class="fas fa-hashtag mr-1"></i>Şarj: {{ $barcode->load_number }}
+                                            <i class="fas fa-hashtag mr-1"></i>{{ $barcode->stock->code }}
                                         </p>
                                         <p class="mb-1">
                                             <span class="badge badge-info status-badge">
@@ -683,13 +902,26 @@ $(document).ready(function() {
     initializeCheckboxes();
     updateSelectedCount();
     loadBarcodeStatuses();
+    initializeFilters();
 });
 
 function initializeCheckboxes() {
-    // Tümünü seç checkbox'ı
+    // Tümünü seç checkbox'ı - sadece görünür barkodları seçer
     $('#selectAll').change(function() {
         const isChecked = $(this).is(':checked');
-        $('.barcode-checkbox').prop('checked', isChecked);
+        
+        // Sadece görünür (filtrelenmiş) barkodları seç
+        $('.barcode-item-modern').each(function() {
+            const $item = $(this);
+            const $container = $item.closest('.col-md-6, .col-lg-4');
+            const $checkbox = $item.find('.barcode-checkbox');
+            
+            // Eğer container görünürse checkbox'ı işaretle/kaldır
+            if ($container.is(':visible')) {
+                $checkbox.prop('checked', isChecked);
+            }
+        });
+        
         updateSelectedBarcodes();
         updateSelectedCount();
         updateBulkButtons();
@@ -702,6 +934,179 @@ function initializeCheckboxes() {
         updateBulkButtons();
         updateSelectAllState();
     });
+    
+    // Card'a tıklandığında checkbox'ı seç
+    $('.clickable-card').click(function(e) {
+        // Eğer checkbox'a tıklandıysa işlemi yapma (çift işlem olmasın)
+        if ($(e.target).closest('.custom-control').length > 0) {
+            return;
+        }
+        
+        const $checkbox = $(this).find('.barcode-checkbox');
+        const isChecked = $checkbox.is(':checked');
+        
+        // Checkbox durumunu tersine çevir
+        $checkbox.prop('checked', !isChecked).trigger('change');
+        
+        // Card'ın seçili durumunu güncelle
+        $(this).toggleClass('selected', !isChecked);
+    });
+}
+
+function initializeFilters() {
+    // Stok adına göre filtreleme (dropdown)
+    $('#stockFilter').change(function() {
+        filterBarcodes();
+    });
+    
+    // Durum filtreleme (dropdown)
+    $('#statusFilter').change(function() {
+        filterBarcodes();
+    });
+    
+    // Arama kutusu ile filtreleme
+    $('#stockSearch').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        if (searchTerm.length >= 2) {
+            // Arama terimi 2 karakterden fazlaysa filtrele
+            filterBySearch(searchTerm);
+        } else if (searchTerm.length === 0) {
+            // Arama kutusu boşsa tümünü göster
+            showAllBarcodes();
+        }
+    });
+    
+    // Filtreyi temizle butonu
+    $('#clearFilter').click(function() {
+        $('#stockSearch').val('');
+        $('#stockFilter').val('');
+        $('#statusFilter').val('');
+        showAllBarcodes();
+        resetCheckboxes();
+    });
+}
+
+function filterBarcodes() {
+    const selectedStock = $('#stockFilter').val();
+    const selectedStatus = $('#statusFilter').val();
+    let visibleCount = 0;
+    
+    // Filtreleme animasyonu
+    $('.barcode-item-modern').each(function() {
+        const $item = $(this);
+        const $container = $item.closest('.col-md-6, .col-lg-4');
+        const stockName = $item.find('h6 strong').text().trim();
+        
+        // Durum bilgisini al (durum badge'inden - ilk badge değil)
+        const statusBadge = $item.find('.status-badge-container .badge').text().trim();
+        const statusKey = getStatusKeyFromText(statusBadge);
+        
+        // Debug için console.log
+        console.log('Barkod:', stockName, 'Durum Badge:', statusBadge, 'Durum Key:', statusKey, 'Seçilen Durum:', selectedStatus);
+        
+        // Hem stok hem de durum filtresini kontrol et
+        const stockMatch = selectedStock === '' || stockName === selectedStock;
+        const statusMatch = selectedStatus === '' || statusKey === selectedStatus;
+        
+        if (stockMatch && statusMatch) {
+            $container.fadeIn(300);
+            visibleCount++;
+        } else {
+            $container.fadeOut(300);
+        }
+    });
+    
+    // Görünür barkod sayısını güncelle
+    updateFilteredCount(visibleCount);
+    
+    // Checkbox durumlarını sıfırla
+    resetCheckboxes();
+}
+
+function getStatusKeyFromText(statusText) {
+    // Durum metninden durum anahtarını bul
+    const statusMap = {
+        'Beklemede': 1,
+        'Kontrol Tekrarı': 2,
+        'Ön Onaylı': 3,
+        'Sevk Onaylı': 4,
+        'Reddedildi': 5
+    };
+    
+    for (const [text, key] of Object.entries(statusMap)) {
+        if (statusText === text) {
+            return key.toString();
+        }
+    }
+    
+    return '';
+}
+
+function filterBySearch(searchTerm) {
+    let visibleCount = 0;
+    
+    $('.barcode-item-modern').each(function() {
+        const $item = $(this);
+        const $container = $item.closest('.col-md-6, .col-lg-4');
+        const stockName = $item.find('h6 strong').text().toLowerCase();
+        
+        if (stockName.includes(searchTerm)) {
+            $container.fadeIn(300);
+            visibleCount++;
+        } else {
+            $container.fadeOut(300);
+        }
+    });
+    
+    updateFilteredCount(visibleCount);
+}
+
+function showAllBarcodes() {
+    $('.barcode-item-modern').each(function() {
+        const $container = $(this).closest('.col-md-6, .col-lg-4');
+        $container.fadeIn(300);
+    });
+    
+    const totalCount = $('.barcode-item-modern').length;
+    updateFilteredCount(totalCount);
+}
+
+function updateFilteredCount(visibleCount) {
+    const totalCount = $('.barcode-item-modern').length;
+    const $title = $('.card-title-modern');
+    const selectedStock = $('#stockFilter').val();
+    const selectedStatus = $('#statusFilter').val();
+    const searchTerm = $('#stockSearch').val();
+    
+    if (selectedStock !== '' || selectedStatus !== '' || searchTerm !== '') {
+        let filterText = '';
+        if (selectedStock !== '') {
+            filterText += `"${selectedStock}" stok adı`;
+        }
+        if (selectedStatus !== '') {
+            if (filterText !== '') filterText += ' ve ';
+            const statusText = $('#statusFilter option:selected').text();
+            filterText += `"${statusText}" durumu ile`;
+        }
+        if (searchTerm !== '') {
+            if (filterText !== '') filterText += ' ve ';
+            filterText += `"${searchTerm}" arama terimi`;
+        }
+        $title.html(`<i class="fas fa-list mr-2"></i>Laboratuvar İşlemleri (${visibleCount}/${totalCount} adet) - <span class="text-primary filter-highlight">${filterText}</span> filtrelendi`);
+    } else {
+        $title.html(`<i class="fas fa-list mr-2"></i>Laboratuvar İşlemleri (${totalCount} adet)`);
+    }
+}
+
+function resetCheckboxes() {
+    // Tüm checkbox'ları temizle
+    $('.barcode-checkbox').prop('checked', false);
+    $('#selectAll').prop('checked', false).prop('indeterminate', false);
+    
+    // Seçili barkodları sıfırla
+    selectedBarcodes = [];
+    updateSelectedCount();
+    updateBulkButtons();
 }
 
 function updateSelectedBarcodes() {
@@ -719,7 +1124,19 @@ function updateSelectedBarcodes() {
 function updateSelectedCount() {
     const count = selectedBarcodes.length;
     $('#selectedCount').text(count);
-    $('#totalCount').text($('.barcode-checkbox').length);
+    
+    // Sadece görünür (filtrelenmiş) barkod sayısını göster
+    let visibleCount = 0;
+    $('.barcode-item-modern').each(function() {
+        const $item = $(this);
+        const $container = $item.closest('.col-md-6, .col-lg-4');
+        
+        if ($container.is(':visible')) {
+            visibleCount++;
+        }
+    });
+    
+    $('#totalCount').text(visibleCount);
 }
 
 function updateBulkButtons() {
@@ -833,12 +1250,33 @@ function loadBarcodeStatuses() {
 }
 
 function updateSelectAllState() {
-    const totalCheckboxes = $('.barcode-checkbox').length;
-    const checkedCheckboxes = $('.barcode-checkbox:checked').length;
+    // Sadece görünür (filtrelenmiş) barkodları say
+    let visibleCheckboxes = 0;
+    let checkedVisibleCheckboxes = 0;
     
-    if (checkedCheckboxes === 0) {
+    $('.barcode-item-modern').each(function() {
+        const $item = $(this);
+        const $container = $item.closest('.col-md-6, .col-lg-4');
+        const $checkbox = $item.find('.barcode-checkbox');
+        
+        // Eğer container görünürse say
+        if ($container.is(':visible')) {
+            visibleCheckboxes++;
+            if ($checkbox.is(':checked')) {
+                checkedVisibleCheckboxes++;
+                // Card'ı seçili olarak işaretle
+                $item.addClass('selected');
+            } else {
+                // Card'ı seçili olmayan olarak işaretle
+                $item.removeClass('selected');
+            }
+        }
+    });
+    
+    // Görünür barkodların durumuna göre "Tümünü Seç" durumunu güncelle
+    if (checkedVisibleCheckboxes === 0) {
         $('#selectAll').prop('indeterminate', false).prop('checked', false);
-    } else if (checkedCheckboxes === totalCheckboxes) {
+    } else if (checkedVisibleCheckboxes === visibleCheckboxes) {
         $('#selectAll').prop('indeterminate', false).prop('checked', true);
     } else {
         $('#selectAll').prop('indeterminate', true);
@@ -949,8 +1387,26 @@ function showConfirmation(action) {
         rejectionReasonsText = selectedReasons.length > 0 ? selectedReasons.join(', ') : 'Seçilmedi';
     }
 
+    // Seçili barkodların stok bilgilerini topla
+    let stockInfo = [];
+    $('.barcode-item-modern').each(function() {
+        const $item = $(this);
+        const $checkbox = $item.find('.barcode-checkbox');
+        
+        if ($checkbox.is(':checked')) {
+            const stockName = $item.find('.stock-info strong').text().trim();
+            const loadNumber = $item.find('.stock-info').text().split('Şarj No:')[1].trim();
+            stockInfo.push(`${stockName} [${loadNumber}]`);
+        }
+    });
+    
+    // Stok bilgilerini göster (benzersiz olanları)
+    const uniqueStockInfo = [...new Set(stockInfo)];
+    const stockInfoText = uniqueStockInfo.length > 0 ? uniqueStockInfo.join(' - ') : 'Bilgi bulunamadı';
+    
     $('#confirmAction').text(actionText);
     $('#confirmCount').text(selectedBarcodes.length);
+    $('#confirmStockInfo').text(stockInfoText);
     $('#confirmNote').text(note);
     $('#confirmRejectionReasons').text(rejectionReasonsText);
     
