@@ -102,7 +102,7 @@ class StockController extends Controller
         $searchCode = request('code');
         if ($searchCode) {
             $stocks = $stocks->filter(function ($stock) use ($searchCode) {
-                return stripos($stock->code ?? '', $searchCode) !== false;
+                return stripos($stock->name ?? '', $searchCode) !== false;
             })->values();
         }
 

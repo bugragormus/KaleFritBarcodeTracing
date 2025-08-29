@@ -642,7 +642,7 @@
             }
             searchInput.addEventListener('input', function(){
                 clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(submitForm, 300);
+                debounceTimer = setTimeout(submitForm, 800);
             });
         })();
         function deleteConfirmation(id) {
