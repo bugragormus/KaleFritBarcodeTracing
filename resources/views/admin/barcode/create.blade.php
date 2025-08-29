@@ -593,7 +593,7 @@
                         <div class="correction-item">
                             <div class="correction-header">
                                 <div class="correction-info">
-                                    <strong>Şarj: {{ $rejectedBarcode->load_number }} | Barkod: #{{ $rejectedBarcode->id }}</strong>
+                                    <strong>Şarj: #{{ $rejectedBarcode->load_number }} | Barkod: #{{ $rejectedBarcode->id }} | Parti: #{{ $rejectedBarcode->party_number}}</strong>
                                     <span class="correction-details">
                                         {{ $rejectedBarcode->stock->name }} - 
                                         {{ $rejectedBarcode->quantity->quantity }} KG - 

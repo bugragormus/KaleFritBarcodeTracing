@@ -844,7 +844,7 @@
                                     <div class="mt-2">
                                         <h6 class="mb-1">
                                             <div class="stock-info mb-2">
-                                                <strong>{{ $barcode->stock->name }}</strong> - Şarj No: {{ $barcode->load_number }}
+                                                <strong>{{ $barcode->stock->name }}</strong> - Şarj: #{{ $barcode->load_number }} - <small>Parti: #{{ $barcode->party_number }}</small>
                                             </div>
                                             <div class="status-badge-container">
                                                 <span class="badge badge-{{ 
