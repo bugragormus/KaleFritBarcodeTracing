@@ -488,7 +488,7 @@
                                 <thead>
                                     <tr>
                                         <th>Stok</th>
-                                        <th>Fırın/Şarj</th>
+                                        <th>Şarj/Fırın</th>
                                         <th>Miktar</th>
                                         <th>Oluşturan</th>
                                         <th>İşlem</th>
@@ -510,8 +510,8 @@
                                             </span>
                                         </td>
                                         <td>
-                                            {{ $barcode->kiln->name }}<br>
-                                            <small>Şarj: {{ $barcode->load_number }}</small>
+                                            Şarj: {{ $barcode->load_number }}<br>
+                                            <small>{{ $barcode->kiln->name }}</small>
                                         </td>
                                         <td>{{ $barcode->quantity->quantity }} KG</td>
                                         <td>
