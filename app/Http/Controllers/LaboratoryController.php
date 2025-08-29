@@ -105,7 +105,7 @@ class LaboratoryController extends Controller
 
             return Datatables::of($barcodes)
                 ->addColumn('stock_info', function ($barcode) {
-                    return $barcode->stock->code . ' - ' . $barcode->stock->name;
+                    return $barcode->stock->name;
                 })
                 ->addColumn('load_info', function ($barcode) {
                     return 'Fırın: ' . $barcode->kiln->name . ' | Şarj: ' . $barcode->load_number;
