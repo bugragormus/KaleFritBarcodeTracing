@@ -2,6 +2,8 @@
 @section('styles')
     <!-- bootstrap-select additional library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.17/css/bootstrap-select.min.css" />
+    <!-- Select2 library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" />
     <style>
         .modern-form {
             background: #ffffff;
@@ -114,6 +116,8 @@
             outline: none;
         }
         
+
+        
         .form-control::placeholder {
             color: #adb5bd;
         }
@@ -212,6 +216,212 @@
             max-width: 200px;
         }
 
+        /* Collapsible Section Styles */
+        .section-header-collapsible {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            padding: 1rem;
+            margin: -1rem -1rem 1rem -1rem;
+        }
+        
+        .section-header-collapsible:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .section-header-collapsible .section-title {
+            margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .collapse-icon {
+            transition: transform 0.3s ease;
+            color: #667eea;
+            font-size: 0.9rem;
+        }
+        
+        .section-header-collapsible[aria-expanded="true"] .collapse-icon {
+            transform: rotate(180deg);
+        }
+        
+        .collapse {
+            transition: all 0.3s ease;
+        }
+        
+        .collapse.show {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Filter Section Styles */
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e9ecef;
+        }
+        
+        .filter-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-title i {
+            margin-right: 0.5rem;
+            color: #667eea;
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-col {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .filter-label i {
+            margin-right: 0.5rem;
+            color: #667eea;
+            font-size: 0.8rem;
+        }
+        
+        .select2-filter {
+            width: 100%;
+        }
+        
+        .select2-container--default .select2-selection--single {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+            padding-left: 12px;
+            color: #495057;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .select2-dropdown {
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #667eea;
+        }
+        
+        .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            color: white;
+            background: #6c757d;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+        
+        /* Hidden items for filtering */
+        .correction-item.hidden {
+            display: none;
+        }
+        
+        .filter-count {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-top: 1px solid #dee2e6;
+            margin-top: 1rem;
+        }
+        
+        /* Seçim Bilgisi Stilleri */
+        .selection-info {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .selection-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .selection-count, .selection-total {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        
+        .selection-count {
+            color: #28a745;
+            font-weight: 500;
+        }
+        
+        .selection-count i {
+            color: #28a745;
+        }
+        
+        .selection-total {
+            color: #6c757d;
+        }
+        
+        .selection-total i {
+            color: #17a2b8;
+        }
+        
+        .selection-count strong, .selection-total strong {
+            font-weight: 600;
+            color: #212529;
+        }
+        
         /* Responsive düzenlemeler */
         @media (max-width: 768px) {
             .correction-header {
@@ -222,6 +432,30 @@
             
             .correction-toggle {
                 align-self: flex-end;
+            }
+            
+            .section-header-collapsible .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .collapse-icon {
+                align-self: flex-end;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-col {
+                min-width: 100%;
+            }
+            
+            .selection-summary {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
             }
         }
         
@@ -315,49 +549,7 @@
             opacity: 0.9;
         }
         
-        /* Pagination Stilleri */
-        .pagination-container {
-            margin-top: 2rem;
-        }
-        
-        .pagination {
-            margin-bottom: 0;
-        }
-        
-        .page-link {
-            color: #667eea;
-            background-color: #ffffff;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            margin: 0 0.25rem;
-            padding: 0.5rem 0.75rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .page-link:hover {
-            color: #ffffff;
-            background-color: #667eea;
-            border-color: #667eea;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-        }
-        
-        .page-item.active .page-link {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
-            color: white;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-        }
-        
-        .pagination-info {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .pagination-info small {
-            font-weight: 500;
-        }
+
     </style>
 @endsection
 @section('content')
@@ -435,7 +627,7 @@
                                     <i class="fas fa-hashtag"></i> Parti Numarası
                                     <span class="required">*</span>
                                 </label>
-                                        <input type="text" name="party_number" id="party_number" class="form-control" placeholder="Parti numarası giriniz" value="{{ old('party_number') }}"/>
+                                        <input type="number" name="party_number" id="party_number" class="form-control" placeholder="Parti numarası giriniz" value="{{ old('party_number') }}" min="1" step="1" pattern="[1-9][0-9]*" title="Sadece pozitif sayı giriniz (0 ile başlayamaz)"/>
                                         @if($errors->has('party_number'))
                                     <div class="error-message">
                                         <i class="fas fa-exclamation-triangle"></i>
@@ -579,83 +771,100 @@
                 <!-- Düzeltme Faaliyeti -->
                 @if($rejectedBarcodes->count() > 0)
                 <div class="form-section">
-                    <h3 class="section-title">
-                        <i class="fas fa-tools"></i> Düzeltme Faaliyeti
-                    </h3>
-                    
-                    <div class="info-card" style="margin-bottom: 1.5rem;">
-                        <h6><i class="fas fa-info-circle"></i> Düzeltme Faaliyeti Nedir?</h6>
-                        <p>Önceki üretimlerden reddedilen malzemeleri, yeni üretim sırasında düzeltme faaliyeti olarak kullanabilirsiniz. Bu sayede hammadde verimliliğinizi artırabilir ve atık miktarını azaltabilirsiniz.</p>
+                    <div class="section-header-collapsible" data-toggle="collapse" data-target="#correctionSection" aria-expanded="false" aria-controls="correctionSection">
+                        <h3 class="section-title">
+                            <i class="fas fa-tools"></i> Düzeltme Faaliyeti
+                            <span class="collapse-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </h3>
                     </div>
+                    
+                    <div class="collapse" id="correctionSection">
+                        <div class="info-card" style="margin-bottom: 1.5rem;">
+                            <h6><i class="fas fa-info-circle"></i> Düzeltme Faaliyeti Nedir?</h6>
+                            <p>Önceki üretimlerden reddedilen malzemeleri, yeni üretim sırasında düzeltme faaliyeti olarak kullanabilirsiniz. Bu sayede hammadde verimliliğinizi artırabilir ve atık miktarını azaltabilirsiniz.</p>
+                        </div>
 
-                    <div class="correction-items">
-                        @foreach($rejectedBarcodes->forPage(request()->get('correction_page', 1), 5) as $index => $rejectedBarcode)
-                        <div class="correction-item">
-                            <div class="correction-header">
-                                <div class="correction-info">
-                                    <strong>Şarj: #{{ $rejectedBarcode->load_number }} | Barkod: #{{ $rejectedBarcode->id }} | Parti: #{{ $rejectedBarcode->party_number}}</strong>
-                                    <span class="correction-details">
-                                        {{ $rejectedBarcode->stock->name }} - 
-                                        {{ $rejectedBarcode->quantity->quantity }} KG - 
-                                        {{ $rejectedBarcode->created_at->format('d.m.Y') }}
-                                    </span>
+                        <!-- Filtreleme Bölümü -->
+                        <div class="filter-section">
+                            <h6 class="filter-title">
+                                <i class="fas fa-filter"></i> Filtreleme
+                            </h6>
+                            <div class="filter-row">
+                                <div class="filter-col">
+                                    <label class="filter-label">
+                                        <i class="fas fa-hashtag"></i> Şarj Numarası
+                                    </label>
+                                    <select class="form-control select2-filter" id="loadNumberFilter" data-placeholder="Şarj numarası seçiniz">
+                                        <option value="">Tümü</option>
+                                        @foreach($rejectedBarcodes->unique('load_number')->pluck('load_number')->sort() as $loadNumber)
+                                            <option value="{{ $loadNumber }}">{{ $loadNumber }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="correction-toggle">
-                                    <input type="checkbox" name="use_correction[]" id="use_correction_{{ $index }}" value="{{ $index }}" class="correction-checkbox"/>
-                                    <label for="use_correction_{{ $index }}">Düzeltme olarak kullan</label>
-                                    <input type="hidden" name="correction_barcodes[]" value="{{ $rejectedBarcode->id }}" class="correction-barcode-hidden" disabled/>
-                                    <input type="hidden" name="correction_quantities[]" value="{{ $rejectedBarcode->quantity->quantity }}" class="correction-quantity-hidden" disabled/>
-                                    <input type="hidden" name="correction_notes[]" value="Şarj {{ $rejectedBarcode->load_number }} düzeltme faaliyeti" class="correction-note-hidden" disabled/>
+                                <div class="filter-col">
+                                    <label class="filter-label">
+                                        <i class="fas fa-box"></i> Stok Adı
+                                    </label>
+                                    <select class="form-control select2-filter" id="stockNameFilter" data-placeholder="Stok adı seçiniz">
+                                        <option value="">Tümü</option>
+                                        @foreach($rejectedBarcodes->unique('stock_id')->pluck('stock.name')->sort() as $stockName)
+                                            <option value="{{ $stockName }}">{{ $stockName }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="filter-col">
+                                    <label class="filter-label">
+                                        <i class="fas fa-times"></i> Temizle
+                                    </label>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="clearFilters">
+                                        <i class="fas fa-eraser"></i> Filtreleri Temizle
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Seçim Bilgisi -->
+                            <div class="selection-info">
+                                <div class="selection-summary">
+                                    <span class="selection-count">
+                                        <i class="fas fa-check-circle"></i> 
+                                        <strong id="selectedCount">0</strong> ürün seçildi
+                                    </span>
+                                    <span class="selection-total">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Toplam <strong>{{ $rejectedBarcodes->count() }}</strong> reddedilen ürün
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
-                    </div>
 
-                    <!-- Pagination -->
-                    @if($rejectedBarcodes->count() > 5)
-                    <div class="pagination-container text-center mt-4">
-                        <nav aria-label="Düzeltme faaliyeti sayfaları">
-                            <ul class="pagination justify-content-center">
-                                @php
-                                    $currentPage = request()->get('correction_page', 1);
-                                    $totalPages = ceil($rejectedBarcodes->count() / 5);
-                                @endphp
-                                
-                                <!-- Önceki sayfa -->
-                                @if($currentPage > 1)
-                                <li class="page-item">
-                                    <a class="page-link" href="?correction_page={{ $currentPage - 1 }}" aria-label="Önceki">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                @endif
-                                
-                                <!-- Sayfa numaraları -->
-                                @for($i = max(1, $currentPage - 2); $i <= min($totalPages, $currentPage + 2); $i++)
-                                <li class="page-item {{ $i == $currentPage ? 'active' : '' }}">
-                                    <a class="page-link" href="?correction_page={{ $i }}">{{ $i }}</a>
-                                </li>
-                                @endfor
-                                
-                                <!-- Sonraki sayfa -->
-                                @if($currentPage < $totalPages)
-                                <li class="page-item">
-                                    <a class="page-link" href="?correction_page={{ $currentPage + 1 }}" aria-label="Sonraki">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                                @endif
-                            </ul>
-                        </nav>
-                        
-                        <div class="pagination-info mt-2">
-                            <small class="text-muted">
-                                Toplam {{ $rejectedBarcodes->count() }} reddedilen barkod, {{ $totalPages }} sayfada gösteriliyor
-                            </small>
+                        <div class="correction-items">
+                            @foreach($rejectedBarcodes as $index => $rejectedBarcode)
+                            <div class="correction-item" 
+                                 data-load-number="{{ $rejectedBarcode->load_number }}"
+                                 data-stock-name="{{ $rejectedBarcode->stock->name }}">
+                                <div class="correction-header">
+                                    <div class="correction-info">
+                                        <strong>Şarj: #{{ $rejectedBarcode->load_number }} | Barkod: #{{ $rejectedBarcode->id }} | Parti: #{{ $rejectedBarcode->party_number}}</strong>
+                                        <span class="correction-details">
+                                            {{ $rejectedBarcode->stock->name }} - 
+                                            {{ $rejectedBarcode->quantity->quantity }} KG - 
+                                            {{ $rejectedBarcode->created_at->format('d.m.Y') }}
+                                        </span>
+                                    </div>
+                                    <div class="correction-toggle">
+                                        <input type="checkbox" name="use_correction[]" id="use_correction_{{ $index }}" value="{{ $index }}" class="correction-checkbox"/>
+                                        <label for="use_correction_{{ $index }}">Düzeltme olarak kullan</label>
+                                        <input type="hidden" name="correction_barcodes[]" value="{{ $rejectedBarcode->id }}" class="correction-barcode-hidden" disabled/>
+                                        <input type="hidden" name="correction_quantities[]" value="{{ $rejectedBarcode->quantity->quantity }}" class="correction-quantity-hidden" disabled/>
+                                        <input type="hidden" name="correction_notes[]" value="Şarj {{ $rejectedBarcode->load_number }} düzeltme faaliyeti" class="correction-note-hidden" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
-                    @endif
                 </div>
                 @endif
 
@@ -672,9 +881,21 @@
 @section('scripts')
     <!-- bootstrap-select additional library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.17/js/bootstrap-select.min.js"></script>
+    <!-- Select2 library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('.selectpicker').selectpicker();
+            
+            // Initialize Select2 for filter dropdowns
+            $('.select2-filter').select2({
+                theme: 'default',
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder');
+                },
+                allowClear: true
+            });
             
             // Sayfa yüklendiğinde tüm hidden input'ları devre dışı bırak
             $('.correction-quantity-hidden, .correction-barcode-hidden, .correction-note-hidden').prop('disabled', true);
@@ -689,15 +910,35 @@
                     // Checkbox işaretlendiğinde hidden input'ları aktif hale getir
                     hiddenInputs.prop('disabled', false);
                 } else {
-                    // Checkbox işaretlenmediğinde hidden input'ları devre dışı bırak
+                    // Checkbox işaretlenmediğinde hidden input'ları devre dışı kalır
                     hiddenInputs.prop('disabled', true);
                 }
+                
+                // Seçim sayacını güncelle
+                updateSelectionCount();
             });
             
             // Form submit öncesi validasyon
             $('form').on('submit', function(e) {
                 var hasCorrection = false;
                 var totalCorrectionQuantity = 0;
+                
+                // Parti numarası kontrolü
+                var partyNumber = $('#party_number').val().trim();
+                if (partyNumber === '' || partyNumber === '0') {
+                    toastr.error('Lütfen geçerli bir parti numarası giriniz (0 olamaz).');
+                    $('#party_number').focus();
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Parti numarası sadece sayı olmalı
+                if (!/^[1-9]\d*$/.test(partyNumber)) {
+                    toastr.error('Parti numarası sadece pozitif sayı olmalıdır ve 0 ile başlayamaz.');
+                    $('#party_number').focus();
+                    e.preventDefault();
+                    return false;
+                }
                 
                 // Şarj numarası kontrolü
                 var loadNumber = $('#load_number').val().trim();
@@ -750,6 +991,185 @@
             $('#load_number').on('input', function() {
                 $('#quantity').trigger('change');
             });
+            
+            // Parti numarası validasyonu
+            $('#party_number').on('input', function() {
+                var value = $(this).val();
+                var $input = $(this);
+                
+                // Sadece sayı girişine izin ver
+                value = value.replace(/[^0-9]/g, '');
+                
+                // 0 ile başlayan sayıları engelle
+                if (value.startsWith('0')) {
+                    value = value.replace(/^0+/, '');
+                }
+                
+                // Boş değer kontrolü
+                if (value === '') {
+                    return;
+                }
+                
+                // Validasyon - sadece hata durumunda mesaj göster
+                if (!/^[1-9]\d*$/.test(value)) {
+                    if ($input.siblings('.error-message').length === 0) {
+                        $input.after('<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Sadece pozitif sayı giriniz</div>');
+                    }
+                } else {
+                    // Geçerli değer - hata mesajını kaldır
+                    $input.siblings('.error-message').remove();
+                }
+                
+                // Input değerini güncelle
+                if (value !== $(this).val()) {
+                    $(this).val(value);
+                }
+            });
+            
+            // Collapsible section functionality
+            $('.section-header-collapsible').on('click', function() {
+                var target = $(this).data('target');
+                var isExpanded = $(this).attr('aria-expanded') === 'true';
+                
+                // Toggle aria-expanded attribute
+                $(this).attr('aria-expanded', !isExpanded);
+                
+                // Toggle collapse
+                $(target).collapse('toggle');
+                
+                // Update icon rotation
+                var icon = $(this).find('.collapse-icon i');
+                if (isExpanded) {
+                    icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                } else {
+                    icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                }
+            });
+            
+            // Initialize collapse with Bootstrap
+            $('.collapse').collapse({
+                toggle: false
+            });
+            
+            // Filter functionality
+            function applyFilters() {
+                var loadNumberFilter = $('#loadNumberFilter').val();
+                var stockNameFilter = $('#stockNameFilter').val();
+                
+                console.log('Load Number Filter:', loadNumberFilter);
+                console.log('Stock Name Filter:', stockNameFilter);
+                
+                $('.correction-item').each(function() {
+                    var $item = $(this);
+                    var loadNumber = $item.data('load-number');
+                    var stockName = $item.data('stock-name');
+                    
+                    console.log('Item Load Number:', loadNumber, 'Type:', typeof loadNumber);
+                    console.log('Item Stock Name:', stockName);
+                    
+                    var showItem = true;
+                    
+                    // Apply load number filter - use loose comparison for better compatibility
+                    if (loadNumberFilter && loadNumberFilter !== '') {
+                        // Convert both to numbers if possible, otherwise use string comparison
+                        var filterNum = parseInt(loadNumberFilter);
+                        var itemNum = parseInt(loadNumber);
+                        
+                        if (!isNaN(filterNum) && !isNaN(itemNum)) {
+                            // Both are valid numbers, compare as numbers
+                            if (filterNum !== itemNum) {
+                                showItem = false;
+                            }
+                        } else {
+                            // Fallback to string comparison
+                            if (String(loadNumberFilter) !== String(loadNumber)) {
+                                showItem = false;
+                            }
+                        }
+                    }
+                    
+                    // Apply stock name filter
+                    if (stockNameFilter && stockNameFilter !== '') {
+                        if (stockNameFilter !== stockName) {
+                            showItem = false;
+                        }
+                    }
+                    
+                    // Show/hide item
+                    if (showItem) {
+                        $item.removeClass('hidden');
+                    } else {
+                        $item.addClass('hidden');
+                    }
+                });
+                
+                // Update visible count
+                updateVisibleCount();
+                
+                // Update selection count (filtreleme sonrası seçim sayısı güncellenir)
+                updateSelectionCount();
+            }
+            
+            // Update visible items count
+            function updateVisibleCount() {
+                var visibleCount = $('.correction-item:not(.hidden)').length;
+                var totalCount = $('.correction-item').length;
+                
+                // Add or update count display
+                if ($('.filter-count').length === 0) {
+                    $('.filter-title').after('<div class="filter-count text-muted small mt-2">Gösterilen: ' + visibleCount + ' / ' + totalCount + ' öğe</div>');
+                } else {
+                    $('.filter-count').text('Gösterilen: ' + visibleCount + ' / ' + totalCount + ' öğe');
+                }
+            }
+            
+            // Update selection count
+            function updateSelectionCount() {
+                var selectedCount = $('.correction-checkbox:checked').length;
+                $('#selectedCount').text(selectedCount);
+                
+                // Seçim sayısına göre renk değişimi
+                var $selectionCount = $('.selection-count');
+                if (selectedCount > 0) {
+                    $selectionCount.addClass('has-selection');
+                } else {
+                    $selectionCount.removeClass('has-selection');
+                }
+            }
+            
+            // Filter change events
+            $('#loadNumberFilter, #stockNameFilter').on('change', function() {
+                console.log('Filter changed:', $(this).attr('id'), 'Value:', $(this).val());
+                applyFilters();
+            });
+            
+            // Clear filters button
+            $('#clearFilters').on('click', function() {
+                $('#loadNumberFilter, #stockNameFilter').val('').trigger('change');
+                applyFilters();
+            });
+            
+            // Initialize visible count
+            updateVisibleCount();
+            
+            // Initialize selection count
+            updateSelectionCount();
+            
+            // Debug: Check filter dropdowns content
+            console.log('Load Number Filter Options:', $('#loadNumberFilter option').map(function() {
+                return { value: $(this).val(), text: $(this).text() };
+            }).get());
+            
+            console.log('Stock Name Filter Options:', $('#stockNameFilter option').map(function() {
+                return { value: $(this).val(), text: $(this).text() };
+            }).get());
+            
+            console.log('Correction Items Data:', $('.correction-item').map(function() {
+                return {
+                    loadNumber: $(this).data('load-number'),
+                    stockName: $(this).data('stock-name')
+                };
+            }).get());
         });
     </script>
 @endsection

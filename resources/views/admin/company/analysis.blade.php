@@ -321,7 +321,7 @@
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('company.download.report', ['firma' => $company->id]) }}" class="btn-modern btn-warning-modern mr-3">
+                    <a href="{{ route('company.excel.download', request()->query()) }}" class="btn-modern btn-warning-modern mr-3">
                             <i class="fas fa-file-excel"></i> Excel İndir
                         </a>
                         <a href="{{ route('company.index') }}" class="btn-modern btn-primary-modern">
@@ -507,7 +507,9 @@
                                 </td>
                                 <td>
                                     @php
-                                        $totalQuantity = $company->barcodes->where('status', $statusId)->sum('quantity_id');
+                                        $totalQuantity = $company->barcodes->where('status', $statusId)->sum(function($barcode) {
+                                            return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                                        });
                                     @endphp
                                     {{ number_format($totalQuantity, 0) }}
                                 </td>
@@ -784,7 +786,7 @@
                 label: 'Alım Miktarı (Ton)',
                 data: [
                     @foreach($monthlyPurchase as $data)
-                        {{ $data->total_quantity }},
+                        {{ $data->total_quantity ?? 0 }},
                     @endforeach
                 ],
                 borderColor: '#667eea',

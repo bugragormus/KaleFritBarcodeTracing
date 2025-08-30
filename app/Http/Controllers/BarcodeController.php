@@ -650,6 +650,7 @@ class BarcodeController extends Controller
         $totalCorrectionQuantity = 0;
         $startLoadNumber = (int) $data['load_number']; // Şarj numarasını başta tanımla
         $normalQuantity = (int) ($data['quantity'] ?? 0); // Normal üretim miktarını başta tanımla
+        $correctionLoadNumberCounter = $startLoadNumber + $normalQuantity; // Düzeltme faaliyeti için ayrı sayaç
 
         // Düzeltme faaliyeti kontrolü
         if ($request->filled('correction_barcodes') && is_array($request->input('correction_barcodes'))) {
@@ -664,24 +665,25 @@ class BarcodeController extends Controller
                     
                     // Düzeltme barkodu oluştur
                     $correctionData = [
-                        'stock_id' => $sourceBarcode->stock_id,
+                        'stock_id' => $data['stock_id'], // Ana üretimin stoğu kullanılır
                         'kiln_id' => $data['kiln_id'],
                         'party_number' => $data['party_number'],
-                        'load_number' => $startLoadNumber + $normalQuantity + $totalCorrectionQuantity, // Normal üretimden sonra düzeltme barkodları
-                        'quantity_id' => $sourceBarcode->quantity_id,
+                        'load_number' => $correctionLoadNumberCounter, // Sıralı şarj numarası
+                        'quantity_id' => $sourceBarcode->quantity_id, // Reddedilen barkodun miktarı korunur
                         'warehouse_id' => $data['warehouse_id'],
                         'created_by' => auth()->user()->id,
                         'status' => Barcode::STATUS_WAITING, // Açıkça status belirt
                         'is_correction' => true,
                         'correction_source_barcode_id' => $sourceBarcodeId,
                         'correction_quantity' => $correctionQuantity,
-                        'correction_note' => 'Düzeltme faaliyeti: ' . $sourceBarcode->load_number . ' şarjından ' . $correctionQuantity . ' KG',
+                        'correction_note' => 'Düzeltme faaliyeti: ' . $sourceBarcode->stock->name . ' stoğundan ' . $sourceBarcode->load_number . ' şarjından ' . $correctionQuantity . ' KG',
                         'note' => $data['note'] ?? ''
                     ];
 
                     $correctionBarcode = Barcode::create($correctionData);
                     $barcodeIds[] = $correctionBarcode->id;
                     $totalCorrectionQuantity += $correctionQuantity;
+                    $correctionLoadNumberCounter++; // Sonraki düzeltme barkodu için şarj numarasını artır
 
                     // Barcode history oluştur
                     try {
@@ -697,10 +699,13 @@ class BarcodeController extends Controller
                     }
 
                     // Kaynak barkodu düzeltme faaliyetinde kullanıldı olarak işaretle
+                    $mainStock = Stock::find($data['stock_id']);
+                    $stockName = $mainStock ? $mainStock->name : 'Bilinmeyen Stok';
+                    
                     $sourceBarcode->update([
                         'status' => Barcode::STATUS_CORRECTED,
                         'note' => ($sourceBarcode->note ? $sourceBarcode->note . ' | ' : '') . 
-                                 'Düzeltme faaliyetinde kullanıldı: ' . $correctionBarcode->load_number . ' şarjı'
+                                 'Düzeltme faaliyetinde kullanıldı: ' . $correctionBarcode->load_number . ' şarjı (' . $stockName . ' stoğunda)'
                     ]);
 
                     // NOT: Quantity bilgisine dokunulmuyor, sadece status değiştiriliyor
@@ -754,23 +759,31 @@ class BarcodeController extends Controller
 
         // Fırın şarj numarasını güncelle (en yüksek şarj numarasını yansıt)
         try {
-            $maxLoadNumber = DB::table('barcodes')
-                ->where('kiln_id', $kiln->id)
-                ->max('load_number');
+            // Hem normal üretim hem de düzeltme faaliyeti sonrası en yüksek şarj numarasını bul
+            $maxLoadNumber = max(
+                $startLoadNumber + $normalQuantity - 1, // Normal üretim son şarj numarası
+                $correctionLoadNumberCounter - 1 // Düzeltme faaliyeti son şarj numarası
+            );
             
-            $kiln->update(['load_number' => $maxLoadNumber ?: 0]);
+            $kiln->update(['load_number' => $maxLoadNumber]);
         } catch (\Exception $e) {
             \Log::error('Kiln load number update error: ' . $e->getMessage());
-            // Hata durumunda devam et, barkod oluşturuldu
+            // Hata durumında devam et, barkod oluşturuldu
         }
 
         // Başarı mesajı
         $message = 'Barkod başarıyla oluşturuldu.';
-        if ($totalCorrectionQuantity > 0) {
-            $message .= ' Düzeltme faaliyeti: ' . $totalCorrectionQuantity . ' KG reddedilen malzeme kullanıldı.';
-        }
+        
         if ($normalQuantity > 0) {
-            $message .= ' Yeni üretim: ' . $normalQuantity . ' barkod.';
+            $message .= ' Yeni üretim: ' . $normalQuantity . ' barkod (Şarj: ' . $startLoadNumber . ' - ' . ($startLoadNumber + $normalQuantity - 1) . ').';
+        }
+        
+        if ($totalCorrectionQuantity > 0) {
+            // Ana üretimin stok adını al
+            $mainStock = Stock::find($data['stock_id']);
+            $stockName = $mainStock ? $mainStock->name : 'Bilinmeyen Stok';
+            
+            $message .= ' Düzeltme faaliyeti: ' . $totalCorrectionQuantity . ' KG reddedilen malzeme ' . $stockName . ' stoğunda kullanıldı (Şarj: ' . ($startLoadNumber + $normalQuantity) . ' - ' . ($correctionLoadNumberCounter - 1) . ').';
         }
 
         toastr()->success($message);

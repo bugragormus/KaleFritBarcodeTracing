@@ -38,21 +38,23 @@ class LaboratoryController extends Controller
             ]);
         }
 
-        // Tarih filtreleri (KPI'lar için)
-        $startDate = request('start_date', now()->subDays(30)->format('Y-m-d'));
-        $endDate = request('end_date', now()->format('Y-m-d'));
+        // Tarih filtreleri (KPI'lar için) - Türkiye saati ile
+        $startDate = request('start_date', now()->tz('Europe/Istanbul')->subDays(30)->format('Y-m-d'));
+        $endDate = request('end_date', now()->tz('Europe/Istanbul')->format('Y-m-d'));
         
-        $startDateTime = \Carbon\Carbon::parse($startDate)->startOfDay();
-        $endDateTime = \Carbon\Carbon::parse($endDate)->endOfDay();
+        $startDateTime = \Carbon\Carbon::parse($startDate)->tz('Europe/Istanbul')->startOfDay();
+        $endDateTime = \Carbon\Carbon::parse($endDate)->tz('Europe/Istanbul')->endOfDay();
 
         // Laboratuvar istatistikleri (tarih filtrelenmiş)
         $stats = [
-            'waiting' => Barcode::where('status', Barcode::STATUS_WAITING)->count(), // Bekleyen her zaman güncel
+            'waiting' => Barcode::where('status', Barcode::STATUS_WAITING)
+                ->whereBetween('created_at', [$startDateTime, $endDateTime])
+                ->count(),
             'accepted' => Barcode::where('status', Barcode::STATUS_PRE_APPROVED)
-                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
             'rejected' => Barcode::where('status', Barcode::STATUS_REJECTED)
-                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
             'total_processed' => Barcode::whereNotNull('lab_at')
                 ->whereBetween('lab_at', [$startDateTime, $endDateTime])
@@ -61,10 +63,10 @@ class LaboratoryController extends Controller
                 ->whereBetween('lab_at', [$startDateTime, $endDateTime])
                 ->count(),
             'control_repeat' => Barcode::where('status', Barcode::STATUS_CONTROL_REPEAT)
-                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
             'shipment_approved' => Barcode::where('status', Barcode::STATUS_SHIPMENT_APPROVED)
-                ->whereBetween('lab_at', [$startDateTime, $endDateTime])
+                ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
         ];
 

@@ -26,10 +26,10 @@ class CompanyReportExport implements FromArray, WithHeadings, WithStyles
         return [
             'Barkod ID',
             'Stok Adı',
-            'Miktar (Ton)',
+            'Miktar (KG)',
             'Durum',
             'Fırın',
-            'Depo',
+            'Yüklenen Depo',
             'Oluşturulma Tarihi',
             'Müşteri Transfer Tarihi',
             'Teslim Tarihi',

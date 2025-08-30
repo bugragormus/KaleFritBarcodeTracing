@@ -5,6 +5,27 @@
     <title>Firma Raporu</title>
 </head>
 <body>
+    @if($startDate || $endDate || $period)
+    <div style="margin-bottom: 20px; padding: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+        <h3 style="margin: 0 0 10px 0; color: #495057;">Filtre Bilgileri</h3>
+        @if($period)
+            @php
+                $periodNames = [
+                    'monthly' => 'Aylık',
+                    'quarterly' => '3 Aylık',
+                    'yearly' => 'Yıllık',
+                    'all' => 'Tüm Zamanlar'
+                ];
+            @endphp
+            <p style="margin: 5px 0;"><strong>Periyot:</strong> {{ $periodNames[$period] ?? 'Son 7 Gün' }}</p>
+        @endif
+        @if($startDate && $endDate)
+            <p style="margin: 5px 0;"><strong>Tarih Aralığı:</strong> {{ \Carbon\Carbon::parse($startDate)->format('d.m.Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d.m.Y') }}</p>
+        @endif
+        <p style="margin: 5px 0;"><strong>Rapor Tarihi:</strong> {{ \Carbon\Carbon::now()->format('d.m.Y H:i') }}</p>
+    </div>
+    @endif
+    
     <table>
         <thead>
             <tr>

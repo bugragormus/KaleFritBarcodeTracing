@@ -324,8 +324,8 @@
                             KPI Tarih Filtresi
                         </h5>
                         <small class="text-muted">
-                            Sadece istatistik kartları bu filtrelerden etkilenir | 
-                            <strong>Aktif Tarih: {{ \Carbon\Carbon::parse(request('start_date', now()->subDays(30)->format('Y-m-d')))->format('d.m.Y') }} - {{ \Carbon\Carbon::parse(request('end_date', now()->format('Y-m-d')))->format('d.m.Y') }}</strong>
+                            Tüm KPI'lar seçilen tarih aralığında oluşturulan barkodları gösterir | 
+                            <strong>Aktif Tarih: {{ \Carbon\Carbon::parse(request('start_date', now()->tz('Europe/Istanbul')->subDays(30)->format('Y-m-d')))->format('d.m.Y') }} - {{ \Carbon\Carbon::parse(request('end_date', now()->tz('Europe/Istanbul')->format('Y-m-d')))->format('d.m.Y') }}</strong>
                         </small>
                     </div>
                     <div class="col-md-6">
@@ -333,12 +333,12 @@
                             <div class="col-md-5">
                                 <label for="start_date" class="form-label">Başlangıç Tarihi</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date" 
-                                       value="{{ request('start_date', now()->subDays(30)->format('Y-m-d')) }}">
+                                       value="{{ request('start_date', now()->tz('Europe/Istanbul')->subDays(30)->format('Y-m-d')) }}">
                             </div>
                             <div class="col-md-5">
                                 <label for="end_date" class="form-label">Bitiş Tarihi</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date" 
-                                       value="{{ request('end_date', now()->format('Y-m-d')) }}">
+                                       value="{{ request('end_date', now()->tz('Europe/Istanbul')->format('Y-m-d')) }}">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -363,7 +363,7 @@
         <!-- İstatistik Kartları -->
         <div class="row">
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında oluşturulan bekleyen barkodlar">
                     <div class="stat-icon-modern text-warning mb-2">
                         <i class="fas fa-clock"></i>
                     </div>
@@ -372,7 +372,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında oluşturulan ön onaylı barkodlar">
                     <div class="stat-icon-modern text-success mb-2">
                         <i class="fas fa-check-circle"></i>
                     </div>
@@ -381,7 +381,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında oluşturulan reddedilen barkodlar">
                     <div class="stat-icon-modern text-danger mb-2">
                         <i class="fas fa-times-circle"></i>
                     </div>
@@ -390,7 +390,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında laboratuvar işlemi yapılan barkodlar">
                     <div class="stat-icon-modern text-info mb-2">
                         <i class="fas fa-tasks"></i>
                     </div>
@@ -403,7 +403,7 @@
         <!-- Ek KPI Kartları -->
         <div class="row mt-3">
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında laboratuvar işlemi yapılan toplam barkodlar">
                     <div class="stat-icon-modern text-primary mb-2">
                         <i class="fas fa-chart-line"></i>
                     </div>
@@ -412,7 +412,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında oluşturulan kontrol tekrarı barkodlar">
                     <div class="stat-icon-modern text-secondary mb-2">
                         <i class="fas fa-redo"></i>
                     </div>
@@ -421,7 +421,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında oluşturulan sevk onaylı barkodlar">
                     <div class="stat-icon-modern text-dark mb-2">
                         <i class="fas fa-shipping-fast"></i>
                     </div>
@@ -430,7 +430,7 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern text-center">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığındaki sevk onaylı oranı">
                     <div class="stat-icon-modern text-success mb-2">
                         <i class="fas fa-percentage"></i>
                     </div>
@@ -675,29 +675,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Quick date range functions
 function setDateRange(range) {
+    // Türkiye saatine göre tarih hesaplama
     const today = new Date();
+    const turkeyTime = new Date(today.toLocaleString("en-US", {timeZone: "Europe/Istanbul"}));
     let startDate, endDate;
     
     switch(range) {
         case 'today':
-            startDate = today.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0];
+            startDate = turkeyTime.toISOString().split('T')[0];
+            endDate = turkeyTime.toISOString().split('T')[0];
             break;
         case 'yesterday':
-            const yesterday = new Date(today);
-            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterday = new Date(turkeyTime);
+            yesterday.setDate(turkeyTime.getDate() - 1);
             startDate = yesterday.toISOString().split('T')[0];
             endDate = yesterday.toISOString().split('T')[0];
             break;
         case 'week':
-            const weekStart = new Date(today);
-            weekStart.setDate(today.getDate() - today.getDay());
+            const weekStart = new Date(turkeyTime);
+            weekStart.setDate(turkeyTime.getDate() - turkeyTime.getDay());
             startDate = weekStart.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0];
+            endDate = turkeyTime.toISOString().split('T')[0];
             break;
         case 'month':
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0];
+            startDate = new Date(turkeyTime.getFullYear(), turkeyTime.getMonth(), 1).toISOString().split('T')[0];
+            endDate = turkeyTime.toISOString().split('T')[0];
             break;
     }
     
@@ -711,11 +713,12 @@ function setDateRange(range) {
 // Reset date filter to default (last 30 days)
 function resetDateFilter() {
     const today = new Date();
-    const thirtyDaysAgo = new Date(today);
-    thirtyDaysAgo.setDate(today.getDate() - 30);
+    const turkeyTime = new Date(today.toLocaleString("en-US", {timeZone: "Europe/Istanbul"}));
+    const thirtyDaysAgo = new Date(turkeyTime);
+    thirtyDaysAgo.setDate(turkeyTime.getDate() - 30);
     
     document.getElementById('start_date').value = thirtyDaysAgo.toISOString().split('T')[0];
-    document.getElementById('end_date').value = today.toISOString().split('T')[0];
+    document.getElementById('end_date').value = turkeyTime.toISOString().split('T')[0];
     
     // Auto-submit the form
     document.getElementById('kpi-date-filter').submit();

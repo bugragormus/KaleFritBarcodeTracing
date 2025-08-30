@@ -333,7 +333,7 @@
                         <a href="{{ route('company.create') }}" class="btn-modern btn-success-modern mr-2">
                                 <i class="fas fa-plus"></i> Yeni Firma Ekle
                             </a>
-                            <a href="{{ route('company.excel.download') }}" class="btn-modern btn-warning-modern">
+                            <a href="{{ route('company.excel.download', request()->query()) }}" class="btn-modern btn-warning-modern">
                                 <i class="fas fa-file-excel"></i>Excel İndir
                             </a>
                         </div>
@@ -354,7 +354,7 @@
                     <div class="quick-filters mb-3">
                         <div class="d-flex flex-wrap gap-2">
                             <a href="{{ route('company.index') }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
-                                <i class="fas fa-calendar-day"></i> Günlük
+                                <i class="fas fa-calendar-day"></i> Son 7 Gün
                             </a>
                             <a href="{{ route('company.index', ['period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
                                 <i class="fas fa-calendar-alt"></i> Aylık
@@ -430,13 +430,13 @@
                                 @if(request('period'))
                                     @php
                                         $periodNames = [
-                                            'monthly' => 'Aylık',
-                                            'quarterly' => '3 Aylık',
-                                            'yearly' => 'Yıllık',
-                                            'all' => 'Tüm Zamanlar'
-                                        ];
-                                    @endphp
-                                    {{ $periodNames[request('period')] ?? 'Günlük' }} görünüm
+                                                                                'monthly' => 'Aylık',
+                                    'quarterly' => '3 Aylık',
+                                    'yearly' => 'Yıllık',
+                                    'all' => 'Tüm Zamanlar'
+                                ];
+                            @endphp
+                            {{ $periodNames[request('period')] ?? 'Son 7 Gün' }} görünüm
                                 @endif
                                 @if(request('start_date') && request('end_date'))
                                     - {{ request('start_date') }} - {{ request('end_date') }} tarihleri arası
@@ -474,7 +474,7 @@
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($company->total_purchase, 0) }}</div>
-                            <div class="stat-label">Toplam Satış (KG)</div>
+                            <div class="stat-label">Toplam Alım (KG)</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ number_format($company->last_30_days_purchase, 0) }}</div>
@@ -545,7 +545,7 @@
                         <a href="{{ route('company.analysis', ['firma' => $company->id]) }}" class="btn-modern btn-info-modern btn-xs-modern">
                             <i class="fas fa-chart-bar"></i> Detaylı Analiz
                         </a>
-                        <a href="{{ route('company.download.report', ['firma' => $company->id]) }}" class="btn-modern btn-warning-modern btn-xs-modern">
+                        <a href="{{ route('company.download.report', ['firma' => $company->id] + request()->query()) }}" class="btn-modern btn-warning-modern btn-xs-modern">
                             <i class="fas fa-file-excel"></i> Rapor İndir
                         </a>
                         <button class="btn-modern btn-danger-modern btn-xs-modern" data-id="{{ $company->id }}" data-action="{{ route('company.destroy', $company->id) }}" onclick='deleteConfirmation("{{$company->id}}")'>

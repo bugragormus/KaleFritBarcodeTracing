@@ -45,14 +45,14 @@ class CompanyController extends Controller
                     // Tüm zamanlar için tarih filtresi yok
                     break;
                 default:
-                    // Günlük - bugün
-                    $startDate = now()->format('Y-m-d');
+                    // Günlük - son 7 gün
+                    $startDate = now()->subDays(7)->format('Y-m-d');
                     $endDate = now()->format('Y-m-d');
                     break;
             }
         } elseif (!$startDate && !$endDate) {
-            // Varsayılan olarak bugün
-            $startDate = now()->format('Y-m-d');
+            // Varsayılan olarak son 7 gün
+            $startDate = now()->subDays(7)->format('Y-m-d');
             $endDate = now()->format('Y-m-d');
         }
 
@@ -89,18 +89,23 @@ class CompanyController extends Controller
             
             // Toplam alım miktarı (KG) - sadece müşteri transfer ve teslim edildi
             $company->total_purchase = $barcodesQuery
+                ->whereIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED
+                ])
                 ->with('quantity')
                 ->get()
                 ->sum(function($barcode) {
                     return $barcode->quantity ? $barcode->quantity->quantity : 0;
                 });
             
-            // Son 30 günlük alım (KG)
-            $last30DaysQuery = $company->barcodes();
-            if ($startDate) { $last30DaysQuery->where('created_at', '>=', $startDate); }
-            if ($endDate) { $last30DaysQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
-            $company->last_30_days_purchase = $last30DaysQuery
+            // Son 30 günlük alım (KG) - tarih filtresinden bağımsız
+            $company->last_30_days_purchase = $company->barcodes()
                 ->where('created_at', '>=', now()->subDays(30))
+                ->whereIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED
+                ])
                 ->with('quantity')
                 ->get()
                 ->sum(function($barcode) {
@@ -136,20 +141,29 @@ class CompanyController extends Controller
                     return $barcode->quantity ? $barcode->quantity->quantity : 0;
                 });
             
-            // Teslim oranı (teslim edildi / toplam)
-            $totalBarcodes = $barcodesQuery->count();
+            // Teslim oranı (teslim edildi / toplam müşteri transfer + teslim edildi)
+            $totalRelevantBarcodes = $barcodesQuery
+                ->whereIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED
+                ])
+                ->count();
             $deliveredBarcodes = $barcodesQuery->where('status', \App\Models\Barcode::STATUS_DELIVERED)->count();
-            $company->delivery_rate = $totalBarcodes > 0 ? round(($deliveredBarcodes / $totalBarcodes) * 100, 2) : 0;
+            $company->delivery_rate = $totalRelevantBarcodes > 0 ? round(($deliveredBarcodes / $totalRelevantBarcodes) * 100, 2) : 0;
             
             // Son alım tarihi
             $company->last_purchase_date = $barcodesQuery->latest('created_at')->value('created_at');
             
             // Ortalama sipariş büyüklüğü (KG)
-            $company->average_order_size = $totalBarcodes > 0 ? round($company->total_purchase / $totalBarcodes, 0) : 0;
+            $company->average_order_size = $totalRelevantBarcodes > 0 ? round($company->total_purchase / $totalRelevantBarcodes, 0) : 0;
             
             // Aktiflik skoru (son 90 gün içinde alım yapıp yapmadığı)
-            $recentActivity = $barcodesQuery
+            $recentActivity = $company->barcodes()
                 ->where('created_at', '>=', now()->subDays(90))
+                ->whereIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED
+                ])
                 ->count();
             $company->is_active = $recentActivity > 0;
         }
@@ -345,14 +359,14 @@ class CompanyController extends Controller
                     // Tüm zamanlar için tarih filtresi yok
                     break;
                 default:
-                    // Günlük - bugün
-                    $startDate = now()->format('Y-m-d');
+                    // Günlük - son 7 gün
+                    $startDate = now()->subDays(7)->format('Y-m-d');
                     $endDate = now()->format('Y-m-d');
                     break;
             }
         } elseif (!$startDate && !$endDate) {
-            // Varsayılan olarak bugün
-            $startDate = now()->format('Y-m-d');
+            // Varsayılan olarak son 7 gün
+            $startDate = now()->subDays(7)->format('Y-m-d');
             $endDate = now()->format('Y-m-d');
         }
 
@@ -377,7 +391,7 @@ class CompanyController extends Controller
         // Durum bazında dağılım
         $statusDistribution = $company->barcodes->groupBy('status')->map->count();
         
-        // Aylık alım trendi (son 12 ay)
+        // Aylık alım trendi (son 12 ay) - tarih filtresinden bağımsız, tüm veriler
         $monthlyPurchase = $company->barcodes()
             ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as total_barcodes')
             ->where('created_at', '>=', now()->subMonths(12))
@@ -386,7 +400,7 @@ class CompanyController extends Controller
             ->orderBy('month')
             ->get();
         
-        // KG değerlerini ayrıca hesapla
+        // KG değerlerini ayrıca hesapla - tüm veriler
         foreach ($monthlyPurchase as $month) {
             $month->total_quantity = $company->barcodes()
                 ->whereRaw('MONTH(created_at) = ? AND YEAR(created_at) = ?', [$month->month, $month->year])
@@ -397,7 +411,7 @@ class CompanyController extends Controller
                 });
         }
 
-        // En çok alınan stoklar (pagination ile)
+        // En çok alınan stoklar (pagination ile) - tarih filtresinden bağımsız, tüm veriler
         $perPage = 10;
         $topStocksQuery = $company->barcodes()
             ->with('stock')
@@ -408,7 +422,7 @@ class CompanyController extends Controller
         $topStocksTotal = $topStocksQuery->get()->count();
         $topStocks = $topStocksQuery->skip((request('stocks_page', 1) - 1) * $perPage)->take($perPage)->get();
         
-        // KG değerlerini ayrıca hesapla
+        // KG değerlerini ayrıca hesapla - tüm veriler
         foreach ($topStocks as $stock) {
             $stock->total_quantity = $company->barcodes()
                 ->where('stock_id', $stock->stock_id)
@@ -427,7 +441,7 @@ class CompanyController extends Controller
             'last_page' => ceil($topStocksTotal / $perPage)
         ];
 
-        // En çok çalışılan fırınlar (pagination ile)
+        // En çok çalışılan fırınlar (pagination ile) - tarih filtresinden bağımsız, tüm veriler
         $topKilnsQuery = $company->barcodes()
             ->with('kiln')
             ->selectRaw('kiln_id, COUNT(*) as total_barcodes')
@@ -438,7 +452,7 @@ class CompanyController extends Controller
         $topKilnsTotal = $topKilnsQuery->get()->count();
         $topKilns = $topKilnsQuery->skip((request('kilns_page', 1) - 1) * $perPage)->take($perPage)->get();
         
-        // KG değerlerini ayrıca hesapla
+        // KG değerlerini ayrıca hesapla - tüm veriler
         foreach ($topKilns as $kiln) {
             $kiln->total_quantity = $company->barcodes()
                 ->where('kiln_id', $kiln->kiln_id)
@@ -473,12 +487,83 @@ class CompanyController extends Controller
             return back()->withInput();
         }
 
-        $company = Company::with(['barcodes' => function($query) {
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    $startDate = null;
+                    $endDate = null;
+                    break;
+                default:
+                    // Günlük - son 7 gün
+                    $startDate = now()->subDays(7)->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+            }
+        } elseif (!$startDate && !$endDate) {
+            // Varsayılan olarak son 7 gün
+            $startDate = now()->subDays(7)->format('Y-m-d');
+            $endDate = now()->format('Y-m-d');
+        }
+
+        $company = Company::with(['barcodes' => function($query) use ($startDate, $endDate) {
             $query->with(['stock', 'kiln', 'warehouse']);
+            
+            // Tarih filtreleme - sadece geçerli tarihler varsa uygula
+            if ($startDate && $endDate) {
+                $query->where('created_at', '>=', $startDate)
+                      ->where('created_at', '<=', $endDate . ' 23:59:59');
+            }
         }])->findOrFail($id);
 
         // Excel export için veri hazırlama
         $data = [];
+        
+        // Debug bilgisi ekle
+        \Log::info('Company Report Export Debug', [
+            'company_id' => $company->id,
+            'company_name' => $company->name,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'period' => $period,
+            'total_barcodes' => $company->barcodes->count(),
+            'barcodes_sample' => $company->barcodes->take(5)->map(function($b) {
+                return [
+                    'id' => $b->id,
+                    'status' => $b->status,
+                    'created_at' => $b->created_at,
+                    'stock_name' => $b->stock ? $b->stock->name : null,
+                    'quantity' => $b->quantity ? $b->quantity->quantity : null
+                ];
+            })
+        ]);
+        
+        // Eğer hiç barcode yoksa, boş veri döndür
+        if ($company->barcodes->isEmpty()) {
+            \Log::warning('Company has no barcodes for export', [
+                'company_id' => $company->id,
+                'company_name' => $company->name
+            ]);
+        }
+        
         foreach ($company->barcodes as $barcode) {
             $data[] = [
                 'Barkod ID' => $barcode->id,
@@ -486,16 +571,35 @@ class CompanyController extends Controller
                 'Miktar (KG)' => $barcode->quantity ? $barcode->quantity->quantity : 0,
                 'Durum' => \App\Models\Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor',
                 'Fırın' => $barcode->kiln ? $barcode->kiln->name : '-',
-                'Depo' => $barcode->warehouse ? $barcode->warehouse->name : '-',
+                'Yüklenen Depo' => $barcode->warehouse ? $barcode->warehouse->name : '-',
                 'Oluşturulma Tarihi' => $barcode->created_at ? $barcode->created_at->format('d.m.Y H:i') : '-',
                 'Müşteri Transfer Tarihi' => $barcode->company_transferred_at ? \Carbon\Carbon::parse($barcode->company_transferred_at)->format('d.m.Y H:i') : '-',
                 'Teslim Tarihi' => $barcode->delivered_at ? \Carbon\Carbon::parse($barcode->delivered_at)->format('d.m.Y H:i') : '-',
             ];
         }
 
-        $filename = 'Firma_Raporu_' . $company->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        // Dosya adına tarih bilgisi ekle
+        $fileName = 'Firma_Raporu_' . $company->name;
+        if ($startDate && $endDate) {
+            if ($startDate === $endDate) {
+                $fileName .= '_' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            } else {
+                $fileName .= '_' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $periodNames = [
+                'monthly' => 'aylik',
+                'quarterly' => '3-aylik', 
+                'yearly' => 'yillik',
+                'all' => 'tum-zamanlar'
+            ];
+            $fileName .= '_' . ($periodNames[$period] ?? 'gunluk');
+        } else {
+            $fileName .= '_' . \Carbon\Carbon::now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
 
-        return \Excel::download(new \App\Exports\CompanyReportExport($data), $filename);
+        return \Excel::download(new \App\Exports\CompanyReportExport($data), $fileName);
     }
 
     /**
@@ -534,14 +638,14 @@ class CompanyController extends Controller
                     // Tüm zamanlar için tarih filtresi yok
                     break;
                 default:
-                    // Günlük - bugün
-                    $startDate = now()->format('Y-m-d');
+                    // Günlük - son 7 gün
+                    $startDate = now()->subDays(7)->format('Y-m-d');
                     $endDate = now()->format('Y-m-d');
                     break;
             }
         } elseif (!$startDate && !$endDate) {
-            // Varsayılan olarak bugün
-            $startDate = now()->format('Y-m-d');
+            // Varsayılan olarak son 7 gün
+            $startDate = now()->subDays(7)->format('Y-m-d');
             $endDate = now()->format('Y-m-d');
         }
 
@@ -558,8 +662,12 @@ class CompanyController extends Controller
             if ($startDate) { $barcodesQuery->where('created_at', '>=', $startDate); }
             if ($endDate) { $barcodesQuery->where('created_at', '<=', $endDate . ' 23:59:59'); }
             
-            // Toplam alım miktarı (KG)
+            // Toplam alım miktarı (KG) - sadece müşteri transfer ve teslim edildi
             $company->total_purchase = $barcodesQuery
+                ->whereIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED
+                ])
                 ->with('quantity')
                 ->get()
                 ->sum(function($barcode) {
@@ -595,25 +703,30 @@ class CompanyController extends Controller
                     return $barcode->quantity ? $barcode->quantity->quantity : 0;
                 });
             
-            // Teslim oranı
-            $totalBarcodes = $barcodesQuery->count();
+            // Teslim oranı (teslim edildi / toplam müşteri transfer + teslim edildi)
+            $totalRelevantBarcodes = $barcodesQuery
+                ->whereIn('status', [
+                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                    \App\Models\Barcode::STATUS_DELIVERED
+                ])
+                ->count();
             $deliveredBarcodes = $barcodesQuery->where('status', \App\Models\Barcode::STATUS_DELIVERED)->count();
-            $company->delivery_rate = $totalBarcodes > 0 ? round(($deliveredBarcodes / $totalBarcodes) * 100, 2) : 0;
+            $company->delivery_rate = $totalRelevantBarcodes > 0 ? round(($deliveredBarcodes / $totalRelevantBarcodes) * 100, 2) : 0;
             
             // Son alım tarihi
             $company->last_purchase_date = $barcodesQuery->latest('created_at')->value('created_at');
             
             // Ortalama sipariş büyüklüğü (KG)
-            $company->average_order_size = $totalBarcodes > 0 ? round($company->total_purchase / $totalBarcodes, 0) : 0;
+            $company->average_order_size = $totalRelevantBarcodes > 0 ? round($company->total_purchase / $totalRelevantBarcodes, 0) : 0;
         }
 
         // Dosya adına tarih bilgisi ekle
         $fileName = 'firmalar';
         if ($startDate && $endDate) {
             if ($startDate === $endDate) {
-                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+                $fileName .= '_' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
             } else {
-                $fileName .= '-' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+                $fileName .= '_' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
             }
         } elseif ($period) {
             $periodNames = [
@@ -622,12 +735,12 @@ class CompanyController extends Controller
                 'yearly' => 'yillik',
                 'all' => 'tum-zamanlar'
             ];
-            $fileName .= '-' . ($periodNames[$period] ?? 'gunluk');
+            $fileName .= '_' . ($periodNames[$period] ?? 'gunluk');
         } else {
-            $fileName .= '-' . \Carbon\Carbon::now()->format('d-m-Y');
+            $fileName .= '_' . \Carbon\Carbon::now()->format('d-m-Y');
         }
         $fileName .= '.xlsx';
 
-        return \Excel::download(new \App\Exports\CompanyExport($companies), $fileName);
+        return \Excel::download(new \App\Exports\CompanyExport($companies, $startDate, $endDate, $period), $fileName);
     }
 }

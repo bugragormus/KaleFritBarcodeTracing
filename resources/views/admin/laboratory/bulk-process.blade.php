@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('styles')
+<link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet" />
 <style>
     body, .main-content, .modern-lab-bulk-process {
         background: #f8f9fa !important;
@@ -355,6 +356,12 @@
             min-width: auto;
         }
     }
+    
+    @media (max-width: 992px) {
+        .filter-content-modern .col-md-3 {
+            margin-bottom: 1rem;
+        }
+    }
     .spinner-border-sm {
         width: 1rem;
         height: 1rem;
@@ -563,6 +570,126 @@
         .result-stats {
             flex-direction: column;
         }
+    }
+    
+    /* Select2 Custom Styling */
+    .select2-container--default .select2-selection--single {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        height: auto;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .select2-container--default .select2-selection--single:hover {
+        border-color: #667eea;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #495057;
+        padding: 0;
+        line-height: 1.5;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 100%;
+        right: 1rem;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #667eea transparent transparent transparent;
+        border-width: 6px 4px 0 4px;
+    }
+    
+    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent #667eea transparent;
+        border-width: 0 4px 6px 4px;
+    }
+    
+    .select2-dropdown {
+        border: 2px solid #667eea;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        background: #ffffff;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    .select2-container--default .select2-results__option {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        color: #495057;
+        transition: all 0.2s ease;
+    }
+    
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+    
+    .select2-container {
+        width: 100% !important;
+    }
+    
+    /* Select2 Dropdown Positioning */
+    .select2-dropdown {
+        z-index: 9999;
+    }
+    
+    /* Select2 Search Field Focus */
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+    
+    /* Select2 Results Container */
+    .select2-results__option {
+        font-size: 0.95rem;
+        padding: 0.6rem 1rem;
+    }
+    
+    /* Select2 Loading State */
+    .select2-container--default .select2-results__option--loading {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    /* Select2 Clear Button */
+    .select2-container--default .select2-selection--single .select2-selection__clear {
+        color: #6c757d;
+        font-weight: bold;
+        margin-right: 2rem;
+    }
+    
+    .select2-container--default .select2-selection--single .select2-selection__clear:hover {
+        color: #dc3545;
     }
 </style>
 @endsection
@@ -785,15 +912,6 @@
                                 <div class="row align-items-center">
                                     <div class="col-md-3">
                                         <div class="form-group mb-0">
-                                            <label for="stockSearch" class="form-label-modern">
-                                                <i class="fas fa-search mr-2"></i>Stok Adı Ara
-                                            </label>
-                                            <input type="text" class="form-control-modern" id="stockSearch" 
-                                                   placeholder="Stok adı yazın..." autocomplete="off">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group mb-0">
                                             <label for="stockFilter" class="form-label-modern">
                                                 <i class="fas fa-list mr-2"></i>Stok Seç
                                             </label>
@@ -804,6 +922,38 @@
                                                 @endphp
                                                 @foreach($uniqueStocks as $stockName)
                                                     <option value="{{ $stockName }}">{{ $stockName }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-0">
+                                            <label for="loadNumberFilter" class="form-label-modern">
+                                                <i class="fas fa-hashtag mr-2"></i>Şarj No
+                                            </label>
+                                            <select class="form-control-modern" id="loadNumberFilter">
+                                                <option value="">Tüm Şarj Numaraları</option>
+                                                @php
+                                                    $uniqueLoadNumbers = $pendingBarcodes->pluck('load_number')->unique()->sort();
+                                                @endphp
+                                                @foreach($uniqueLoadNumbers as $loadNumber)
+                                                    <option value="{{ $loadNumber }}">#{{ $loadNumber }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group mb-0">
+                                            <label for="partyNumberFilter" class="form-label-modern">
+                                                <i class="fas fa-tag mr-2"></i>Parti No
+                                            </label>
+                                            <select class="form-control-modern" id="partyNumberFilter">
+                                                <option value="">Tüm Parti Numaraları</option>
+                                                @php
+                                                    $uniquePartyNumbers = $pendingBarcodes->pluck('party_number')->filter()->unique()->sort();
+                                                @endphp
+                                                @foreach($uniquePartyNumbers as $partyNumber)
+                                                    <option value="{{ $partyNumber }}">#{{ $partyNumber }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -821,7 +971,9 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
                                         <div class="filter-actions-modern">
                                             <button type="button" class="btn btn-modern btn-outline-secondary btn-clear-filter" id="clearFilter">
                                                 <i class="fas fa-times mr-2"></i>Filtreyi Temizle
@@ -893,6 +1045,7 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/js/select2.min.js') }}"></script>
 <script>
 let selectedBarcodes = [];
 let currentAction = '';
@@ -954,33 +1107,88 @@ function initializeCheckboxes() {
 }
 
 function initializeFilters() {
+    // Select2 initialization for stock filter
+    $('#stockFilter').select2({
+        placeholder: 'Stok seçin',
+        allowClear: true,
+        width: '100%',
+        theme: 'default',
+        minimumInputLength: 1,
+        noResultsText: 'Sonuç bulunamadı',
+        searchingText: 'Aranıyor...',
+        inputTooShort: function() {
+            return 'Lütfen arama yapmak için en az 1 karakter yazın';
+        }
+    });
+    
+    // Select2 initialization for load number filter
+    $('#loadNumberFilter').select2({
+        placeholder: 'Şarj no seçin',
+        allowClear: true,
+        width: '100%',
+        theme: 'default',
+        minimumInputLength: 1,
+        noResultsText: 'Sonuç bulunamadı',
+        searchingText: 'Aranıyor...',
+        inputTooShort: function() {
+            return 'Lütfen arama yapmak için en az 1 karakter yazın';
+        }
+    });
+    
+    // Select2 initialization for party number filter
+    $('#partyNumberFilter').select2({
+        placeholder: 'Parti no seçin',
+        allowClear: true,
+        width: '100%',
+        theme: 'default',
+        minimumInputLength: 1,
+        noResultsText: 'Sonuç bulunamadı',
+        searchingText: 'Aranıyor...',
+        inputTooShort: function() {
+            return 'Lütfen arama yapmak için en az 1 karakter yazın';
+        }
+    });
+    
+    // Select2 initialization for status filter
+    $('#statusFilter').select2({
+        placeholder: 'Durum seçin',
+        allowClear: true,
+        width: '100%',
+        theme: 'default',
+        minimumInputLength: 1,
+        noResultsText: 'Sonuç bulunamadı',
+        searchingText: 'Aranıyor...',
+        inputTooShort: function() {
+            return 'Lütfen arama yapmak için en az 1 karakter yazın';
+        }
+    });
+    
     // Stok adına göre filtreleme (dropdown)
-    $('#stockFilter').change(function() {
+    $('#stockFilter').on('change', function() {
+        filterBarcodes();
+    });
+    
+    // Şarj numarasına göre filtreleme (dropdown)
+    $('#loadNumberFilter').on('change', function() {
+        filterBarcodes();
+    });
+    
+    // Parti numarasına göre filtreleme (dropdown)
+    $('#partyNumberFilter').on('change', function() {
         filterBarcodes();
     });
     
     // Durum filtreleme (dropdown)
-    $('#statusFilter').change(function() {
+    $('#statusFilter').on('change', function() {
         filterBarcodes();
-    });
-    
-    // Arama kutusu ile filtreleme
-    $('#stockSearch').on('input', function() {
-        const searchTerm = $(this).val().toLowerCase();
-        if (searchTerm.length >= 2) {
-            // Arama terimi 2 karakterden fazlaysa filtrele
-            filterBySearch(searchTerm);
-        } else if (searchTerm.length === 0) {
-            // Arama kutusu boşsa tümünü göster
-            showAllBarcodes();
-        }
     });
     
     // Filtreyi temizle butonu
     $('#clearFilter').click(function() {
-        $('#stockSearch').val('');
-        $('#stockFilter').val('');
-        $('#statusFilter').val('');
+        $('#stockFilter').val('').trigger('change');
+        $('#loadNumberFilter').val('').trigger('change');
+        $('#partyNumberFilter').val('').trigger('change');
+        $('#statusFilter').val('').trigger('change');
         showAllBarcodes();
         resetCheckboxes();
     });
@@ -988,6 +1196,8 @@ function initializeFilters() {
 
 function filterBarcodes() {
     const selectedStock = $('#stockFilter').val();
+    const selectedLoadNumber = $('#loadNumberFilter').val();
+    const selectedPartyNumber = $('#partyNumberFilter').val();
     const selectedStatus = $('#statusFilter').val();
     let visibleCount = 0;
     
@@ -997,18 +1207,28 @@ function filterBarcodes() {
         const $container = $item.closest('.col-md-6, .col-lg-4');
         const stockName = $item.find('h6 strong').text().trim();
         
+        // Şarj numarasını al
+        const loadNumberText = $item.find('.stock-info').text().split('Şarj No:')[1].split('-')[0].trim();
+        const loadNumber = loadNumberText.replace('#', '');
+        
+        // Parti numarasını al
+        const partyNumberText = $item.find('.stock-info').text().split('Parti No:')[1];
+        const partyNumber = partyNumberText ? partyNumberText.trim().replace('#', '') : '';
+        
         // Durum bilgisini al (durum badge'inden - ilk badge değil)
         const statusBadge = $item.find('.status-badge-container .badge').text().trim();
         const statusKey = getStatusKeyFromText(statusBadge);
         
         // Debug için console.log
-        console.log('Barkod:', stockName, 'Durum Badge:', statusBadge, 'Durum Key:', statusKey, 'Seçilen Durum:', selectedStatus);
+        console.log('Barkod:', stockName, 'Şarj No:', loadNumber, 'Parti No:', partyNumber, 'Durum Badge:', statusBadge, 'Durum Key:', statusKey);
         
-        // Hem stok hem de durum filtresini kontrol et
-        const stockMatch = selectedStock === '' || stockName === selectedStock;
-        const statusMatch = selectedStatus === '' || statusKey === selectedStatus;
+        // Tüm filtreleri kontrol et
+        const stockMatch = selectedStock === '' || selectedStock === null || stockName === selectedStock;
+        const loadNumberMatch = selectedLoadNumber === '' || selectedLoadNumber === null || loadNumber === selectedLoadNumber;
+        const partyNumberMatch = selectedPartyNumber === '' || selectedPartyNumber === null || partyNumber === selectedPartyNumber;
+        const statusMatch = selectedStatus === '' || selectedStatus === null || statusKey === selectedStatus;
         
-        if (stockMatch && statusMatch) {
+        if (stockMatch && loadNumberMatch && partyNumberMatch && statusMatch) {
             $container.fadeIn(300);
             visibleCount++;
         } else {
@@ -1042,24 +1262,7 @@ function getStatusKeyFromText(statusText) {
     return '';
 }
 
-function filterBySearch(searchTerm) {
-    let visibleCount = 0;
-    
-    $('.barcode-item-modern').each(function() {
-        const $item = $(this);
-        const $container = $item.closest('.col-md-6, .col-lg-4');
-        const stockName = $item.find('h6 strong').text().toLowerCase();
-        
-        if (stockName.includes(searchTerm)) {
-            $container.fadeIn(300);
-            visibleCount++;
-        } else {
-            $container.fadeOut(300);
-        }
-    });
-    
-    updateFilteredCount(visibleCount);
-}
+
 
 function showAllBarcodes() {
     $('.barcode-item-modern').each(function() {
@@ -1075,23 +1278,39 @@ function updateFilteredCount(visibleCount) {
     const totalCount = $('.barcode-item-modern').length;
     const $title = $('.card-title-modern');
     const selectedStock = $('#stockFilter').val();
+    const selectedLoadNumber = $('#loadNumberFilter').val();
+    const selectedPartyNumber = $('#partyNumberFilter').val();
     const selectedStatus = $('#statusFilter').val();
-    const searchTerm = $('#stockSearch').val();
     
-    if (selectedStock !== '' || selectedStatus !== '' || searchTerm !== '') {
+    if (selectedStock !== '' && selectedStock !== null || 
+        selectedLoadNumber !== '' && selectedLoadNumber !== null || 
+        selectedPartyNumber !== '' && selectedPartyNumber !== null || 
+        selectedStatus !== '' && selectedStatus !== null) {
+        
         let filterText = '';
-        if (selectedStock !== '') {
+        let filterCount = 0;
+        
+        if (selectedStock !== '' && selectedStock !== null) {
             filterText += `"${selectedStock}" stok adı`;
+            filterCount++;
         }
-        if (selectedStatus !== '') {
+        if (selectedLoadNumber !== '' && selectedLoadNumber !== null) {
+            if (filterText !== '') filterText += ' ve ';
+            filterText += `"#${selectedLoadNumber}" şarj no`;
+            filterCount++;
+        }
+        if (selectedPartyNumber !== '' && selectedPartyNumber !== null) {
+            if (filterText !== '') filterText += ' ve ';
+            filterText += `"#${selectedPartyNumber}" parti no`;
+            filterCount++;
+        }
+        if (selectedStatus !== '' && selectedStatus !== null) {
             if (filterText !== '') filterText += ' ve ';
             const statusText = $('#statusFilter option:selected').text();
-            filterText += `"${statusText}" durumu ile`;
+            filterText += `"${statusText}" durumu`;
+            filterCount++;
         }
-        if (searchTerm !== '') {
-            if (filterText !== '') filterText += ' ve ';
-            filterText += `"${searchTerm}" arama terimi`;
-        }
+        
         $title.html(`<i class="fas fa-list mr-2"></i>Laboratuvar İşlemleri (${visibleCount}/${totalCount} adet) - <span class="text-primary filter-highlight">${filterText}</span> filtrelendi`);
     } else {
         $title.html(`<i class="fas fa-list mr-2"></i>Laboratuvar İşlemleri (${totalCount} adet)`);
@@ -1107,6 +1326,9 @@ function resetCheckboxes() {
     selectedBarcodes = [];
     updateSelectedCount();
     updateBulkButtons();
+    
+    // Card'ların seçili durumunu temizle
+    $('.barcode-item-modern').removeClass('selected');
 }
 
 function updateSelectedBarcodes() {

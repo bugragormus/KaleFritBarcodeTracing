@@ -37,7 +37,7 @@ class BarcodeStoreRequest extends FormRequest
             ],
             'party_number' => [
                 'required',
-                'string',
+                'regex:/^[1-9]\d*$/', // Sadece pozitif sayılar, 0 ile başlayamaz
                 'max:255'
             ],
             'load_number' => [
@@ -83,6 +83,17 @@ class BarcodeStoreRequest extends FormRequest
                 'integer',
                 'min:1'
             ],
+        ];
+    }
+
+    /**
+     * Get custom error messages for validation rules.
+     */
+    public function messages()
+    {
+        return [
+            'party_number.regex' => 'Parti numarası sadece pozitif sayı olmalıdır ve 0 ile başlayamaz.',
+            'party_number.required' => 'Parti numarası zorunludur.',
         ];
     }
 

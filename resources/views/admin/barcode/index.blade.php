@@ -2,6 +2,7 @@
 
 @section('styles')
     <link href="{{ asset('assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet" />
     <style>
         body, .main-content, .modern-barcode-management {
             background: #f8f9fa !important;
@@ -298,6 +299,123 @@
             padding: 0.5rem;
             white-space: normal;
             word-wrap: break-word;
+        }
+        
+        /* Input filter styles */
+        .filter-input {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+            white-space: normal;
+            word-wrap: break-word;
+            height: auto;
+            min-height: 45px;
+        }
+        
+        .filter-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        .filter-input::placeholder {
+            color: #adb5bd;
+            font-size: 0.875rem;
+        }
+        
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            height: auto;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            min-height: 45px;
+        }
+        
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        .select2-container--default .select2-selection--single:hover {
+            border-color: #667eea;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #495057;
+            padding: 0;
+            line-height: 1.5;
+            font-size: 0.875rem;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            right: 1rem;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #667eea transparent transparent transparent;
+            border-width: 6px 4px 0 4px;
+        }
+        
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent #667eea transparent;
+            border-width: 0 4px 6px 4px;
+        }
+        
+        .select2-dropdown {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            background: #ffffff;
+        }
+        
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            outline: none;
+        }
+        
+        .select2-container--default .select2-results__option {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: #495057;
+            transition: all 0.2s ease;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .select2-container {
+            width: 100% !important;
+        }
+        
+        /* Select2 Dropdown Positioning */
+        .select2-dropdown {
+            z-index: 9999;
         }
         
         .filter-date {
@@ -752,7 +870,7 @@
                                 <i class="fas fa-check"></i> Filtreleri Uygula
                             </button>
                             <button class="btn-modern btn-secondary-modern" onclick="clearFilters()">
-                                <i class="fas fa-refresh"></i> Filtreleri Temizle
+                                <i class="fas fa-times"></i> Filtreleri Temizle
                             </button>
                         </div>
                     </div>
@@ -768,24 +886,30 @@
                         </div>
                         <div class="filter-item">
                             <label class="filter-label">Parti No</label>
-                            <select class="filter-select" data-column="1">
+                            <select class="filter-select" id="party-number-filter">
                                 <option value="">Tüm Partiler</option>
-                                @foreach($barcodes->pluck('party_number')->unique() as $party)
-                                    @if($party)
-                                        <option value="{{ $party }}">{{ $party }}</option>
-                                    @endif
+                                @php
+                                    $uniqueParties = \App\Models\Barcode::whereNotNull('party_number')
+                                        ->where('party_number', '!=', '')
+                                        ->distinct()
+                                        ->pluck('party_number')
+                                        ->sort()
+                                        ->values();
+                                @endphp
+                                @foreach($uniqueParties as $party)
+                                    <option value="{{ $party }}">{{ $party }}</option>
                                 @endforeach 
                             </select>
                         </div>
                         
                         <div class="filter-item">
                             <label class="filter-label">Barkod No</label>
-                            <input type="text" class="filter-select" id="barcode-id-filter" placeholder="Barkod numarası giriniz">
+                            <input type="text" class="filter-input" id="barcode-id-filter" placeholder="Barkod numarası giriniz">
                         </div>
                         
                         <div class="filter-item">
                             <label class="filter-label">Şarj No</label>
-                            <input type="text" class="filter-select" id="load-number-filter" placeholder="Şarj numarası giriniz">
+                            <input type="text" class="filter-input" id="load-number-filter" placeholder="Şarj numarası giriniz">
                         </div>
                             <div class="filter-item">
                                 <label class="filter-label">Durum</label>
@@ -916,6 +1040,7 @@
 
 @section('scripts')
     <script src="{{ asset('assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
     <script type="text/javascript">
         // Global değişkenler - tarih filtreleri için
         var globalLabStart = '';
@@ -950,7 +1075,7 @@
                         
                         // Dropdown filtreleri ekle
                         var stockFilter = $('.filter-select[data-column="0"]').val();
-                        var partyFilter = $('.filter-select[data-column="1"]').val();
+                        var partyFilter = $('#party-number-filter').val();
                         var statusFilter = $('.filter-select[data-column="2"]').val();
                         var exceptionallyApprovedFilter = $('#exceptionally-approved-filter').val();
                         var kilnFilter = $('.filter-select[data-column="14"]').val();
@@ -1020,6 +1145,22 @@
                 }
             });
 
+            // Select2 initialization for all select filters
+            $('.filter-select').select2({
+                placeholder: 'Seçiniz...',
+                allowClear: true,
+                width: '100%',
+                theme: 'default',
+                minimumInputLength: 0,
+                noResultsText: 'Sonuç bulunamadı',
+                searchingText: 'Aranıyor...',
+                language: {
+                    inputTooShort: function() {
+                        return 'Lütfen arama yapmak için en az 1 karakter yazın';
+                    }
+                }
+            });
+
             // Sütun filtreleri için event listener'lar - sadece "Filtreleri Uygula" butonuna basıldığında çalışacak
             // $('.filter-select').on('change', function () {
             //     var columnIndex = $(this).data('column');
@@ -1074,11 +1215,12 @@
             globalCreatedEnd = '';
             
             // Tüm filtreleri temizle
-            $('.filter-select').val('');
-            $('#exceptionally-approved-filter').val('');
+            $('.filter-select').val('').trigger('change');
+            $('#exceptionally-approved-filter').val('').trigger('change');
             $('.filter-date').val('');
             $('#barcode-id-filter').val('');
             $('#load-number-filter').val('');
+            $('#party-number-filter').val('').trigger('change');
             
             // DataTable'ı yeniden yükle (filtresiz)
             table.ajax.reload();
