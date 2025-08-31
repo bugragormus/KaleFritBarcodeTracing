@@ -345,7 +345,11 @@
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="button-group justify-content-end">
-                        <a href="{{ route('stock.excel', ['stok' => $stock->id]) }}" class="btn-modern btn-warning-modern">
+                        <a href="{{ route('stock.excel', array_merge(['stok' => $stock->id], array_filter([
+    'start_date' => $startDate ?? request('start_date'),
+    'end_date' => $endDate ?? request('end_date'),
+    'period' => $period ?? request('period')
+]))) }}" class="btn-modern btn-warning-modern">
                             <i class="fas fa-file-excel"></i> Excel İndir
                         </a>
                         <a href="{{ route('stock.print', ['stok' => $stock->id]) }}" class="btn-modern btn-info-modern" target="_blank">

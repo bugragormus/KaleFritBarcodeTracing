@@ -157,7 +157,9 @@ Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadCom
             Route::get('/rapor', [App\Http\Controllers\LaboratoryController::class, 'report'])->name('report');
             Route::get('/rapor/excel-indir', [App\Http\Controllers\LaboratoryController::class, 'exportReport'])->name('report.export');
             Route::get('/stok-kalite-analizi', [App\Http\Controllers\LaboratoryController::class, 'stockQualityAnalysis'])->name('stock-quality-analysis');
+            Route::get('/stok-kalite-analizi/excel', [App\Http\Controllers\LaboratoryController::class, 'stockQualityAnalysisExcel'])->name('stock-quality-analysis.excel');
             Route::get('/firin-performans-analizi', [App\Http\Controllers\LaboratoryController::class, 'kilnPerformance'])->name('kiln-performance');
+            Route::get('/firin-performans-analizi/excel', [App\Http\Controllers\LaboratoryController::class, 'kilnPerformanceExcel'])->name('kiln-performance.excel');
             Route::post('/barkod-durumlar', [App\Http\Controllers\LaboratoryController::class, 'getBarcodeStatuses'])->name('barcode-statuses');
         });
 

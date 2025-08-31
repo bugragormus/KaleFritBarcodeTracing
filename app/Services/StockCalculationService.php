@@ -225,6 +225,7 @@ class StockCalculationService
      */
     public function clearCache()
     {
+        // Ana cache'leri temizle
         Cache::forget('stock_statuses');
         Cache::forget('all_stocks');
         
@@ -235,9 +236,10 @@ class StockCalculationService
             Cache::forget("warehouse_stock_details_{$warehouseId}");
         }
         
-        // Stock cache'lerini temizle
+        // Stock cache'lerini temizle (tarih filtreli olanlar dahil)
         $stocks = DB::table('stocks')->pluck('id');
         foreach ($stocks as $stockId) {
+            // Temel cache'ler
             Cache::forget("total_stock_quantity_{$stockId}");
             Cache::forget("stock_details_{$stockId}");
             Cache::forget("production_chart_{$stockId}");
@@ -245,8 +247,43 @@ class StockCalculationService
             Cache::forget("production_by_kiln_{$stockId}");
             Cache::forget("sales_by_company_{$stockId}");
             Cache::forget("monthly_trend_{$stockId}");
+            
+            // Tarih filtreli cache'ler için pattern matching kullan
+            $pattern = "stock_details_{$stockId}_*";
+            $keys = Cache::get('cache_keys', []);
+            foreach ($keys as $key) {
+                if (preg_match("/^stock_details_{$stockId}_(from|to)_/", $key)) {
+                    Cache::forget($key);
+                }
+                if (preg_match("/^production_chart_{$stockId}_(from|to)_/", $key)) {
+                    Cache::forget($key);
+                }
+                if (preg_match("/^barcodes_by_status_{$stockId}_(from|to)_/", $key)) {
+                    Cache::forget($key);
+                }
+                if (preg_match("/^production_by_kiln_{$stockId}_(from|to)_/", $key)) {
+                    Cache::forget($key);
+                }
+                if (preg_match("/^sales_by_company_{$stockId}_(from|to)_/", $key)) {
+                    Cache::forget($key);
+                }
+                if (preg_match("/^monthly_trend_{$stockId}_(from|to)_/", $key)) {
+                    Cache::forget($key);
+                }
+            }
+            
+            // Status bazlı cache'ler
             foreach (Barcode::STATUSES as $status => $statusName) {
                 Cache::forget("stock_quantity_status_{$stockId}_{$status}");
+            }
+        }
+        
+        // Stock statuses cache'lerini temizle (tarih filtreli olanlar dahil)
+        $pattern = "stock_statuses_*";
+        $keys = Cache::get('cache_keys', []);
+        foreach ($keys as $key) {
+            if (preg_match("/^stock_statuses_(from|to)_/", $key)) {
+                Cache::forget($key);
             }
         }
     }
@@ -285,12 +322,36 @@ class StockCalculationService
     }
 
     /**
-     * Stok detaylarını getir
+     * Stok detaylarını getir (tarih filtresi ile)
      */
-    public function getStockDetails($stockId)
+    public function getStockDetails($stockId, $startDate = null, $endDate = null)
     {
-        return Cache::remember("stock_details_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
+        // Cache key'i tarih filtrelerine göre oluştur
+        $cacheKey = "stock_details_{$stockId}";
+        if ($startDate) {
+            $cacheKey .= '_from_' . $startDate;
+        }
+        if ($endDate) {
+            $cacheKey .= '_to_' . $endDate;
+        }
+        
+        return Cache::remember($cacheKey, 300, function () use ($stockId, $startDate, $endDate) {
+            $whereConditions = ['stocks.id = ?'];
+            $params = [$stockId];
+            
+            // Tarih filtreleri ekle
+            if ($startDate) {
+                $whereConditions[] = 'barcodes.created_at >= ?';
+                $params[] = $startDate;
+            }
+            if ($endDate) {
+                $whereConditions[] = 'barcodes.created_at <= ?';
+                $params[] = $endDate . ' 23:59:59';
+            }
+            
+            $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+            
+            return DB::select("
                 SELECT 
                     stocks.id,
                     stocks.name,
@@ -312,9 +373,9 @@ class StockCalculationService
                 FROM stocks
                 LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE stocks.id = ?
+                {$whereClause}
                 GROUP BY stocks.id, stocks.name, stocks.code
-            ', [
+            ", array_merge([
                 Barcode::STATUS_WAITING,
                 Barcode::STATUS_CONTROL_REPEAT,
                 Barcode::STATUS_PRE_APPROVED,
@@ -322,62 +383,126 @@ class StockCalculationService
                 Barcode::STATUS_CUSTOMER_TRANSFER,
                 Barcode::STATUS_DELIVERED,
                 Barcode::STATUS_REJECTED,
-                Barcode::STATUS_MERGED,
-                $stockId
-            ])[0] ?? null;
+                Barcode::STATUS_MERGED
+            ], $params))[0] ?? null;
         });
     }
 
     /**
-     * Üretim grafiği için veri getir
+     * Üretim grafiği için veri getir (tarih filtresi ile)
      */
-    public function getProductionChartData($stockId)
+    public function getProductionChartData($stockId, $startDate = null, $endDate = null)
     {
-        return Cache::remember("production_chart_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
+        // Cache key'i tarih filtrelerine göre oluştur
+        $cacheKey = "production_chart_{$stockId}";
+        if ($startDate) {
+            $cacheKey .= '_from_' . $startDate;
+        }
+        if ($endDate) {
+            $cacheKey .= '_to_' . $endDate;
+        }
+        
+        return Cache::remember($cacheKey, 300, function () use ($stockId, $startDate, $endDate) {
+            $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
+            $params = [$stockId];
+            
+            // Tarih filtreleri ekle
+            if ($startDate) {
+                $whereConditions[] = 'barcodes.created_at >= ?';
+                $params[] = $startDate;
+            } else {
+                // Varsayılan olarak son 30 gün
+                $whereConditions[] = 'barcodes.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+            }
+            
+            if ($endDate) {
+                $whereConditions[] = 'barcodes.created_at <= ?';
+                $params[] = $endDate . ' 23:59:59';
+            }
+            
+            $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+            
+            return DB::select("
                 SELECT 
                     DATE(barcodes.created_at) as date,
                     COUNT(barcodes.id) as barcode_count,
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? 
-                AND barcodes.deleted_at IS NULL
-                AND barcodes.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                {$whereClause}
                 GROUP BY DATE(barcodes.created_at)
                 ORDER BY date
-            ', [$stockId]);
+            ", $params);
         });
     }
 
     /**
-     * Durum bazında barkod listesi
+     * Durum bazında barkod listesi (tarih filtresi ile)
      */
-    public function getBarcodesByStatus($stockId)
+    public function getBarcodesByStatus($stockId, $startDate = null, $endDate = null)
     {
-        return Cache::remember("barcodes_by_status_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
+        // Cache key'i tarih filtrelerine göre oluştur
+        $cacheKey = "barcodes_by_status_{$stockId}";
+        if ($startDate) {
+            $cacheKey .= '_from_' . $startDate;
+        }
+        if ($endDate) {
+            $cacheKey .= '_to_' . $endDate;
+        }
+        
+        return Cache::remember($cacheKey, 300, function () use ($stockId, $startDate, $endDate) {
+            $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
+            $params = [$stockId];
+            
+            // Tarih filtreleri ekle
+            if ($startDate) {
+                $whereConditions[] = 'barcodes.created_at >= ?';
+                $params[] = $startDate;
+            }
+            if ($endDate) {
+                $whereConditions[] = 'barcodes.created_at <= ?';
+                $params[] = $endDate . ' 23:59:59';
+            }
+            
+            $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+            
+            return DB::select("
                 SELECT 
                     barcodes.status,
                     COUNT(barcodes.id) as count,
                     COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+                {$whereClause}
                 GROUP BY barcodes.status
                 ORDER BY barcodes.status
-            ', [$stockId]);
+            ", $params);
         });
     }
 
     /**
-     * Fırın bazında üretim
+     * Fırın bazında üretim (tarih filtresi ile)
      */
-    public function getProductionByKiln($stockId, $perPage = 10)
+    public function getProductionByKiln($stockId, $perPage = 10, $startDate = null, $endDate = null)
     {
         $offset = (request('page', 1) - 1) * $perPage;
         
-        $data = DB::select('
+        $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
+        $params = [$stockId];
+        
+        // Tarih filtreleri ekle
+        if ($startDate) {
+            $whereConditions[] = 'barcodes.created_at >= ?';
+            $params[] = $startDate;
+        }
+        if ($endDate) {
+            $whereConditions[] = 'barcodes.created_at <= ?';
+            $params[] = $endDate . ' 23:59:59';
+        }
+        
+        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+        
+        $data = DB::select("
             SELECT 
                 kilns.name as kiln_name,
                 COUNT(barcodes.id) as barcode_count,
@@ -386,18 +511,18 @@ class StockCalculationService
             FROM barcodes
             LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
+            {$whereClause}
             GROUP BY kilns.id, kilns.name
             ORDER BY total_quantity DESC
             LIMIT ? OFFSET ?
-        ', [$stockId, $perPage, $offset]);
+        ", array_merge($params, [$perPage, $offset]));
         
-        $total = DB::select('
+        $total = DB::select("
             SELECT COUNT(DISTINCT kilns.id) as total
             FROM barcodes
             LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
-            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-        ', [$stockId])[0]->total;
+            {$whereClause}
+        ", $params)[0]->total;
         
         return [
             'data' => $data,
@@ -409,38 +534,49 @@ class StockCalculationService
     }
 
     /**
-     * Müşteri bazında satış
+     * Müşteri bazında satış (tarih filtresi ile)
      */
-    public function getSalesByCompany($stockId, $perPage = 10)
+    public function getSalesByCompany($stockId, $perPage = 10, $startDate = null, $endDate = null)
     {
         $offset = (request('page', 1) - 1) * $perPage;
         
-        $data = DB::select('
+        $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
+        $params = [$stockId];
+        
+        // Tarih filtreleri ekle
+        if ($startDate) {
+            $whereConditions[] = 'barcodes.created_at >= ?';
+            $params[] = $startDate;
+        }
+        if ($endDate) {
+            $whereConditions[] = 'barcodes.created_at <= ?';
+            $params[] = $endDate . ' 23:59:59';
+        }
+        
+        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+        
+        $data = DB::select("
             SELECT 
                 companies.name as company_name,
                 COUNT(barcodes.id) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                MIN(barcodes.company_transferred_at) as first_sale_date,
-                MAX(barcodes.company_transferred_at) as last_sale_date
+                MIN(barcodes.created_at) as first_sale_date,
+                MAX(barcodes.created_at) as last_sale_date
             FROM barcodes
             LEFT JOIN companies ON companies.id = barcodes.company_id
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.stock_id = ? 
-            AND barcodes.deleted_at IS NULL
-            AND barcodes.company_id IS NOT NULL
+            {$whereClause}
             GROUP BY companies.id, companies.name
             ORDER BY total_quantity DESC
             LIMIT ? OFFSET ?
-        ', [$stockId, $perPage, $offset]);
+        ", array_merge($params, [$perPage, $offset]));
         
-        $total = DB::select('
+        $total = DB::select("
             SELECT COUNT(DISTINCT companies.id) as total
             FROM barcodes
             LEFT JOIN companies ON companies.id = barcodes.company_id
-            WHERE barcodes.stock_id = ? 
-            AND barcodes.deleted_at IS NULL
-            AND barcodes.company_id IS NOT NULL
-        ', [$stockId])[0]->total;
+            {$whereClause}
+        ", $params)[0]->total;
         
         return [
             'data' => $data,
@@ -452,31 +588,46 @@ class StockCalculationService
     }
 
     /**
-     * Aylık üretim trendi
+     * Aylık trend (tarih filtresi ile)
      */
-    public function getMonthlyTrend($stockId, $perPage = 10)
+    public function getMonthlyTrend($stockId, $perPage = 10, $startDate = null, $endDate = null)
     {
         $offset = (request('page', 1) - 1) * $perPage;
         
-        $data = DB::select('
+        $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
+        $params = [$stockId];
+        
+        // Tarih filtreleri ekle
+        if ($startDate) {
+            $whereConditions[] = 'barcodes.created_at >= ?';
+            $params[] = $startDate;
+        }
+        if ($endDate) {
+            $whereConditions[] = 'barcodes.created_at <= ?';
+            $params[] = $endDate . ' 23:59:59';
+        }
+        
+        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
+        
+        $data = DB::select("
             SELECT 
-                YEAR(barcodes.created_at) as year,
                 MONTH(barcodes.created_at) as month,
+                YEAR(barcodes.created_at) as year,
                 COUNT(barcodes.id) as barcode_count,
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-            GROUP BY YEAR(barcodes.created_at), MONTH(barcodes.created_at)
+            {$whereClause}
+            GROUP BY MONTH(barcodes.created_at), YEAR(barcodes.created_at)
             ORDER BY year DESC, month DESC
             LIMIT ? OFFSET ?
-        ', [$stockId, $perPage, $offset]);
+        ", array_merge($params, [$perPage, $offset]));
         
-        $total = DB::select('
-            SELECT COUNT(DISTINCT CONCAT(YEAR(barcodes.created_at), "-", MONTH(barcodes.created_at))) as total
+        $total = DB::select("
+            SELECT COUNT(DISTINCT CONCAT(YEAR(barcodes.created_at), '-', MONTH(barcodes.created_at))) as total
             FROM barcodes
-            WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-        ', [$stockId])[0]->total;
+            {$whereClause}
+        ", $params)[0]->total;
         
         return [
             'data' => $data,

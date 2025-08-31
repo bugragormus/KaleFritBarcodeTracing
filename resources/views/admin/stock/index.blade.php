@@ -352,7 +352,12 @@
                             <a href="{{ route('stock.create') }}" class="btn-modern btn-success-modern mr-3">
                                 <i class="fas fa-plus"></i> Yeni Stok Ekle
                             </a>
-                            <a href="{{ route('stock.excel.download') }}" class="btn-modern btn-warning-modern">
+                            <a href="{{ route('stock.excel.download', array_filter([
+                                'start_date' => request('start_date'),
+                                'end_date' => request('end_date'),
+                                'period' => request('period'),
+                                'code' => request('code')
+                            ])) }}" class="btn-modern btn-warning-modern">
                                 <i class="fas fa-file-excel"></i> Excel İndir
                             </a>
                         </div>
@@ -372,7 +377,7 @@
                     <!-- Hızlı Filtre Butonları -->
                     <div class="quick-filters mb-3">
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('stock.index') }}" class="btn-modern btn-sm {{ !request('period') || request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                        <a href="{{ route('stock.index', ['period' => 'all']) }}" class="btn-modern btn-sm {{ request('period') == 'all' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
                                 <i class="fas fa-infinity"></i> Tüm Zamanlar
                             </a>
                             <a href="{{ route('stock.index', ['period' => 'daily']) }}" class="btn-modern btn-sm {{ request('period') == 'daily' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
@@ -593,7 +598,12 @@
                         <a href="{{ route('stock.edit', ['stok' => $stock->id]) }}" class="btn-modern btn-success-modern btn-xs-modern">
                             <i class="fas fa-edit"></i> Düzenle
                         </a>
-                        <a href="{{ route('stock.excel', ['stok' => $stock->id]) }}" class="btn-modern btn-warning-modern btn-xs-modern">
+                        <a href="{{ route('stock.excel', array_merge(['stok' => $stock->id], array_filter([
+                            'start_date' => request('start_date'),
+                            'end_date' => request('end_date'),
+                            'period' => request('period'),
+                            'code' => request('code')
+                        ]))) }}" class="btn-modern btn-warning-modern btn-xs-modern">
                             <i class="fas fa-file-excel"></i> Rapor İndir
                         </a>
                         <button class="btn-modern btn-danger-modern btn-xs-modern" data-id="{{ $stock->id }}" data-action="{{ route('stock.destroy', $stock->id) }}" onclick='deleteConfirmation("{{$stock->id}}")'>

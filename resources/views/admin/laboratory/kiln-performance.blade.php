@@ -156,6 +156,15 @@
             font-size: 0.8rem;
             padding: 0.25rem 0.5rem;
         }
+        .card-footer-modern {
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 2rem;
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
     </style>
 @endsection
 
@@ -193,7 +202,7 @@
                     <p class="card-subtitle-modern">Analiz edilecek tarih aralığını seçin</p>
                 </div>
                 <div class="card-body-modern">
-                    <form method="GET" action="{{ route('laboratory.kiln-performance') }}" class="row">
+                    <form method="GET" action="{{ route('laboratory.kiln-performance') }}" class="row align-items-end">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Başlangıç Tarihi</label>
@@ -207,15 +216,31 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                <label>&nbsp;</label>
-                                <button type="submit" class="btn-modern btn-success-modern d-block w-100">
-                                    <i class="fas fa-search"></i> Filtrele
-                                </button>
+                            <div class="form-group d-flex flex-column justify-content-end h-100">
+                                <a href="{{ route('laboratory.kiln-performance.excel', array_filter([
+                                    'start_date' => request('start_date', $startDate->format('Y-m-d')),
+                                    'end_date' => request('end_date', $endDate->format('Y-m-d'))
+                                ])) }}" class="btn-modern btn-warning-modern">
+                                    <i class="fas fa-file-excel"></i> Excel İndir
+                                </a>
                             </div>
                         </div>
                     </form>
                 </div>
+                
+                @if(request('start_date') || request('end_date'))
+                    <div class="card-footer-modern bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                {{ request('start_date', $startDate->format('Y-m-d')) }} - {{ request('end_date', $endDate->format('Y-m-d')) }} tarihleri arası filtrelenmiş sonuçlar
+                            </span>
+                            <a href="{{ route('laboratory.kiln-performance') }}" class="btn-modern btn-secondary-modern btn-sm">
+                                <i class="fas fa-times"></i> Filtreleri Temizle
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Genel Performans İstatistikleri -->

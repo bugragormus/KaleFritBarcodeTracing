@@ -344,8 +344,8 @@
                 <!-- Hızlı Filtre Butonları -->
                 <div class="quick-filters mb-3">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="{{ route('company.analysis', ['firma' => $company->id]) }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
-                            <i class="fas fa-calendar-day"></i> Günlük
+                    <a href="{{ route('company.analysis', ['firma' => $company->id, 'period' => 'weekly']) }}" class="btn-modern btn-sm {{ request('period') == 'weekly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                            <i class="fas fa-calendar-day"></i> Son 7 Gün
                         </a>
                         <a href="{{ route('company.analysis', ['firma' => $company->id, 'period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
                             <i class="fas fa-calendar-alt"></i> Aylık

@@ -346,7 +346,11 @@
                             <a href="{{ route('kiln.create') }}" class="btn-modern btn-success-modern mr-2">
                                 <i class="fas fa-plus"></i> Yeni Fırın Ekle
                             </a>
-                            <a href="{{ route('kiln.excel.download') }}" class="btn-modern btn-warning-modern">
+                            <a href="{{ route('kiln.excel.download', array_filter([
+                                'start_date' => request('start_date'),
+                                'end_date' => request('end_date'),
+                                'period' => request('period')
+                            ])) }}" class="btn-modern btn-warning-modern">
                                 <i class="fas fa-file-excel"></i> Excel İndir
                             </a>
                         </div>
@@ -366,7 +370,7 @@
                 <!-- Hızlı Filtre Butonları -->
                 <div class="quick-filters mb-3">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="{{ route('kiln.index') }}" class="btn-modern btn-sm {{ !request('period') ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
+                    <a href="{{ route('kiln.index', ['period' => 'daily']) }}" class="btn-modern btn-sm {{ request('period') == 'daily' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">   
                             <i class="fas fa-calendar-day"></i> Günlük
                         </a>
                         <a href="{{ route('kiln.index', ['period' => 'monthly']) }}" class="btn-modern btn-sm {{ request('period') == 'monthly' ? 'btn-primary-modern' : 'btn-secondary-modern' }}">
@@ -590,7 +594,11 @@
                         <a href="{{ route('kiln.analysis', ['firin' => $kiln->id]) }}" class="btn-modern btn-info-modern btn-xs-modern">
                             <i class="fas fa-chart-bar"></i> Detaylı Analiz
                         </a>
-                        <a href="{{ route('kiln.download.report', ['firin' => $kiln->id]) }}" class="btn-modern btn-warning-modern btn-xs-modern">
+                        <a href="{{ route('kiln.download.report', array_merge(['firin' => $kiln->id], array_filter([
+                            'start_date' => request('start_date'),
+                            'end_date' => request('end_date'),
+                            'period' => request('period')
+                        ]))) }}" class="btn-modern btn-warning-modern btn-xs-modern">
                             <i class="fas fa-file-excel"></i> Rapor İndir
                         </a>
                                         <button class="btn-modern btn-danger-modern btn-xs-modern" data-id="{{ $kiln->id }}" data-action="{{ route('kiln.destroy', $kiln->id) }}" onclick='deleteConfirmation("{{$kiln->id}}")'>

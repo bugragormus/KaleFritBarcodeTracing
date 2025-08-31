@@ -193,23 +193,56 @@ class StockController extends Controller
     {
         $stock = Stock::findOrFail($id);
         
-        // Stok detaylarını hesapla
-        $stockDetails = $this->stockCalculationService->getStockDetails($id);
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'daily':
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Bilinmeyen period - tarih filtresi yok
+                    break;
+            }
+        }
+        
+        // Stok detaylarını hesapla (tarih filtresi ile)
+        $stockDetails = $this->stockCalculationService->getStockDetails($id, $startDate, $endDate);
         
         // Son 30 günlük üretim grafiği için veri
-        $productionData = $this->stockCalculationService->getProductionChartData($id);
+        $productionData = $this->stockCalculationService->getProductionChartData($id, $startDate, $endDate);
         
         // Durum bazında barkod listesi
-        $barcodesByStatus = $this->stockCalculationService->getBarcodesByStatus($id);
+        $barcodesByStatus = $this->stockCalculationService->getBarcodesByStatus($id, $startDate, $endDate);
         
         // Fırın bazında üretim
-        $productionByKiln = $this->stockCalculationService->getProductionByKiln($id);
+        $productionByKiln = $this->stockCalculationService->getProductionByKiln($id, 10, $startDate, $endDate);
         
         // Müşteri bazında satış
-        $salesByCompany = $this->stockCalculationService->getSalesByCompany($id);
+        $salesByCompany = $this->stockCalculationService->getSalesByCompany($id, 10, $startDate, $endDate);
         
         // Aylık üretim trendi
-        $monthlyTrend = $this->stockCalculationService->getMonthlyTrend($id);
+        $monthlyTrend = $this->stockCalculationService->getMonthlyTrend($id, 10, $startDate, $endDate);
         
         return view('admin.stock.show', compact(
             'stock', 
@@ -218,7 +251,10 @@ class StockController extends Controller
             'barcodesByStatus',
             'productionByKiln',
             'salesByCompany',
-            'monthlyTrend'
+            'monthlyTrend',
+            'startDate',
+            'endDate',
+            'period'
         ));
     }
 
@@ -313,12 +349,12 @@ class StockController extends Controller
         }
         
         // Stok detaylarını hesapla (tarih filtresi ile)
-        $stockDetails = $this->stockCalculationService->getStockDetails($id);
-        $productionData = $this->stockCalculationService->getProductionChartData($id);
-        $barcodesByStatus = $this->stockCalculationService->getBarcodesByStatus($id);
-        $productionByKiln = $this->stockCalculationService->getProductionByKiln($id);
-        $salesByCompany = $this->stockCalculationService->getSalesByCompany($id);
-        $monthlyTrend = $this->stockCalculationService->getMonthlyTrend($id);
+        $stockDetails = $this->stockCalculationService->getStockDetails($id, $startDate, $endDate);
+        $productionData = $this->stockCalculationService->getProductionChartData($id, $startDate, $endDate);
+        $barcodesByStatus = $this->stockCalculationService->getBarcodesByStatus($id, $startDate, $endDate);
+        $productionByKiln = $this->stockCalculationService->getProductionByKiln($id, 10, $startDate, $endDate);
+        $salesByCompany = $this->stockCalculationService->getSalesByCompany($id, 10, $startDate, $endDate);
+        $monthlyTrend = $this->stockCalculationService->getMonthlyTrend($id, 10, $startDate, $endDate);
         
         // Dosya adına tarih bilgisi ekle
         $fileName = "stok-raporu-{$stock->code}";

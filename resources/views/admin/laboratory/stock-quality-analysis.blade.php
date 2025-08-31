@@ -152,6 +152,21 @@
         .stock-card.low-rejection {
             border-left-color: #28a745;
         }
+        .card-footer-modern {
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 2rem;
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        .form-group {
+            height: 100%;
+        }
+        .form-group label {
+            margin-bottom: 0.5rem;
+        }
     </style>
 @endsection
 
@@ -189,29 +204,58 @@
                     <p class="card-subtitle-modern">Analiz edilecek tarih aralığını seçin</p>
                 </div>
                 <div class="card-body-modern">
-                    <form method="GET" action="{{ route('laboratory.stock-quality-analysis') }}" class="row">
+                    <div class="row align-items-end">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Başlangıç Tarihi</label>
-                                <input type="date" name="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}">
+                                <input type="date" name="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}" 
+                                       onchange="this.form.submit()" form="date-filter-form">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label>Bitiş Tarihi</label>
-                                <input type="date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}">
+                                <input type="date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}" 
+                                       onchange="this.form.submit()" form="date-filter-form">
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
+                            <div class="form-group d-flex flex-column justify-content-end h-100">
                                 <label>&nbsp;</label>
-                                <button type="submit" class="btn-modern btn-success-modern d-block w-100">
-                                    <i class="fas fa-search"></i> Filtrele
-                                </button>
+                                <a href="{{ route('laboratory.stock-quality-analysis.excel', array_filter([
+                                    'start_date' => request('start_date', $startDate->format('Y-m-d')),
+                                    'end_date' => request('end_date', $endDate->format('Y-m-d'))
+                                ])) }}" class="btn-modern btn-warning-modern w-100">
+                                    <i class="fas fa-file-excel"></i> Excel İndir
+                                </a>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Gizli form - sadece tarih değişikliklerini submit etmek için -->
+                    <form id="date-filter-form" method="GET" action="{{ route('laboratory.stock-quality-analysis') }}" style="display: none;">
+                        @if(request('start_date'))
+                            <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                        @endif
+                        @if(request('end_date'))
+                            <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                        @endif
                     </form>
                 </div>
+                
+                @if(request('start_date') || request('end_date'))
+                    <div class="card-footer-modern bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                {{ request('start_date', $startDate->format('Y-m-d')) }} - {{ request('end_date', $endDate->format('Y-m-d')) }} tarihleri arası filtrelenmiş sonuçlar
+                            </span>
+                            <a href="{{ route('laboratory.stock-quality-analysis') }}" class="btn-modern btn-secondary-modern btn-sm">
+                                <i class="fas fa-times"></i> Filtreleri Temizle
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Genel Kalite İstatistikleri -->
@@ -382,10 +426,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 $(document).ready(function() {
-    // Tarih filtreleme için otomatik submit
-    $('input[type="date"]').on('change', function() {
-        $(this).closest('form').submit();
-    });
+    // Tarih filtreleme için otomatik submit artık HTML'de onchange ile yapılıyor
 });
 </script>
 @endsection

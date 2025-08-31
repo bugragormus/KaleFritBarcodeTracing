@@ -691,8 +691,45 @@ class KilnController extends Controller
             return back()->withInput();
         }
 
-        $kiln = Kiln::with(['barcodes' => function($query) {
+        // Tarih filtreleme parametreleri
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+        $period = request('period');
+        
+        // Period parametresine göre varsayılan tarihleri ayarla
+        if (!$startDate && !$endDate && $period) {
+            switch ($period) {
+                case 'monthly':
+                    $startDate = now()->startOfMonth()->format('Y-m-d');
+                    $endDate = now()->endOfMonth()->format('Y-m-d');
+                    break;
+                case 'quarterly':
+                    $startDate = now()->startOfQuarter()->format('Y-m-d');
+                    $endDate = now()->endOfQuarter()->format('Y-m-d');
+                    break;
+                case 'yearly':
+                    $startDate = now()->startOfYear()->format('Y-m-d');
+                    $endDate = now()->endOfYear()->format('Y-m-d');
+                    break;
+                case 'all':
+                    // Tüm zamanlar için tarih filtresi yok
+                    break;
+                default:
+                    // Bilinmeyen period - tarih filtresi yok
+                    break;
+            }
+        }
+
+        $kiln = Kiln::with(['barcodes' => function($query) use ($startDate, $endDate) {
             $query->with(['stock', 'company', 'warehouse', 'rejectionReasons']);
+            
+            // Tarih filtreleri ekle
+            if ($startDate) {
+                $query->where('created_at', '>=', $startDate);
+            }
+            if ($endDate) {
+                $query->where('created_at', '<=', $endDate . ' 23:59:59');
+            }
         }])->findOrFail($id);
 
         // Excel export için veri hazırlama
@@ -715,7 +752,26 @@ class KilnController extends Controller
             ];
         }
 
-        $filename = 'Firin_Raporu_' . $kiln->name . '_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+        // Dosya adına tarih bilgisi ekle
+        $filename = 'Firin_Raporu_' . $kiln->name;
+        if ($startDate && $endDate) {
+            if ($startDate === $endDate) {
+                $filename .= '_' . \Carbon\Carbon::parse($startDate)->format('d-m-Y');
+            } else {
+                $filename .= '_' . \Carbon\Carbon::parse($startDate)->format('d-m-Y') . '-to-' . \Carbon\Carbon::parse($endDate)->format('d-m-Y');
+            }
+        } elseif ($period) {
+            $periodNames = [
+                'monthly' => 'aylik',
+                'quarterly' => '3-aylik', 
+                'yearly' => 'yillik',
+                'all' => 'tum-zamanlar'
+            ];
+            $filename .= '_' . ($periodNames[$period] ?? 'gunluk');
+        } else {
+            $filename .= '_' . now()->format('d-m-Y');
+        }
+        $filename .= '.xlsx';
 
         return \Excel::download(new \App\Exports\KilnReportExport($data), $filename);
     }

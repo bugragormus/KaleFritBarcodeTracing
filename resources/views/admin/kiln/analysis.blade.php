@@ -378,7 +378,11 @@
                 </div>
                 <div class="col-md-4 text-right">
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('kiln.download.report', ['firin' => $kiln->id]) }}" class="btn-modern btn-warning-modern mr-2">
+                        <a href="{{ route('kiln.download.report', array_merge(['firin' => $kiln->id], array_filter([
+    'start_date' => request('start_date'),
+    'end_date' => request('end_date'),
+    'period' => request('period')
+]))) }}" class="btn-modern btn-warning-modern mr-2">
                             <i class="fas fa-file-excel"></i> Detay Rapor
                         </a>
                         <a href="{{ route('kiln.index') }}" class="btn-modern btn-primary-modern">

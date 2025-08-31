@@ -827,6 +827,109 @@ class LaboratoryController extends Controller
     }
 
     /**
+     * Stok kalite analizi Excel export
+     */
+    public function stockQualityAnalysisExcel(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
+        $endDate = $request->get('end_date', now()->endOfMonth());
+
+        if ($startDate) {
+            $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+        }
+        if ($endDate) {
+            $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+        }
+
+        // Tüm stoklar için kalite analizi (Excel export için)
+        $stockQualityData = \App\Models\Stock::with(['barcodes' => function($query) use ($startDate, $endDate) {
+            $query->whereBetween('lab_at', [$startDate, $endDate]);
+        }, 'barcodes.rejectionReasons', 'barcodes.quantity'])
+        ->get()
+        ->map(function ($stock) use ($startDate, $endDate) {
+            $totalBarcodes = $stock->barcodes->count();
+            $acceptedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->count();
+            $rejectedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
+            $controlRepeatBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
+            
+            $totalKg = $stock->barcodes->sum('quantity.quantity');
+            $acceptedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('quantity.quantity');
+            $rejectedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
+            
+            // Red sebepleri analizi
+            $rejectionReasons = [];
+            foreach ($stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED) as $barcode) {
+                foreach ($barcode->rejectionReasons as $reason) {
+                    if (!isset($rejectionReasons[$reason->name])) {
+                        $rejectionReasons[$reason->name] = ['count' => 0, 'kg' => 0];
+                    }
+                    $rejectionReasons[$reason->name]['count']++;
+                    $rejectionReasons[$reason->name]['kg'] += $barcode->quantity->quantity ?? 0;
+                }
+            }
+            
+            // Kalite oranları
+            $acceptanceRate = $totalBarcodes > 0 ? ($acceptedBarcodes / $totalBarcodes) * 100 : 0;
+            $rejectionRate = $totalBarcodes > 0 ? ($rejectedBarcodes / $totalBarcodes) * 100 : 0;
+            
+            return [
+                'stock' => $stock,
+                'total_barcodes' => $totalBarcodes,
+                'accepted_barcodes' => $acceptedBarcodes,
+                'rejected_barcodes' => $rejectedBarcodes,
+                'control_repeat_barcodes' => $controlRepeatBarcodes,
+                'total_kg' => $totalKg,
+                'accepted_kg' => $acceptedKg,
+                'rejected_kg' => $rejectedKg,
+                'acceptance_rate' => $acceptanceRate,
+                'rejection_rate' => $rejectionRate,
+                'rejection_reasons' => $rejectionReasons,
+                'top_rejection_reason' => collect($rejectionReasons)->sortByDesc('count')->keys()->first(),
+                'top_rejection_count' => collect($rejectionReasons)->max('count') ?? 0
+            ];
+        })
+        ->filter(function ($data) {
+            return $data['total_barcodes'] > 0; // Sadece işlem görmüş stokları göster
+        })
+        ->sortByDesc('rejection_rate');
+
+        // Genel kalite istatistikleri
+        $overallStats = [
+            'total_stocks' => $stockQualityData->count(),
+            'total_barcodes' => $stockQualityData->sum('total_barcodes'),
+            'total_accepted' => $stockQualityData->sum('accepted_barcodes'),
+            'total_rejected' => $stockQualityData->sum('rejected_barcodes'),
+            'total_kg' => $stockQualityData->sum('total_kg'),
+            'total_accepted_kg' => $stockQualityData->sum('accepted_kg'),
+            'total_rejected_kg' => $stockQualityData->sum('rejected_kg'),
+            'overall_acceptance_rate' => $stockQualityData->sum('total_barcodes') > 0 ? 
+                ($stockQualityData->sum('accepted_barcodes') / $stockQualityData->sum('total_barcodes')) * 100 : 0,
+            'overall_rejection_rate' => $stockQualityData->sum('total_barcodes') > 0 ? 
+                ($stockQualityData->sum('rejected_barcodes') / $stockQualityData->sum('total_barcodes')) * 100 : 0
+        ];
+
+        // Dosya adına tarih bilgisi ekle
+        $fileName = 'stok-kalite-analizi';
+        if ($startDate && $endDate) {
+            if ($startDate->format('Y-m-d') === $endDate->format('Y-m-d')) {
+                $fileName .= '-' . $startDate->format('d-m-Y');
+            } else {
+                $fileName .= '-' . $startDate->format('d-m-Y') . '-to-' . $endDate->format('d-m-Y');
+            }
+        } else {
+            $fileName .= '-' . now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
+
+        return Excel::download(new \App\Exports\StockQualityAnalysisExport(
+            $stockQualityData, 
+            $overallStats, 
+            $startDate, 
+            $endDate
+        ), $fileName);
+    }
+
+    /**
      * Fırın performans analizi
      */
     public function kilnPerformance(Request $request)
@@ -922,5 +1025,116 @@ class LaboratoryController extends Controller
             'startDate', 
             'endDate'
         ));
+    }
+
+    /**
+     * Fırın performans analizi Excel export
+     */
+    public function kilnPerformanceExcel(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
+        $endDate = $request->get('end_date', now()->endOfMonth());
+
+        if ($startDate) {
+            $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
+        }
+        if ($endDate) {
+            $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
+        }
+
+        // Tüm fırınlar için performans analizi (Excel export için)
+        $kilnPerformanceData = \App\Models\Kiln::with(['barcodes' => function($query) use ($startDate, $endDate) {
+            $query->whereBetween('lab_at', [$startDate, $endDate]);
+        }, 'barcodes.rejectionReasons', 'barcodes.quantity', 'barcodes.stock'])
+        ->get()
+        ->map(function ($kiln) use ($startDate, $endDate) {
+            $totalBarcodes = $kiln->barcodes->count();
+            $acceptedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->count();
+            $rejectedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
+            $controlRepeatBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
+            
+            $totalKg = $kiln->barcodes->sum('quantity.quantity');
+            $acceptedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('quantity.quantity');
+            $rejectedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
+            
+            // Red sebepleri analizi
+            $rejectionReasons = [];
+            foreach ($kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED) as $barcode) {
+                foreach ($barcode->rejectionReasons as $reason) {
+                    if (!isset($rejectionReasons[$reason->name])) {
+                        $rejectionReasons[$reason->name] = ['count' => 0, 'kg' => 0];
+                    }
+                    $rejectionReasons[$reason->name]['count']++;
+                    $rejectionReasons[$reason->name]['kg'] += $barcode->quantity->quantity ?? 0;
+                }
+            }
+            
+            // Performans oranları
+            $acceptanceRate = $totalBarcodes > 0 ? ($acceptedBarcodes / $totalBarcodes) * 100 : 0;
+            $rejectionRate = $totalBarcodes > 0 ? ($rejectedBarcodes / $totalBarcodes) * 100 : 0;
+            $efficiencyRate = $totalBarcodes > 0 ? (($acceptedBarcodes + $controlRepeatBarcodes) / $totalBarcodes) * 100 : 0;
+            
+            // Günlük ortalama üretim
+            $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
+            
+            return [
+                'kiln' => $kiln,
+                'total_barcodes' => $totalBarcodes,
+                'accepted_barcodes' => $acceptedBarcodes,
+                'rejected_barcodes' => $rejectedBarcodes,
+                'control_repeat_barcodes' => $controlRepeatBarcodes,
+                'total_kg' => $totalKg,
+                'accepted_kg' => $acceptedKg,
+                'rejected_kg' => $rejectedKg,
+                'acceptance_rate' => $acceptanceRate,
+                'rejection_rate' => $rejectionRate,
+                'efficiency_rate' => $efficiencyRate,
+                'daily_average' => $dailyAverage,
+                'rejection_reasons' => $rejectionReasons,
+                'top_rejection_reason' => collect($rejectionReasons)->sortByDesc('count')->keys()->first(),
+                'top_rejection_count' => collect($rejectionReasons)->max('count') ?? 0
+            ];
+        })
+        ->filter(function ($data) {
+            return $data['total_barcodes'] > 0; // Sadece işlem görmüş fırınları göster
+        })
+        ->sortByDesc('efficiency_rate');
+
+        // Genel fırın performans istatistikleri
+        $overallStats = [
+            'total_kilns' => $kilnPerformanceData->count(),
+            'total_barcodes' => $kilnPerformanceData->sum('total_barcodes'),
+            'total_accepted' => $kilnPerformanceData->sum('accepted_barcodes'),
+            'total_rejected' => $kilnPerformanceData->sum('rejected_barcodes'),
+            'total_kg' => $kilnPerformanceData->sum('total_kg'),
+            'total_accepted_kg' => $kilnPerformanceData->sum('accepted_kg'),
+            'total_rejected_kg' => $kilnPerformanceData->sum('total_rejected_kg'),
+            'overall_acceptance_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
+                ($kilnPerformanceData->sum('accepted_barcodes') / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0,
+            'overall_rejection_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
+                ($kilnPerformanceData->sum('rejected_barcodes') / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0,
+            'overall_efficiency_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
+                (($kilnPerformanceData->sum('accepted_barcodes') + $kilnPerformanceData->sum('control_repeat_barcodes')) / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0
+        ];
+
+        // Dosya adına tarih bilgisi ekle
+        $fileName = 'firin-performans-analizi';
+        if ($startDate && $endDate) {
+            if ($startDate->format('Y-m-d') === $endDate->format('Y-m-d')) {
+                $fileName .= '-' . $startDate->format('d-m-Y');
+            } else {
+                $fileName .= '-' . $startDate->format('d-m-Y') . '-to-' . $endDate->format('d-m-Y');
+            }
+        } else {
+            $fileName .= '-' . now()->format('d-m-Y');
+        }
+        $fileName .= '.xlsx';
+
+        return Excel::download(new \App\Exports\KilnPerformanceAnalysisExport(
+            $kilnPerformanceData, 
+            $overallStats, 
+            $startDate, 
+            $endDate
+        ), $fileName);
     }
 } 
