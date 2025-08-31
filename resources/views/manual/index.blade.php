@@ -421,15 +421,15 @@
                         <h1 class="page-title-modern">
                             <i class="fas fa-book"></i> Kullanıcı Kılavuzu
                         </h1>
-                        <p class="page-subtitle-modern">Kalefrit Barkod Yönetim Sistemi - Kapsamlı Kullanım Rehberi v2.0</p>
+                        <p class="page-subtitle-modern">Kalefrit Barkod Yönetim Sistemi - Kapsamlı Kullanım Rehberi v2.1.1</p>
                     </div>
                 </div>
             </div>
 
             <!-- AI/ML Highlight -->
             <div class="ai-ml-highlight">
-                <h4><i class="fas fa-chart-line"></i> 🚀 Yeni: Gelişmiş İstatistiksel Analiz Sistemi</h4>
-                <p>Kalefrit artık gelişmiş istatistiksel analiz özellikleri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti ve veri tabanlı optimizasyon önerileri ile işletmenizi bir üst seviyeye taşıyın.</p>
+                <h4><i class="fas fa-chart-line"></i> 🚀 Yeni: Gelişmiş İstatistiksel Analiz Sistemi v2.1.1</h4>
+                <p>Kalefrit artık gelişmiş istatistiksel analiz özellikleri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti, veri tabanlı optimizasyon önerileri ve gelişmiş raporlama özellikleri ile işletmenizi bir üst seviyeye taşıyın.</p>
             </div>
 
             <!-- Hızlı Başlangıç -->
@@ -457,6 +457,8 @@
                     <li><a href="#depo-yonetimi"><i class="fas fa-warehouse"></i> Depo Yönetimi</a></li>
                     <li><a href="#firin-yonetimi"><i class="fas fa-fire"></i> Fırın Yönetimi</a></li>
                     <li><a href="#firma-yonetimi"><i class="fas fa-building"></i> Firma Yönetimi</a></li>
+                    <li><a href="#laboratuvar-yonetimi"><i class="fas fa-flask"></i> Laboratuvar Yönetimi</a></li>
+                    <li><a href="#kullanici-yonetimi"><i class="fas fa-users-cog"></i> Kullanıcı Yönetimi</a></li>
                     <li><a href="#raporlama"><i class="fas fa-chart-line"></i> Raporlama ve Analitik</a></li>
                     <li><a href="#gunluk-rapor"><i class="fas fa-calendar-day"></i> Üretim Raporu</a></li>
                     <li><a href="#ayarlar"><i class="fas fa-cog"></i> Sistem Ayarları</a></li>
@@ -1418,6 +1420,215 @@
                 </div>
             </div>
 
+            <!-- Laboratuvar Yönetimi -->
+            <div class="card-modern" id="laboratuvar-yonetimi">
+                <div class="card-header-modern">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-flask"></i> Laboratuvar Yönetimi
+                    </h3>
+                    <p class="card-subtitle-modern">Kalite kontrol süreçleri ve test sonuçları yönetimi</p>
+                </div>
+                <div class="card-body-modern">
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-vial"></i> Test Sonuçları Girişi
+                        </h4>
+                        <p>Laboratuvar test sonuçlarını sisteme girmek için:</p>
+                        
+                        <ol class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">1. Laboratuvar Modülüne Erişin</div>
+                                <div class="step-description">Üst menüden "Laboratuvar" seçeneğine tıklayın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">2. Test Edilecek Barkodu Seçin</div>
+                                <div class="step-description">Test sonucu girilecek barkodu listeden seçin.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">3. Test Sonuçlarını Girin</div>
+                                <div class="step-description">
+                                    • Test parametreleri<br>
+                                    • Sonuç değerleri<br>
+                                    • Test tarihi<br>
+                                    • Test eden personel
+                                </div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">4. Onay/Red Kararı Verin</div>
+                                <div class="step-description">Test sonuçlarına göre barkodu onaylayın veya reddedin.</div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-check-circle"></i> Toplu İşlemler
+                        </h4>
+                        <p>Birden fazla barkod için toplu işlem yapabilirsiniz:</p>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">Toplu Onay</div>
+                                <div class="step-description">Seçilen tüm barkodları tek seferde onaylayın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Toplu Red</div>
+                                <div class="step-description">Seçilen tüm barkodları tek seferde reddedin.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Red Nedeni Belirtme</div>
+                                <div class="step-description">Reddedilen barkodlar için neden belirtin.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-chart-bar"></i> Kalite Metrikleri
+                        </h4>
+                        <p>Laboratuvar performansını takip edin:</p>
+                        
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-percentage"></i></div>
+                                <div class="feature-title">Onay Oranı</div>
+                                <div class="feature-description">Test edilen ürünlerin onaylanma oranı</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-clock"></i></div>
+                                <div class="feature-title">Test Süresi</div>
+                                <div class="feature-description">Ortalama test tamamlama süresi</div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                <div class="feature-title">Red Nedenleri</div>
+                                <div class="feature-description">En sık karşılaşılan red nedenleri</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kullanıcı Yönetimi -->
+            <div class="card-modern" id="kullanici-yonetimi">
+                <div class="card-header-modern">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-users-cog"></i> Kullanıcı Yönetimi
+                    </h3>
+                    <p class="card-subtitle-modern">Kullanıcı hesapları ve yetkilendirme sistemi</p>
+                </div>
+                <div class="card-body-modern">
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-user-plus"></i> Yeni Kullanıcı Ekleme
+                        </h4>
+                        <ol class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">1. Kullanıcı Yönetimi Modülüne Erişin</div>
+                                <div class="step-description">Üst menüden "Kullanıcı Yönetimi" seçeneğine tıklayın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">2. Yeni Kullanıcı Ekle</div>
+                                <div class="step-description">"Yeni Kullanıcı Ekle" butonuna tıklayın.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">3. Kullanıcı Bilgilerini Girin</div>
+                                <div class="step-description">
+                                    • Ad ve soyad<br>
+                                    • E-posta adresi<br>
+                                    • Kullanıcı adı<br>
+                                    • Şifre<br>
+                                    • Rol seçimi
+                                </div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">4. Yetkileri Belirleyin</div>
+                                <div class="step-description">Kullanıcının erişebileceği modülleri seçin.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">5. Kaydedin</div>
+                                <div class="step-description">"Kaydet" butonuna tıklayın.</div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-user-edit"></i> Kullanıcı Düzenleme
+                        </h4>
+                        <p>Mevcut kullanıcı bilgilerini güncelleyin:</p>
+                        
+                        <ul class="step-list">
+                            <li class="step-item">
+                                <div class="step-title">Profil Bilgileri</div>
+                                <div class="step-description">Ad, soyad, e-posta gibi temel bilgileri güncelleyin.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Şifre Değiştirme</div>
+                                <div class="step-description">Kullanıcı şifresini güvenli şekilde değiştirin.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Yetki Güncelleme</div>
+                                <div class="step-description">Kullanıcının erişim yetkilerini güncelleyin.</div>
+                            </li>
+                            <li class="step-item">
+                                <div class="step-title">Hesap Durumu</div>
+                                <div class="step-description">Hesabı aktif/pasif yapın.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-shield-alt"></i> Rol Yönetimi
+                        </h4>
+                        <p>Sistemde tanımlı roller ve yetkileri:</p>
+                        
+                        <table class="table-modern">
+                            <thead>
+                                <tr>
+                                    <th>Rol</th>
+                                    <th>Yetkiler</th>
+                                    <th>Modül Erişimi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Süper Admin</strong></td>
+                                    <td>Tüm sistem kontrolü</td>
+                                    <td>Tüm modüller + Sistem ayarları</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Admin</strong></td>
+                                    <td>Genel yönetim</td>
+                                    <td>Tüm modüller (sistem ayarları hariç)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Üretim Müdürü</strong></td>
+                                    <td>Üretim süreçleri</td>
+                                    <td>Barkod, Stok, Fırın, Raporlar</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kalite Kontrol</strong></td>
+                                    <td>Kalite süreçleri</td>
+                                    <td>Laboratuvar, Barkod, Raporlar</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Depo Sorumlusu</strong></td>
+                                    <td>Depo operasyonları</td>
+                                    <td>Depo, Stok, Barkod</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Operatör</strong></td>
+                                    <td>Temel işlemler</td>
+                                    <td>Barkod, Stok (sadece görüntüleme)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Raporlama ve Analitik -->
             <div class="card-modern" id="raporlama">
                 <div class="card-header-modern">
@@ -1870,6 +2081,64 @@
                         <div class="step-item">
                             <div class="step-title">Sayfa yüklenmiyor, ne yapmalıyım?</div>
                             <div class="step-description">İnternet bağlantınızı kontrol edin. Sorun devam ederse tarayıcınızın önbelleğini temizleyin veya farklı bir tarayıcı deneyin.</div>
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-flask"></i> Laboratuvar İşlemleri
+                        </h4>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Test sonuçları nasıl girilir?</div>
+                            <div class="step-description">Laboratuvar modülüne girin, test edilecek barkodu seçin, test parametrelerini ve sonuçları girin, onay/red kararı verin.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Toplu işlem nasıl yapılır?</div>
+                            <div class="step-description">Birden fazla barkodu seçin, "Toplu İşlem" butonuna tıklayın ve işlem türünü (onay/red) seçin.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Red nedeni nasıl belirtilir?</div>
+                            <div class="step-description">Barkodu reddederken açılan pencerede red nedenini seçin veya özel not ekleyin.</div>
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-truck"></i> Sevkiyat İşlemleri
+                        </h4>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Sevkiyat noktası nasıl eklenir?</div>
+                            <div class="step-description">Sevkiyat modülüne girin, "Yeni Sevkiyat Noktası" butonuna tıklayın, gerekli bilgileri doldurun ve kaydedin.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Teslimat durumu nasıl güncellenir?</div>
+                            <div class="step-description">Sevkiyat listesinden ilgili kaydı seçin, "Durum Güncelle" butonuna tıklayın ve yeni durumu seçin.</div>
+                        </div>
+                    </div>
+
+                    <div class="manual-section">
+                        <h4 class="section-title">
+                            <i class="fas fa-users-cog"></i> Kullanıcı Yönetimi
+                        </h4>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Yeni kullanıcı nasıl eklenir?</div>
+                            <div class="step-description">Kullanıcı Yönetimi modülüne girin, "Yeni Kullanıcı Ekle" butonuna tıklayın, bilgileri doldurun ve yetkileri belirleyin.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Kullanıcı yetkileri nasıl değiştirilir?</div>
+                            <div class="step-description">Kullanıcı listesinden ilgili kullanıcıyı seçin, "Düzenle" butonuna tıklayın ve yetki ayarlarını güncelleyin.</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-title">Hangi roller mevcuttur?</div>
+                            <div class="step-description">Süper Admin, Admin, Üretim Müdürü, Kalite Kontrol, Depo Sorumlusu ve Operatör rolleri bulunur.</div>
                         </div>
                     </div>
 
