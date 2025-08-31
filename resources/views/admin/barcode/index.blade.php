@@ -196,6 +196,634 @@
                 font-size: 0.8rem;
             }
         }
+
+        /* Mobil Uyumluluk - Barkod Yönetimi */
+        @media (max-width: 991px) {
+            .modern-barcode-management {
+                padding: 1rem 0;
+            }
+            
+            .page-header-modern {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+                border-radius: 15px;
+            }
+            
+            .page-title-modern {
+                font-size: 2rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .page-subtitle-modern {
+                font-size: 1rem;
+            }
+            
+            .card-header-modern {
+                padding: 1.25rem 1.5rem;
+            }
+            
+            .card-body-modern {
+                padding: 1.5rem;
+            }
+            
+            .filter-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+                width: 100%;
+            }
+            
+            .filter-actions .btn-modern {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .filter-item {
+                margin-bottom: 0;
+            }
+            
+            .filter-label {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .filter-select {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+            
+            .filter-date {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header-modern {
+                padding: 1.25rem;
+                margin-bottom: 1.25rem;
+            }
+            
+            .page-title-modern {
+                font-size: 1.75rem;
+                text-align: center;
+            }
+            
+            .page-subtitle-modern {
+                text-align: center;
+                font-size: 0.95rem;
+            }
+            
+            .page-header-modern .col-md-4 {
+                text-align: center !important;
+                margin-top: 1rem;
+            }
+            
+            .page-header-modern .btn-modern {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .card-header-modern {
+                padding: 1rem;
+                text-align: center;
+            }
+            
+            .card-title-modern {
+                font-size: 1.2rem;
+                justify-content: center;
+            }
+            
+            .card-subtitle-modern {
+                font-size: 0.9rem;
+                text-align: center;
+            }
+            
+            .column-filters {
+                padding: 1rem;
+            }
+            
+            .filter-header h6 {
+                font-size: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .filter-grid {
+                gap: 0.75rem;
+            }
+            
+            .filter-item {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modern-barcode-management {
+                padding: 0.75rem 0;
+            }
+            
+            .page-header-modern {
+                padding: 1rem;
+                margin-bottom: 1rem;
+                border-radius: 12px;
+            }
+            
+            .page-title-modern {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle-modern {
+                font-size: 0.9rem;
+            }
+            
+            .card-modern {
+                border-radius: 15px;
+            }
+            
+            .card-header-modern {
+                padding: 0.75rem;
+            }
+            
+            .card-body-modern {
+                padding: 1rem;
+            }
+            
+            .card-title-modern {
+                font-size: 1.1rem;
+            }
+            
+            .card-subtitle-modern {
+                font-size: 0.85rem;
+            }
+            
+            .filter-header {
+                gap: 0.75rem;
+            }
+            
+            .filter-actions {
+                gap: 0.5rem;
+            }
+            
+            .filter-grid {
+                gap: 0.5rem;
+            }
+            
+            .filter-item {
+                padding: 0.5rem;
+            }
+            
+            .filter-label {
+                font-size: 0.85rem;
+                margin-bottom: 0.4rem;
+            }
+            
+            .filter-select,
+            .filter-date {
+                font-size: 0.85rem;
+                padding: 0.4rem;
+            }
+            
+            .btn-modern {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            
+            .btn-xs-modern {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* DataTable Mobil Uyumluluk */
+        @media (max-width: 991px) {
+            .yajra-datatable {
+                font-size: 0.9rem;
+            }
+            
+            .yajra-datatable th,
+            .yajra-datatable td {
+                padding: 0.5rem 0.25rem;
+            }
+            
+            /* Mobilde tablo başlıklarını optimize et */
+            .yajra-datatable th {
+                white-space: nowrap;
+                min-width: 80px;
+            }
+            
+            /* Mobilde tablo hücrelerini optimize et */
+            .yajra-datatable td {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .yajra-datatable {
+                font-size: 0.8rem;
+            }
+            
+            .yajra-datatable th,
+            .yajra-datatable td {
+                padding: 0.4rem 0.2rem;
+                font-size: 0.8rem;
+            }
+            
+            .yajra-datatable .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .yajra-datatable {
+                font-size: 0.75rem;
+            }
+            
+            .yajra-datatable th,
+            .yajra-datatable td {
+                padding: 0.3rem 0.15rem;
+                font-size: 0.75rem;
+            }
+            
+            .yajra-datatable .btn {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Mobil için tablo scroll */
+        @media (max-width: 991px) {
+            .card-body-modern {
+                overflow-x: auto;
+            }
+            
+            .yajra-datatable {
+                min-width: 800px;
+            }
+        }
+
+        /* Mobil için buton grupları */
+        @media (max-width: 768px) {
+            .btn-group-modern {
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+            }
+            
+            .btn-group-modern .btn-modern {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Mobil için filter grid düzeni */
+        @media (max-width: 768px) {
+            .filter-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-grid {
+                gap: 0.75rem;
+            }
+        }
+
+        /* Mobil için page header düzeni */
+        @media (max-width: 768px) {
+            .page-header-modern .row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .page-header-modern .col-md-8,
+            .page-header-modern .col-md-4 {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* Mobil için ek iyileştirmeler */
+        @media (max-width: 480px) {
+            .modern-barcode-management {
+                padding: 0.5rem 0;
+            }
+            
+            .page-header-modern {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+                border-radius: 10px;
+            }
+            
+            .page-title-modern {
+                font-size: 1.25rem;
+            }
+            
+            .page-subtitle-modern {
+                font-size: 0.8rem;
+            }
+            
+            .card-modern {
+                border-radius: 12px;
+            }
+            
+            .card-header-modern {
+                padding: 0.5rem;
+            }
+            
+            .card-body-modern {
+                padding: 0.75rem;
+            }
+            
+            .card-title-modern {
+                font-size: 1rem;
+            }
+            
+            .card-subtitle-modern {
+                font-size: 0.8rem;
+            }
+            
+            .column-filters {
+                padding: 0.75rem;
+            }
+            
+            .filter-header {
+                gap: 0.5rem;
+            }
+            
+            .filter-header h6 {
+                font-size: 0.9rem;
+            }
+            
+            .filter-actions {
+                gap: 0.4rem;
+            }
+            
+            .filter-grid {
+                gap: 0.4rem;
+            }
+            
+            .filter-item {
+                padding: 0.4rem;
+            }
+            
+            .filter-label {
+                font-size: 0.8rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .filter-select,
+            .filter-date,
+            .filter-input {
+                font-size: 0.8rem;
+                padding: 0.3rem;
+                min-height: 35px;
+            }
+            
+            .btn-modern {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .btn-xs-modern {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Mobil için DataTable ek optimizasyonlar */
+        @media (max-width: 480px) {
+            .yajra-datatable {
+                font-size: 0.7rem;
+            }
+            
+            .yajra-datatable th,
+            .yajra-datatable td {
+                padding: 0.25rem 0.1rem;
+                font-size: 0.7rem;
+            }
+            
+            .yajra-datatable .btn {
+                padding: 0.15rem 0.3rem;
+                font-size: 0.65rem;
+            }
+            
+            .status-badge {
+                padding: 4px 8px;
+                font-size: 10px;
+                min-width: 80px;
+            }
+            
+            .badge {
+                padding: 2px 6px;
+                font-size: 10px;
+            }
+        }
+
+        /* Mobil için tablo scroll iyileştirmeleri */
+        @media (max-width: 991px) {
+            .card-body-modern {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                scrollbar-color: #667eea #f8f9fa;
+            }
+            
+            .yajra-datatable {
+                min-width: 800px;
+            }
+            
+            /* Mobilde tablo scroll göstergesi */
+            .card-body-modern::after {
+                content: '← Kaydırın →';
+                display: block;
+                text-align: center;
+                color: #6c757d;
+                font-size: 0.8rem;
+                padding: 0.5rem;
+                background: rgba(108, 117, 125, 0.1);
+                border-radius: 8px;
+                margin-top: 0.5rem;
+            }
+            
+            /* Webkit scrollbar stilleri */
+            .card-body-modern::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .card-body-modern::-webkit-scrollbar-track {
+                background: #f8f9fa;
+                border-radius: 4px;
+            }
+            
+            .card-body-modern::-webkit-scrollbar-thumb {
+                background: #667eea;
+                border-radius: 4px;
+            }
+            
+            .card-body-modern::-webkit-scrollbar-thumb:hover {
+                background: #5a6fd8;
+            }
+        }
+
+        /* Mobil için buton grupları ek iyileştirmeler */
+        @media (max-width: 768px) {
+            .btn-group-modern {
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+            }
+            
+            .btn-group-modern .btn-modern {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .action-buttons-container {
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        /* Mobil için filter grid ek düzenlemeler */
+        @media (max-width: 768px) {
+            .filter-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .filter-item {
+                margin-bottom: 0;
+            }
+            
+            /* Mobilde filter alanlarını optimize et */
+            .filter-select,
+            .filter-date,
+            .filter-input {
+                font-size: 0.9rem;
+                padding: 0.6rem;
+                min-height: 40px;
+            }
+            
+            .filter-label {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-grid {
+                gap: 0.5rem;
+            }
+            
+            .filter-item {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .filter-grid {
+                gap: 0.4rem;
+            }
+            
+            .filter-item {
+                padding: 0.4rem;
+            }
+            
+            /* Çok küçük ekranlarda ek optimizasyonlar */
+            .filter-select,
+            .filter-date,
+            .filter-input {
+                font-size: 0.75rem;
+                padding: 0.25rem;
+                min-height: 32px;
+            }
+            
+            .filter-label {
+                font-size: 0.75rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .btn-modern {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Mobil için ek genel iyileştirmeler */
+        @media (max-width: 768px) {
+            /* Mobilde container padding'i azalt */
+            .container-fluid {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+            
+            /* Mobilde card margin'i azalt */
+            .card-modern {
+                margin-bottom: 1rem;
+            }
+            
+            /* Mobilde filter header'ı optimize et */
+            .filter-header {
+                margin-bottom: 1rem;
+                padding-bottom: 0.75rem;
+            }
+            
+            /* Mobilde filter actions'ı optimize et */
+            .filter-actions {
+                margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            /* Çok küçük ekranlarda container padding'i daha da azalt */
+            .container-fluid {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            
+            /* Çok küçük ekranlarda card margin'i daha da azalt */
+            .card-modern {
+                margin-bottom: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* En küçük ekranlarda container padding'i minimum yap */
+            .container-fluid {
+                padding-left: 0.25rem;
+                padding-right: 0.25rem;
+            }
+            
+            /* En küçük ekranlarda card margin'i minimum yap */
+            .card-modern {
+                margin-bottom: 0.5rem;
+            }
+        }
         
         .btn-info-modern {
             background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
@@ -257,6 +885,21 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
+        }
+
+        /* Mobil için filter grid düzeni */
+        @media (max-width: 1200px) {
+            .filter-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 0.875rem;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .filter-grid {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 0.75rem;
+            }
         }
         
         .filter-item {

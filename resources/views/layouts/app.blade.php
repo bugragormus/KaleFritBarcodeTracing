@@ -233,6 +233,48 @@
             gap: 12px;
         }
 
+        /* Mobile Quick Actions */
+        .mobile-quick-actions {
+            display: none;
+            gap: 8px;
+            margin-right: 12px;
+        }
+
+        .mobile-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+        }
+
+        .mobile-action-btn.primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .mobile-action-btn.secondary {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .mobile-action-btn.quaternary {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+
+        .mobile-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+
         .action-btn {
             display: flex;
             align-items: center;
@@ -449,27 +491,86 @@
         }
 
         .menu-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 12px 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .menu-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .menu-toggle-btn:hover::before {
+            opacity: 1;
+        }
+
+        .menu-toggle-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .menu-toggle-btn span {
             display: block;
-            width: 24px;
+            width: 22px;
             height: 2px;
             background: white;
-            margin: 4px 0;
-            transition: all 0.3s ease;
-            border-radius: 1px;
+            margin: 2px 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 2px;
+            transform-origin: center;
+            position: relative;
+        }
+
+        /* Hamburger Animation States */
+        .menu-toggle-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle-btn.active span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .menu-toggle-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Focus states for accessibility */
+        .menu-toggle-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .menu-toggle-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.8);
+            outline-offset: 2px;
         }
 
         /* Main Navbar */
@@ -779,14 +880,36 @@
                 order: 2;
                 width: 100%;
                 justify-content: space-between;
+                align-items: center;
+                gap: 12px;
             }
 
             .quick-actions {
                 display: none !important;
             }
 
+            .mobile-quick-actions {
+                display: flex !important;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-right: 8px;
+            }
+
             .mobile-menu-toggle {
                 display: block;
+                margin-left: 8px;
+            }
+
+            .menu-toggle-btn {
+                background: rgba(255, 255, 255, 0.2);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .menu-toggle-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-1px);
             }
 
             /* Hide main navbar by default on mobile */
@@ -815,6 +938,12 @@
                 z-index: 9999;
                 background: white;
                 box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+            }
+
+            .user-menu .dropdown.show .dropdown-menu {
+                transform: translateY(0);
             }
 
             .user-menu .dropdown.show .dropdown-menu {
@@ -825,6 +954,8 @@
             .user-dropdown-toggle {
                 position: relative;
                 z-index: 1000;
+                min-width: auto;
+                flex-shrink: 0;
             }
 
             /* Mobile dropdown backdrop */
@@ -837,6 +968,12 @@
                 bottom: 0;
                 background: rgba(0, 0, 0, 0.5);
                 z-index: 9998;
+                pointer-events: auto;
+            }
+
+            /* Ensure dropdown menu is above backdrop */
+            .user-menu .dropdown-menu {
+                z-index: 9999;
             }
 
             /* Ensure mobile menu is properly hidden by default */
@@ -905,6 +1042,24 @@
             .action-btn {
                 padding: 8px 12px;
                 font-size: 13px;
+            }
+
+            .mobile-action-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+                gap: 4px;
+            }
+
+            .menu-toggle-btn {
+                padding: 10px 8px;
+                min-width: 40px;
+                min-height: 40px;
+            }
+
+            .menu-toggle-btn span {
+                width: 20px;
+                height: 1.5px;
+                margin: 1.5px 0;
             }
 
             .user-dropdown-toggle {
@@ -1144,6 +1299,19 @@
                         </a>
                     </div>
 
+                    <!-- Mobile Quick Actions -->
+                    <div class="mobile-quick-actions d-lg-none">
+                        <a href="{{ route('barcode.create') }}" class="mobile-action-btn primary">
+                            <i class="mdi mdi-plus"></i>
+                        </a>
+                        <a href="{{ route('barcode.qr-read') }}" class="mobile-action-btn secondary">
+                            <i class="fas fa-qrcode"></i>
+                        </a>
+                        <a href="{{ route('barcode.printPage.layout') }}" class="mobile-action-btn quaternary">
+                            <i class="fas fa-print"></i>
+                        </a>
+                    </div>
+
                     <!-- User Menu -->
                     <div class="user-menu">
                         <div class="dropdown">
@@ -1188,7 +1356,7 @@
 
                     <!-- Mobile Menu Toggle -->
                     <div class="mobile-menu-toggle d-lg-none">
-                        <button class="menu-toggle-btn" type="button">
+                        <button class="menu-toggle-btn" type="button" title="Menüyü Aç/Kapat" aria-label="Menüyü Aç/Kapat">
                             <span></span>
                             <span></span>
                             <span></span>
@@ -1465,16 +1633,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Toggle menu visibility
             mainNavbar.classList.toggle('mobile-hidden');
             
-            // Toggle hamburger animation
-            menuToggleSpans.forEach((span, index) => {
-                if (index === 0) {
-                    span.style.transform = mainNavbar.classList.contains('mobile-hidden') ? 'rotate(0deg)' : 'rotate(45deg) translate(5px, 5px)';
-                } else if (index === 1) {
-                    span.style.opacity = mainNavbar.classList.contains('mobile-hidden') ? '1' : '0';
-                } else if (index === 2) {
-                    span.style.transform = mainNavbar.classList.contains('mobile-hidden') ? 'rotate(0deg)' : 'rotate(-45deg) translate(7px, -6px)';
-                }
-            });
+            // Toggle hamburger animation using CSS classes
+            menuToggleBtn.classList.toggle('active');
         });
         
         // Menu will only close when toggle button is clicked or page is resized
@@ -1485,28 +1645,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.innerWidth > 768) {
                 mainNavbar.classList.remove('mobile-hidden');
                 // Reset hamburger animation
-                menuToggleSpans.forEach((span, index) => {
-                    if (index === 0) {
-                        span.style.transform = 'rotate(0deg)';
-                    } else if (index === 1) {
-                        span.style.opacity = '1';
-                    } else if (index === 2) {
-                        span.style.transform = 'rotate(0deg)';
-                    }
-                });
+                menuToggleBtn.classList.remove('active');
             } else {
                 // Ensure menu is hidden on mobile resize
                 mainNavbar.classList.add('mobile-hidden');
                 // Reset hamburger animation
-                menuToggleSpans.forEach((span, index) => {
-                    if (index === 0) {
-                        span.style.transform = 'rotate(0deg)';
-                    } else if (index === 1) {
-                        span.style.opacity = '1';
-                    } else if (index === 2) {
-                        span.style.transform = 'rotate(0deg)';
-                    }
-                });
+                menuToggleBtn.classList.remove('active');
             }
         });
     }
@@ -1516,6 +1660,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const userDropdown = document.querySelector('.user-menu .dropdown');
     
     if (userDropdownToggle && userDropdown) {
+        // Toggle dropdown on click
+        userDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            userDropdown.classList.toggle('show');
+        });
+        
         // Close dropdown when clicking outside on mobile
         document.addEventListener('click', function(event) {
             if (window.innerWidth <= 768) {
@@ -1531,6 +1682,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (event.target === document.querySelector('.user-menu .dropdown.show::before')) {
                     userDropdown.classList.remove('show');
                 }
+            }
+        });
+        
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && userDropdown.classList.contains('show')) {
+                userDropdown.classList.remove('show');
             }
         });
     }
