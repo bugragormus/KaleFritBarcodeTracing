@@ -2040,8 +2040,18 @@ class DashboardController extends Controller
             LEFT JOIN warehouses ON barcodes.warehouse_id = warehouses.id
             LEFT JOIN kilns ON barcodes.kiln_id = kilns.id
             WHERE barcodes.deleted_at IS NULL
+            AND barcodes.status NOT IN (?, ?, ?, ?)
             ORDER BY days_old DESC, quantities.quantity DESC
-        ', [$currentDate, $currentDate, $currentDate, $currentDate]);
+        ', [
+            $currentDate,
+            $currentDate,
+            $currentDate,
+            $currentDate,
+            Barcode::STATUS_CUSTOMER_TRANSFER,
+            Barcode::STATUS_DELIVERED,
+            Barcode::STATUS_REJECTED,
+            Barcode::STATUS_CORRECTED
+        ]);
         
         // Yaş kategorilerine göre grupla
         $ageCategories = [

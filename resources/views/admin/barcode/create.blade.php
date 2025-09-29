@@ -116,6 +116,84 @@
             outline: none;
         }
         
+        /* Select2 cross-browser height/line-height fixes */
+        .select2-container--default .select2-selection--single {
+            height: 42px; /* Match .form-control height */
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: #ffffff;
+            box-sizing: border-box;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 40px; /* height - borders */
+            padding-left: 12px;
+            padding-right: 30px; /* space for arrow/clear */
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+            right: 8px;
+        }
+
+        /* Ensure dropdown overlays correctly on old browsers */
+        .select2-container {
+            z-index: 1060; /* above collapses/modals */
+            width: 100% !important;
+        }
+
+        .select2-dropdown {
+            border: 2px solid #e9ecef;
+            border-top: none;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        /* Native select fallback height alignment */
+        select.form-control, select.custom-select {
+            height: 42px;
+            line-height: 40px;
+        }
+
+        /* Bootstrap-Select (selectpicker) cross-browser fixes */
+        .bootstrap-select { width: 100% !important; }
+        .bootstrap-select > .dropdown-toggle {
+            height: 42px;
+            line-height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #495057;
+            padding: 0 1rem;
+        }
+        .bootstrap-select > .dropdown-toggle:focus,
+        .bootstrap-select > .dropdown-toggle:active {
+            outline: none !important;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+            border-color: #667eea !important;
+        }
+        .bootstrap-select .filter-option-inner,
+        .bootstrap-select .filter-option-inner-inner {
+            line-height: 40px;
+        }
+        .bootstrap-select .dropdown-menu {
+            z-index: 1060; /* keep above other UI on legacy browsers */
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border: 2px solid #e9ecef;
+        }
+        .bootstrap-select .dropdown-menu .inner .dropdown-item {
+            padding: .5rem .75rem;
+        }
+
+        /* Hidden utility to support filtering */
+        .hidden { display: none !important; }
+
+        /* Fix for collapsed parent clipping dropdowns on legacy browsers */
+        #correctionSection {
+            overflow: visible;
+        }
+
 
         
         .form-control::placeholder {
@@ -885,16 +963,53 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $('.selectpicker').selectpicker();
+            // Initialize bootstrap-select with safe container and events
+            $('.selectpicker').selectpicker({
+                container: 'body',
+                dropupAuto: false,
+                liveSearchNormalize: true
+            }).on('shown.bs.select', function () {
+                // Force reposition on show for legacy browsers
+                $(this).data('selectpicker') && $(this).data('selectpicker').$menu
+                    && $(this).data('selectpicker').$menu.css('min-width', $(this).closest('.bootstrap-select').outerWidth());
+            }).on('loaded.bs.select', function () {
+                // Normalize height after load
+                $(this).closest('.bootstrap-select').find('> .dropdown-toggle').css({ height: '42px', lineHeight: '40px' });
+            });
             
             // Initialize Select2 for filter dropdowns
+            // Robust Select2 init with dropdownParent for legacy browsers
             $('.select2-filter').select2({
                 theme: 'default',
                 width: '100%',
                 placeholder: function() {
                     return $(this).data('placeholder');
                 },
-                allowClear: true
+                allowClear: true,
+                dropdownAutoWidth: true,
+                adaptDropdownCssClass: function() { return null; }
+            }).on('select2:open', function() {
+                // Force position recalculation on open for old browsers
+                const $dropdown = $('.select2-container .select2-dropdown');
+                if ($dropdown && $dropdown.length) {
+                    $dropdown.css('width', 'auto');
+                }
+            });
+
+            // Attach dropdownParent after initialization to nearest section to avoid clipping in legacy browsers
+            $('#loadNumberFilter').select2('destroy').select2({
+                theme: 'default',
+                width: '100%',
+                placeholder: $('#loadNumberFilter').data('placeholder'),
+                allowClear: true,
+                dropdownParent: $('#correctionSection')
+            });
+            $('#stockNameFilter').select2('destroy').select2({
+                theme: 'default',
+                width: '100%',
+                placeholder: $('#stockNameFilter').data('placeholder'),
+                allowClear: true,
+                dropdownParent: $('#correctionSection')
             });
             
             // Sayfa yüklendiğinde tüm hidden input'ları devre dışı bırak

@@ -67,13 +67,22 @@ class DashboardWidgetController extends Controller
         $totalCompanies = \App\Models\Company::count();
         $totalKilns = \App\Models\Kiln::count();
         $totalStocks = \App\Models\Stock::count();
-        // Toplam stok miktarı (KG cinsinden) - tüm barkodlardaki miktarların toplamı
+        // Toplam stok miktarı (KG) - stokta kabul edilen ve bekleyen tüm statüler
+        // Dahil: Beklemede, Kontrol Tekrarı, Ön Onaylı, Sevk Onaylı, Reddedildi
+        // Hariç: Müşteri Transfer, Teslim Edildi ve diğer stok dışı durumlar
         $totalQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             WHERE barcodes.deleted_at IS NULL
-        ')[0]->total_quantity ?? 0;
+            AND barcodes.status IN (?, ?, ?, ?, ?)
+        ', [
+            Barcode::STATUS_WAITING,
+            Barcode::STATUS_CONTROL_REPEAT,
+            Barcode::STATUS_PRE_APPROVED,
+            Barcode::STATUS_SHIPMENT_APPROVED,
+            Barcode::STATUS_REJECTED
+        ])[0]->total_quantity ?? 0;
         
         // Durum dağılımı - yeni durum yapısına göre
         $statusDistribution = [
