@@ -612,5 +612,4 @@ php artisan config:clear && \
 php artisan route:clear && \
 php artisan view:clear && \
 php artisan cache:clear && \
-php artisan tinker --execute="App\Models\DynamicStockQuantity::getInstance();" && \
-echo "✅ Kurulum tamamlandı!"
+php artisan tinker --execute="App\Models\DynamicStockQuantity::getInstance();"

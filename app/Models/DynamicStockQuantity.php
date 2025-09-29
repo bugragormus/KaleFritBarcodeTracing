@@ -9,6 +9,8 @@ class DynamicStockQuantity extends Model
 {
     use HasFactory;
 
+    public $timestamps = true;
+
     protected $fillable = [
         'quantity_1',
         'quantity_2',

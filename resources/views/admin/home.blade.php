@@ -157,9 +157,9 @@
         border: none;
         overflow: hidden;
         position: relative;
-        min-height: 280px;
+        height: 350px;
         display: flex;
-        align-items: center;
+        align-items: stretch;
     }
     
     .kpi-card::before {
@@ -221,7 +221,9 @@
     
     /* Toplam stok kartı için özel düzenleme */
     .kpi-card.dynamic-stock-card .card-body {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
         text-align: center;
     }
     
@@ -229,6 +231,18 @@
     .kpi-card.dynamic-stock-card .kpi-number,
     .kpi-card.dynamic-stock-card .kpi-label {
         text-align: center;
+    }
+    
+    .kpi-card.dynamic-stock-card .dynamic-stock-section {
+        margin-top: auto;
+        padding-top: 15px;
+    }
+    
+    .kpi-card.dynamic-stock-card .last-update-info {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 8px;
+        font-style: italic;
     }
     
     /* Modern Color Schemes */
@@ -299,7 +313,7 @@
         }
         
         .kpi-card {
-            min-height: 250px;
+            height: 300px;
         }
     }
     
@@ -309,7 +323,7 @@
         }
         
         .kpi-card {
-            min-height: 220px;
+            height: 280px;
         }
         
         .kpi-number {
@@ -596,7 +610,7 @@
         
         <div class="col-lg-4 col-md-6 mb-3">
             <div class="card kpi-card dynamic-stock-card">
-                <div class="card-body text-center">
+                <div class="card-body">
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-cubes fa-3x text-indigo"></i>
                     </div>
@@ -604,7 +618,7 @@
                     <p class="kpi-label">Toplam Stok Miktarı (KG)</p>
                     
                     <!-- Dinamik Stok Giriş Alanları -->
-                    <div class="mt-3">
+                    <div class="dynamic-stock-section">
                         <div class="row">
                             <div class="col-6">
                                 <div class="form-group mb-2">
@@ -624,6 +638,11 @@
                         <button class="btn btn-sm btn-primary" onclick="updateDynamicStock()">
                             <i class="fas fa-save"></i> Güncelle
                         </button>
+                        
+                        <!-- Son Güncelleme Bilgisi -->
+                        <div class="last-update-info" id="lastUpdateInfo">
+                            <i class="fas fa-clock"></i> Son güncelleme: <span id="lastUpdateTime">Yükleniyor...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -943,13 +962,39 @@ function loadDynamicStockData() {
         url: '{{ route("dynamic-stock.index") }}',
         type: 'GET',
         success: function(response) {
-            if (response.success) {
-                $('#dynamicQuantity1').val(response.data.quantity_1);
-                $('#dynamicQuantity2').val(response.data.quantity_2);
+            console.log('Dynamic stock response:', response); // Debug için
+            if (response.success && response.data) {
+                $('#dynamicQuantity1').val(response.data.quantity_1 || 0);
+                $('#dynamicQuantity2').val(response.data.quantity_2 || 0);
+                
+                // Son güncelleme tarihini göster
+                if (response.data.updated_at) {
+                    const updateDate = new Date(response.data.updated_at);
+                    if (!isNaN(updateDate.getTime())) {
+                        const formattedDate = updateDate.toLocaleString('tr-TR', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                        $('#lastUpdateTime').text(formattedDate);
+                    } else {
+                        $('#lastUpdateTime').text('Tarih formatı hatalı');
+                    }
+                } else {
+                    $('#lastUpdateTime').text('Henüz güncellenmedi');
+                }
+            } else {
+                console.error('API response error:', response);
+                $('#lastUpdateTime').text('Veri alınamadı');
             }
         },
         error: function(xhr, status, error) {
             console.error('Dinamik stok verileri yüklenirken hata:', error);
+            console.error('XHR response:', xhr.responseText);
+            $('#lastUpdateTime').text('Veri yüklenemedi');
         }
     });
 }
@@ -978,6 +1023,23 @@ function updateDynamicStock() {
                 showSuccess('Dinamik stok miktarları başarıyla güncellendi!');
                 // KPI verilerini yenile
                 loadKPIData();
+                
+                // Güncelleme tarihini veritabanından al
+                if (response.data && response.data.updated_at) {
+                    const updateDate = new Date(response.data.updated_at);
+                    const formattedDate = updateDate.toLocaleString('tr-TR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                    $('#lastUpdateTime').text(formattedDate);
+                } else {
+                    // Eğer API'den tarih gelmiyorsa, verileri yeniden yükle
+                    loadDynamicStockData();
+                }
             } else {
                 showError('Dinamik stok güncellenirken hata: ' + response.message);
             }

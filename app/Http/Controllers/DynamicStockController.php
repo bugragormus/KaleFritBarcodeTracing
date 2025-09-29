@@ -23,7 +23,8 @@ class DynamicStockController extends Controller
                     'quantity_2' => $dynamicStock->quantity_2,
                     'total_quantity' => $dynamicStock->total_quantity,
                     'description_1' => $dynamicStock->description_1,
-                    'description_2' => $dynamicStock->description_2
+                    'description_2' => $dynamicStock->description_2,
+                    'updated_at' => $dynamicStock->updated_at
                 ]
             ]);
         } catch (\Exception $e) {
@@ -67,7 +68,8 @@ class DynamicStockController extends Controller
                     'quantity_2' => $dynamicStock->quantity_2,
                     'total_quantity' => $dynamicStock->total_quantity,
                     'description_1' => $dynamicStock->description_1,
-                    'description_2' => $dynamicStock->description_2
+                    'description_2' => $dynamicStock->description_2,
+                    'updated_at' => $dynamicStock->updated_at
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
