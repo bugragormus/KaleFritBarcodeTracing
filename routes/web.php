@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DynamicStockController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\KilnController;
 use App\Http\Controllers\QuantityController;
@@ -174,4 +175,11 @@ Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadCom
         Route::get('/ai-ml', function () {
             return view('ai-ml.dashboard');
         })->name('ai-ml.dashboard')->middleware(['auth', 'verified']);
+
+        // Dinamik Stok Yönetimi
+        Route::as('dynamic-stock.')->prefix('dynamic-stock')->group(function () {
+            Route::get('/', [DynamicStockController::class, 'index'])->name('index');
+            Route::put('/update', [DynamicStockController::class, 'update'])->name('update');
+            Route::get('/total', [DynamicStockController::class, 'getTotal'])->name('total');
+        });
 });

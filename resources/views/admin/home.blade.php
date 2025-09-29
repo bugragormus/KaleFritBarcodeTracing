@@ -581,6 +581,29 @@
                     </div>
                     <h3 class="kpi-number" id="totalQuantity">-</h3>
                     <p class="kpi-label">Toplam Stok Miktarı (KG)</p>
+                    
+                    <!-- Dinamik Stok Giriş Alanları -->
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted">Dinamik Stok 1 (KG)</label>
+                                    <input type="number" class="form-control form-control-sm" id="dynamicQuantity1" 
+                                           placeholder="0" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted">Dinamik Stok 2 (KG)</label>
+                                    <input type="number" class="form-control form-control-sm" id="dynamicQuantity2" 
+                                           placeholder="0" step="0.01" min="0">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="updateDynamicStock()">
+                            <i class="fas fa-save"></i> Güncelle
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -629,6 +652,7 @@
 $(document).ready(function() {
     initializeCharts();
     loadKPIData();
+    loadDynamicStockData();
     
     // Her 5 dakikada bir verileri güncelle
     setInterval(function() {
@@ -891,6 +915,73 @@ function showInfo(message) {
         alert('Bilgi: ' + message);
     }
 }
+
+// Dinamik stok verilerini yükle
+function loadDynamicStockData() {
+    $.ajax({
+        url: '{{ route("dynamic-stock.index") }}',
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                $('#dynamicQuantity1').val(response.data.quantity_1);
+                $('#dynamicQuantity2').val(response.data.quantity_2);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Dinamik stok verileri yüklenirken hata:', error);
+        }
+    });
+}
+
+// Dinamik stok güncelle
+function updateDynamicStock() {
+    const quantity1 = parseFloat($('#dynamicQuantity1').val()) || 0;
+    const quantity2 = parseFloat($('#dynamicQuantity2').val()) || 0;
+    
+    // Butonu devre dışı bırak
+    const updateBtn = event.target;
+    const originalText = updateBtn.innerHTML;
+    updateBtn.disabled = true;
+    updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Güncelleniyor...';
+    
+    $.ajax({
+        url: '{{ route("dynamic-stock.update") }}',
+        type: 'PUT',
+        data: {
+            quantity_1: quantity1,
+            quantity_2: quantity2,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                showSuccess('Dinamik stok miktarları başarıyla güncellendi!');
+                // KPI verilerini yenile
+                loadKPIData();
+            } else {
+                showError('Dinamik stok güncellenirken hata: ' + response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            let errorMessage = 'Dinamik stok güncellenirken hata oluştu!';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            }
+            showError(errorMessage);
+        },
+        complete: function() {
+            // Butonu eski haline getir
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = originalText;
+        }
+    });
+}
+
+// Enter tuşu ile güncelleme
+$('#dynamicQuantity1, #dynamicQuantity2').on('keypress', function(e) {
+    if (e.which === 13) { // Enter tuşu
+        updateDynamicStock();
+    }
+});
 
 
 </script>

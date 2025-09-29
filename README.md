@@ -602,3 +602,15 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 ---
 
 **Kalefrit v2.1.1** - Advanced analytics and comprehensive management system for digital transformation in business management 🚀📊🔬
+
+**New Migration & Route:**
+
+# Tüm gerekli komutları çalıştır
+
+php artisan migrate && \
+php artisan config:clear && \
+php artisan route:clear && \
+php artisan view:clear && \
+php artisan cache:clear && \
+php artisan tinker --execute="App\Models\DynamicStockQuantity::getInstance();" && \
+echo "✅ Kurulum tamamlandı!"

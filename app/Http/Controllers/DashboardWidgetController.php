@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barcode;
+use App\Models\DynamicStockQuantity;
 use App\Models\Stock;
 use App\Models\User;
 use App\Services\StockCalculationService;
@@ -70,7 +71,7 @@ class DashboardWidgetController extends Controller
         // Toplam stok miktarı (KG) - stokta kabul edilen ve bekleyen tüm statüler
         // Dahil: Beklemede, Kontrol Tekrarı, Ön Onaylı, Sevk Onaylı, Reddedildi
         // Hariç: Müşteri Transfer, Teslim Edildi ve diğer stok dışı durumlar
-        $totalQuantity = DB::select('
+        $systemQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
@@ -83,6 +84,10 @@ class DashboardWidgetController extends Controller
             Barcode::STATUS_SHIPMENT_APPROVED,
             Barcode::STATUS_REJECTED
         ])[0]->total_quantity ?? 0;
+
+        // Dinamik stok miktarını ekle
+        $dynamicStock = DynamicStockQuantity::getInstance();
+        $totalQuantity = $systemQuantity + $dynamicStock->total_quantity;
         
         // Durum dağılımı - yeni durum yapısına göre
         $statusDistribution = [
