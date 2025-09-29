@@ -4110,31 +4110,20 @@
                                             <span class="quantity-badge">{{ number_format($stock->quantity, 1) }}</span>
                                         </td>
                                         <td>
-                                            @switch($stock->status)
-                                                @case('waiting')
-                                                    <span class="badge stock-age-status-badge waiting">Beklemede</span>
-                                                    @break
-                                                @case('control_repeat')
-                                                    <span class="badge stock-age-status-badge control_repeat">Kontrol Tekrarı</span>
-                                                    @break
-                                                @case('pre_approved')
-                                                    <span class="badge stock-age-status-badge pre_approved">Ön Onaylı</span>
-                                                    @break
-                                                @case('shipment_approved')
-                                                    <span class="badge stock-age-status-badge shipment_approved">Sevk Onaylı</span>
-                                                    @break
-                                                @case('rejected')
-                                                    <span class="badge stock-age-status-badge rejected">Reddedildi</span>
-                                                    @break
-                                                @case('customer_transfer')
-                                                    <span class="badge stock-age-status-badge customer_transfer">Müşteri Transfer</span>
-                                                    @break
-                                                @case('delivered')
-                                                    <span class="badge stock-age-status-badge delivered">Teslim Edildi</span>
-                                                    @break
-                                                @default
-                                                    <span class="badge badge-secondary">{{ $stock->status }}</span>
-                                            @endswitch
+                                            @php
+                                                $statusLabel = \App\Models\Barcode::STATUSES[$stock->status] ?? $stock->status;
+                                                $statusClassMap = [
+                                                    \App\Models\Barcode::STATUS_WAITING => 'waiting',
+                                                    \App\Models\Barcode::STATUS_CONTROL_REPEAT => 'control_repeat',
+                                                    \App\Models\Barcode::STATUS_PRE_APPROVED => 'pre_approved',
+                                                    \App\Models\Barcode::STATUS_SHIPMENT_APPROVED => 'shipment_approved',
+                                                    \App\Models\Barcode::STATUS_REJECTED => 'rejected',
+                                                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER => 'customer_transfer',
+                                                    \App\Models\Barcode::STATUS_DELIVERED => 'delivered',
+                                                ];
+                                                $statusClass = $statusClassMap[$stock->status] ?? 'secondary';
+                                            @endphp
+                                            <span class="badge stock-age-status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
                                         </td>
                                         <td>{{ $stock->company_name ?? '-' }}</td>
                                         <td>{{ $stock->warehouse_name ?? '-' }}</td>
@@ -4211,31 +4200,20 @@
                                             <span class="quantity-badge">{{ number_format($stock->quantity, 1) }}</span>
                                         </td>
                                         <td>
-                                            @switch($stock->status)
-                                                @case('waiting')
-                                                    <span class="badge stock-age-status-badge waiting">Beklemede</span>
-                                                    @break
-                                                @case('control_repeat')
-                                                    <span class="badge stock-age-status-badge control_repeat">Kontrol Tekrarı</span>
-                                                    @break
-                                                @case('pre_approved')
-                                                    <span class="badge stock-age-status-badge pre_approved">Ön Onaylı</span>
-                                                    @break
-                                                @case('shipment_approved')
-                                                    <span class="badge stock-age-status-badge shipment_approved">Sevk Onaylı</span>
-                                                    @break
-                                                @case('rejected')
-                                                    <span class="badge stock-age-status-badge rejected">Reddedildi</span>
-                                                    @break
-                                                @case('customer_transfer')
-                                                    <span class="badge stock-age-status-badge customer_transfer">Müşteri Transfer</span>
-                                                    @break
-                                                @case('delivered')
-                                                    <span class="badge stock-age-status-badge delivered">Teslim Edildi</span>
-                                                    @break
-                                                @default
-                                                    <span class="badge badge-secondary">{{ $stock->status }}</span>
-                                            @endswitch
+                                            @php
+                                                $statusLabel = \App\Models\Barcode::STATUSES[$stock->status] ?? $stock->status;
+                                                $statusClassMap = [
+                                                    \App\Models\Barcode::STATUS_WAITING => 'waiting',
+                                                    \App\Models\Barcode::STATUS_CONTROL_REPEAT => 'control_repeat',
+                                                    \App\Models\Barcode::STATUS_PRE_APPROVED => 'pre_approved',
+                                                    \App\Models\Barcode::STATUS_SHIPMENT_APPROVED => 'shipment_approved',
+                                                    \App\Models\Barcode::STATUS_REJECTED => 'rejected',
+                                                    \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER => 'customer_transfer',
+                                                    \App\Models\Barcode::STATUS_DELIVERED => 'delivered',
+                                                ];
+                                                $statusClass = $statusClassMap[$stock->status] ?? 'secondary';
+                                            @endphp
+                                            <span class="badge stock-age-status-badge {{ $statusClass }}">{{ $statusLabel }}</span>
                                         </td>
                                         <td>
                                             <span class="badge stock-age-badge warning">{{ $stock->days_old }} gün</span>
