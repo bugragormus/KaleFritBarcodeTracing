@@ -157,8 +157,7 @@
         border: none;
         overflow: hidden;
         position: relative;
-        min-height: 200px;
-        max-height: 200px;
+        min-height: 280px;
         display: flex;
         align-items: center;
     }
@@ -181,6 +180,11 @@
     .kpi-card .card-body {
         padding: 30px 20px;
         width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
     }
     
     .kpi-number {
@@ -213,6 +217,18 @@
     
     .kpi-icon i {
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    
+    /* Toplam stok kartı için özel düzenleme */
+    .kpi-card.dynamic-stock-card .card-body {
+        display: block;
+        text-align: center;
+    }
+    
+    .kpi-card.dynamic-stock-card .kpi-icon,
+    .kpi-card.dynamic-stock-card .kpi-number,
+    .kpi-card.dynamic-stock-card .kpi-label {
+        text-align: center;
     }
     
     /* Modern Color Schemes */
@@ -283,8 +299,7 @@
         }
         
         .kpi-card {
-            min-height: 180px;
-            max-height: 180px;
+            min-height: 250px;
         }
     }
     
@@ -294,8 +309,7 @@
         }
         
         .kpi-card {
-            min-height: 160px;
-            max-height: 160px;
+            min-height: 220px;
         }
         
         .kpi-number {
@@ -581,7 +595,7 @@
         </div>
         
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card dynamic-stock-card">
                 <div class="card-body text-center">
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-cubes fa-3x text-indigo"></i>
@@ -590,24 +604,24 @@
                     <p class="kpi-label">Toplam Stok Miktarı (KG)</p>
                     
                     <!-- Dinamik Stok Giriş Alanları -->
-                    <div class="mt-2">
+                    <div class="mt-3">
                         <div class="row">
                             <div class="col-6">
-                                <div class="form-group mb-1">
-                                    <label class="small text-muted" style="font-size: 0.7rem;">Granilya Stok (KG)</label>
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted">Granilya Stok (KG)</label>
                                     <input type="number" class="form-control form-control-sm" id="dynamicQuantity1" 
-                                           placeholder="0" step="0.01" min="0" style="font-size: 0.8rem; padding: 0.2rem;">
+                                           placeholder="0" step="0.01" min="0">
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="form-group mb-1">
-                                    <label class="small text-muted" style="font-size: 0.7rem;">Silo Stok (KG)</label>
+                                <div class="form-group mb-2">
+                                    <label class="small text-muted">Silo Stok (KG)</label>
                                     <input type="number" class="form-control form-control-sm" id="dynamicQuantity2" 
-                                           placeholder="0" step="0.01" min="0" style="font-size: 0.8rem; padding: 0.2rem;">
+                                           placeholder="0" step="0.01" min="0">
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-primary" onclick="updateDynamicStock()" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
+                        <button class="btn btn-sm btn-primary" onclick="updateDynamicStock()">
                             <i class="fas fa-save"></i> Güncelle
                         </button>
                     </div>
