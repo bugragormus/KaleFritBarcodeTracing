@@ -157,7 +157,8 @@
         border: none;
         overflow: hidden;
         position: relative;
-        min-height: 180px;
+        min-height: 200px;
+        max-height: 200px;
         display: flex;
         align-items: center;
     }
@@ -280,6 +281,11 @@
         .section-title {
             font-size: 1.3rem;
         }
+        
+        .kpi-card {
+            min-height: 180px;
+            max-height: 180px;
+        }
     }
     
     @media (max-width: 576px) {
@@ -288,7 +294,8 @@
         }
         
         .kpi-card {
-            min-height: 150px;
+            min-height: 160px;
+            max-height: 160px;
         }
         
         .kpi-number {
@@ -583,24 +590,24 @@
                     <p class="kpi-label">Toplam Stok Miktarı (KG)</p>
                     
                     <!-- Dinamik Stok Giriş Alanları -->
-                    <div class="mt-3">
+                    <div class="mt-2">
                         <div class="row">
                             <div class="col-6">
-                                <div class="form-group mb-2">
-                                    <label class="small text-muted">Dinamik Stok 1 (KG)</label>
+                                <div class="form-group mb-1">
+                                    <label class="small text-muted" style="font-size: 0.7rem;">Granilya Stok (KG)</label>
                                     <input type="number" class="form-control form-control-sm" id="dynamicQuantity1" 
-                                           placeholder="0" step="0.01" min="0">
+                                           placeholder="0" step="0.01" min="0" style="font-size: 0.8rem; padding: 0.2rem;">
                                 </div>
                             </div>
                             <div class="col-6">
-                                <div class="form-group mb-2">
-                                    <label class="small text-muted">Dinamik Stok 2 (KG)</label>
+                                <div class="form-group mb-1">
+                                    <label class="small text-muted" style="font-size: 0.7rem;">Silo Stok (KG)</label>
                                     <input type="number" class="form-control form-control-sm" id="dynamicQuantity2" 
-                                           placeholder="0" step="0.01" min="0">
+                                           placeholder="0" step="0.01" min="0" style="font-size: 0.8rem; padding: 0.2rem;">
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-primary" onclick="updateDynamicStock()">
+                        <button class="btn btn-sm btn-primary" onclick="updateDynamicStock()" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
                             <i class="fas fa-save"></i> Güncelle
                         </button>
                     </div>
