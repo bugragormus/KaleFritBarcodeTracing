@@ -605,7 +605,7 @@
                                             ($activity->status == \App\Models\Barcode::STATUS_SHIPMENT_APPROVED ? 'primary' : 
                                             ($activity->status == \App\Models\Barcode::STATUS_REJECTED ? 'danger' : 'secondary'))) 
                                         }}">
-                                            {{ \App\Models\Barcode::STATUSES[$activity->status] }}
+                                            {{ \App\Models\Barcode::STATUSES[$activity->status] ?? '-' }}
                                         </span>
                                         <br>
                                         <small class="text-muted">{{ optional($activity->lab_at)->tz('Europe/Istanbul')->format('H:i') }}</small>
