@@ -171,7 +171,7 @@ Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadCom
             Route::post('/refresh', [App\Http\Controllers\DashboardWidgetController::class, 'refreshWidget'])->name('refresh');
         });
 
-        // AI/ML Dashboard
+        // Algoritmik Trend Analizleri Dashboard
         Route::get('/ai-ml', function () {
             return view('ai-ml.dashboard');
         })->name('ai-ml.dashboard')->middleware(['auth', 'verified']);

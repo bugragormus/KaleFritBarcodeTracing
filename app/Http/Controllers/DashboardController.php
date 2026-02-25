@@ -60,7 +60,7 @@ class DashboardController extends Controller
         // Aylık karşılaştırma
         $monthlyComparison = $this->getMonthlyComparison($date);
         
-        // AI/ML Insights - her zaman güncel tarihe göre
+        // Algoritmik Trend Analizleri - her zaman güncel tarihe göre
         $aiInsights = $this->generateAIInsights(Carbon::today('Europe/Istanbul'));
         
         // Stok yaşı analizi
@@ -925,11 +925,11 @@ class DashboardController extends Controller
     }
 
     /**
-     * AI/ML Insights üretimi
+     * Algoritmik Trend Analizleri üretimi
      */
     private function generateAIInsights($date)
     {
-        // OEE ve AI/ML içgörüler her zaman güncel tarihe göre çalışsın
+        // OEE ve Algoritmik Trend Analizleri her zaman güncel tarihe göre çalışsın
         // Tarih filtresinden etkilenmesin
         $currentDate = Carbon::today('Europe/Istanbul');
         

@@ -32,7 +32,7 @@ class DashboardExport implements WithMultipleSheets
             'Stok Yaşı Analizi' => new StockAgeSheet($this->data),
             'Aylık Karşılaştırma' => new MonthlyComparisonSheet($this->data),
             'OEE Analizi' => new OEESheet($this->data),
-            'AI/ML İçgörüler' => new AIMLSheet($this->data),
+            'Algoritmik Trend Analizleri' => new TrendAnalysisSheet($this->data),
         ];
     }
 }
@@ -641,7 +641,7 @@ class OEESheet implements FromArray, WithTitle, WithStyles
     }
 }
 
-class AIMLSheet implements FromArray, WithTitle, WithStyles
+class TrendAnalysisSheet implements FromArray, WithTitle, WithStyles
 {
     protected $data;
 
@@ -655,7 +655,7 @@ class AIMLSheet implements FromArray, WithTitle, WithStyles
         $aiInsights = $this->data['aiInsights'] ?? [];
         
         $rows = [
-            ['AI/ML İÇGÖRÜLER & TAHMİN ANALİZİ'],
+            ['ALGORİTMİK TREND ANALİZLERİ'],
             [''],
             ['Oluşturulma Tarihi:', now()->format('d.m.Y H:i:s')],
             [''],
@@ -686,7 +686,7 @@ class AIMLSheet implements FromArray, WithTitle, WithStyles
 
     public function title(): string
     {
-        return 'AI/ML İçgörüler';
+        return 'Algoritmik Trend Analizleri';
     }
 
     public function styles(Worksheet $sheet)

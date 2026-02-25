@@ -426,8 +426,8 @@
                 </div>
             </div>
 
-            <!-- AI/ML Highlight -->
-            <div class="ai-ml-highlight">
+            <!-- Trend Analysis Highlight -->
+            <div class="trend-analysis-highlight">
                 <h4><i class="fas fa-chart-line"></i> 🚀 Yeni: Gelişmiş İstatistiksel Analiz Sistemi v2.1.1</h4>
                 <p>Kalefrit artık gelişmiş istatistiksel analiz özellikleri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti, veri tabanlı optimizasyon önerileri ve gelişmiş raporlama özellikleri ile işletmenizi bir üst seviyeye taşıyın.</p>
             </div>
@@ -448,7 +448,7 @@
                 </h3>
                 <ul class="toc-list">
                     <li><a href="#sistem-hakkinda"><i class="fas fa-info-circle"></i> Sistem Hakkında</a></li>
-                    <li><a href="#ai-ml-ozellikleri"><i class="fas fa-chart-line"></i> Gelişmiş Analitik Özellikleri</a></li>
+                    <li><a href="#trend-analizi-ozellikleri"><i class="fas fa-chart-line"></i> Gelişmiş Analitik Özellikleri</a></li>
                     <li><a href="#temel-navigation"><i class="fas fa-compass"></i> Temel Navigasyon</a></li>
                     <li><a href="#giris-cikis"><i class="fas fa-sign-in-alt"></i> Giriş ve Çıkış İşlemleri</a></li>
                     <li><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard Kullanımı</a></li>
@@ -591,8 +591,8 @@
                 </div>
             </div>
 
-            <!-- AI/ML Özellikleri -->
-            <div class="card-modern" id="ai-ml-ozellikleri">
+            <!-- Trend Analizi Özellikleri -->
+            <div class="card-modern" id="trend-analizi-ozellikleri">
                 <div class="card-header-modern">
                     <h3 class="card-title-modern">
                         <i class="fas fa-chart-line"></i> Gelişmiş Analitik Özellikleri
@@ -1767,7 +1767,7 @@
                         </ol>
                         
                         <div class="info-box">
-                            <strong><i class="fas fa-info-circle"></i> Bilgi:</strong> Tarih seçimi yapıldığında tüm grafikler, tablolar ve AI/ML içgörüleri seçilen tarihe göre güncellenir.
+                            <strong><i class="fas fa-info-circle"></i> Bilgi:</strong> Tarih seçimi yapıldığında tüm grafikler, tablolar ve Algoritmik Trend Analizleri seçilen tarihe göre güncellenir.
                         </div>
                     </div>
 

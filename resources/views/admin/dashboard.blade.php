@@ -808,8 +808,8 @@
         border: 1px solid rgba(255,255,255,0.2);
     }
 
-    /* New styles for AI/ML Insights */
-    .insight-card {
+    /* New styles for Trend Analysis */
+    .ai-insights-card {
         background: #f8f9fa;
         border-radius: 15px;
         padding: 1.5rem;
@@ -3150,9 +3150,9 @@
             font-size: 0.95rem;
         }
         
-        .metric-subtitle {
-            font-size: 0.75rem;
-        }
+    .metric-subtitle {
+        font-size: 0.75rem;
+    }
         
         .change-value {
             gap: 0.15rem;
@@ -3273,7 +3273,7 @@
                 <div class="filter-info">
                     <small class="text-muted">
                         <i class="fas fa-info-circle"></i> 
-                        OEE ve AI/ML içgörüler her zaman güncel tarihe göre çalışır • 
+                        OEE ve Algoritmik Trend Analizleri her zaman güncel tarihe göre çalışır • 
                         Seçilen periyoda göre veriler toplanır
                         @if($period === 'custom')
                             • Gelecekteki tarihler otomatik olarak bugüne sınırlanır
@@ -4694,16 +4694,16 @@
             </div>
         </div>
 
-        <!-- AI/ML Insights Section -->
+        <!-- Trend Analysis Section -->
         <div class="card-modern">
             <div class="card-header-modern">
                 <div class="d-flex justify-content-between align-items-center">
                     <h3 class="card-title-modern">
                         <i class="fas fa-brain"></i>
-                        AI/ML İçgörüler & Tahmin Analizi - Güncel Veriler
+                        Algoritmik Trend Analizleri - Güncel Veriler
                     </h3>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#aimlInfoModal">
+                        <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#trendInfoModal">
                             <i class="fas fa-info-circle"></i> Bilgi
                         </button>
                     </div>
@@ -4717,7 +4717,7 @@
                 <div class="row">
                     <!-- Production Predictions -->
                     <div class="col-md-6 mb-4">
-                        <div class="insight-card">
+                        <div class="ai-insights-card">
                             <div class="insight-header">
                                 <i class="fas fa-chart-line text-primary"></i>
                                 <h5>Üretim Tahmini (Gelecek 7 Gün)</h5>
@@ -4743,7 +4743,7 @@
 
                     <!-- Quality Predictions -->
                     <div class="col-md-6 mb-4">
-                        <div class="insight-card">
+                        <div class="ai-insights-card">
                             <div class="insight-header">
                                 <i class="fas fa-shield-alt text-success"></i>
                                 <h5>Kalite Risk Değerlendirmesi</h5>
@@ -4774,7 +4774,7 @@
 
                     <!-- Anomaly Detection -->
                     <div class="col-md-6 mb-4">
-                        <div class="insight-card">
+                        <div class="ai-insights-card">
                             <div class="insight-header">
                                 <i class="fas fa-exclamation-triangle text-warning"></i>
                                 <h5>Anomali Tespiti</h5>
@@ -4808,7 +4808,7 @@
 
                     <!-- Optimization Recommendations -->
                     <div class="col-md-6 mb-4">
-                        <div class="insight-card">
+                        <div class="ai-insights-card">
                             <div class="insight-header">
                                 <i class="fas fa-lightbulb text-info"></i>
                                 <h5>Optimizasyon Önerileri</h5>
@@ -4958,7 +4958,7 @@
                             <li><i class="fas fa-check text-success"></i> Stok Yaşı Analizi</li>
                             <li><i class="fas fa-check text-success"></i> Aylık Karşılaştırma</li>
                             <li><i class="fas fa-check text-success"></i> OEE Analizi</li>
-                            <li><i class="fas fa-check text-success"></i> AI/ML İçgörüler</li>
+                            <li><i class="fas fa-check text-success"></i> Algoritmik Trend Analizleri</li>
                         </ul>
                     </div>
                     <div class="col-md-6">
@@ -5418,13 +5418,13 @@ function exportKilnPerformance() {
     </div>
 </div>
 
-<!-- AI/ML Bilgi Modal -->
-<div class="modal fade info-modal" id="aimlInfoModal" tabindex="-1" role="dialog" aria-labelledby="aimlInfoModalLabel" aria-hidden="true">
+<!-- Trend Analizi Bilgi Modal -->
+<div class="modal fade info-modal" id="trendInfoModal" tabindex="-1" role="dialog" aria-labelledby="trendInfoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="aimlInfoModalLabel">
-                    <i class="fas fa-brain"></i> AI/ML İçgörüler & Tahmin Analizi Nedir?
+                <h5 class="modal-title" id="trendInfoModalLabel">
+                    <i class="fas fa-chart-line"></i> Algoritmik Trend Analizleri Nedir?
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -5432,9 +5432,9 @@ function exportKilnPerformance() {
             </div>
             <div class="modal-body">
                 <div class="metric-explanation">
-                    <div class="metric-title">🤖 AI/ML Nedir?</div>
+                    <div class="metric-title">🤖 Algoritmik Trend Analizleri Nedir?</div>
                     <div class="metric-desc">
-                        AI (Yapay Zeka) ve ML (Makine Öğrenmesi), üretim verilerinizi analiz ederek 
+                        Algoritmik Trend Analizleri, üretim verilerinizi analiz ederek 
                         gelecekteki üretim ve kalite durumlarını tahmin eden akıllı sistemlerdir.
                     </div>
                 </div>
@@ -5449,10 +5449,9 @@ function exportKilnPerformance() {
                 </div>
 
                 <div class="metric-explanation">
-                    <div class="metric-title">🔍 2. Kalite Modeli</div>
+                    <div class="metric-title">📊 Algoritmik Trend Analizi Nedir?</div>
+                    <p>Sistem, son 14 günlük üretim ve kalite verilerini inceleyerek; üretimdeki red (fire) oranlarının gidişatını matematiksel olarak modelleyen bir dizi istatistiksel algoritma kullanır. Sistem fabrikalarda kullanılan hareketli ortalama (moving average) ve standart sapma yöntemlerini baz alır.</p>
                     <div class="metric-desc">
-                        <strong>Ne Yapar:</strong> Geçmiş kalite verilerinizi analiz ederek gelecekteki red oranlarını tahmin eder.<br>
-                        <strong>Nasıl Çalışır:</strong> Son 14 günlük gerçek red oranını, önceki 14 günlük tahminle karşılaştırır.<br>
                         <strong>Doğruluk:</strong> Tahmin güvenilirliği %70+ olmalıdır.
                     </div>
                 </div>
