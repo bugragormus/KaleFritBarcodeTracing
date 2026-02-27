@@ -562,24 +562,33 @@ class LaboratoryController extends Controller
                 ];
             });
 
-        // Genel red sebepleri istatistikleri
+        // Genel red sebepleri istatistikleri (her barkodun KG'sini red sebeplerine orantılı paylaştır)
         $generalRejectionStats = Barcode::with(['rejectionReasons', 'quantity'])
             ->whereBetween('lab_at', [$startDate, $endDate])
             ->where('status', Barcode::STATUS_REJECTED)
             ->get()
             ->flatMap(function ($barcode) {
-                return $barcode->rejectionReasons->map(function ($reason) use ($barcode) {
+                $reasons = $barcode->rejectionReasons;
+                $reasonCount = max(1, $reasons->count());
+                $shareKg = ($barcode->quantity->quantity ?? 0) / $reasonCount;
+
+                return $reasons->map(function ($reason) use ($barcode, $shareKg) {
                     return [
                         'reason_name' => $reason->name,
-                        'kg' => $barcode->quantity->quantity ?? 0
+                        'barcode_id' => $barcode->id,
+                        'kg_share' => $shareKg,
                     ];
                 });
             })
             ->groupBy('reason_name')
             ->map(function ($items) {
+                $uniqueBarcodes = $items->unique('barcode_id');
+
                 return [
-                    'count' => $items->count(),
-                    'total_kg' => $items->sum('kg')
+                    // Bu red sebebine sahip benzersiz barkod sayısı
+                    'count' => $uniqueBarcodes->count(),
+                    // Bu sebebe paylaştırılan toplam KG (tüm sebepler toplandığında toplam red KG'si ile tutarlı)
+                    'total_kg' => $items->sum('kg_share'),
                 ];
             })
             ->sortByDesc('count');
