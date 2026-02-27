@@ -64,15 +64,17 @@ class SettingsController extends Controller
     {
         // Yetki kontrolü constructor'da yapılıyor
         try {
-            // Her fırın için en yüksek şarj numarasını bul ve güncelle
+            // Her fırın için, en son oluşturulan barkodun (created_at + load_number) şarj numarasını bul ve güncelle
             $kilns = Kiln::all();
             
             foreach ($kilns as $kiln) {
-                $maxLoadNumber = DB::table('barcodes')
+                $lastLoadNumber = DB::table('barcodes')
                     ->where('kiln_id', $kiln->id)
-                    ->max('load_number');
+                    ->orderBy('created_at', 'desc')
+                    ->orderBy('load_number', 'desc')
+                    ->value('load_number') ?? 0;
                 
-                $kiln->update(['load_number' => $maxLoadNumber ?: 0]);
+                $kiln->update(['load_number' => $lastLoadNumber]);
             }
             
             return response()->json(['message' => 'Fırın şarj numaraları güncellendi']);

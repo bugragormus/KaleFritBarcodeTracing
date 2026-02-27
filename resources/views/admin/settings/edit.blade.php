@@ -322,7 +322,7 @@
                                 <i class="fas fa-sync-alt"></i> Fırın Şarj Numaralarını Güncelle
                             </div>
                             <div class="settings-description">
-                                Tüm fırınların mevcut şarj numarası durumunu günceller. Bu işlem mevcut barkodlardaki en yüksek şarj numaralarını fırın tablosuna yansıtır.
+                                Tüm fırınların mevcut şarj numarası durumunu günceller. Bu işlem, seçili tarih aralığından bağımsız olarak, her fırın için en son oluşturulan barkodun şarj numarasını fırın tablosuna yansıtır.
                             </div>
                         </div>
                         <button class="btn-modern btn-info-modern" onclick="updateKilnLoadNumbers()">

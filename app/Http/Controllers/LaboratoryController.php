@@ -1025,9 +1025,9 @@ class LaboratoryController extends Controller
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
             
-            // Seçilen tarihler içinde o fırına ait en son oluşturulan barkodun şarj numarası
-            $lastBarcode = $kiln->barcodes->sortBy('created_at')->last();
-            $lastLoadNumber = $lastBarcode ? $lastBarcode->load_number : null;
+            // Seçilen tarihler içinde o fırına ait barkodların en büyük şarj numarası
+            // (aynı anda üretilen barkodlar için en büyük load_number "en son" kabul edilir)
+            $lastLoadNumber = $kiln->barcodes->max('load_number');
             
             return [
                 'kiln' => $kiln,
