@@ -67,8 +67,7 @@ class StockCalculationService
 
             return $query->groupBy('stocks.id', 'stocks.name', 'stocks.code')
                 ->orderBy('stocks.name')
-                ->get()
-                ->toArray();
+                ->get();
         });
     }
 
@@ -102,8 +101,7 @@ class StockCalculationService
                 ->whereNull('barcodes.deleted_at')
                 ->groupBy('barcodes.warehouse_id', 'stocks.id', 'stocks.name')
                 ->orderBy('stocks.name')
-                ->get()
-                ->toArray();
+                ->get();
         });
     }
 
@@ -147,8 +145,7 @@ class StockCalculationService
                 ->whereNull('barcodes.deleted_at')
                 ->groupBy('barcodes.warehouse_id', 'stocks.id', 'stocks.name')
                 ->orderBy('stocks.name')
-                ->get()
-                ->toArray();
+                ->get();
         });
     }
 
@@ -379,8 +376,7 @@ class StockCalculationService
 
             return $query->groupBy(DB::raw('DATE(barcodes.created_at)'))
                 ->orderBy('date')
-                ->get()
-                ->toArray();
+                ->get();
         });
     }
 
@@ -418,8 +414,7 @@ class StockCalculationService
 
             return $query->groupBy('barcodes.status')
                 ->orderBy('barcodes.status')
-                ->get()
-                ->toArray();
+                ->get();
         });
     }
 
@@ -455,8 +450,7 @@ class StockCalculationService
             ->orderBy('total_quantity', 'DESC')
             ->limit($perPage)
             ->offset(($currentPage - 1) * $perPage)
-            ->get()
-            ->toArray();
+            ->get();
         
         return [
             'data' => $data,
@@ -500,8 +494,7 @@ class StockCalculationService
             ->orderBy('total_quantity', 'DESC')
             ->limit($perPage)
             ->offset(($currentPage - 1) * $perPage)
-            ->get()
-            ->toArray();
+            ->get();
         
         return [
             'data' => $data,
@@ -544,8 +537,7 @@ class StockCalculationService
             ->orderBy('month', 'DESC')
             ->limit($perPage)
             ->offset(($currentPage - 1) * $perPage)
-            ->get()
-            ->toArray();
+            ->get();
         
         return [
             'data' => $data,
