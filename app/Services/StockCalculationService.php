@@ -18,8 +18,7 @@ class StockCalculationService
             return Stock::query()
                 ->select('id', 'name', 'code')
                 ->orderBy('name')
-                ->get()
-                ->toArray();
+                ->get();
         });
     }
 
