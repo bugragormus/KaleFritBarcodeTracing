@@ -303,7 +303,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate])[0]->total_quantity ?? 0;
 
@@ -451,7 +451,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status = ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
@@ -461,7 +461,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
@@ -471,7 +471,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
@@ -481,7 +481,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
@@ -534,7 +534,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate])[0]->total_quantity ?? 0,
             'accepted_quantity' => $acceptedQuantity,
@@ -593,7 +593,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?, ?, ?)
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
@@ -602,7 +602,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
@@ -612,7 +612,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
@@ -622,7 +622,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
@@ -633,7 +633,7 @@ class DashboardController extends Controller
                     SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                     FROM barcodes
                     LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                    WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                    WHERE barcodes.created_at BETWEEN ? AND ?
                     AND barcodes.deleted_at IS NULL
                 ', [$startDate, $endDate, $shiftStart, $shiftEnd])[0]->total_quantity ?? 0,
                 'accepted_quantity' => $acceptedQuantity,
@@ -829,7 +829,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate])[0]->total_quantity ?? 0,
             'today_accepted' => Barcode::whereBetween('created_at', [$startDate, $endDate])
@@ -856,7 +856,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -905,7 +905,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             ', [$monthStart, $monthEnd])[0]->total_quantity ?? 0,
             'accepted_barcodes' => Barcode::whereBetween('created_at', [$monthStart, $monthEnd])
@@ -1020,7 +1020,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1083,7 +1083,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [Barcode::STATUS_REJECTED, $startDate, $endDate]);
         
@@ -1135,7 +1135,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1272,7 +1272,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, $startDate, $endDate]);
         
@@ -1312,7 +1312,7 @@ class DashboardController extends Controller
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_barcodes,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as merged_barcodes
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [
             Barcode::STATUS_WAITING, 
@@ -1357,7 +1357,7 @@ class DashboardController extends Controller
                 COUNT(*) as barcode_count
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             AND barcodes.status IN (?, ?, ?, ?, ?)
         ', [
@@ -1436,7 +1436,7 @@ class DashboardController extends Controller
             FROM barcodes
             LEFT JOIN stocks ON stocks.id = barcodes.stock_id
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY stocks.id, stocks.name, stocks.code
             HAVING total_barcodes >= 5
@@ -1459,7 +1459,7 @@ class DashboardController extends Controller
             FROM barcodes
             LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY kilns.id, kilns.name
             HAVING total_barcodes >= 5
@@ -1478,7 +1478,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1592,7 +1592,7 @@ class DashboardController extends Controller
                 AVG(TIMESTAMPDIFF(HOUR, barcodes.lab_at, COALESCE(barcodes.warehouse_transferred_at, NOW()))) as avg_warehouse_time,
                 AVG(TIMESTAMPDIFF(HOUR, barcodes.warehouse_transferred_at, COALESCE(barcodes.company_transferred_at, NOW()))) as avg_delivery_time
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY barcodes.status
             HAVING barcode_count >= 3
@@ -1607,7 +1607,7 @@ class DashboardController extends Controller
                 SUM(CASE WHEN barcodes.is_correction = 1 THEN quantities.quantity ELSE 0 END) as correction_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1625,7 +1625,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.is_merged = 1 THEN 1 END) as merged_barcodes
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1704,7 +1704,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1727,7 +1727,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1767,7 +1767,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1791,7 +1791,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, $historicalStartDate, $historicalEndDate]);
         
@@ -1829,7 +1829,7 @@ class DashboardController extends Controller
                 COUNT(*) as barcode_count
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
