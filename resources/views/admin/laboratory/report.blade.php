@@ -504,97 +504,25 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@php
+    $dailyData = $report->groupBy('lab_date')->map(function($items) {
+        return $items->sum('count');
+    });
+@endphp
 <script>
-$(document).ready(function() {
-    initializeCharts();
-});
-
-function initializeCharts() {
-    // Durum dağılımı grafiği
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Beklemede', 'Ön Onaylı', 'Kontrol Tekrarı', 'Sevk Onaylı', 'Reddedildi'],
-            datasets: [{
-                data: [
-                    {{ $summary['waiting'] }}, 
-                    {{ $summary['accepted'] }}, 
-                    {{ $summary['control_repeat'] }}, 
-                    {{ $summary['shipment_approved'] }}, 
-                    {{ $summary['rejected'] }}
-                ],
-                backgroundColor: ['#ffc107', '#28a745', '#17a2b8', '#007bff', '#dc3545'],
-                borderWidth: 2,
-                borderColor: '#fff'
-            }]
+    window.LabReportConfig = {
+        statusData: {
+            waiting: {{ $summary['waiting'] }},
+            accepted: {{ $summary['accepted'] }},
+            control_repeat: {{ $summary['control_repeat'] }},
+            shipment_approved: {{ $summary['shipment_approved'] }},
+            rejected: {{ $summary['rejected'] }}
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 15,
-                        usePointStyle: true,
-                        font: {
-                            size: 12
-                        }
-                    }
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((context.parsed / total) * 100).toFixed(1);
-                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Günlük işlem sayısı grafiği
-    const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-    @php
-        $dailyData = $report->groupBy('lab_date')->map(function($items) {
-            return $items->sum('count');
-        });
-    @endphp
-    new Chart(dailyCtx, {
-        type: 'line',
-        data: {
+        dailyData: {
             labels: {!! json_encode($dailyData->keys()->map(function($date) { return \Carbon\Carbon::parse($date)->format('d.m'); })->values()) !!},
-            datasets: [{
-                label: 'Günlük İşlem Sayısı',
-                data: {!! json_encode($dailyData->values()) !!},
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false
-                }
-            }
+            counts: {!! json_encode($dailyData->values()) !!}
         }
-    });
-}
+    };
 </script>
+<script src="{{ asset('assets/js/modules/lab-report.js') }}"></script>
 @endsection 

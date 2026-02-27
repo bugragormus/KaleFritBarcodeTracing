@@ -419,13 +419,5 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-$(document).ready(function() {
-    // Tarih filtreleme için otomatik submit
-    $('input[type="date"]').on('change', function() {
-        $(this).closest('form').submit();
-    });
-});
-</script>
+<script src="{{ asset('assets/js/modules/lab-analysis.js') }}"></script>
 @endsection

@@ -423,10 +423,5 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-$(document).ready(function() {
-    // Tarih filtreleme için otomatik submit artık HTML'de onchange ile yapılıyor
-});
-</script>
+<script src="{{ asset('assets/js/modules/lab-analysis.js') }}"></script>
 @endsection
