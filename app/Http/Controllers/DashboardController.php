@@ -37,7 +37,7 @@ class DashboardController extends Controller
         $productionData = $this->getProductionData($date, $period, $periodInfo);
         
         // Vardiya raporu (3 vardiya) - sadece günlük periyotta
-        $shiftReport = $period === 'daily' ? $this->getShiftReport($date) : [];
+        $shiftReport = $this->getShiftReport($date, $periodInfo);
         
         // Fırın başına üretim performansı
         $kilnPerformance = $this->getKilnPerformance($date);
@@ -61,7 +61,7 @@ class DashboardController extends Controller
         $monthlyComparison = $this->getMonthlyComparison($date);
         
         // Algoritmik Trend Analizleri - her zaman güncel tarihe göre
-        $aiInsights = $this->generateAIInsights(Carbon::today('Europe/Istanbul'));
+        $aiInsights = $this->generateAIInsights($date, $periodInfo);
         
         // Stok yaşı analizi
         $stockAgeAnalysis = $this->getStockAgeAnalysis();
@@ -217,7 +217,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.status = ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
@@ -227,17 +227,17 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
-            AND barcodes.status IN (?, ?, ?)
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
-        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
+        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
         
         // Teslimat sürecinde olan miktar (ton)
         $deliveryQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
@@ -247,7 +247,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
@@ -265,7 +265,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate])[0]->total_quantity ?? 0;
 
@@ -303,7 +303,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate])[0]->total_quantity ?? 0;
 
@@ -407,7 +407,7 @@ class DashboardController extends Controller
                 'period' => $period,
                 'periodInfo' => $periodInfo,
                 'productionData' => $this->getProductionData($date, $period, $periodInfo),
-                'shiftReport' => $period === 'daily' ? $this->getShiftReport($date) : [],
+                'shiftReport' => $this->getShiftReport($date, $periodInfo),
                 'kilnPerformance' => $this->getKilnPerformance($date),
                 'kilnRejectionRates' => $this->getKilnRejectionRates($date),
                 'rejectionReasonsAnalysis' => $this->getRejectionReasonsAnalysis($date),
@@ -451,7 +451,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.status = ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
@@ -461,17 +461,17 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
-            AND barcodes.status IN (?, ?, ?)
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
-        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
+        ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
         
         // Teslimat sürecinde olan miktar (ton) - Müşteri transfer ve teslim edildi
         $deliveryQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
@@ -481,7 +481,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
@@ -534,7 +534,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate])[0]->total_quantity ?? 0,
             'accepted_quantity' => $acceptedQuantity,
@@ -547,13 +547,13 @@ class DashboardController extends Controller
             'correction_input_used' => $correctionInputUsed,
             'raw_material_used' => $rawMaterialUsed,
             'accepted_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
+                ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
                 ->count(),
             'rejected_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])
                 ->count(),
             'testing_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])
+                ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])
                 ->count(),
             'delivery_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
@@ -564,25 +564,33 @@ class DashboardController extends Controller
     /**
      * Vardiya raporu (3 vardiya)
      */
-    private function getShiftReport($date)
+    private function getShiftReport($date, $periodInfo = null)
     {
+        if ($periodInfo) {
+            $startDate = clone $periodInfo['start_date'];
+            $endDate = clone $periodInfo['end_date'];
+        } else {
+            $startDate = $date->copy()->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        }
+
         $shifts = [
-            'gece' => ['start' => '00:00', 'end' => '08:00'],
-            'gündüz' => ['start' => '08:00', 'end' => '16:00'],
-            'akşam' => ['start' => '16:00', 'end' => '24:00']
+            'gece' => ['start' => '00:00:00', 'end' => '08:00:00'],
+            'gündüz' => ['start' => '08:00:01', 'end' => '16:00:00'],
+            'akşam' => ['start' => '16:00:01', 'end' => '23:59:59']
         ];
         
         $shiftData = [];
         
         foreach ($shifts as $shiftName => $shiftTime) {
-            $startTime = $date->copy()->setTimeFromTimeString($shiftTime['start']);
+            $shiftStart = $shiftTime['start'];
+            $shiftEnd = $shiftTime['end'];
             
-            // Vardiya bitiş zamanını hesapla
-            if ($shiftTime['end'] === '24:00') {
-                $endTime = $date->copy()->addDay()->setTimeFromTimeString('00:00');
-            } else {
-                $endTime = $date->copy()->setTimeFromTimeString($shiftTime['end']);
-            }
+            // Debug için log ekle
+            \Log::info("Vardiya: {$shiftName}", [
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d')
+            ]);
             
             // Debug için log ekle
             \Log::info("Vardiya: {$shiftName}", [
@@ -596,63 +604,63 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
-                AND barcodes.status = ?
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                AND barcodes.status IN (?, ?, ?, ?)
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
+            ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
             
             $rejectedQuantity = DB::select('
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
+            ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
             
             // Test sürecinde olan miktar (ton)
             $testingQuantity = DB::select('
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
-                AND barcodes.status IN (?, ?, ?)
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+                AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
+            ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
             
             // Teslimat sürecinde olan miktar (ton)
             $deliveryQuantity = DB::select('
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
                 AND barcodes.status IN (?, ?)
                 AND barcodes.deleted_at IS NULL
-            ', [$startTime, $endTime, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
+            ', [$startDate, $endDate, $shiftStart, $shiftEnd, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
             
             $shiftData[$shiftName] = [
-                'barcode_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])->count(),
+                'barcode_count' => Barcode::whereBetween('created_at', [$startDate, $endDate])->whereTime('created_at', '>=', $shiftStart)->whereTime('created_at', '<=', $shiftEnd)->count(),
                 'total_quantity' => DB::select('
                     SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                     FROM barcodes
                     LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                    WHERE barcodes.created_at BETWEEN ? AND ?
+                    WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
                     AND barcodes.deleted_at IS NULL
-                ', [$startTime, $endTime])[0]->total_quantity ?? 0,
+                ', [$startDate, $endDate, $shiftStart, $shiftEnd])[0]->total_quantity ?? 0,
                 'accepted_quantity' => $acceptedQuantity,
                 'testing_quantity' => $testingQuantity,
                 'delivery_quantity' => $deliveryQuantity,
                 'rejected_quantity' => $rejectedQuantity,
-                'accepted_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
-                    ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
+                'accepted_count' => Barcode::whereBetween('created_at', [$startDate, $endDate])->whereTime('created_at', '>=', $shiftStart)->whereTime('created_at', '<=', $shiftEnd)
+                    ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
                     ->count(),
-                'rejected_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
+                'rejected_count' => Barcode::whereBetween('created_at', [$startDate, $endDate])->whereTime('created_at', '>=', $shiftStart)->whereTime('created_at', '<=', $shiftEnd)
                     ->whereIn('status', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])
                     ->count(),
-                'testing_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
-                    ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT])
+                'testing_count' => Barcode::whereBetween('created_at', [$startDate, $endDate])->whereTime('created_at', '>=', $shiftStart)->whereTime('created_at', '<=', $shiftEnd)
+                    ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])
                     ->count(),
-                'delivery_count' => Barcode::whereBetween('created_at', [$startTime, $endTime])
+                'delivery_count' => Barcode::whereBetween('created_at', [$startDate, $endDate])->whereTime('created_at', '>=', $shiftStart)->whereTime('created_at', '<=', $shiftEnd)
                     ->whereIn('status', [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
                     ->count()
             ];
@@ -666,8 +674,13 @@ class DashboardController extends Controller
      */
     private function getKilnPerformance($date, $period = 'daily', $periodInfo = null)
     {
-        $startDate = $date->copy()->startOfDay();
-        $endDate = $date->copy()->endOfDay();
+        if ($periodInfo) {
+            $startDate = $periodInfo['start_date'];
+            $endDate = $periodInfo['end_date'];
+        } else {
+            $startDate = $date->copy()->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        }
         
         $result = DB::select('
             SELECT 
@@ -691,12 +704,12 @@ class DashboardController extends Controller
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
             GROUP BY kilns.id, kilns.name
         ', [
-            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı
-            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci: beklemede, ön onaylı, kontrol tekrarı
+            Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Kabul edildi
+            Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT, // Test süreci: beklemede, ön onaylı, kontrol tekrarı
             Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci: müşteri transfer, teslim edildi
             Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, // Red: reddedildi ve birleştirildi
-            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı (count için)
-            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci count için
+            Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Kabul edildi (count için)
+            Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT, // Test süreci count için
             Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci count için
             Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, // Red count için: reddedildi ve birleştirildi
             $startDate,
@@ -716,8 +729,13 @@ class DashboardController extends Controller
      */
     private function getKilnRejectionRates($date, $period = 'daily', $periodInfo = null)
     {
-        $startDate = $date->copy()->startOfDay();
-        $endDate = $date->copy()->endOfDay();
+        if ($periodInfo) {
+            $startDate = $periodInfo['start_date'];
+            $endDate = $periodInfo['end_date'];
+        } else {
+            $startDate = $date->copy()->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        }
         
         return DB::select('
             SELECT 
@@ -751,8 +769,13 @@ class DashboardController extends Controller
      */
     private function getProductKilnAnalysis($date, $period = 'daily', $periodInfo = null)
     {
-        $startDate = $date->copy()->startOfDay();
-        $endDate = $date->copy()->endOfDay();
+        if ($periodInfo) {
+            $startDate = $periodInfo['start_date'];
+            $endDate = $periodInfo['end_date'];
+        } else {
+            $startDate = $date->copy()->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        }
         
         return DB::select('
             SELECT 
@@ -784,15 +807,15 @@ class DashboardController extends Controller
             HAVING barcode_count > 0
             ORDER BY stocks.name, total_quantity DESC
         ', [
-            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı
-            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci: beklemede, ön onaylı, kontrol tekrarı
+            Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Kabul edildi
+            Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT, // Test süreci: beklemede, ön onaylı, kontrol tekrarı
             Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci: müşteri transfer, teslim edildi
             Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, // Red: reddedildi ve birleştirildi
-            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı (count için)
-            Barcode::STATUS_WAITING, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_CONTROL_REPEAT, // Test süreci count için
+            Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Kabul edildi (count için)
+            Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT, // Test süreci count için
             Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Teslimat süreci count için
             Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, // Red count için: reddedildi ve birleştirildi
-            Barcode::STATUS_SHIPMENT_APPROVED, // Kabul edildi: sevk onaylı (acceptance rate için)
+            Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED, // Kabul edildi (acceptance rate için)
             $startDate,
             $endDate
         ]);
@@ -817,11 +840,11 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             ', [$startDate, $endDate])[0]->total_quantity ?? 0,
             'today_accepted' => Barcode::whereBetween('created_at', [$startDate, $endDate])
-                ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)
+                ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
                 ->count(),
             'today_rejected' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])
@@ -844,7 +867,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -856,11 +879,20 @@ class DashboardController extends Controller
      */
     private function getMonthlyComparison($date)
     {
-        $currentMonth = $date->copy()->startOfMonth();
-        $previousMonth = $date->copy()->subMonth()->startOfMonth();
+        $currentMonthStart = $date->copy()->startOfMonth();
+        $currentMonthEnd = $date->copy()->endOfDay();
         
-        $currentMonthData = $this->getMonthData($currentMonth);
-        $previousMonthData = $this->getMonthData($previousMonth);
+        $previousMonthStart = $date->copy()->subMonth()->startOfMonth();
+        // Geçen ayın aynı gününe kadar olan veriyi al (Adil karşılaştırma için)
+        // Eğer geçen ay o gün yoksa (örn 31 Şubat), ay sonunu alır
+        if ($date->day > $previousMonthStart->copy()->endOfMonth()->day) {
+            $previousMonthEnd = $previousMonthStart->copy()->endOfMonth();
+        } else {
+            $previousMonthEnd = $date->copy()->subMonth()->endOfDay();
+        }
+        
+        $currentMonthData = $this->getMonthData($currentMonthStart, $currentMonthEnd);
+        $previousMonthData = $this->getMonthData($previousMonthStart, $previousMonthEnd);
         
         return [
             'current_month' => $currentMonthData,
@@ -872,9 +904,11 @@ class DashboardController extends Controller
     /**
      * Ay verilerini getir
      */
-    private function getMonthData($monthStart)
+    private function getMonthData($monthStart, $monthEnd = null)
     {
-        $monthEnd = $monthStart->copy()->endOfMonth();
+        if (!$monthEnd) {
+            $monthEnd = $monthStart->copy()->endOfMonth();
+        }
         
         return [
             'total_barcodes' => Barcode::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
@@ -882,7 +916,7 @@ class DashboardController extends Controller
                 SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
                 FROM barcodes
                 LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.created_at BETWEEN ? AND ?
+                WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
                 AND barcodes.deleted_at IS NULL
             ', [$monthStart, $monthEnd])[0]->total_quantity ?? 0,
             'accepted_barcodes' => Barcode::whereBetween('created_at', [$monthStart, $monthEnd])
@@ -927,7 +961,7 @@ class DashboardController extends Controller
     /**
      * Algoritmik Trend Analizleri üretimi
      */
-    private function generateAIInsights($date)
+    private function generateAIInsights($date, $periodInfo = null)
     {
         // OEE ve Algoritmik Trend Analizleri her zaman güncel tarihe göre çalışsın
         // Tarih filtresinden etkilenmesin
@@ -997,7 +1031,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1060,7 +1094,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [Barcode::STATUS_REJECTED, $startDate, $endDate]);
         
@@ -1112,7 +1146,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1249,7 +1283,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, $startDate, $endDate]);
         
@@ -1271,11 +1305,15 @@ class DashboardController extends Controller
     /**
      * Calculate comprehensive production efficiency (OEE)
      */
-    private function calculateProductionEfficiency($date)
+    private function calculateProductionEfficiency($date, $periodInfo = null)
     {
-        // Get last 30 days of production data
-        $startDate = $date->copy()->subDays(30)->startOfDay();
-        $endDate = $date->copy()->endOfDay();
+        if ($periodInfo) {
+            $startDate = $periodInfo['start_date'];
+            $endDate = $periodInfo['end_date'];
+        } else {
+            $startDate = $date->copy()->subDays(30)->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        }
         
         // Calculate Availability (Makinelerin çalışma süresi)
         $availabilityData = DB::select('
@@ -1285,7 +1323,7 @@ class DashboardController extends Controller
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as rejected_barcodes,
                 COUNT(CASE WHEN barcodes.status = ? THEN 1 END) as merged_barcodes
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [
             Barcode::STATUS_WAITING, 
@@ -1330,7 +1368,7 @@ class DashboardController extends Controller
                 COUNT(*) as barcode_count
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             AND barcodes.status IN (?, ?, ?, ?, ?)
         ', [
@@ -1409,7 +1447,7 @@ class DashboardController extends Controller
             FROM barcodes
             LEFT JOIN stocks ON stocks.id = barcodes.stock_id
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY stocks.id, stocks.name, stocks.code
             HAVING total_barcodes >= 5
@@ -1432,7 +1470,7 @@ class DashboardController extends Controller
             FROM barcodes
             LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY kilns.id, kilns.name
             HAVING total_barcodes >= 5
@@ -1451,7 +1489,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1565,7 +1603,7 @@ class DashboardController extends Controller
                 AVG(TIMESTAMPDIFF(HOUR, barcodes.lab_at, COALESCE(barcodes.warehouse_transferred_at, NOW()))) as avg_warehouse_time,
                 AVG(TIMESTAMPDIFF(HOUR, barcodes.warehouse_transferred_at, COALESCE(barcodes.company_transferred_at, NOW()))) as avg_delivery_time
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY barcodes.status
             HAVING barcode_count >= 3
@@ -1580,7 +1618,7 @@ class DashboardController extends Controller
                 SUM(CASE WHEN barcodes.is_correction = 1 THEN quantities.quantity ELSE 0 END) as correction_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1598,7 +1636,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.is_merged = 1 THEN 1 END) as merged_barcodes
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1677,7 +1715,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1700,7 +1738,7 @@ class DashboardController extends Controller
                 COALESCE(SUM(quantities.quantity), 0) as daily_production
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1740,7 +1778,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -1764,7 +1802,7 @@ class DashboardController extends Controller
                 COUNT(*) as total_barcodes,
                 COUNT(CASE WHEN barcodes.status IN (?, ?) THEN 1 END) as rejected_count
             FROM barcodes
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED, $historicalStartDate, $historicalEndDate]);
         
@@ -1802,7 +1840,7 @@ class DashboardController extends Controller
                 COUNT(*) as barcode_count
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
             GROUP BY DATE(barcodes.created_at)
             ORDER BY date
@@ -2075,7 +2113,7 @@ class DashboardController extends Controller
             'normal_quantity' => 0
         ];
         
-        foreach ($stockAgeData as $stock) {
+        foreach ($uniqueStockAgeData as $stock) {
             $summary['total_barcodes']++;
             $summary['total_quantity'] += $stock->quantity ?? 0;
             
@@ -2098,11 +2136,11 @@ class DashboardController extends Controller
         }
         
         // En eski 20 barkodu al
-        $oldestBarcodes = array_slice($stockAgeData, 0, 20);
+        $oldestBarcodes = $uniqueStockAgeData->take(20)->values()->all();
         
         // Durum bazında analiz
         $statusAnalysis = [];
-        foreach ($stockAgeData as $stock) {
+        foreach ($uniqueStockAgeData as $stock) {
             $status = $stock->status;
             if (!isset($statusAnalysis[$status])) {
                 $statusAnalysis[$status] = [
@@ -2126,9 +2164,12 @@ class DashboardController extends Controller
             }
         }
         
+        // Benzersiz Barkod Grubu Analizi (Stok bazında özetleme, aynı barkodu tekrar saymayı önlemek için)
+        $uniqueStockAgeData = collect($stockAgeData)->unique('id')->values();
+
         // Ürün bazında analiz
         $productAnalysis = [];
-        foreach ($stockAgeData as $stock) {
+        foreach ($uniqueStockAgeData as $stock) {
             $productKey = $stock->stock_name . ' (' . $stock->stock_code . ')';
             if (!isset($productAnalysis[$productKey])) {
                 $productAnalysis[$productKey] = [
@@ -2183,12 +2224,17 @@ class DashboardController extends Controller
      */
     private function getRejectionReasonsAnalysis($date, $period = 'daily', $periodInfo = null)
     {
-        $startDate = $date->copy()->startOfDay();
-        $endDate = $date->copy()->endOfDay();
+        if ($periodInfo) {
+            $startDate = $periodInfo['start_date'];
+            $endDate = $periodInfo['end_date'];
+        } else {
+            $startDate = $date->copy()->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        }
 
         // Günlük red sebepleri analizi
         $dailyRejectionReasons = Barcode::with(['rejectionReasons', 'quantity', 'stock', 'kiln'])
-            ->whereBetween('lab_at', [$startDate, $endDate])
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->where('status', Barcode::STATUS_REJECTED)
             ->get()
             ->flatMap(function ($barcode) {
@@ -2264,7 +2310,7 @@ class DashboardController extends Controller
                 ->where('status', Barcode::STATUS_REJECTED)
                 ->count(),
             'total_rejected_kg_today' => Barcode::with(['quantity'])
-                ->whereBetween('lab_at', [$startDate, $endDate])
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_REJECTED)
                 ->get()
                 ->sum('quantity.quantity')
