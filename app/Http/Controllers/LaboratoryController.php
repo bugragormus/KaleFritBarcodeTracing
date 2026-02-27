@@ -757,30 +757,40 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity'])
         ->get()
         ->map(function ($stock) use ($startDate, $endDate) {
+            $nonAcceptedStatuses = [
+                \App\Models\Barcode::STATUS_WAITING,
+                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
+                \App\Models\Barcode::STATUS_REJECTED
+            ];
+
             $totalBarcodes = $stock->barcodes->count();
-            $acceptedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->count();
+            $acceptedBarcodes = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
             $rejectedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $stock->barcodes->sum('quantity.quantity');
-            $acceptedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('quantity.quantity');
+            $acceptedKg = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
+            $controlRepeatKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
-            // Red sebepleri analizi
+            // Red sebepleri analizi (virgülle ayırarak tek kalem yap)
             $rejectionReasons = [];
             foreach ($stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED) as $barcode) {
-                foreach ($barcode->rejectionReasons as $reason) {
-                    if (!isset($rejectionReasons[$reason->name])) {
-                        $rejectionReasons[$reason->name] = ['count' => 0, 'kg' => 0];
-                    }
-                    $rejectionReasons[$reason->name]['count']++;
-                    $rejectionReasons[$reason->name]['kg'] += $barcode->quantity->quantity ?? 0;
+                $reasonNames = collect($barcode->rejectionReasons)->pluck('name')->implode(', ');
+                if (empty($reasonNames)) {
+                    $reasonNames = 'Belirtilmemiş';
                 }
+                
+                if (!isset($rejectionReasons[$reasonNames])) {
+                    $rejectionReasons[$reasonNames] = ['count' => 0, 'kg' => 0];
+                }
+                $rejectionReasons[$reasonNames]['count']++;
+                $rejectionReasons[$reasonNames]['kg'] += $barcode->quantity->quantity ?? 0;
             }
             
-            // Kalite oranları
-            $acceptanceRate = $totalBarcodes > 0 ? ($acceptedBarcodes / $totalBarcodes) * 100 : 0;
-            $rejectionRate = $totalBarcodes > 0 ? ($rejectedBarcodes / $totalBarcodes) * 100 : 0;
+            // Kalite oranları (KG üzerinden)
+            $acceptanceRate = $totalKg > 0 ? ($acceptedKg / $totalKg) * 100 : 0;
+            $rejectionRate = $totalKg > 0 ? ($rejectedKg / $totalKg) * 100 : 0;
             
             return [
                 'stock' => $stock,
@@ -791,6 +801,7 @@ class LaboratoryController extends Controller
                 'total_kg' => $totalKg,
                 'accepted_kg' => $acceptedKg,
                 'rejected_kg' => $rejectedKg,
+                'control_repeat_kg' => $controlRepeatKg,
                 'acceptance_rate' => $acceptanceRate,
                 'rejection_rate' => $rejectionRate,
                 'rejection_reasons' => $rejectionReasons,
@@ -812,10 +823,10 @@ class LaboratoryController extends Controller
             'total_kg' => $stockQualityData->sum('total_kg'),
             'total_accepted_kg' => $stockQualityData->sum('accepted_kg'),
             'total_rejected_kg' => $stockQualityData->sum('rejected_kg'),
-            'overall_acceptance_rate' => $stockQualityData->sum('total_barcodes') > 0 ? 
-                ($stockQualityData->sum('accepted_barcodes') / $stockQualityData->sum('total_barcodes')) * 100 : 0,
-            'overall_rejection_rate' => $stockQualityData->sum('total_barcodes') > 0 ? 
-                ($stockQualityData->sum('rejected_barcodes') / $stockQualityData->sum('total_barcodes')) * 100 : 0
+            'overall_acceptance_rate' => $stockQualityData->sum('total_kg') > 0 ? 
+                ($stockQualityData->sum('accepted_kg') / $stockQualityData->sum('total_kg')) * 100 : 0,
+            'overall_rejection_rate' => $stockQualityData->sum('total_kg') > 0 ? 
+                ($stockQualityData->sum('rejected_kg') / $stockQualityData->sum('total_kg')) * 100 : 0
         ];
 
         return view('admin.laboratory.stock-quality-analysis', compact(
@@ -847,30 +858,40 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity'])
         ->get()
         ->map(function ($stock) use ($startDate, $endDate) {
+            $nonAcceptedStatuses = [
+                \App\Models\Barcode::STATUS_WAITING,
+                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
+                \App\Models\Barcode::STATUS_REJECTED
+            ];
+
             $totalBarcodes = $stock->barcodes->count();
-            $acceptedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->count();
+            $acceptedBarcodes = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
             $rejectedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $stock->barcodes->sum('quantity.quantity');
-            $acceptedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('quantity.quantity');
+            $acceptedKg = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
+            $controlRepeatKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
-            // Red sebepleri analizi
+            // Red sebepleri analizi (virgülle ayırarak tek kalem yap)
             $rejectionReasons = [];
             foreach ($stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED) as $barcode) {
-                foreach ($barcode->rejectionReasons as $reason) {
-                    if (!isset($rejectionReasons[$reason->name])) {
-                        $rejectionReasons[$reason->name] = ['count' => 0, 'kg' => 0];
-                    }
-                    $rejectionReasons[$reason->name]['count']++;
-                    $rejectionReasons[$reason->name]['kg'] += $barcode->quantity->quantity ?? 0;
+                $reasonNames = collect($barcode->rejectionReasons)->pluck('name')->implode(', ');
+                if (empty($reasonNames)) {
+                    $reasonNames = 'Belirtilmemiş';
                 }
+                
+                if (!isset($rejectionReasons[$reasonNames])) {
+                    $rejectionReasons[$reasonNames] = ['count' => 0, 'kg' => 0];
+                }
+                $rejectionReasons[$reasonNames]['count']++;
+                $rejectionReasons[$reasonNames]['kg'] += $barcode->quantity->quantity ?? 0;
             }
             
-            // Kalite oranları
-            $acceptanceRate = $totalBarcodes > 0 ? ($acceptedBarcodes / $totalBarcodes) * 100 : 0;
-            $rejectionRate = $totalBarcodes > 0 ? ($rejectedBarcodes / $totalBarcodes) * 100 : 0;
+            // Kalite oranları (KG üzerinden)
+            $acceptanceRate = $totalKg > 0 ? ($acceptedKg / $totalKg) * 100 : 0;
+            $rejectionRate = $totalKg > 0 ? ($rejectedKg / $totalKg) * 100 : 0;
             
             return [
                 'stock' => $stock,
@@ -881,6 +902,7 @@ class LaboratoryController extends Controller
                 'total_kg' => $totalKg,
                 'accepted_kg' => $acceptedKg,
                 'rejected_kg' => $rejectedKg,
+                'control_repeat_kg' => $controlRepeatKg,
                 'acceptance_rate' => $acceptanceRate,
                 'rejection_rate' => $rejectionRate,
                 'rejection_reasons' => $rejectionReasons,
@@ -902,10 +924,10 @@ class LaboratoryController extends Controller
             'total_kg' => $stockQualityData->sum('total_kg'),
             'total_accepted_kg' => $stockQualityData->sum('accepted_kg'),
             'total_rejected_kg' => $stockQualityData->sum('rejected_kg'),
-            'overall_acceptance_rate' => $stockQualityData->sum('total_barcodes') > 0 ? 
-                ($stockQualityData->sum('accepted_barcodes') / $stockQualityData->sum('total_barcodes')) * 100 : 0,
-            'overall_rejection_rate' => $stockQualityData->sum('total_barcodes') > 0 ? 
-                ($stockQualityData->sum('rejected_barcodes') / $stockQualityData->sum('total_barcodes')) * 100 : 0
+            'overall_acceptance_rate' => $stockQualityData->sum('total_kg') > 0 ? 
+                ($stockQualityData->sum('accepted_kg') / $stockQualityData->sum('total_kg')) * 100 : 0,
+            'overall_rejection_rate' => $stockQualityData->sum('total_kg') > 0 ? 
+                ($stockQualityData->sum('rejected_kg') / $stockQualityData->sum('total_kg')) * 100 : 0
         ];
 
         // Dosya adına tarih bilgisi ekle
@@ -950,31 +972,41 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity', 'barcodes.stock'])
         ->get()
         ->map(function ($kiln) use ($startDate, $endDate) {
+            $nonAcceptedStatuses = [
+                \App\Models\Barcode::STATUS_WAITING,
+                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
+                \App\Models\Barcode::STATUS_REJECTED
+            ];
+
             $totalBarcodes = $kiln->barcodes->count();
-            $acceptedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->count();
+            $acceptedBarcodes = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
             $rejectedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $kiln->barcodes->sum('quantity.quantity');
-            $acceptedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('quantity.quantity');
+            $acceptedKg = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
+            $controlRepeatKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
-            // Red sebepleri analizi
+            // Red sebepleri analizi (virgülle ayırarak tek kalem yap)
             $rejectionReasons = [];
             foreach ($kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED) as $barcode) {
-                foreach ($barcode->rejectionReasons as $reason) {
-                    if (!isset($rejectionReasons[$reason->name])) {
-                        $rejectionReasons[$reason->name] = ['count' => 0, 'kg' => 0];
-                    }
-                    $rejectionReasons[$reason->name]['count']++;
-                    $rejectionReasons[$reason->name]['kg'] += $barcode->quantity->quantity ?? 0;
+                $reasonNames = collect($barcode->rejectionReasons)->pluck('name')->implode(', ');
+                if (empty($reasonNames)) {
+                    $reasonNames = 'Belirtilmemiş';
                 }
+                
+                if (!isset($rejectionReasons[$reasonNames])) {
+                    $rejectionReasons[$reasonNames] = ['count' => 0, 'kg' => 0];
+                }
+                $rejectionReasons[$reasonNames]['count']++;
+                $rejectionReasons[$reasonNames]['kg'] += $barcode->quantity->quantity ?? 0;
             }
             
-            // Performans oranları
-            $acceptanceRate = $totalBarcodes > 0 ? ($acceptedBarcodes / $totalBarcodes) * 100 : 0;
-            $rejectionRate = $totalBarcodes > 0 ? ($rejectedBarcodes / $totalBarcodes) * 100 : 0;
-            $efficiencyRate = $totalBarcodes > 0 ? (($acceptedBarcodes + $controlRepeatBarcodes) / $totalBarcodes) * 100 : 0;
+            // Performans oranları (KG üzerinden hesaplanacak)
+            $acceptanceRate = $totalKg > 0 ? ($acceptedKg / $totalKg) * 100 : 0;
+            $rejectionRate = $totalKg > 0 ? ($rejectedKg / $totalKg) * 100 : 0;
+            $efficiencyRate = $totalKg > 0 ? (($acceptedKg + $controlRepeatKg) / $totalKg) * 100 : 0;
             
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
@@ -988,6 +1020,7 @@ class LaboratoryController extends Controller
                 'total_kg' => $totalKg,
                 'accepted_kg' => $acceptedKg,
                 'rejected_kg' => $rejectedKg,
+                'control_repeat_kg' => $controlRepeatKg,
                 'acceptance_rate' => $acceptanceRate,
                 'rejection_rate' => $rejectionRate,
                 'efficiency_rate' => $efficiencyRate,
@@ -1011,12 +1044,12 @@ class LaboratoryController extends Controller
             'total_kg' => $kilnPerformanceData->sum('total_kg'),
             'total_accepted_kg' => $kilnPerformanceData->sum('accepted_kg'),
             'total_rejected_kg' => $kilnPerformanceData->sum('rejected_kg'),
-            'overall_acceptance_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
-                ($kilnPerformanceData->sum('accepted_barcodes') / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0,
-            'overall_rejection_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
-                ($kilnPerformanceData->sum('rejected_barcodes') / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0,
-            'overall_efficiency_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
-                (($kilnPerformanceData->sum('accepted_barcodes') + $kilnPerformanceData->sum('control_repeat_barcodes')) / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0
+            'overall_acceptance_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
+                ($kilnPerformanceData->sum('accepted_kg') / $kilnPerformanceData->sum('total_kg')) * 100 : 0,
+            'overall_rejection_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
+                ($kilnPerformanceData->sum('rejected_kg') / $kilnPerformanceData->sum('total_kg')) * 100 : 0,
+            'overall_efficiency_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
+                (($kilnPerformanceData->sum('accepted_kg') + $kilnPerformanceData->sum('control_repeat_kg')) / $kilnPerformanceData->sum('total_kg')) * 100 : 0
         ];
 
         return view('admin.laboratory.kiln-performance', compact(
@@ -1048,31 +1081,41 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity', 'barcodes.stock'])
         ->get()
         ->map(function ($kiln) use ($startDate, $endDate) {
+            $nonAcceptedStatuses = [
+                \App\Models\Barcode::STATUS_WAITING,
+                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
+                \App\Models\Barcode::STATUS_REJECTED
+            ];
+
             $totalBarcodes = $kiln->barcodes->count();
-            $acceptedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->count();
+            $acceptedBarcodes = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
             $rejectedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $kiln->barcodes->sum('quantity.quantity');
-            $acceptedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_PRE_APPROVED)->sum('quantity.quantity');
+            $acceptedKg = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
+            $controlRepeatKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
-            // Red sebepleri analizi
+            // Red sebepleri analizi (virgülle ayırarak tek kalem yap)
             $rejectionReasons = [];
             foreach ($kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED) as $barcode) {
-                foreach ($barcode->rejectionReasons as $reason) {
-                    if (!isset($rejectionReasons[$reason->name])) {
-                        $rejectionReasons[$reason->name] = ['count' => 0, 'kg' => 0];
-                    }
-                    $rejectionReasons[$reason->name]['count']++;
-                    $rejectionReasons[$reason->name]['kg'] += $barcode->quantity->quantity ?? 0;
+                $reasonNames = collect($barcode->rejectionReasons)->pluck('name')->implode(', ');
+                if (empty($reasonNames)) {
+                    $reasonNames = 'Belirtilmemiş';
                 }
+                
+                if (!isset($rejectionReasons[$reasonNames])) {
+                    $rejectionReasons[$reasonNames] = ['count' => 0, 'kg' => 0];
+                }
+                $rejectionReasons[$reasonNames]['count']++;
+                $rejectionReasons[$reasonNames]['kg'] += $barcode->quantity->quantity ?? 0;
             }
             
-            // Performans oranları
-            $acceptanceRate = $totalBarcodes > 0 ? ($acceptedBarcodes / $totalBarcodes) * 100 : 0;
-            $rejectionRate = $totalBarcodes > 0 ? ($rejectedBarcodes / $totalBarcodes) * 100 : 0;
-            $efficiencyRate = $totalBarcodes > 0 ? (($acceptedBarcodes + $controlRepeatBarcodes) / $totalBarcodes) * 100 : 0;
+            // Performans oranları (KG üzerinden hesaplanacak)
+            $acceptanceRate = $totalKg > 0 ? ($acceptedKg / $totalKg) * 100 : 0;
+            $rejectionRate = $totalKg > 0 ? ($rejectedKg / $totalKg) * 100 : 0;
+            $efficiencyRate = $totalKg > 0 ? (($acceptedKg + $controlRepeatKg) / $totalKg) * 100 : 0;
             
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
@@ -1086,6 +1129,7 @@ class LaboratoryController extends Controller
                 'total_kg' => $totalKg,
                 'accepted_kg' => $acceptedKg,
                 'rejected_kg' => $rejectedKg,
+                'control_repeat_kg' => $controlRepeatKg,
                 'acceptance_rate' => $acceptanceRate,
                 'rejection_rate' => $rejectionRate,
                 'efficiency_rate' => $efficiencyRate,
@@ -1109,12 +1153,12 @@ class LaboratoryController extends Controller
             'total_kg' => $kilnPerformanceData->sum('total_kg'),
             'total_accepted_kg' => $kilnPerformanceData->sum('accepted_kg'),
             'total_rejected_kg' => $kilnPerformanceData->sum('total_rejected_kg'),
-            'overall_acceptance_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
-                ($kilnPerformanceData->sum('accepted_barcodes') / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0,
-            'overall_rejection_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
-                ($kilnPerformanceData->sum('rejected_barcodes') / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0,
-            'overall_efficiency_rate' => $kilnPerformanceData->sum('total_barcodes') > 0 ? 
-                (($kilnPerformanceData->sum('accepted_barcodes') + $kilnPerformanceData->sum('control_repeat_barcodes')) / $kilnPerformanceData->sum('total_barcodes')) * 100 : 0
+            'overall_acceptance_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
+                ($kilnPerformanceData->sum('accepted_kg') / $kilnPerformanceData->sum('total_kg')) * 100 : 0,
+            'overall_rejection_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
+                ($kilnPerformanceData->sum('rejected_kg') / $kilnPerformanceData->sum('total_kg')) * 100 : 0,
+            'overall_efficiency_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
+                (($kilnPerformanceData->sum('accepted_kg') + $kilnPerformanceData->sum('control_repeat_kg')) / $kilnPerformanceData->sum('total_kg')) * 100 : 0
         ];
 
         // Dosya adına tarih bilgisi ekle

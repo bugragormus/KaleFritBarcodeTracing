@@ -170,7 +170,7 @@ class RejectionReasonsSheet implements FromArray, WithTitle, WithStyles
                         $reasonName,
                         $reasonStats['count'],
                         number_format($reasonStats['kg'], 2),
-                        number_format(($reasonStats['count'] / $kilnData['total_barcodes']) * 100, 2),
+                        number_format($kilnData['total_kg'] > 0 ? ($reasonStats['kg'] / $kilnData['total_kg']) * 100 : 0, 2),
                     ];
                 }
             } else {
