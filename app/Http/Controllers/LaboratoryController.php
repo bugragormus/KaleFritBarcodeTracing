@@ -1025,9 +1025,8 @@ class LaboratoryController extends Controller
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
             
-            // Seçilen tarihler içinde o fırına ait barkodların en büyük şarj numarası
-            // (aynı anda üretilen barkodlar için en büyük load_number "en son" kabul edilir)
-            $lastLoadNumber = $kiln->barcodes->max('load_number');
+            // Fırın kaydındaki güncel şarj numarası (SettingsController::updateKilnLoadNumbers ile senkron)
+            $lastLoadNumber = $kiln->load_number;
             
             return [
                 'kiln' => $kiln,
@@ -1084,6 +1083,10 @@ class LaboratoryController extends Controller
      */
     public function kilnPerformanceExcel(Request $request)
     {
+        // Büyük tarih aralıklarında Excel export'u için bellek ve süre limitlerini artır
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(0);
+
         $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
         $endDate = $request->get('end_date', now()->endOfMonth());
 
@@ -1140,9 +1143,8 @@ class LaboratoryController extends Controller
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
             
-            // Seçilen tarihler içinde o fırına ait en son oluşturulan barkodun şarj numarası
-            $lastBarcode = $kiln->barcodes->sortBy('created_at')->last();
-            $lastLoadNumber = $lastBarcode ? $lastBarcode->load_number : null;
+            // Fırın kaydındaki güncel şarj numarası (SettingsController::updateKilnLoadNumbers ile senkron)
+            $lastLoadNumber = $kiln->load_number;
             
             return [
                 'kiln' => $kiln,
