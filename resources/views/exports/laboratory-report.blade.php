@@ -67,37 +67,20 @@
 <table>
     <thead>
         <tr>
-            <th colspan="5">Stok Bazında Red Sebepleri</th>
+            <th colspan="3">Stok Bazında Red Özeti</th>
         </tr>
         <tr>
             <th>Stok</th>
             <th>Toplam Red (Adet)</th>
             <th>Toplam Red (KG)</th>
-            <th>Red Sebebi</th>
-            <th>Detay (Adet / KG)</th>
         </tr>
     </thead>
     <tbody>
         @foreach($rejectionReasonsAnalysis as $analysis)
-            @php $rowspan = max(1, count($analysis['reasons_breakdown'])); @endphp
             <tr>
-                <td rowspan="{{ $rowspan }}">{{ $analysis['stock']->name }} ({{ $analysis['stock']->code }})</td>
-                <td rowspan="{{ $rowspan }}">{{ $analysis['total_rejected'] }}</td>
-                <td rowspan="{{ $rowspan }}">{{ number_format($analysis['total_rejected_kg'], 2) }}</td>
-                @if(count($analysis['reasons_breakdown']))
-                    @php $first = true; @endphp
-                    @foreach($analysis['reasons_breakdown'] as $reasonName => $reasonStats)
-                        @if(!$first)
-                            </tr><tr>
-                        @endif
-                        <td>{{ $reasonName }}</td>
-                        <td>{{ $reasonStats['count'] }} / {{ number_format($reasonStats['kg'], 2) }}</td>
-                        @php $first = false; @endphp
-                    @endforeach
-                @else
-                    <td>-</td>
-                    <td>-</td>
-                @endif
+                <td>{{ $analysis['stock']->name }} ({{ $analysis['stock']->code }})</td>
+                <td>{{ $analysis['total_rejected'] }}</td>
+                <td>{{ number_format($analysis['total_rejected_kg'], 2) }}</td>
             </tr>
         @endforeach
     </tbody>
