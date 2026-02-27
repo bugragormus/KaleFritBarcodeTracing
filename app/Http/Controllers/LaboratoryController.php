@@ -127,7 +127,7 @@ class LaboratoryController extends Controller
                     ];
                     
                     return '<span class="badge ' . ($statusClass[$barcode->status] ?? 'badge-secondary') . '">' 
-                           . Barcode::STATUSES[$barcode->status] . '</span>';
+                           . Barcode::getStatusName($barcode->status) . '</span>';
                 })
                 ->addColumn('created_info', function ($barcode) {
                     return $barcode->createdBy->name . '<br><small>' . $barcode->created_at->tz('Europe/Istanbul')->format('d.m.Y H:i') . '</small>';
@@ -378,7 +378,7 @@ class LaboratoryController extends Controller
         return response()->json([
             'success' => true,
             'barcode' => $barcodeData,
-            'status_text' => Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor'
+            'status_text' => Barcode::getStatusName($barcode->status)
         ]);
     }
 

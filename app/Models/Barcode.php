@@ -42,6 +42,14 @@ class Barcode extends Model
         self::STATUS_MERGED => 'Birleştirildi',
     ];
 
+    /**
+     * Güvenli şekilde durum ismini getirir
+     */
+    public static function getStatusName($status)
+    {
+        return self::STATUSES[$status] ?? "Bilinmiyor ($status)";
+    }
+
     // Laboratuvar durumları (LAB işlemleri için)
     const LAB_STATUSES = [
         self::STATUS_WAITING => 'Beklemede',
@@ -78,6 +86,24 @@ class Barcode extends Model
         self::EVENT_DELETED => 'Silindi',
         self::EVENT_MERGED  => 'Birleştirildi',
     ];
+
+    /**
+     * Model olaylarını tanımla
+     */
+    protected static function booted()
+    {
+        static::saving(function ($barcode) {
+            // Status null ise veya 0 ise varsayılana çek
+            if ($barcode->status === 0 || $barcode->status === '0' || $barcode->status === null) {
+                \Log::warning("Barcode status=0 veya null olarak kaydedilmeye çalışıldı. Engelendi ve varsayılana (1) çekildi. Barkodu kontrol edip durumu düzeltin", [
+                    'id' => $barcode->id,
+                    'status_attempted' => $barcode->status,
+                    'is_dirty' => $barcode->isDirty('status')
+                ]);
+                $barcode->status = self::STATUS_WAITING;
+            }
+        });
+    }
 
     /**
      * @inheritDoc

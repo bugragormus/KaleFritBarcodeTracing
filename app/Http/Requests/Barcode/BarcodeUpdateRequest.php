@@ -44,10 +44,10 @@ class BarcodeUpdateRequest extends FormRequest
                 'integer',
                 new UserHasStatusPermission(),
                 function ($attribute, $value, $fail) use ($barcode) {
-                    if ($barcode && $value && $value != $barcode->status && !$barcode->canTransitionTo($value)) {
-                        $currentStatus = Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor';
-                        $newStatus = Barcode::STATUSES[$value] ?? 'Bilinmiyor';
-                        $fail("Geçersiz durum geçişi: {$currentStatus} durumundan {$newStatus} durumuna geçiş yapılamaz.");
+                    if ($barcode && $value !== null && $value !== '' && $value != $barcode->status && !$barcode->canTransitionTo($value)) {
+                        $currentStatus = Barcode::getStatusName($barcode->status);
+                        $newStatusName = Barcode::getStatusName($value);
+                        $fail("Geçersiz durum geçişi: {$currentStatus} durumundan {$newStatusName} durumuna geçiş yapılamaz.");
                     }
                 }
             ],

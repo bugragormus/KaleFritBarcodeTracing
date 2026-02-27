@@ -407,7 +407,7 @@ class BarcodeController extends Controller
                             $statusClass = 'status-waiting';
                     }
                     
-                    return '<span class="status-badge ' . $statusClass . '">' . Barcode::STATUSES[$barcode->status] . '</span>';
+                    return '<span class="status-badge ' . $statusClass . '">' . Barcode::getStatusName($barcode->status) . '</span>';
                 })
                 ->addColumn('quantity', function ($barcode) {
                     return $barcode->quantity->quantity . " KG";
@@ -847,9 +847,10 @@ class BarcodeController extends Controller
         if (isset($data['status']) && $barcode->status !== $data['status']) {
             // Durum geçiş kontrolü
             if (!$barcode->canTransitionTo($data['status'])) {
-                $currentStatus = Barcode::STATUSES[$barcode->status] ?? 'Bilinmiyor';
-                $newStatus = Barcode::STATUSES[$data['status']] ?? 'Bilinmiyor';
-                toastr()->error("Geçersiz durum geçişi: {$currentStatus} durumundan {$newStatus} durumuna geçiş yapılamaz.");
+                // Durum isimlerini güvenli al
+                $currentStatus = Barcode::getStatusName($barcode->status);
+                $newStatusName = Barcode::getStatusName($data['status']);
+                toastr()->error("Geçersiz durum geçişi: {$currentStatus} durumundan {$newStatusName} durumuna geçiş yapılamaz.");
                 return back()->withInput();
             }
 
@@ -1260,7 +1261,7 @@ class BarcodeController extends Controller
                             $status = $row->barcode->status;
                             if (!isset($status)) return '-';
                             
-                            $statusName = Barcode::STATUSES[$status] ?? 'Bilinmiyor';
+                            $statusName = Barcode::getStatusName($status);
                             
                             $statusClass = '';
                             switch($status) {
