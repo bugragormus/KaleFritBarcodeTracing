@@ -111,7 +111,7 @@ class KilnDetailsSheet implements FromArray, WithTitle, WithStyles
         foreach ($this->kilnPerformanceData as $kilnData) {
             $data[] = [
                 $kilnData['kiln']->name,
-                $kilnData['kiln']->load_number ?? 'N/A',
+                $kilnData['last_load_number'] ?? 'N/A',
                 $kilnData['total_barcodes'],
                 $kilnData['accepted_barcodes'],
                 $kilnData['rejected_barcodes'],
@@ -166,7 +166,7 @@ class RejectionReasonsSheet implements FromArray, WithTitle, WithStyles
                 foreach ($kilnData['rejection_reasons'] as $reasonName => $reasonStats) {
                     $data[] = [
                         $kilnData['kiln']->name,
-                        $kilnData['kiln']->load_number ?? 'N/A',
+                        $kilnData['last_load_number'] ?? 'N/A',
                         $reasonName,
                         $reasonStats['count'],
                         number_format($reasonStats['kg'], 2),
@@ -176,7 +176,7 @@ class RejectionReasonsSheet implements FromArray, WithTitle, WithStyles
             } else {
                 $data[] = [
                     $kilnData['kiln']->name,
-                    $kilnData['kiln']->load_number ?? 'N/A',
+                    $kilnData['last_load_number'] ?? 'N/A',
                     'Red yok',
                     0,
                     0,

@@ -324,7 +324,7 @@
                                         <h6 class="card-title">
                                             <i class="fas fa-fire"></i> {{ $data['kiln']->name }}
                                         </h6>
-                                        <p class="text-muted mb-1">Şarj No: {{ $data['kiln']->load_number ?? 'N/A' }}</p>
+                                        <p class="text-muted mb-1">Şarj No: {{ $data['last_load_number'] ?? 'N/A' }}</p>
                                         <span class="quality-indicator {{ $qualityClass }}">
                                             {{ number_format($data['acceptance_rate'], 1) }}% Kabul
                                         </span>

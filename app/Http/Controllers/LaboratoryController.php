@@ -1025,6 +1025,10 @@ class LaboratoryController extends Controller
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
             
+            // Seçilen tarihler içinde o fırına ait en son oluşturulan barkodun şarj numarası
+            $lastBarcode = $kiln->barcodes->sortBy('created_at')->last();
+            $lastLoadNumber = $lastBarcode ? $lastBarcode->load_number : null;
+            
             return [
                 'kiln' => $kiln,
                 'total_barcodes' => $totalBarcodes,
@@ -1039,6 +1043,7 @@ class LaboratoryController extends Controller
                 'rejection_rate' => $rejectionRate,
                 'efficiency_rate' => $efficiencyRate,
                 'daily_average' => $dailyAverage,
+                'last_load_number' => $lastLoadNumber,
                 'rejection_reasons' => $rejectionReasons,
                 'top_rejection_reason' => collect($rejectionReasons)->sortByDesc('count')->keys()->first(),
                 'top_rejection_count' => collect($rejectionReasons)->max('count') ?? 0
@@ -1135,6 +1140,10 @@ class LaboratoryController extends Controller
             // Günlük ortalama üretim
             $dailyAverage = $totalBarcodes > 0 ? $totalBarcodes / max(1, $startDate->diffInDays($endDate)) : 0;
             
+            // Seçilen tarihler içinde o fırına ait en son oluşturulan barkodun şarj numarası
+            $lastBarcode = $kiln->barcodes->sortBy('created_at')->last();
+            $lastLoadNumber = $lastBarcode ? $lastBarcode->load_number : null;
+            
             return [
                 'kiln' => $kiln,
                 'total_barcodes' => $totalBarcodes,
@@ -1149,6 +1158,7 @@ class LaboratoryController extends Controller
                 'rejection_rate' => $rejectionRate,
                 'efficiency_rate' => $efficiencyRate,
                 'daily_average' => $dailyAverage,
+                'last_load_number' => $lastLoadNumber,
                 'rejection_reasons' => $rejectionReasons,
                 'top_rejection_reason' => collect($rejectionReasons)->sortByDesc('count')->keys()->first(),
                 'top_rejection_count' => collect($rejectionReasons)->max('count') ?? 0
