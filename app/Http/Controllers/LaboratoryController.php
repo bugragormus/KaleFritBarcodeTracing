@@ -640,16 +640,16 @@ class LaboratoryController extends Controller
 
         $summary = [
             'total_processed' => Barcode::whereBetween('lab_at', [$startDate, $endDate])->count(),
-            'accepted' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
-                ->where('status', Barcode::STATUS_PRE_APPROVED)->count(),
-            'rejected' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
-                ->where('status', Barcode::STATUS_REJECTED)->count(),
             'waiting' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_WAITING)->count(),
+            'pre_approved' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_PRE_APPROVED)->count(),
             'control_repeat' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_CONTROL_REPEAT)->count(),
             'shipment_approved' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)->count(),
+            'rejected' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_REJECTED)->count(),
         ];
 
         // Red sebepleri analizi
