@@ -541,4 +541,3 @@
 </script>
 <script src="{{ asset('assets/js/modules/lab-barcode-list.js') }}"></script>
 @endsection
-@endsection 
