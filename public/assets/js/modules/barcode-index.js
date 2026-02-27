@@ -143,8 +143,12 @@
      */
     function initializeEventListeners() {
         $(document).on('click', '.btn-info-modern', function(e) {
-            e.preventDefault();
-            applyFilters();
+            // Sadece filtreleri uygulayan butonlar için devreye girsin,
+            // detay linkleri (anchor) normal şekilde çalışsın.
+            if ($(this).is('button') && $(this).closest('.column-filters').length) {
+                e.preventDefault();
+                applyFilters();
+            }
         });
         
         $(document).on('click', '.btn-secondary-modern', function(e) {
