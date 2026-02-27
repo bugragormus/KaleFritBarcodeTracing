@@ -757,19 +757,20 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity'])
         ->get()
         ->map(function ($stock) use ($startDate, $endDate) {
-            $nonAcceptedStatuses = [
-                \App\Models\Barcode::STATUS_WAITING,
-                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
-                \App\Models\Barcode::STATUS_REJECTED
+            $acceptedStatuses = [
+                \App\Models\Barcode::STATUS_PRE_APPROVED,
+                \App\Models\Barcode::STATUS_SHIPMENT_APPROVED,
+                \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                \App\Models\Barcode::STATUS_DELIVERED
             ];
 
             $totalBarcodes = $stock->barcodes->count();
-            $acceptedBarcodes = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
+            $acceptedBarcodes = $stock->barcodes->whereIn('status', $acceptedStatuses)->count();
             $rejectedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $stock->barcodes->sum('quantity.quantity');
-            $acceptedKg = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
+            $acceptedKg = $stock->barcodes->whereIn('status', $acceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
             $controlRepeatKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
@@ -858,19 +859,20 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity'])
         ->get()
         ->map(function ($stock) use ($startDate, $endDate) {
-            $nonAcceptedStatuses = [
-                \App\Models\Barcode::STATUS_WAITING,
-                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
-                \App\Models\Barcode::STATUS_REJECTED
+            $acceptedStatuses = [
+                \App\Models\Barcode::STATUS_PRE_APPROVED,
+                \App\Models\Barcode::STATUS_SHIPMENT_APPROVED,
+                \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                \App\Models\Barcode::STATUS_DELIVERED
             ];
 
             $totalBarcodes = $stock->barcodes->count();
-            $acceptedBarcodes = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
+            $acceptedBarcodes = $stock->barcodes->whereIn('status', $acceptedStatuses)->count();
             $rejectedBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $stock->barcodes->sum('quantity.quantity');
-            $acceptedKg = $stock->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
+            $acceptedKg = $stock->barcodes->whereIn('status', $acceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
             $controlRepeatKg = $stock->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
@@ -972,19 +974,20 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity', 'barcodes.stock'])
         ->get()
         ->map(function ($kiln) use ($startDate, $endDate) {
-            $nonAcceptedStatuses = [
-                \App\Models\Barcode::STATUS_WAITING,
-                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
-                \App\Models\Barcode::STATUS_REJECTED
+            $acceptedStatuses = [
+                \App\Models\Barcode::STATUS_PRE_APPROVED,
+                \App\Models\Barcode::STATUS_SHIPMENT_APPROVED,
+                \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                \App\Models\Barcode::STATUS_DELIVERED
             ];
 
             $totalBarcodes = $kiln->barcodes->count();
-            $acceptedBarcodes = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
+            $acceptedBarcodes = $kiln->barcodes->whereIn('status', $acceptedStatuses)->count();
             $rejectedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $kiln->barcodes->sum('quantity.quantity');
-            $acceptedKg = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
+            $acceptedKg = $kiln->barcodes->whereIn('status', $acceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
             $controlRepeatKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
@@ -1081,19 +1084,20 @@ class LaboratoryController extends Controller
         }, 'barcodes.rejectionReasons', 'barcodes.quantity', 'barcodes.stock'])
         ->get()
         ->map(function ($kiln) use ($startDate, $endDate) {
-            $nonAcceptedStatuses = [
-                \App\Models\Barcode::STATUS_WAITING,
-                \App\Models\Barcode::STATUS_CONTROL_REPEAT,
-                \App\Models\Barcode::STATUS_REJECTED
+            $acceptedStatuses = [
+                \App\Models\Barcode::STATUS_PRE_APPROVED,
+                \App\Models\Barcode::STATUS_SHIPMENT_APPROVED,
+                \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
+                \App\Models\Barcode::STATUS_DELIVERED
             ];
 
             $totalBarcodes = $kiln->barcodes->count();
-            $acceptedBarcodes = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->count();
+            $acceptedBarcodes = $kiln->barcodes->whereIn('status', $acceptedStatuses)->count();
             $rejectedBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->count();
             $controlRepeatBarcodes = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->count();
             
             $totalKg = $kiln->barcodes->sum('quantity.quantity');
-            $acceptedKg = $kiln->barcodes->whereNotIn('status', $nonAcceptedStatuses)->sum('quantity.quantity');
+            $acceptedKg = $kiln->barcodes->whereIn('status', $acceptedStatuses)->sum('quantity.quantity');
             $rejectedKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_REJECTED)->sum('quantity.quantity');
             $controlRepeatKg = $kiln->barcodes->where('status', \App\Models\Barcode::STATUS_CONTROL_REPEAT)->sum('quantity.quantity');
             
@@ -1152,7 +1156,7 @@ class LaboratoryController extends Controller
             'total_rejected' => $kilnPerformanceData->sum('rejected_barcodes'),
             'total_kg' => $kilnPerformanceData->sum('total_kg'),
             'total_accepted_kg' => $kilnPerformanceData->sum('accepted_kg'),
-            'total_rejected_kg' => $kilnPerformanceData->sum('total_rejected_kg'),
+            'total_rejected_kg' => $kilnPerformanceData->sum('rejected_kg'),
             'overall_acceptance_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
                 ($kilnPerformanceData->sum('accepted_kg') / $kilnPerformanceData->sum('total_kg')) * 100 : 0,
             'overall_rejection_rate' => $kilnPerformanceData->sum('total_kg') > 0 ? 
