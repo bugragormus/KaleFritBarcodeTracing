@@ -217,17 +217,17 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
-            AND barcodes.status = ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status IN (?, ?, ?, ?)
             AND barcodes.deleted_at IS NULL
-        ', [$startDate, $endDate, Barcode::STATUS_SHIPMENT_APPROVED])[0]->total_quantity ?? 0;
+        ', [$startDate, $endDate, Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
         
         // Test sürecinde olan miktar (ton)
         $testingQuantity = DB::select('
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])[0]->total_quantity ?? 0;
@@ -237,7 +237,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])[0]->total_quantity ?? 0;
@@ -247,7 +247,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.status IN (?, ?)
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
@@ -265,7 +265,7 @@ class DashboardController extends Controller
             SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
             FROM barcodes
             LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            WHERE barcodes.created_at BETWEEN ? AND ? AND TIME(barcodes.created_at) BETWEEN ? AND ?
+            WHERE barcodes.created_at BETWEEN ? AND ?
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate])[0]->total_quantity ?? 0;
 
@@ -586,18 +586,7 @@ class DashboardController extends Controller
             $shiftStart = $shiftTime['start'];
             $shiftEnd = $shiftTime['end'];
             
-            // Debug için log ekle
-            \Log::info("Vardiya: {$shiftName}", [
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d')
-            ]);
-            
-            // Debug için log ekle
-            \Log::info("Vardiya: {$shiftName}", [
-                'date' => $date->format('Y-m-d'),
-                'start_time' => $startTime->format('Y-m-d H:i:s'),
-                'end_time' => $endTime->format('Y-m-d H:i:s')
-            ]);
+
             
             // Vardiya için ton bazında veriler
             $acceptedQuantity = DB::select('
