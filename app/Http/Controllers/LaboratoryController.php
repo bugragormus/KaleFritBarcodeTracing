@@ -586,6 +586,8 @@ class LaboratoryController extends Controller
 
         $summary = [
             'total_processed' => Barcode::whereBetween('lab_at', [$startDate, $endDate])->count(),
+            'accepted' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
+                ->whereIn('status', [Barcode::STATUS_PRE_APPROVED, Barcode::STATUS_SHIPMENT_APPROVED, Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])->count(),
             'pre_approved' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_PRE_APPROVED)->count(),
             'rejected' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
