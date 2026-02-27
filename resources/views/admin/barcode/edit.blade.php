@@ -472,23 +472,7 @@
                                         <select class="custom-select" name="status" id="status-select">
                                             <option value="" {{old('status') == '' ? 'selected' : ''}}>Durum seçiniz</option>
                                             @php
-                                                $availableStatuses = [];
-                                                
-                                                // LAB_PROCESSES yetkisi varsa LAB_STATUSES'ı ekle
-                                                if(auth()->user()->hasPermission(App\Models\Permission::LAB_PROCESSES)) {
-                                                    foreach(\App\Models\Barcode::LAB_STATUSES as $key => $value) {
-                                                        $availableStatuses[$key] = $value;
-                                                    }
-                                                }
-                                                
-                                                // MANAGEMENT yetkisi varsa WORKFLOW_STATUSES'ı ekle
-                                                if(auth()->user()->hasPermission(App\Models\Permission::MANAGEMENT)) {
-                                                    foreach(\App\Models\Barcode::WORKFLOW_STATUSES as $key => $value) {
-                                                        $availableStatuses[$key] = $value;
-                                                    }
-                                                }
-                                                
-                                                // Sıralama için ksort
+                                                $availableStatuses = app(\App\Services\BarcodeStatusManager::class)->getAvailableStatusesForUser(auth()->user());
                                                 ksort($availableStatuses);
                                             @endphp
                                             

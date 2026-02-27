@@ -22,16 +22,16 @@
             <td>{{ $barcode->stock->code . ' --- ' . $barcode->stock->name}}</td>
             <td>{{ $barcode->party_number }}</td>
             <td>{{ $barcode->load_number }} {{ !is_null($barcode->rejected_load_number) ? ' + ' . $barcode->rejected_load_number : '' }}</td>
-                    <td>{{ \App\Models\Barcode::STATUSES[$barcode->status] ?? 'Bilinmeyen Durum' }}</td>
+                    <td>{{ \App\Models\Barcode::getStatusName($barcode->status) }}</td>
             <td>{{ $barcode->quantity->quantity . " KG" }}</td>
             <td>{{ $barcode->kiln->name }}</td>
             <td>{{ $barcode->warehouse->name}}</td>
             <td>{{ $barcode->company->name}}</td>
             <td>{{ $barcode->note }}</td>
-            <td>{{ $barcode->lab_by }}</td>
-            <td>{{ $barcode->lab_at }}</td>
-            <td>{{ $barcode->createdBy->name }}</td>
-            <td>{{ $barcode->created_at->tz('Europe/Istanbul')->toDateTimeString() }}</td>
+            <td>{{ $barcode->labBy->name ?? '-' }}</td>
+            <td>{{ $barcode->lab_at ? $barcode->lab_at->tz('Europe/Istanbul')->format('d.m.Y H:i:s') : '-' }}</td>
+            <td>{{ $barcode->createdBy->name ?? '-' }}</td>
+            <td>{{ $barcode->created_at ? $barcode->created_at->tz('Europe/Istanbul')->format('d.m.Y H:i:s') : '-' }}</td>
         </tr>
     @endforeach
     </tbody>

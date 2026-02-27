@@ -42,13 +42,6 @@ class Barcode extends Model
         self::STATUS_MERGED => 'Birleştirildi',
     ];
 
-    /**
-     * Güvenli şekilde durum ismini getirir
-     */
-    public static function getStatusName($status)
-    {
-        return self::STATUSES[$status] ?? "Bilinmiyor ($status)";
-    }
 
     // Laboratuvar durumları (LAB işlemleri için)
     const LAB_STATUSES = [
@@ -166,48 +159,25 @@ class Barcode extends Model
     ];
 
     /**
-     * Durum geçişlerini kontrol eden metod
+     * Belirli bir statüye geçiş yapılabilir mi kontrol eder.
+     *
+     * @param int $newStatus
+     * @return bool
      */
     public function canTransitionTo($newStatus)
     {
-        // Aynı duruma geçiş her zaman mümkün (not ekleme gibi işlemler için)
-        if ($this->status == $newStatus) {
-            return true;
-        }
-        
-        $allowedTransitions = [
-            self::STATUS_WAITING => [
-                self::STATUS_CONTROL_REPEAT,
-                self::STATUS_PRE_APPROVED,
-                self::STATUS_REJECTED
-            ],
-            self::STATUS_CONTROL_REPEAT => [
-                self::STATUS_PRE_APPROVED,
-                self::STATUS_REJECTED
-            ],
-            self::STATUS_PRE_APPROVED => [
-                self::STATUS_SHIPMENT_APPROVED,
-                self::STATUS_CONTROL_REPEAT,
-                self::STATUS_REJECTED
-            ],
-            self::STATUS_SHIPMENT_APPROVED => [
-                self::STATUS_CUSTOMER_TRANSFER,
-                self::STATUS_DELIVERED
-            ],
-            self::STATUS_CUSTOMER_TRANSFER => [
-                self::STATUS_DELIVERED
-            ],
-            self::STATUS_REJECTED => [
-                self::STATUS_CUSTOMER_TRANSFER,
-                self::STATUS_DELIVERED
-            ],
-            self::STATUS_DELIVERED => [
-                // Teslim edildi durumundan Ön Onaylı'ya dönüşe izin ver (iade)
-                self::STATUS_PRE_APPROVED
-            ]
-        ];
+        return app(\App\Services\BarcodeStatusManager::class)->canTransition($this, (int) $newStatus);
+    }
 
-        return in_array($newStatus, $allowedTransitions[$this->status] ?? []);
+    /**
+     * Statü ismini güvenli bir şekilde döner.
+     *
+     * @param int|null $status
+     * @return string
+     */
+    public static function getStatusName($status)
+    {
+        return app(\App\Services\BarcodeStatusManager::class)->getStatusName($status);
     }
 
     /**

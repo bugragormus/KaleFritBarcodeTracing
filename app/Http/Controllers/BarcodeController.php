@@ -633,163 +633,40 @@ class BarcodeController extends Controller
      * Store a newly created resource in storage.
      *
      * @param \App\Http\Requests\Barcode\BarcodeStoreRequest $request
-     * @return string
+     * @param \App\Actions\Barcode\CreateBarcodeAction $action
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(BarcodeStoreRequest $request)
+    public function store(BarcodeStoreRequest $request, \App\Actions\Barcode\CreateBarcodeAction $action)
     {
         if (!auth()->user()->hasPermission(Permission::BARCODE_CREATE)) {
             toastr()->error('Barkod oluşturma izniniz bulunmamaktadır.');
             return back()->withInput();
         }
 
-        $data = $request->validated();
-        $kiln = Kiln::where('id', $data['kiln_id'])->firstOrFail();
-        $data['created_by'] = auth()->user()->id;
-
-        $barcodeIds = [];
-        $totalCorrectionQuantity = 0;
-        $startLoadNumber = (int) $data['load_number']; // Şarj numarasını başta tanımla
-        $normalQuantity = (int) ($data['quantity'] ?? 0); // Normal üretim miktarını başta tanımla
-        $correctionLoadNumberCounter = $startLoadNumber + $normalQuantity; // Düzeltme faaliyeti için ayrı sayaç
-
-        // Düzeltme faaliyeti kontrolü
-        if ($request->filled('correction_barcodes') && is_array($request->input('correction_barcodes'))) {
-            $correctionBarcodes = $request->input('correction_barcodes');
-            $correctionQuantities = $request->input('correction_quantities', []);
-            
-            // Düzeltme barkodlarını oluştur
-            foreach ($correctionBarcodes as $index => $sourceBarcodeId) {
-                if (!empty($sourceBarcodeId) && !empty($correctionQuantities[$index])) {
-                    $sourceBarcode = Barcode::findOrFail($sourceBarcodeId);
-                    $correctionQuantity = (int) $correctionQuantities[$index];
-                    
-                    // Düzeltme barkodu oluştur
-                    $correctionData = [
-                        'stock_id' => $data['stock_id'], // Ana üretimin stoğu kullanılır
-                        'kiln_id' => $data['kiln_id'],
-                        'party_number' => $data['party_number'],
-                        'load_number' => $correctionLoadNumberCounter, // Sıralı şarj numarası
-                        'quantity_id' => $sourceBarcode->quantity_id, // Reddedilen barkodun miktarı korunur
-                        'warehouse_id' => $data['warehouse_id'],
-                        'created_by' => auth()->user()->id,
-                        'status' => Barcode::STATUS_WAITING, // Açıkça status belirt
-                        'is_correction' => true,
-                        'correction_source_barcode_id' => $sourceBarcodeId,
-                        'correction_quantity' => $correctionQuantity,
-                        'correction_note' => 'Düzeltme faaliyeti: ' . $sourceBarcode->stock->name . ' stoğundan ' . $sourceBarcode->load_number . ' şarjından ' . $correctionQuantity . ' KG',
-                        'note' => $data['note'] ?? ''
-                    ];
-
-                    $correctionBarcode = Barcode::create($correctionData);
-                    $barcodeIds[] = $correctionBarcode->id;
-                    $totalCorrectionQuantity += $correctionQuantity;
-                    $correctionLoadNumberCounter++; // Sonraki düzeltme barkodu için şarj numarasını artır
-
-                    // Barcode history oluştur
-                    try {
-                        BarcodeHistory::create([
-                            'barcode_id' => $correctionBarcode->id,
-                            'status' => $correctionBarcode->status ?? Barcode::STATUS_WAITING,
-                            'user_id' => auth()->user()->id,
-                            'description' => Barcode::EVENT_CREATED,
-                        ]);
-                    } catch (\Exception $e) {
-                        \Log::error('BarcodeHistory creation error for correction barcode: ' . $e->getMessage());
-                        // Hata durumunda devam et, barkod oluşturuldu
-                    }
-
-                    // Kaynak barkodu düzeltme faaliyetinde kullanıldı olarak işaretle
-                    $mainStock = Stock::find($data['stock_id']);
-                    $stockName = $mainStock ? $mainStock->name : 'Bilinmeyen Stok';
-                    
-                    $sourceBarcode->update([
-                        'status' => Barcode::STATUS_CORRECTED,
-                        'note' => ($sourceBarcode->note ? $sourceBarcode->note . ' | ' : '') . 
-                                 'Düzeltme faaliyetinde kullanıldı: ' . $correctionBarcode->load_number . ' şarjı (' . $stockName . ' stoğunda)'
-                    ]);
-
-                    // NOT: Quantity bilgisine dokunulmuyor, sadece status değiştiriliyor
-                    // Bu sayede merge işleminde quantity bilgisi korunuyor
-
-                    // Kaynak barkod için history kaydı oluştur
-                    try {
-                        BarcodeHistory::create([
-                            'barcode_id' => $sourceBarcode->id,
-                            'status' => Barcode::STATUS_CORRECTED,
-                            'user_id' => auth()->user()->id,
-                            'description' => 'Düzeltme faaliyetinde kullanıldı',
-                            'changes' => [
-                                'old_status' => Barcode::STATUS_REJECTED,
-                                'new_status' => Barcode::STATUS_CORRECTED,
-                                'correction_quantity' => $correctionQuantity,
-                                'correction_barcode_id' => $correctionBarcode->id,
-                                'note' => 'Quantity bilgisi korundu, sadece status değiştirildi'
-                            ]
-                        ]);
-                    } catch (\Exception $e) {
-                        \Log::error('BarcodeHistory creation error for source barcode: ' . $e->getMessage());
-                    }
-                }
-            }
-        }
-
-        // Normal üretim barkodlarını oluştur
-        for ($i = 0; $i < $normalQuantity; $i++) {
-            $barcodeData = $data;
-            $barcodeData['load_number'] = $startLoadNumber + $i; // Her barkod için artan şarj numarası
-            $barcodeData['is_correction'] = false;
-            $barcodeData['status'] = Barcode::STATUS_WAITING; // Açıkça status belirt
-
-            $barcode = Barcode::create($barcodeData);
-            $barcodeIds[] = $barcode->id;
-
-            // Barcode history oluştur
-            try {
-                BarcodeHistory::create([
-                    'barcode_id' => $barcode->id,
-                    'status' => $barcode->status ?? Barcode::STATUS_WAITING,
-                    'user_id' => auth()->user()->id,
-                    'description' => Barcode::EVENT_CREATED,
-                ]);
-            } catch (\Exception $e) {
-                \Log::error('BarcodeHistory creation error for normal barcode: ' . $e->getMessage());
-                // Hata durumunda devam et, barkod oluşturuldu
-            }
-        }
-
-        // Fırın şarj numarasını güncelle (en yüksek şarj numarasını yansıt)
-        try {
-            // Hem normal üretim hem de düzeltme faaliyeti sonrası en yüksek şarj numarasını bul
-            $maxLoadNumber = max(
-                $startLoadNumber + $normalQuantity - 1, // Normal üretim son şarj numarası
-                $correctionLoadNumberCounter - 1 // Düzeltme faaliyeti son şarj numarası
-            );
-            
-            $kiln->update(['load_number' => $maxLoadNumber]);
-        } catch (\Exception $e) {
-            \Log::error('Kiln load number update error: ' . $e->getMessage());
-            // Hata durumında devam et, barkod oluşturuldu
-        }
+        $result = $action->execute(
+            $request->validated(),
+            $request->input('correction_barcodes'),
+            $request->input('correction_quantities')
+        );
 
         // Başarı mesajı
         $message = 'Barkod başarıyla oluşturuldu.';
         
-        if ($normalQuantity > 0) {
-            $message .= ' Yeni üretim: ' . $normalQuantity . ' barkod (Şarj: ' . $startLoadNumber . ' - ' . ($startLoadNumber + $normalQuantity - 1) . ').';
+        if ($result['normal_quantity'] > 0) {
+            $message .= ' Yeni üretim: ' . $result['normal_quantity'] . ' barkod (Şarj: ' . $result['start_load_number'] . ' - ' . ($result['start_load_number'] + $result['normal_quantity'] - 1) . ').';
         }
         
-        if ($totalCorrectionQuantity > 0) {
-            // Ana üretimin stok adını al
-            $mainStock = Stock::find($data['stock_id']);
+        if ($result['total_correction_quantity'] > 0) {
+            $mainStock = Stock::find($request->input('stock_id'));
             $stockName = $mainStock ? $mainStock->name : 'Bilinmeyen Stok';
             
-            $message .= ' Düzeltme faaliyeti: ' . $totalCorrectionQuantity . ' KG reddedilen malzeme ' . $stockName . ' stoğunda kullanıldı (Şarj: ' . ($startLoadNumber + $normalQuantity) . ' - ' . ($correctionLoadNumberCounter - 1) . ').';
+            $message .= ' Düzeltme faaliyeti: ' . $result['total_correction_quantity'] . ' KG reddedilen malzeme ' . $stockName . ' stoğunda kullanıldı (Şarj: ' . ($result['start_load_number'] + $result['normal_quantity']) . ' - ' . $result['correction_load_number_end'] . ').';
         }
 
         toastr()->success($message);
 
-        return isset($data['print'])
-            ? redirect()->route('barcode.print', ['barcode_ids' => $barcodeIds])
+        return $request->filled('print')
+            ? redirect()->route('barcode.print', ['barcode_ids' => $result['barcode_ids']])
             : redirect()->route('barcode.index');
     }
 
@@ -834,121 +711,36 @@ class BarcodeController extends Controller
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\Barcode\BarcodeUpdateRequest $request
+     * @param \App\Actions\Barcode\UpdateBarcodeAction $action
      * @param int $id
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(BarcodeUpdateRequest $request, $id)
+    public function update(BarcodeUpdateRequest $request, \App\Actions\Barcode\UpdateBarcodeAction $action, $id)
     {
-        $data = $request->validated();
-
-        $barcode = Barcode::findOrFail($id);
-
-        // Status değişikliği kontrolü - laboratuvar kurallarına uygun
-        if (isset($data['status']) && $barcode->status !== $data['status']) {
-            // Durum geçiş kontrolü
-            if (!$barcode->canTransitionTo($data['status'])) {
-                // Durum isimlerini güvenli al
-                $currentStatus = Barcode::getStatusName($barcode->status);
-                $newStatusName = Barcode::getStatusName($data['status']);
-                toastr()->error("Geçersiz durum geçişi: {$currentStatus} durumundan {$newStatusName} durumuna geçiş yapılamaz.");
-                return back()->withInput();
-            }
-
-            // Müşteri Transfer veya Teslim Edildi durumlarında firma zorunlu, depo temizle
-            if (in_array($data['status'], [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])) {
-                if (empty($data['company_id'])) {
-                    toastr()->error('Müşteri Transfer veya Teslim Edildi durumunda firma seçimi zorunludur.');
-                    return back()->withInput();
-                }
-                $data['warehouse_id'] = null; // Depo bilgisini temizle
-            } else {
-                // Diğer durumlarda depo zorunlu, firma temizle
-                if (empty($data['warehouse_id'])) {
-                    toastr()->error('Bu durumda depo seçimi zorunludur.');
-                    return back()->withInput();
-                }
-                $data['company_id'] = null; // Firma bilgisini temizle
-            }
-
-            // Laboratuvar işlemleri için durumlar
-            if (in_array($data['status'], [
-                Barcode::STATUS_CONTROL_REPEAT,
-                Barcode::STATUS_PRE_APPROVED,
-                Barcode::STATUS_REJECTED
-            ])) {
-                $data['lab_at'] = now();
-                $data['lab_by'] = auth()->user()->id;
-
-                // Teslim edildi -> Ön Onaylı geçişinde iade olarak işaretle
-                if ($data['status'] == Barcode::STATUS_PRE_APPROVED && $barcode->status == Barcode::STATUS_DELIVERED) {
-                    $data['is_returned'] = true;
-                    $data['returned_at'] = now();
-                    $data['returned_by'] = auth()->user()->id;
-                }
-            }
+        try {
+            $barcode = Barcode::findOrFail($id);
             
-            // Sevk onayı durumu
-            if ($data['status'] == Barcode::STATUS_SHIPMENT_APPROVED) {
-                $data['warehouse_transferred_at'] = now();
-                $data['warehouse_transferred_by'] = auth()->user()->id;
-            }
-            
-            // Müşteri transfer durumu
-            if ($data['status'] == Barcode::STATUS_CUSTOMER_TRANSFER) {
-                $data['company_transferred_at'] = now();
-                
-                // Reddedildi durumundan geçiş yapıldıysa istisnai onaylı olarak işaretle
-                if ($barcode->status == Barcode::STATUS_REJECTED) {
-                    $data['is_exceptionally_approved'] = true;
+            $action->execute(
+                $barcode,
+                $request->validated(),
+                $request->input('rejection_reasons')
+            );
+
+            toastr()->success('Barkod başarıyla düzenlendi.');
+            return redirect()->route('barcode.index');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            foreach ($e->errors() as $messages) {
+                foreach ($messages as $message) {
+                    toastr()->error($message);
                 }
             }
-            
-            // Teslim edildi durumu
-            if ($data['status'] == Barcode::STATUS_DELIVERED) {
-                $data['delivered_at'] = now();
-                $data['delivered_by'] = auth()->user()->id;
-                
-                // Reddedildi durumundan geçiş yapıldıysa istisnai onaylı olarak işaretle
-                if ($barcode->status == Barcode::STATUS_REJECTED) {
-                    $data['is_exceptionally_approved'] = true;
-                }
-            }
+            return back()->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Barcode update error: ' . $e->getMessage());
+            toastr()->error('Barkod düzenlenirken bir hata oluştu.');
+            return back()->withInput();
         }
-
-        // Transfer status artık kullanılmıyor - sadece ana durum kullanılıyor
-
-        $barcode->update($data);
-
-        // Red sebeplerini işle
-        if (isset($data['status']) && $data['status'] == Barcode::STATUS_REJECTED) {
-            if ($request->has('rejection_reasons') && is_array($request->rejection_reasons)) {
-                $barcode->rejectionReasons()->sync($request->rejection_reasons);
-            } else {
-                $barcode->rejectionReasons()->detach();
-            }
-        } else {
-            // Red durumu değilse: İstisnai onaylı ya da iade edilmiş ürünlerin red sebeplerini KORU
-            // Not: $barcode modeli update edildiği için mevcut bayrakları doğrudan kontrol ediyoruz
-            if (!$barcode->is_exceptionally_approved && !$barcode->is_returned) {
-                $barcode->rejectionReasons()->detach();
-            }
-        }
-
-        BarcodeHistory::create([
-            'barcode_id' => $barcode->id,
-            'status' => $barcode->status,
-            'user_id' => auth()->user()->id,
-            'description' => Barcode::EVENT_UPDATED,
-            'changes' => $barcode->getChanges(),
-        ]);
-
-        if (!$barcode) {
-            toastr()->error('Barkod düzenlenemedi.');
-        }
-
-        toastr()->success('Barkod başarıyla düzenlendi.');
-
-        return redirect()->route('barcode.index');
     }
 
     /**

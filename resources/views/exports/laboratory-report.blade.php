@@ -28,7 +28,7 @@
         </tr>
         <tr>
             <td>Ön Onaylı</td>
-            <td>{{ $summary['accepted'] }}</td>
+            <td>{{ $summary['pre_approved'] }}</td>
         </tr>
         <tr>
             <td>Kontrol Tekrarı</td>

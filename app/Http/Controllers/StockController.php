@@ -77,20 +77,20 @@ class StockController extends Controller
                 // Tarih filtrelenmiş veri varsa onu kullan
                 $stock->waiting_quantity = $filteredStock->waiting_quantity;
                 $stock->control_repeat_quantity = $filteredStock->control_repeat_quantity;
-                $stock->accepted_quantity = $filteredStock->accepted_quantity;
+                $stock->pre_approved_quantity = $filteredStock->pre_approved_quantity;
                 $stock->rejected_quantity = $filteredStock->rejected_quantity;
-                $stock->in_warehouse_quantity = $filteredStock->in_warehouse_quantity;
-                $stock->on_delivery_in_warehouse_quantity = $filteredStock->on_delivery_in_warehouse_quantity;
+                $stock->shipment_approved_quantity = $filteredStock->shipment_approved_quantity;
+                $stock->customer_transfer_quantity = $filteredStock->customer_transfer_quantity;
                 $stock->delivered_quantity = $filteredStock->delivered_quantity;
                 $stock->merged_quantity = $filteredStock->merged_quantity;
             } else {
                 // Tarih filtrelenmiş veri yoksa 0 olarak ayarla
                 $stock->waiting_quantity = 0;
                 $stock->control_repeat_quantity = 0;
-                $stock->accepted_quantity = 0;
+                $stock->pre_approved_quantity = 0;
                 $stock->rejected_quantity = 0;
-                $stock->in_warehouse_quantity = 0;
-                $stock->on_delivery_in_warehouse_quantity = 0;
+                $stock->shipment_approved_quantity = 0;
+                $stock->customer_transfer_quantity = 0;
                 $stock->delivered_quantity = 0;
                 $stock->merged_quantity = 0;
             }
@@ -110,8 +110,8 @@ class StockController extends Controller
         foreach ($stocks as $stock) {
             // Toplam üretim miktarı
             $stock->total_production = $stock->waiting_quantity + $stock->control_repeat_quantity + 
-                                     $stock->accepted_quantity + $stock->rejected_quantity + 
-                                     $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity + 
+                                     $stock->pre_approved_quantity + $stock->rejected_quantity + 
+                                     $stock->shipment_approved_quantity + $stock->customer_transfer_quantity + 
                                      $stock->delivered_quantity + $stock->merged_quantity;
             
             // Red oranı
@@ -123,8 +123,8 @@ class StockController extends Controller
             
             // Stokta kalan miktar
             $stock->remaining_stock = $stock->waiting_quantity + $stock->control_repeat_quantity + 
-                                    $stock->accepted_quantity + $stock->in_warehouse_quantity + 
-                                    $stock->on_delivery_in_warehouse_quantity;
+                                    $stock->pre_approved_quantity + $stock->shipment_approved_quantity + 
+                                    $stock->customer_transfer_quantity;
             
             // Aktiflik durumu (son 90 günde üretim var mı?)
             $stock->is_active = ($stock->total_production > 0);
@@ -514,8 +514,8 @@ class StockController extends Controller
         foreach ($stocks as $stock) {
             // Toplam üretim miktarı
             $stock->total_production = $stock->waiting_quantity + $stock->control_repeat_quantity + 
-                                     $stock->accepted_quantity + $stock->rejected_quantity + 
-                                     $stock->in_warehouse_quantity + $stock->on_delivery_in_warehouse_quantity + 
+                                     $stock->pre_approved_quantity + $stock->rejected_quantity + 
+                                     $stock->shipment_approved_quantity + $stock->customer_transfer_quantity + 
                                      $stock->delivered_quantity + $stock->merged_quantity;
             
             // Red oranı
@@ -527,8 +527,8 @@ class StockController extends Controller
             
             // Stokta kalan miktar
             $stock->remaining_stock = $stock->waiting_quantity + $stock->control_repeat_quantity + 
-                                    $stock->accepted_quantity + $stock->in_warehouse_quantity + 
-                                    $stock->on_delivery_in_warehouse_quantity;
+                                    $stock->pre_approved_quantity + $stock->shipment_approved_quantity + 
+                                    $stock->customer_transfer_quantity;
             
             // Aktiflik durumu (son 90 günde üretim var mı?)
             $stock->is_active = ($stock->total_production > 0);

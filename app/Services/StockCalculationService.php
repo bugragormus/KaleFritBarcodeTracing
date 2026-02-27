@@ -15,14 +15,11 @@ class StockCalculationService
     public function getAllStocks()
     {
         return Cache::remember('all_stocks', 300, function () {
-            return DB::select("
-                SELECT 
-                    stocks.id,
-                    stocks.name,
-                    stocks.code
-                FROM stocks
-                ORDER BY stocks.name
-            ");
+            return Stock::query()
+                ->select('id', 'name', 'code')
+                ->orderBy('name')
+                ->get()
+                ->toArray();
         });
     }
 
@@ -41,53 +38,38 @@ class StockCalculationService
         }
         
         return Cache::remember($cacheKey, 300, function () use ($startDate, $endDate) {
-            $whereConditions = [];
-            $params = [
-                Barcode::STATUS_WAITING,
-                Barcode::STATUS_CONTROL_REPEAT,
-                Barcode::STATUS_PRE_APPROVED,
-                Barcode::STATUS_REJECTED,
-                Barcode::STATUS_SHIPMENT_APPROVED,
-                Barcode::STATUS_CUSTOMER_TRANSFER,
-                Barcode::STATUS_DELIVERED,
-                Barcode::STATUS_MERGED
-            ];
-            
-            // Tarih filtreleri ekle
+            $query = Stock::query()
+                ->select('stocks.id', 'stocks.name', 'stocks.code')
+                ->leftJoin('barcodes', function($join) {
+                    $join->on('stocks.id', '=', 'barcodes.stock_id')
+                        ->whereNull('barcodes.deleted_at');
+                })
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id');
+
+            $statusSum = function($status) {
+                return "COALESCE(SUM(CASE WHEN barcodes.status = {$status} AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0)";
+            };
+
+            $query->selectRaw("{$statusSum(Barcode::STATUS_WAITING)} as waiting_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_CONTROL_REPEAT)} as control_repeat_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_PRE_APPROVED)} as pre_approved_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_REJECTED)} as rejected_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_SHIPMENT_APPROVED)} as shipment_approved_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_CUSTOMER_TRANSFER)} as customer_transfer_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_DELIVERED)} as delivered_quantity")
+                ->selectRaw("{$statusSum(Barcode::STATUS_MERGED)} as merged_quantity");
+
             if ($startDate) {
-                $whereConditions[] = 'barcodes.created_at >= ?';
-                $params[] = $startDate;
+                $query->where('barcodes.created_at', '>=', $startDate);
             }
             if ($endDate) {
-                $whereConditions[] = 'barcodes.created_at <= ?';
-                $params[] = $endDate . ' 23:59:59';
+                $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
             }
-            
-            $whereClause = '';
-            if (!empty($whereConditions)) {
-                $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-            }
-            
-            return DB::select("
-                SELECT 
-                    stocks.id,
-                    stocks.name,
-                    stocks.code,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as waiting_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as control_repeat_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as accepted_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as rejected_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as in_warehouse_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as on_delivery_in_warehouse_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as delivered_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0) as merged_quantity
-                FROM stocks
-                LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                {$whereClause}
-                GROUP BY stocks.id, stocks.name, stocks.code
-                ORDER BY stocks.name
-            ", $params);
+
+            return $query->groupBy('stocks.id', 'stocks.name', 'stocks.code')
+                ->orderBy('stocks.name')
+                ->get()
+                ->toArray();
         });
     }
 
@@ -97,31 +79,32 @@ class StockCalculationService
     public function calculateWarehouseStockStatuses($warehouseId)
     {
         return Cache::remember("warehouse_stock_statuses_{$warehouseId}", 300, function () use ($warehouseId) {
-            return DB::select('
-                SELECT 
-                    barcodes.warehouse_id,
-                    stocks.id,
-                    stocks.name,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status IN (?, ?, ?, ?, ?) 
+            return DB::table('barcodes')
+                ->select([
+                    'barcodes.warehouse_id',
+                    'stocks.id',
+                    'stocks.name',
+                    DB::raw('COALESCE(SUM(CASE 
+                        WHEN barcodes.status IN (' . implode(',', [
+                            Barcode::STATUS_WAITING,
+                            Barcode::STATUS_CONTROL_REPEAT,
+                            Barcode::STATUS_PRE_APPROVED,
+                            Barcode::STATUS_SHIPMENT_APPROVED,
+                            Barcode::STATUS_REJECTED
+                        ]) . ') 
                         AND barcodes.deleted_at IS NULL 
                         THEN COALESCE(quantities.quantity, 0) 
                         ELSE 0 
-                    END), 0) as quantity
-                FROM barcodes
-                LEFT JOIN stocks ON barcodes.stock_id = stocks.id
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.warehouse_id = ? AND barcodes.deleted_at IS NULL
-                GROUP BY barcodes.warehouse_id, stocks.id, stocks.name
-                ORDER BY stocks.name
-            ', [
-                Barcode::STATUS_WAITING,           // Beklemede
-                Barcode::STATUS_CONTROL_REPEAT,    // Kontrol Tekrarı
-                Barcode::STATUS_PRE_APPROVED,      // Ön Onaylı
-                Barcode::STATUS_SHIPMENT_APPROVED, // Sevk Onaylı
-                Barcode::STATUS_REJECTED,          // Reddedildi
-                $warehouseId
-            ]);
+                    END), 0) as quantity')
+                ])
+                ->leftJoin('stocks', 'barcodes.stock_id', '=', 'stocks.id')
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('barcodes.warehouse_id', $warehouseId)
+                ->whereNull('barcodes.deleted_at')
+                ->groupBy('barcodes.warehouse_id', 'stocks.id', 'stocks.name')
+                ->orderBy('stocks.name')
+                ->get()
+                ->toArray();
         });
     }
 
@@ -131,60 +114,42 @@ class StockCalculationService
     public function calculateWarehouseStockDetails($warehouseId)
     {
         return Cache::remember("warehouse_stock_details_{$warehouseId}", 300, function () use ($warehouseId) {
-            return DB::select('
-                SELECT 
-                    barcodes.warehouse_id,
-                    stocks.id,
-                    stocks.name,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL 
-                        THEN COALESCE(quantities.quantity, 0) 
-                        ELSE 0 
-                    END), 0) as waiting_quantity,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL 
-                        THEN COALESCE(quantities.quantity, 0) 
-                        ELSE 0 
-                    END), 0) as control_repeat_quantity,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL 
-                        THEN COALESCE(quantities.quantity, 0) 
-                        ELSE 0 
-                    END), 0) as pre_approved_quantity,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL 
-                        THEN COALESCE(quantities.quantity, 0) 
-                        ELSE 0 
-                    END), 0) as shipment_approved_quantity,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status = ? AND barcodes.deleted_at IS NULL 
-                        THEN COALESCE(quantities.quantity, 0) 
-                        ELSE 0 
-                    END), 0) as rejected_quantity,
-                    COALESCE(SUM(CASE 
-                        WHEN barcodes.status IN (?, ?, ?, ?, ?) AND barcodes.deleted_at IS NULL 
-                        THEN COALESCE(quantities.quantity, 0) 
-                        ELSE 0 
-                    END), 0) as total_quantity
-                FROM barcodes
-                LEFT JOIN stocks ON barcodes.stock_id = stocks.id
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.warehouse_id = ? AND barcodes.deleted_at IS NULL
-                GROUP BY barcodes.warehouse_id, stocks.id, stocks.name
-                ORDER BY stocks.name
-            ', [
-                Barcode::STATUS_WAITING,           // Beklemede
-                Barcode::STATUS_CONTROL_REPEAT,    // Kontrol Tekrarı
-                Barcode::STATUS_PRE_APPROVED,      // Ön Onaylı
-                Barcode::STATUS_SHIPMENT_APPROVED, // Sevk Onaylı
-                Barcode::STATUS_REJECTED,          // Reddedildi
-                Barcode::STATUS_WAITING,           // Toplam için tekrar
-                Barcode::STATUS_CONTROL_REPEAT,    // Toplam için tekrar
-                Barcode::STATUS_PRE_APPROVED,      // Toplam için tekrar
-                Barcode::STATUS_SHIPMENT_APPROVED, // Toplam için tekrar
-                Barcode::STATUS_REJECTED,          // Toplam için tekrar
-                $warehouseId
+            $statusSum = function($status) {
+                return "COALESCE(SUM(CASE WHEN barcodes.status = {$status} AND barcodes.deleted_at IS NULL THEN COALESCE(quantities.quantity, 0) ELSE 0 END), 0)";
+            };
+
+            $totalStatusIn = implode(',', [
+                Barcode::STATUS_WAITING,
+                Barcode::STATUS_CONTROL_REPEAT,
+                Barcode::STATUS_PRE_APPROVED,
+                Barcode::STATUS_SHIPMENT_APPROVED,
+                Barcode::STATUS_REJECTED
             ]);
+
+            return DB::table('barcodes')
+                ->select([
+                    'barcodes.warehouse_id',
+                    'stocks.id',
+                    'stocks.name',
+                    DB::raw("{$statusSum(Barcode::STATUS_WAITING)} as waiting_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_CONTROL_REPEAT)} as control_repeat_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_PRE_APPROVED)} as pre_approved_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_SHIPMENT_APPROVED)} as shipment_approved_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_REJECTED)} as rejected_quantity"),
+                    DB::raw("COALESCE(SUM(CASE 
+                        WHEN barcodes.status IN ({$totalStatusIn}) AND barcodes.deleted_at IS NULL 
+                        THEN COALESCE(quantities.quantity, 0) 
+                        ELSE 0 
+                    END), 0) as total_quantity")
+                ])
+                ->leftJoin('stocks', 'barcodes.stock_id', '=', 'stocks.id')
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('barcodes.warehouse_id', $warehouseId)
+                ->whereNull('barcodes.deleted_at')
+                ->groupBy('barcodes.warehouse_id', 'stocks.id', 'stocks.name')
+                ->orderBy('stocks.name')
+                ->get()
+                ->toArray();
         });
     }
 
@@ -194,13 +159,11 @@ class StockCalculationService
     public function calculateTotalStockQuantity($stockId)
     {
         return Cache::remember("total_stock_quantity_{$stockId}", 300, function () use ($stockId) {
-            return DB::select('
-                SELECT 
-                    COALESCE(SUM(COALESCE(quantities.quantity, 0)), 0) as total_quantity
-                FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? AND barcodes.deleted_at IS NULL
-            ', [$stockId])[0]->total_quantity ?? 0;
+            return Barcode::query()
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('barcodes.stock_id', $stockId)
+                ->whereNull('barcodes.deleted_at')
+                ->sum(DB::raw('COALESCE(quantities.quantity, 0)')) ?: 0;
         });
     }
 
@@ -210,13 +173,12 @@ class StockCalculationService
     public function calculateStockQuantityByStatus($stockId, $status)
     {
         return Cache::remember("stock_quantity_status_{$stockId}_{$status}", 300, function () use ($stockId, $status) {
-            return DB::select('
-                SELECT 
-                    COALESCE(SUM(COALESCE(quantities.quantity, 0)), 0) as quantity
-                FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                WHERE barcodes.stock_id = ? AND barcodes.status = ? AND barcodes.deleted_at IS NULL
-            ', [$stockId, $status])[0]->quantity ?? 0;
+            return Barcode::query()
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('barcodes.stock_id', $stockId)
+                ->where('barcodes.status', $status)
+                ->whereNull('barcodes.deleted_at')
+                ->sum(DB::raw('COALESCE(quantities.quantity, 0)')) ?: 0;
         });
     }
 
@@ -336,55 +298,46 @@ class StockCalculationService
         }
         
         return Cache::remember($cacheKey, 300, function () use ($stockId, $startDate, $endDate) {
-            $whereConditions = ['stocks.id = ?'];
-            $params = [$stockId];
-            
-            // Tarih filtreleri ekle
+            $statusSum = function($status) {
+                return "COALESCE(SUM(CASE WHEN barcodes.status = {$status} THEN quantities.quantity ELSE 0 END), 0)";
+            };
+
+            $query = Stock::query()
+                ->select([
+                    'stocks.id',
+                    'stocks.name',
+                    'stocks.code',
+                    DB::raw('COUNT(DISTINCT barcodes.id) as total_barcodes'),
+                    DB::raw('COUNT(DISTINCT barcodes.kiln_id) as total_kilns'),
+                    DB::raw('COUNT(DISTINCT barcodes.company_id) as total_companies'),
+                    DB::raw('COALESCE(SUM(quantities.quantity), 0) as total_quantity'),
+                    DB::raw("{$statusSum(Barcode::STATUS_WAITING)} as waiting_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_CONTROL_REPEAT)} as control_repeat_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_PRE_APPROVED)} as pre_approved_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_SHIPMENT_APPROVED)} as shipment_approved_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_CUSTOMER_TRANSFER)} as customer_transfer_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_DELIVERED)} as delivered_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_REJECTED)} as rejected_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_MERGED)} as merged_quantity"),
+                    DB::raw('MIN(barcodes.created_at) as first_production_date'),
+                    DB::raw('MAX(barcodes.created_at) as last_production_date')
+                ])
+                ->leftJoin('barcodes', function($join) {
+                    $join->on('stocks.id', '=', 'barcodes.stock_id')
+                        ->whereNull('barcodes.deleted_at');
+                })
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('stocks.id', $stockId);
+
             if ($startDate) {
-                $whereConditions[] = 'barcodes.created_at >= ?';
-                $params[] = $startDate;
+                $query->where('barcodes.created_at', '>=', $startDate);
             }
             if ($endDate) {
-                $whereConditions[] = 'barcodes.created_at <= ?';
-                $params[] = $endDate . ' 23:59:59';
+                $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
             }
-            
-            $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-            
-            return DB::select("
-                SELECT 
-                    stocks.id,
-                    stocks.name,
-                    stocks.code,
-                    COUNT(DISTINCT barcodes.id) as total_barcodes,
-                    COUNT(DISTINCT barcodes.kiln_id) as total_kilns,
-                    COUNT(DISTINCT barcodes.company_id) as total_companies,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as waiting_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as control_repeat_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as pre_approved_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as shipment_approved_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as customer_transfer_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as delivered_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
-                    COALESCE(SUM(CASE WHEN barcodes.status = ? THEN quantities.quantity ELSE 0 END), 0) as merged_quantity,
-                    MIN(barcodes.created_at) as first_production_date,
-                    MAX(barcodes.created_at) as last_production_date
-                FROM stocks
-                LEFT JOIN barcodes ON stocks.id = barcodes.stock_id AND barcodes.deleted_at IS NULL
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                {$whereClause}
-                GROUP BY stocks.id, stocks.name, stocks.code
-            ", array_merge([
-                Barcode::STATUS_WAITING,
-                Barcode::STATUS_CONTROL_REPEAT,
-                Barcode::STATUS_PRE_APPROVED,
-                Barcode::STATUS_SHIPMENT_APPROVED,
-                Barcode::STATUS_CUSTOMER_TRANSFER,
-                Barcode::STATUS_DELIVERED,
-                Barcode::STATUS_REJECTED,
-                Barcode::STATUS_MERGED
-            ], $params))[0] ?? null;
+
+            return $query->groupBy('stocks.id', 'stocks.name', 'stocks.code')
+                ->first();
         });
     }
 
@@ -403,36 +356,32 @@ class StockCalculationService
         }
         
         return Cache::remember($cacheKey, 300, function () use ($stockId, $startDate, $endDate) {
-            $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
-            $params = [$stockId];
-            
+            $query = DB::table('barcodes')
+                ->select([
+                    DB::raw('DATE(barcodes.created_at) as date'),
+                    DB::raw('COUNT(barcodes.id) as barcode_count'),
+                    DB::raw('COALESCE(SUM(quantities.quantity), 0) as total_quantity')
+                ])
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('barcodes.stock_id', $stockId)
+                ->whereNull('barcodes.deleted_at');
+
             // Tarih filtreleri ekle
             if ($startDate) {
-                $whereConditions[] = 'barcodes.created_at >= ?';
-                $params[] = $startDate;
+                $query->where('barcodes.created_at', '>=', $startDate);
             } else {
                 // Varsayılan olarak son 30 gün
-                $whereConditions[] = 'barcodes.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+                $query->where('barcodes.created_at', '>=', now()->subDays(30));
             }
             
             if ($endDate) {
-                $whereConditions[] = 'barcodes.created_at <= ?';
-                $params[] = $endDate . ' 23:59:59';
+                $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
             }
-            
-            $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-            
-            return DB::select("
-                SELECT 
-                    DATE(barcodes.created_at) as date,
-                    COUNT(barcodes.id) as barcode_count,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity
-                FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                {$whereClause}
-                GROUP BY DATE(barcodes.created_at)
-                ORDER BY date
-            ", $params);
+
+            return $query->groupBy(DB::raw('DATE(barcodes.created_at)'))
+                ->orderBy('date')
+                ->get()
+                ->toArray();
         });
     }
 
@@ -451,32 +400,27 @@ class StockCalculationService
         }
         
         return Cache::remember($cacheKey, 300, function () use ($stockId, $startDate, $endDate) {
-            $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
-            $params = [$stockId];
-            
-            // Tarih filtreleri ekle
+            $query = DB::table('barcodes')
+                ->select([
+                    'barcodes.status',
+                    DB::raw('COUNT(barcodes.id) as count'),
+                    DB::raw('COALESCE(SUM(quantities.quantity), 0) as total_quantity')
+                ])
+                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+                ->where('barcodes.stock_id', $stockId)
+                ->whereNull('barcodes.deleted_at');
+
             if ($startDate) {
-                $whereConditions[] = 'barcodes.created_at >= ?';
-                $params[] = $startDate;
+                $query->where('barcodes.created_at', '>=', $startDate);
             }
             if ($endDate) {
-                $whereConditions[] = 'barcodes.created_at <= ?';
-                $params[] = $endDate . ' 23:59:59';
+                $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
             }
-            
-            $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-            
-            return DB::select("
-                SELECT 
-                    barcodes.status,
-                    COUNT(barcodes.id) as count,
-                    COALESCE(SUM(quantities.quantity), 0) as total_quantity
-                FROM barcodes
-                LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-                {$whereClause}
-                GROUP BY barcodes.status
-                ORDER BY barcodes.status
-            ", $params);
+
+            return $query->groupBy('barcodes.status')
+                ->orderBy('barcodes.status')
+                ->get()
+                ->toArray();
         });
     }
 
@@ -485,50 +429,41 @@ class StockCalculationService
      */
     public function getProductionByKiln($stockId, $perPage = 10, $startDate = null, $endDate = null)
     {
-        $offset = (request('page', 1) - 1) * $perPage;
+        $currentPage = request('page', 1);
         
-        $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
-        $params = [$stockId];
-        
-        // Tarih filtreleri ekle
+        $query = DB::table('barcodes')
+            ->leftJoin('kilns', 'kilns.id', '=', 'barcodes.kiln_id')
+            ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+            ->where('barcodes.stock_id', $stockId)
+            ->whereNull('barcodes.deleted_at');
+
         if ($startDate) {
-            $whereConditions[] = 'barcodes.created_at >= ?';
-            $params[] = $startDate;
+            $query->where('barcodes.created_at', '>=', $startDate);
         }
         if ($endDate) {
-            $whereConditions[] = 'barcodes.created_at <= ?';
-            $params[] = $endDate . ' 23:59:59';
+            $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
         }
+
+        $total = $query->clone()->distinct()->count('kilns.id');
         
-        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-        
-        $data = DB::select("
-            SELECT 
-                kilns.name as kiln_name,
-                COUNT(barcodes.id) as barcode_count,
-                COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                AVG(quantities.quantity) as avg_quantity
-            FROM barcodes
-            LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            {$whereClause}
-            GROUP BY kilns.id, kilns.name
-            ORDER BY total_quantity DESC
-            LIMIT ? OFFSET ?
-        ", array_merge($params, [$perPage, $offset]));
-        
-        $total = DB::select("
-            SELECT COUNT(DISTINCT kilns.id) as total
-            FROM barcodes
-            LEFT JOIN kilns ON kilns.id = barcodes.kiln_id
-            {$whereClause}
-        ", $params)[0]->total;
+        $data = $query->select([
+                'kilns.name as kiln_name',
+                DB::raw('COUNT(barcodes.id) as barcode_count'),
+                DB::raw('COALESCE(SUM(quantities.quantity), 0) as total_quantity'),
+                DB::raw('AVG(quantities.quantity) as avg_quantity')
+            ])
+            ->groupBy('kilns.id', 'kilns.name')
+            ->orderBy('total_quantity', 'DESC')
+            ->limit($perPage)
+            ->offset(($currentPage - 1) * $perPage)
+            ->get()
+            ->toArray();
         
         return [
             'data' => $data,
             'total' => $total,
             'per_page' => $perPage,
-            'current_page' => request('page', 1),
+            'current_page' => $currentPage,
             'last_page' => ceil($total / $perPage)
         ];
     }
@@ -538,51 +473,42 @@ class StockCalculationService
      */
     public function getSalesByCompany($stockId, $perPage = 10, $startDate = null, $endDate = null)
     {
-        $offset = (request('page', 1) - 1) * $perPage;
+        $currentPage = request('page', 1);
         
-        $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
-        $params = [$stockId];
-        
-        // Tarih filtreleri ekle
+        $query = DB::table('barcodes')
+            ->leftJoin('companies', 'companies.id', '=', 'barcodes.company_id')
+            ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+            ->where('barcodes.stock_id', $stockId)
+            ->whereNull('barcodes.deleted_at');
+
         if ($startDate) {
-            $whereConditions[] = 'barcodes.created_at >= ?';
-            $params[] = $startDate;
+            $query->where('barcodes.created_at', '>=', $startDate);
         }
         if ($endDate) {
-            $whereConditions[] = 'barcodes.created_at <= ?';
-            $params[] = $endDate . ' 23:59:59';
+            $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
         }
+
+        $total = $query->clone()->distinct()->count('companies.id');
         
-        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-        
-        $data = DB::select("
-            SELECT 
-                companies.name as company_name,
-                COUNT(barcodes.id) as barcode_count,
-                COALESCE(SUM(quantities.quantity), 0) as total_quantity,
-                MIN(barcodes.created_at) as first_sale_date,
-                MAX(barcodes.created_at) as last_sale_date
-            FROM barcodes
-            LEFT JOIN companies ON companies.id = barcodes.company_id
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            {$whereClause}
-            GROUP BY companies.id, companies.name
-            ORDER BY total_quantity DESC
-            LIMIT ? OFFSET ?
-        ", array_merge($params, [$perPage, $offset]));
-        
-        $total = DB::select("
-            SELECT COUNT(DISTINCT companies.id) as total
-            FROM barcodes
-            LEFT JOIN companies ON companies.id = barcodes.company_id
-            {$whereClause}
-        ", $params)[0]->total;
+        $data = $query->select([
+                'companies.name as company_name',
+                DB::raw('COUNT(barcodes.id) as barcode_count'),
+                DB::raw('COALESCE(SUM(quantities.quantity), 0) as total_quantity'),
+                DB::raw('MIN(barcodes.created_at) as first_sale_date'),
+                DB::raw('MAX(barcodes.created_at) as last_sale_date')
+            ])
+            ->groupBy('companies.id', 'companies.name')
+            ->orderBy('total_quantity', 'DESC')
+            ->limit($perPage)
+            ->offset(($currentPage - 1) * $perPage)
+            ->get()
+            ->toArray();
         
         return [
             'data' => $data,
             'total' => $total,
             'per_page' => $perPage,
-            'current_page' => request('page', 1),
+            'current_page' => $currentPage,
             'last_page' => ceil($total / $perPage)
         ];
     }
@@ -592,48 +518,41 @@ class StockCalculationService
      */
     public function getMonthlyTrend($stockId, $perPage = 10, $startDate = null, $endDate = null)
     {
-        $offset = (request('page', 1) - 1) * $perPage;
+        $currentPage = request('page', 1);
         
-        $whereConditions = ['barcodes.stock_id = ?', 'barcodes.deleted_at IS NULL'];
-        $params = [$stockId];
-        
-        // Tarih filtreleri ekle
+        $query = DB::table('barcodes')
+            ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+            ->where('barcodes.stock_id', $stockId)
+            ->whereNull('barcodes.deleted_at');
+
         if ($startDate) {
-            $whereConditions[] = 'barcodes.created_at >= ?';
-            $params[] = $startDate;
+            $query->where('barcodes.created_at', '>=', $startDate);
         }
         if ($endDate) {
-            $whereConditions[] = 'barcodes.created_at <= ?';
-            $params[] = $endDate . ' 23:59:59';
+            $query->where('barcodes.created_at', '<=', $endDate . ' 23:59:59');
         }
+
+        $total = $query->clone()->distinct()->count(DB::raw("CONCAT(YEAR(barcodes.created_at), '-', MONTH(barcodes.created_at))"));
         
-        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
-        
-        $data = DB::select("
-            SELECT 
-                MONTH(barcodes.created_at) as month,
-                YEAR(barcodes.created_at) as year,
-                COUNT(barcodes.id) as barcode_count,
-                COALESCE(SUM(quantities.quantity), 0) as total_quantity
-            FROM barcodes
-            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
-            {$whereClause}
-            GROUP BY MONTH(barcodes.created_at), YEAR(barcodes.created_at)
-            ORDER BY year DESC, month DESC
-            LIMIT ? OFFSET ?
-        ", array_merge($params, [$perPage, $offset]));
-        
-        $total = DB::select("
-            SELECT COUNT(DISTINCT CONCAT(YEAR(barcodes.created_at), '-', MONTH(barcodes.created_at))) as total
-            FROM barcodes
-            {$whereClause}
-        ", $params)[0]->total;
+        $data = $query->select([
+                DB::raw('MONTH(barcodes.created_at) as month'),
+                DB::raw('YEAR(barcodes.created_at) as year'),
+                DB::raw('COUNT(barcodes.id) as barcode_count'),
+                DB::raw('COALESCE(SUM(quantities.quantity), 0) as total_quantity')
+            ])
+            ->groupBy(DB::raw('MONTH(barcodes.created_at)'), DB::raw('YEAR(barcodes.created_at)'))
+            ->orderBy('year', 'DESC')
+            ->orderBy('month', 'DESC')
+            ->limit($perPage)
+            ->offset(($currentPage - 1) * $perPage)
+            ->get()
+            ->toArray();
         
         return [
             'data' => $data,
             'total' => $total,
             'per_page' => $perPage,
-            'current_page' => request('page', 1),
+            'current_page' => $currentPage,
             'last_page' => ceil($total / $perPage)
         ];
     }

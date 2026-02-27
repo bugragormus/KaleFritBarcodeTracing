@@ -13,6 +13,7 @@
             <th>Ön Onaylı (KG)</th>
             <th>Sevk Onaylı (KG)</th>
             <th>Reddedildi (KG)</th>
+            <th>Müşteri Transfer (KG)</th>
             <th>Toplam (KG)</th>
         </tr>
     </thead>
@@ -24,7 +25,8 @@
                                    ($stock->control_repeat_quantity ?? 0) + 
                                    ($stock->pre_approved_quantity ?? 0) + 
                                    ($stock->shipment_approved_quantity ?? 0) + 
-                                   ($stock->rejected_quantity ?? 0);
+                                   ($stock->rejected_quantity ?? 0) +
+                                   ($stock->customer_transfer_quantity ?? 0);
                 @endphp
                 <tr>
                     <td>{{ $stock->name }}</td>
@@ -34,6 +36,7 @@
                     <td>{{ number_format($stock->pre_approved_quantity ?? 0, 0) }}</td>
                     <td>{{ number_format($stock->shipment_approved_quantity ?? 0, 0) }}</td>
                     <td>{{ number_format($stock->rejected_quantity ?? 0, 0) }}</td>
+                    <td>{{ number_format($stock->customer_transfer_quantity ?? 0, 0) }}</td>
                     <td><strong>{{ number_format($totalQuantity, 0) }}</strong></td>
                 </tr>
             @endforeach
@@ -57,7 +60,8 @@
                 $totalPreApproved = collect($stockDetails)->sum('pre_approved_quantity');
                 $totalShipmentApproved = collect($stockDetails)->sum('shipment_approved_quantity');
                 $totalRejected = collect($stockDetails)->sum('rejected_quantity');
-                $grandTotal = $totalWaiting + $totalControlRepeat + $totalPreApproved + $totalShipmentApproved + $totalRejected;
+                $totalCustomerTransfer = collect($stockDetails)->sum('customer_transfer_quantity');
+                $grandTotal = $totalWaiting + $totalControlRepeat + $totalPreApproved + $totalShipmentApproved + $totalRejected + $totalCustomerTransfer;
             @endphp
             <tr>
                 <td>Beklemede</td>
@@ -78,6 +82,10 @@
             <tr>
                 <td>Reddedildi</td>
                 <td>{{ number_format($totalRejected, 0) }}</td>
+            </tr>
+            <tr>
+                <td>Müşteri Transfer</td>
+                <td>{{ number_format($totalCustomerTransfer, 0) }}</td>
             </tr>
             <tr style="font-weight: bold; background-color: #f8f9fa;">
                 <td><strong>TOPLAM</strong></td>
