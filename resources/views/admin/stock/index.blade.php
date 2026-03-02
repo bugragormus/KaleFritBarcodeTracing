@@ -565,7 +565,7 @@
                             <small>Kontrol Tekrarı</small>
                         </div>
                         <div class="status-item status-pre-approved">
-                            <div>{{ number_format($stock->accepted_quantity, 0) }}</div>
+                            <div>{{ number_format($stock->pre_approved_quantity ?? 0, 0) }}</div>
                             <small>Ön Onaylı</small>
                         </div>
                         <div class="status-item status-rejected">
@@ -573,11 +573,11 @@
                             <small>Reddedildi</small>
                         </div>
                         <div class="status-item status-shipment-approved">
-                            <div>{{ number_format($stock->in_warehouse_quantity, 0) }}</div>
+                            <div>{{ number_format($stock->shipment_approved_quantity ?? 0, 0) }}</div>
                             <small>Sevk Onaylı</small>
                         </div>
                         <div class="status-item status-customer-transfer">
-                            <div>{{ number_format($stock->on_delivery_in_warehouse_quantity, 0) }}</div>
+                            <div>{{ number_format($stock->customer_transfer_quantity ?? 0, 0) }}</div>
                             <small>Müşteri Transfer</small>
                         </div>
                         <div class="status-item status-delivered">
