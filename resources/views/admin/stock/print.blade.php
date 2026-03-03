@@ -245,6 +245,10 @@
                 <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_DELIVERED] }}</div>
             </div>
             <div class="stat-card">
+                <div class="stat-value">{{ number_format($stockDetails->transferred_to_granilya_quantity, 0) }}</div>
+                <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA] ?? 'GRANİLYAYA AKTARILAN' }}</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-value">{{ number_format($stockDetails->rejected_quantity, 0) }}</div>
                 <div class="stat-label">{{ \App\Models\Barcode::STATUSES[\App\Models\Barcode::STATUS_REJECTED] }}</div>
             </div>

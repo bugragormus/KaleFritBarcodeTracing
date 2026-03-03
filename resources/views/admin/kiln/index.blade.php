@@ -248,6 +248,7 @@
         .status-customer-transfer { background: #e2d9f3; color: #6f42c1; }
         .status-delivered { background: #c3e6cb; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-transferred-to-granilya { background: #e2e3e5; color: #383d41; }
         .status-merged { background: #f8f9fa; color: #6c757d; }
         
         .action-buttons {
@@ -579,6 +580,10 @@
                         <div class="status-item status-rejected">
                             <div>{{ number_format($kiln->rejected_kg ?? 0, 0) }}</div>
                             <small>Reddedildi (KG)</small>
+                        </div>
+                        <div class="status-item status-transferred-to-granilya">
+                            <div>{{ number_format($kiln->transferred_to_granilya_kg ?? 0, 0) }}</div>
+                            <small>Granilya (KG)</small>
                         </div>
                         <div class="status-item status-merged">
                             <div>{{ number_format($kiln->merged_kg ?? 0, 0) }}</div>

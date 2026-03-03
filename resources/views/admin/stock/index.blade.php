@@ -253,6 +253,7 @@
         .status-customer-transfer { background: #e2d9f3; color: #6f42c1; }
         .status-delivered { background: #c3e6cb; color: #155724; }
         .status-merged { background: #f8f9fa; color: #6c757d; }
+        .status-transferred-to-granilya { background: #e2e3e5; color: #383d41; }
         
         .action-buttons {
             display: flex;
@@ -587,6 +588,10 @@
                         <div class="status-item status-merged">
                             <div>{{ number_format($stock->merged_quantity ?? 0, 0) }}</div>
                             <small>Birleştirildi</small>
+                        </div>
+                        <div class="status-item status-transferred-to-granilya">
+                            <div>{{ number_format($stock->transferred_to_granilya_quantity ?? 0, 0) }}</div>
+                            <small>Granilya (KG)</small>
                         </div>
                     </div>
 

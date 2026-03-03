@@ -230,4 +230,49 @@
         });
     };
 
+    /**
+     * Confirm and transfer barcode to Granilya
+     * @param {number} id
+     * @param {string} url
+     */
+    window.transferToGranilya = function(id, url) {
+        swal({
+            title: "Granilya'ya Aktar",
+            text: "Bu barkodu ({0}) Granilya sistemine hammadde olarak aktarmak istediğinize emin misiniz?".replace('{0}', id),
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-warning btn-lg',
+            confirmButtonText: "Evet, Aktar",
+            cancelButtonClass: 'btn btn-secondary btn-lg m-l-10',
+            cancelButtonText: "İptal",
+            buttonsStyling: false
+        }).then(function (e) {
+            if (e.value === true) {
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        "_token": $('input[name="_token"]').val() || window.BarcodeConfig.tokens.csrf,
+                        "id": id
+                    },
+                    success: function (results) {
+                        if (results && results.success) {
+                            swal("Başarılı!", results.message, "success");
+                            table.ajax.reload(null, false); // Refresh table without resetting pagination
+                        } else {
+                            swal("Hata!", results.message || "Lütfen tekrar deneyin!", "error");
+                        }
+                    },
+                    error: function(xhr) {
+                        var msg = "Beklenmeyen bir hata oluştu.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        swal("Hata!", msg, "error");
+                    }
+                });
+            }
+        });
+    };
+
 })(jQuery);

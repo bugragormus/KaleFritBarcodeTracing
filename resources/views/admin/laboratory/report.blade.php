@@ -288,6 +288,15 @@
                     <div class="stat-label-modern">Reddedildi</div>
                 </div>
             </div>
+            <div class="col-xl-2 col-md-4">
+                <div class="stat-card-modern">
+                    <div class="stat-icon-modern text-secondary mb-2">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $summary['transferred_to_granilya'] ?? 0 }}</div>
+                    <div class="stat-label-modern">Granilya</div>
+                </div>
+            </div>
         </div>
 
         <!-- Grafikler -->

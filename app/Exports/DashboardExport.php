@@ -69,6 +69,7 @@ class DailyProductionSheet implements FromArray, WithTitle, WithStyles
             ['Kabul Edilen', number_format($productionData['accepted_quantity'] ?? 0, 1), 'ton'],
             ['Test Sürecinde', number_format($productionData['testing_quantity'] ?? 0, 1), 'ton'],
             ['Teslimat Sürecinde', number_format($productionData['delivery_quantity'] ?? 0, 1), 'ton'],
+            ['Granilya\'ya Aktarılan', number_format($productionData['transferred_quantity'] ?? 0, 1), 'ton'],
             ['Reddedilen', number_format($productionData['rejected_quantity'] ?? 0, 1), 'ton'],
             [''],
             ['DÜZELTME FAALİYETİ'],
@@ -133,7 +134,7 @@ class ShiftReportSheet implements FromArray, WithTitle, WithStyles
             [''],
             ['VARDİYA BAZINDA ÜRETİM'],
             [''],
-            ['Vardiya', 'Barkod Sayısı', 'Toplam Miktar (ton)', 'Kabul Edilen (ton)', 'Test Sürecinde (ton)', 'Teslimat Sürecinde (ton)', 'Reddedilen (ton)'],
+            ['Vardiya', 'Barkod Sayısı', 'Toplam Miktar (ton)', 'Kabul Edilen (ton)', 'Test Sürecinde (ton)', 'Teslimat Sürecinde (ton)', 'Granilya\'ya Aktarılan (ton)', 'Reddedilen (ton)'],
         ];
         
         if (count($shiftReport) > 0) {
@@ -153,6 +154,7 @@ class ShiftReportSheet implements FromArray, WithTitle, WithStyles
                         number_format($shiftData['accepted_quantity'] ?? 0, 1),
                         number_format($shiftData['testing_quantity'] ?? 0, 1),
                         number_format($shiftData['delivery_quantity'] ?? 0, 1),
+                        number_format($shiftData['transferred_quantity'] ?? 0, 1),
                         number_format($shiftData['rejected_quantity'] ?? 0, 1),
                     ];
                 }
@@ -172,6 +174,7 @@ class ShiftReportSheet implements FromArray, WithTitle, WithStyles
                         number_format($shiftData['accepted_quantity'] ?? 0, 1),
                         number_format($shiftData['testing_quantity'] ?? 0, 1),
                         number_format($shiftData['delivery_quantity'] ?? 0, 1),
+                        number_format($shiftData['transferred_quantity'] ?? 0, 1),
                         number_format($shiftData['rejected_quantity'] ?? 0, 1),
                     ];
                 }
@@ -186,6 +189,7 @@ class ShiftReportSheet implements FromArray, WithTitle, WithStyles
         $totalAccepted = array_sum(array_column($shiftReport, 'accepted_quantity'));
         $totalTesting = array_sum(array_column($shiftReport, 'testing_quantity'));
         $totalDelivery = array_sum(array_column($shiftReport, 'delivery_quantity'));
+        $totalTransferred = array_sum(array_column($shiftReport, 'transferred_quantity'));
         $totalRejected = array_sum(array_column($shiftReport, 'rejected_quantity'));
         
         $rows[] = [
@@ -195,6 +199,7 @@ class ShiftReportSheet implements FromArray, WithTitle, WithStyles
             number_format($totalAccepted, 1),
             number_format($totalTesting, 1),
             number_format($totalDelivery, 1),
+            number_format($totalTransferred, 1),
             number_format($totalRejected, 1),
         ];
         
@@ -209,21 +214,21 @@ class ShiftReportSheet implements FromArray, WithTitle, WithStyles
     public function styles(Worksheet $sheet)
     {
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
-        $sheet->getStyle('A1:G1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->mergeCells('A1:G1');
+        $sheet->getStyle('A1:H1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->mergeCells('A1:H1');
         
         $sheet->getStyle('A6')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A6:G6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->mergeCells('A6:G6');
+        $sheet->getStyle('A6:H6')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->mergeCells('A6:H6');
         
-        $sheet->getStyle('A8:G8')->getFont()->setBold(true);
-        $sheet->getStyle('A8:G8')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E2EFDA');
+        $sheet->getStyle('A8:H8')->getFont()->setBold(true);
+        $sheet->getStyle('A8:H8')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E2EFDA');
         
         $lastRow = $sheet->getHighestRow();
-        $sheet->getStyle("A{$lastRow}:G{$lastRow}")->getFont()->setBold(true);
-        $sheet->getStyle("A{$lastRow}:G{$lastRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFF2CC');
+        $sheet->getStyle("A{$lastRow}:H{$lastRow}")->getFont()->setBold(true);
+        $sheet->getStyle("A{$lastRow}:H{$lastRow}")->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('FFF2CC');
         
-        foreach (range('A', 'G') as $col) {
+        foreach (range('A', 'H') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
     }
@@ -251,7 +256,7 @@ class KilnPerformanceSheet implements FromArray, WithTitle, WithStyles
             [''],
             ['FIRIN BAZINDA ÜRETİM'],
             [''],
-            ['Fırın Adı', 'Barkod Sayısı', 'Toplam Miktar (ton)', 'Ortalama Miktar (ton)', 'Kabul Edilen (ton)', 'Test Sürecinde (ton)', 'Teslimat Sürecinde (ton)', 'Reddedilen (ton)'],
+            ['Fırın Adı', 'Barkod Sayısı', 'Toplam Miktar (ton)', 'Ortalama Miktar (ton)', 'Kabul Edilen (ton)', 'Test Sürecinde (ton)', 'Teslimat Sürecinde (ton)', 'Granilya\'ya Aktarılan (ton)', 'Reddedilen (ton)'],
         ];
         
         foreach ($kilnPerformance as $kiln) {
@@ -263,6 +268,7 @@ class KilnPerformanceSheet implements FromArray, WithTitle, WithStyles
                 number_format($kiln->accepted_quantity, 1),
                 number_format($kiln->testing_quantity ?? 0, 1),
                 number_format($kiln->delivery_quantity ?? 0, 1),
+                number_format($kiln->transferred_quantity ?? 0, 1),
                 number_format($kiln->rejected_quantity, 1),
             ];
         }
@@ -289,7 +295,7 @@ class KilnPerformanceSheet implements FromArray, WithTitle, WithStyles
         
         $rows[] = ['', '', '', '', ''];
         $rows[] = ['ÜRÜN ÖZELİNDE FIRIN KAPASİTE ANALİZİ'];
-        $rows[] = ['Ürün', 'Fırın', 'Barkod Sayısı', 'Toplam Miktar (ton)', 'Kabul Edilen (ton)', 'Test Sürecinde (ton)', 'Teslimat Sürecinde (ton)', 'Reddedilen (ton)', 'Kabul Oranı (%)'];
+        $rows[] = ['Ürün', 'Fırın', 'Barkod Sayısı', 'Toplam Miktar (ton)', 'Kabul Edilen (ton)', 'Test Sürecinde (ton)', 'Teslimat Sürecinde (ton)', 'Granilya\'ya Aktarılan (ton)', 'Reddedilen (ton)', 'Kabul Oranı (%)'];
         
         foreach ($productKilnAnalysis as $analysis) {
             $rows[] = [
@@ -300,6 +306,7 @@ class KilnPerformanceSheet implements FromArray, WithTitle, WithStyles
                 number_format($analysis->accepted_quantity, 1),
                 number_format($analysis->testing_quantity ?? 0, 1),
                 number_format($analysis->delivery_quantity ?? 0, 1),
+                number_format($analysis->transferred_quantity ?? 0, 1),
                 number_format($analysis->rejected_quantity, 1),
                 $analysis->acceptance_rate,
             ];
@@ -320,13 +327,13 @@ class KilnPerformanceSheet implements FromArray, WithTitle, WithStyles
         $sheet->mergeCells('A1:H1');
         
         $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(14);
-        $sheet->getStyle('A5:H5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->mergeCells('A5:H5');
+        $sheet->getStyle('A5:I5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->mergeCells('A5:I5');
         
-        $sheet->getStyle('A7:H7')->getFont()->setBold(true);
-        $sheet->getStyle('A7:H7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E2EFDA');
+        $sheet->getStyle('A7:I7')->getFont()->setBold(true);
+        $sheet->getStyle('A7:I7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('E2EFDA');
         
-        foreach (range('A', 'I') as $col) {
+        foreach (range('A', 'J') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
     }

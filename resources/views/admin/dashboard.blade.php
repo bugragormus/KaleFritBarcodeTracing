@@ -3321,6 +3321,10 @@
                         <div class="stat-value">{{ number_format($productionData['rejected_quantity'], 1) }}</div>
                         <div class="stat-label">Reddedilen (ton)</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ number_format($productionData['transferred_quantity'] ?? 0, 1) }}</div>
+                        <div class="stat-label">Granilya'ya Aktarılan (ton)</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3571,6 +3575,10 @@
                                     <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Red (ton)</div>
                                 </div>
+                                <div class="shift-stat" title="Granilya'ya Aktarılan Miktar (ton)">
+                                    <div class="shift-stat-value">{{ number_format($shiftData['transferred_quantity'] ?? 0, 1) }}</div>
+                                    <div class="shift-stat-label">Granilya (ton)</div>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -3617,6 +3625,7 @@
                                 <th>Test Sürecinde (ton)</th>
                                 <th>Teslimat Sürecinde (ton)</th>
                                 <th>Reddedilen (ton)</th>
+                                <th>Granilya'ya Aktarılan (ton)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3630,6 +3639,7 @@
                                 <td><span class="badge badge-info">{{ number_format($kiln->testing_quantity ?? 0, 1) }}</span></td>
                                 <td><span class="badge badge-warning">{{ number_format($kiln->delivery_quantity ?? 0, 1) }}</span></td>
                                 <td><span class="badge badge-danger">{{ number_format($kiln->rejected_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-secondary">{{ number_format($kiln->transferred_quantity ?? 0, 1) }}</span></td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -3705,6 +3715,7 @@
                                 <th>Test Sürecinde (ton)</th>
                                 <th>Teslimat Sürecinde (ton)</th>
                                 <th>Reddedilen (ton)</th>
+                                <th>Granilya'ya Aktarılan (ton)</th>
                                 <th>Kabul Oranı (%)</th>
                             </tr>
                         </thead>
@@ -3719,6 +3730,7 @@
                                 <td><span class="badge badge-info">{{ number_format($analysis->testing_quantity ?? 0, 1) }}</span></td>
                                 <td><span class="badge badge-warning">{{ number_format($analysis->delivery_quantity ?? 0, 1) }}</span></td>
                                 <td><span class="badge badge-danger">{{ number_format($analysis->rejected_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-secondary">{{ number_format($analysis->transferred_quantity ?? 0, 1) }}</span></td>
                                 <td>
                                     <span class="badge badge-{{ $analysis->acceptance_rate >= 90 ? 'success' : ($analysis->acceptance_rate >= 75 ? 'warning' : 'danger') }}">
                                         {{ $analysis->acceptance_rate }}%

@@ -10,6 +10,7 @@
         <th>{{ \App\Models\Barcode::getStatusName(\App\Models\Barcode::STATUS_SHIPMENT_APPROVED) }}</th>
         <th>{{ \App\Models\Barcode::getStatusName(\App\Models\Barcode::STATUS_CUSTOMER_TRANSFER) }}</th>
         <th>{{ \App\Models\Barcode::getStatusName(\App\Models\Barcode::STATUS_DELIVERED) }}</th>
+        <th>{{ \App\Models\Barcode::getStatusName(\App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA) ?? 'GRANİLYAYA AKTARILAN' }}</th>
         <th>{{ \App\Models\Barcode::getStatusName(\App\Models\Barcode::STATUS_MERGED) }}</th>
         <th>Toplam Üretim</th>
         <th>Kalan Stok</th>
@@ -29,6 +30,7 @@
             <td>{{ number_format($stock->shipment_approved_quantity ?? 0, 0) }} KG</td>
             <td>{{ number_format($stock->customer_transfer_quantity ?? 0, 0) }} KG</td>
             <td>{{ number_format($stock->delivered_quantity ?? 0, 0) }} KG</td>
+            <td>{{ number_format($stock->transferred_to_granilya_quantity ?? 0, 0) }} KG</td>
             <td>{{ number_format($stock->merged_quantity ?? 0, 0) }} KG</td>
             <td>{{ number_format($stock->total_production ?? 0, 0) }} KG</td>
             <td>{{ number_format($stock->remaining_stock ?? 0, 0) }} KG</td>

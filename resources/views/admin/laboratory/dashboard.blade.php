@@ -390,6 +390,15 @@
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
+                <div class="stat-card-modern text-center" title="Seçilen tarih aralığında Granilya'ya aktarılan barkodlar">
+                    <div class="stat-icon-modern text-secondary mb-2">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['transferred_to_granilya'] ?? 0 }}</div>
+                    <div class="stat-label-modern">Granilya'ya Aktarılan</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
                 <div class="stat-card-modern text-center" title="Seçilen tarih aralığında laboratuvar işlemi yapılan barkodlar">
                     <div class="stat-icon-modern text-info mb-2">
                         <i class="fas fa-tasks"></i>

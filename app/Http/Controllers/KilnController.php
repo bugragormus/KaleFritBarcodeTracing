@@ -285,6 +285,20 @@ class KilnController extends Controller
                     return $barcode->quantity ? $barcode->quantity->quantity : 0;
                 });
             
+            $kiln->transferred_to_granilya_kg = $kiln->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+                ->when($startDate, function($query) use ($startDate) {
+                    return $query->where('created_at', '>=', $startDate);
+                })
+                ->when($endDate, function($query) use ($endDate) {
+                    return $query->where('created_at', '<=', $endDate . ' 23:59:59');
+                })
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
             $kiln->merged_kg = $kiln->barcodes()
                 ->where('status', \App\Models\Barcode::STATUS_MERGED)
                 ->when($startDate, function($query) use ($startDate) {
@@ -585,7 +599,8 @@ class KilnController extends Controller
         $rejectionTrend = $kiln->barcodes()
             ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, 
                         COUNT(*) as total_barcodes,
-                        SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as rejected_count', [\App\Models\Barcode::STATUS_REJECTED])
+                        SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as rejected_count,
+                        SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as transferred_count', [\App\Models\Barcode::STATUS_REJECTED, \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA])
             ->where('created_at', '>=', now()->subMonths(12))
             ->groupBy('month', 'year')
             ->orderBy('year')
@@ -856,6 +871,10 @@ class KilnController extends Controller
                 ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
                 ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
             $kiln->rejected_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_REJECTED)
+                ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
+                ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
+                ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);
+            $kiln->transferred_to_granilya_kg = $kiln->barcodes()->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
                 ->when($startDate, fn($q)=>$q->where('created_at','>=',$startDate))
                 ->when($endDate, fn($q)=>$q->where('created_at','<=',$endDate.' 23:59:59'))
                 ->with('quantity')->get()->sum(fn($b)=>$b->quantity? $b->quantity->quantity:0);

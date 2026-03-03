@@ -493,17 +493,34 @@ class BarcodeController extends Controller
                     $historyUrl = route('barcode.history', ['barkod' => $barcode->id]);
                     $editUrl = route('barcode.edit', ['barkod' => $barcode->id]);
                     $deleteUrl = route('barcode.destroy', $barcode->id);
-                    return "<div class='btn-group-modern' role='group'>
+                    $granilyaUrl = route('barcode.transferToGranilya', ['barkod' => $barcode->id]);
+                    
+                    $actionHtml = "<div class='btn-group-modern' role='group'>
                         <a class='btn-modern btn-success-modern btn-xs-modern' data-value='$barcode->id' href='$historyUrl' title='Hareket Geçmişi'>
                             <i class='fas fa-history'></i> Hareketler
                         </a>
                         <a class='btn-modern btn-info-modern btn-xs-modern' data-value='$barcode->id' href='$editUrl' title='Barkod Detayı'>
                             <i class='fas fa-eye'></i> Detay
-                        </a>
+                        </a>";
+
+                    // Granilya'ya Aktar butonu
+                    $user = auth()->user();
+                    $statusManager = app(\App\Services\BarcodeStatusManager::class);
+                    if ($user->permissions->whereIn('id', [\App\Models\Permission::LAB_PROCESSES, \App\Models\Permission::MANAGEMENT])->isNotEmpty() &&
+                        $statusManager->canTransition($barcode, \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)) {
+                        $actionHtml .= "
+                        <button class='btn-modern btn-warning-modern btn-xs-modern' onclick='transferToGranilya($barcode->id, \"$granilyaUrl\")' title='Granilya Sistemine Aktar'>
+                            <i class='fas fa-share-square'></i> Granilya
+                        </button>";
+                    }
+
+                    $actionHtml .= "
                         <button class='btn-modern btn-danger-modern btn-xs-modern' data-id='$barcode->id' data-action='$deleteUrl' onclick='deleteConfirmation($barcode->id)' title='Barkodu Sil'>
                             <i class='fas fa-trash'></i> Sil
                         </button>
                     </div>";
+                    
+                    return $actionHtml;
                 })
                 ->rawColumns(['action', 'status', 'isMerged', 'isCorrection', 'barcodeId', 'loadNumber'])
                 ->make(true);
@@ -1367,5 +1384,45 @@ class BarcodeController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    /**
+     * Transfer the barcode to Granilya stock.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function transferToGranilya($id)
+    {
+        try {
+            $barcode = Barcode::findOrFail($id);
+
+            // Yetki kontrolü (Laboratuvar veya Yönetim yetkisi olan yapabilir)
+            $user = auth()->user();
+            if ($user->permissions->whereIn('id', [\App\Models\Permission::LAB_PROCESSES, \App\Models\Permission::MANAGEMENT])->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bu işlem için yetkiniz yok.'
+                ], 403);
+            }
+
+            // Durum geçişi (BarcodeStatusManager'daki kurallara takılmamak için methodu kullan veya transitionTo çağır)
+            $barcode->transitionTo(Barcode::STATUS_TRANSFERRED_TO_GRANILYA);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Barkod başarıyla Granilya sistemine aktarıldı.',
+                'status_name' => Barcode::getStatusName($barcode->status)
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Granilya Transfer Error: ' . $e->getMessage(), [
+                'barcode_id' => $id,
+                'user_id' => auth()->id()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'İşlem sırasında bir hata oluştu: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

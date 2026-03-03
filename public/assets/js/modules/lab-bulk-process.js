@@ -198,16 +198,18 @@
 
     function updateBulkButtons() {
         const hasSelection = selectedBarcodes.length > 0;
-        let canPreApprove = hasSelection, canControlRepeat = hasSelection, canShipmentApprove = hasSelection, canReject = hasSelection;
+        let canPreApprove = hasSelection, canControlRepeat = hasSelection, canShipmentApprove = hasSelection, canReject = hasSelection, canTransferToGranilya = hasSelection;
 
         if (hasSelection) {
             for (let id of selectedBarcodes) {
                 const status = barcodeStatuses[id];
                 if (status === undefined) continue;
-                if (status === 1) canShipmentApprove = false;
-                else if (status === 3) canPreApprove = false;
-                else if (status === 2) { canShipmentApprove = false; canControlRepeat = false; }
-                else if (status === 4 || status === 5) { canPreApprove = false; canControlRepeat = false; canShipmentApprove = false; canReject = false; }
+                if (status === 1) { canShipmentApprove = false; canTransferToGranilya = false; }
+                else if (status === 3) { canPreApprove = false; }
+                else if (status === 2) { canShipmentApprove = false; canControlRepeat = false; canTransferToGranilya = false; }
+                else if (status === 4) { canPreApprove = false; canControlRepeat = false; canShipmentApprove = false; canReject = false; }
+                else if (status === 5) { canPreApprove = false; canControlRepeat = false; canShipmentApprove = false; canReject = false; }
+                else { canTransferToGranilya = false; } // Diğer tüm durumlarda (teslim edildi vs) granilya'ya aktarılamaz
             }
         }
 
@@ -215,6 +217,7 @@
         $('#controlRepeatBtn').prop('disabled', !canControlRepeat);
         $('#shipmentApprovedBtn').prop('disabled', !canShipmentApprove);
         $('#rejectBtn').prop('disabled', !canReject);
+        $('#transferToGranilyaBtn').prop('disabled', !canTransferToGranilya);
 
         $('#rejectionReasonsSection').toggle(canReject && hasSelection);
         
@@ -251,6 +254,7 @@
             case 'control_repeat': actionText = 'Kontrol Tekrarı'; break;
             case 'shipment_approved': actionText = 'Sevk Onaylı'; break;
             case 'reject': actionText = 'Reddet'; break;
+            case 'transfer_to_granilya': actionText = 'Granilya\'ya Aktar'; break;
         }
 
         $('#confirmAction').text(actionText);

@@ -82,6 +82,7 @@ class StockController extends Controller
                 $stock->shipment_approved_quantity = $filteredStock->shipment_approved_quantity;
                 $stock->customer_transfer_quantity = $filteredStock->customer_transfer_quantity;
                 $stock->delivered_quantity = $filteredStock->delivered_quantity;
+                $stock->transferred_to_granilya_quantity = $filteredStock->transferred_to_granilya_quantity;
                 $stock->merged_quantity = $filteredStock->merged_quantity;
             } else {
                 // Tarih filtrelenmiş veri yoksa 0 olarak ayarla
@@ -92,6 +93,7 @@ class StockController extends Controller
                 $stock->shipment_approved_quantity = 0;
                 $stock->customer_transfer_quantity = 0;
                 $stock->delivered_quantity = 0;
+                $stock->transferred_to_granilya_quantity = 0;
                 $stock->merged_quantity = 0;
             }
             
@@ -112,7 +114,7 @@ class StockController extends Controller
             $stock->total_production = $stock->waiting_quantity + $stock->control_repeat_quantity + 
                                      $stock->pre_approved_quantity + $stock->rejected_quantity + 
                                      $stock->shipment_approved_quantity + $stock->customer_transfer_quantity + 
-                                     $stock->delivered_quantity + $stock->merged_quantity;
+                                     $stock->delivered_quantity + $stock->transferred_to_granilya_quantity + $stock->merged_quantity;
             
             // Red oranı
             $totalQuantity = $stock->total_production;
@@ -516,7 +518,7 @@ class StockController extends Controller
             $stock->total_production = $stock->waiting_quantity + $stock->control_repeat_quantity + 
                                      $stock->pre_approved_quantity + $stock->rejected_quantity + 
                                      $stock->shipment_approved_quantity + $stock->customer_transfer_quantity + 
-                                     $stock->delivered_quantity + $stock->merged_quantity;
+                                     $stock->delivered_quantity + $stock->transferred_to_granilya_quantity + $stock->merged_quantity;
             
             // Red oranı
             $totalQuantity = $stock->total_production;

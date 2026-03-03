@@ -22,6 +22,7 @@ class Barcode extends Model
     const STATUS_CORRECTED = 8; //'Düzeltme Faaliyetinde Kullanıldı';
     const STATUS_CUSTOMER_TRANSFER = 9; //'Müşteri Transfer';
     const STATUS_DELIVERED = 10; //'Teslim Edildi';
+    const STATUS_TRANSFERRED_TO_GRANILYA = 11; //'Granilya\'ya Aktarıldı';
 
     // Eski durumlar (geriye uyumluluk için)
     const STATUS_ACCEPTED = 3; //'Ön Onaylı' - eski STATUS_ACCEPTED ile aynı
@@ -39,6 +40,7 @@ class Barcode extends Model
         self::STATUS_CORRECTED => 'Düzeltme Faaliyetinde Kullanıldı',
         self::STATUS_CUSTOMER_TRANSFER => 'Müşteri Transfer',
         self::STATUS_DELIVERED => 'Teslim Edildi',
+        self::STATUS_TRANSFERRED_TO_GRANILYA => 'Granilya\'ya Aktarıldı',
         self::STATUS_MERGED => 'Birleştirildi',
     ];
 
@@ -66,6 +68,7 @@ class Barcode extends Model
         self::STATUS_SHIPMENT_APPROVED => 'Sevk Onaylı',
         self::STATUS_CUSTOMER_TRANSFER => 'Müşteri Transfer',
         self::STATUS_DELIVERED => 'Teslim Edildi',
+        self::STATUS_TRANSFERRED_TO_GRANILYA => 'Granilya\'ya Aktarıldı',
     ];
 
     const EVENT_CREATED = 1;
@@ -237,6 +240,13 @@ class Barcode extends Model
                 if ($oldStatus == self::STATUS_REJECTED) {
                     $this->is_exceptionally_approved = true;
                 }
+                break;
+                
+            case self::STATUS_TRANSFERRED_TO_GRANILYA:
+                // Granilya'ya transfer edildiğinde depo bilgilerini boşalt, Frit stoğundan düşmüş olsun
+                $this->warehouse_id = null;
+                $this->warehouse_transferred_at = null;
+                $this->warehouse_transferred_by = null;
                 break;
         }
 

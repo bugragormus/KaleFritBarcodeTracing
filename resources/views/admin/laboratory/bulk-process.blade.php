@@ -834,6 +834,12 @@
                                         title="Barkod seçmek için yukarıdaki checkbox'ları işaretleyin">
                                     <i class="fas fa-times"></i> Reddet
                                 </button>
+                                @if(auth()->user()->permissions->whereIn('id', [\App\Models\Permission::LAB_PROCESSES, \App\Models\Permission::MANAGEMENT])->isNotEmpty())
+                                <button class="btn-modern btn-warning-modern flex-fill" onclick="showConfirmation('transfer_to_granilya')" disabled id="transferToGranilyaBtn"
+                                        title="Sadece ön onaylı, sevk onaylı veya reddedildi durumundaki barkodlar için kullanılabilir">
+                                    <i class="fas fa-share-square"></i> Granilya'ya Aktar
+                                </button>
+                                @endif
                             </div>
                         </div>
                     </div>

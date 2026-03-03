@@ -54,9 +54,10 @@ class StockCalculationService
                 ->selectRaw("{$statusSum(Barcode::STATUS_PRE_APPROVED)} as pre_approved_quantity")
                 ->selectRaw("{$statusSum(Barcode::STATUS_REJECTED)} as rejected_quantity")
                 ->selectRaw("{$statusSum(Barcode::STATUS_SHIPMENT_APPROVED)} as shipment_approved_quantity")
-                ->selectRaw("{$statusSum(Barcode::STATUS_CUSTOMER_TRANSFER)} as customer_transfer_quantity")
-                ->selectRaw("{$statusSum(Barcode::STATUS_DELIVERED)} as delivered_quantity")
-                ->selectRaw("{$statusSum(Barcode::STATUS_MERGED)} as merged_quantity");
+            ->selectRaw("{$statusSum(Barcode::STATUS_CUSTOMER_TRANSFER)} as customer_transfer_quantity")
+            ->selectRaw("{$statusSum(Barcode::STATUS_DELIVERED)} as delivered_quantity")
+            ->selectRaw("{$statusSum(Barcode::STATUS_TRANSFERRED_TO_GRANILYA)} as transferred_to_granilya_quantity")
+            ->selectRaw("{$statusSum(Barcode::STATUS_MERGED)} as merged_quantity");
 
             if ($startDate) {
                 $query->where('barcodes.created_at', '>=', $startDate);
@@ -155,13 +156,14 @@ class StockCalculationService
     public function calculateTotalStockQuantity($stockId)
     {
         return Cache::remember("total_stock_quantity_{$stockId}", 300, function () use ($stockId) {
-            return Barcode::query()
-                ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
-                ->where('barcodes.stock_id', $stockId)
-                ->whereNull('barcodes.deleted_at')
-                ->sum(DB::raw('COALESCE(quantities.quantity, 0)')) ?: 0;
-        });
-    }
+        return Barcode::query()
+            ->leftJoin('quantities', 'quantities.id', '=', 'barcodes.quantity_id')
+            ->where('barcodes.stock_id', $stockId)
+            ->whereNull('barcodes.deleted_at')
+            ->where('barcodes.status', '!=', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+            ->where('barcodes.status', '!=', Barcode::STATUS_MERGED) // Birleştirilenleri de saymıyoruz genelde, ama emin olmak için granilya'yı kesin hariç tutuyoruz
+            ->sum(DB::raw('COALESCE(quantities.quantity, 0)')) ?: 0;
+    });    }
 
     /**
      * Stok durumuna göre miktar hesapla (Cache ile)
@@ -314,6 +316,7 @@ class StockCalculationService
                     DB::raw("{$statusSum(Barcode::STATUS_CUSTOMER_TRANSFER)} as customer_transfer_quantity"),
                     DB::raw("{$statusSum(Barcode::STATUS_DELIVERED)} as delivered_quantity"),
                     DB::raw("{$statusSum(Barcode::STATUS_REJECTED)} as rejected_quantity"),
+                    DB::raw("{$statusSum(Barcode::STATUS_TRANSFERRED_TO_GRANILYA)} as transferred_to_granilya_quantity"),
                     DB::raw("{$statusSum(Barcode::STATUS_MERGED)} as merged_quantity"),
                     DB::raw('MIN(barcodes.created_at) as first_production_date'),
                     DB::raw('MAX(barcodes.created_at) as last_production_date')

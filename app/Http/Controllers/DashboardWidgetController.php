@@ -96,6 +96,7 @@ class DashboardWidgetController extends Controller
             'pre_approved' => Barcode::where('status', Barcode::STATUS_PRE_APPROVED)->count(),
             'shipment_approved' => Barcode::where('status', Barcode::STATUS_SHIPMENT_APPROVED)->count(),
             'rejected' => Barcode::where('status', Barcode::STATUS_REJECTED)->count(),
+            'transferred_to_granilya' => Barcode::where('status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)->count(),
             'customer_transfer' => Barcode::where('status', Barcode::STATUS_CUSTOMER_TRANSFER)->count(),
             'delivered' => Barcode::where('status', Barcode::STATUS_DELIVERED)->count(),
         ];

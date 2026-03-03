@@ -236,9 +236,9 @@
         
         .status-waiting { background: #fff3cd; color: #856404; }
         .status-control-repeat { background: #e3f2fd; color: #1976d2; }
-        .status-pre-approved { background: #e2d9f3; color: #6f42c1; }
         .status-shipment-approved { background: #ffeaa7; color: #856404; }
         .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-transferred-to-granilya { background: #e2e3e5; color: #383d41; }
 
         .status-item > div {
             font-size: 1.3rem;
@@ -489,6 +489,10 @@
                         <div class="status-item status-rejected">
                             <div>{{ number_format($warehouse->rejected_kg, 0) }}</div>
                             <small>Reddedildi (KG)</small>
+                        </div>
+                        <div class="status-item status-transferred-to-granilya">
+                            <div>{{ number_format($warehouse->transferred_to_granilya_kg ?? 0, 0) }}</div>
+                            <small>Granilya (KG)</small>
                         </div>
                     </div>
 

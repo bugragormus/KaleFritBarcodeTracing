@@ -1285,30 +1285,16 @@
                     
                     <!-- Quick Actions -->
                     <div class="quick-actions d-none d-lg-flex">
-                        <a href="{{ route('barcode.create') }}" class="action-btn primary">
-                            <i class="mdi mdi-plus"></i>
-                            <span>Barkod Oluştur</span>
-                        </a>
-                        <a href="{{ route('barcode.qr-read') }}" class="action-btn secondary">
+                        <a href="{{ route('granilya.barcode') }}" class="action-btn secondary">
                             <i class="fas fa-qrcode"></i>
-                            <span>Barkod Sorgula</span>
-                        </a>
-                        <a href="{{ route('barcode.printPage.layout') }}" class="action-btn quaternary">
-                            <i class="fas fa-print"></i>
-                            <span>Barkod Yazdır</span>
+                            <span>Palet Sorgu</span>
                         </a>
                     </div>
 
                     <!-- Mobile Quick Actions -->
                     <div class="mobile-quick-actions d-lg-none">
-                        <a href="{{ route('barcode.create') }}" class="mobile-action-btn primary">
-                            <i class="mdi mdi-plus"></i>
-                        </a>
-                        <a href="{{ route('barcode.qr-read') }}" class="mobile-action-btn secondary">
+                        <a href="{{ route('granilya.barcode') }}" class="mobile-action-btn secondary">
                             <i class="fas fa-qrcode"></i>
-                        </a>
-                        <a href="{{ route('barcode.printPage.layout') }}" class="mobile-action-btn quaternary">
-                            <i class="fas fa-print"></i>
                         </a>
                     </div>
 
@@ -1379,72 +1365,52 @@
                 
                 <ul class="nav-menu-list">
 
-                    <li class="nav-item {{ request()->is('anasayfa') ? 'active' : ''}}">
-                        <a href="{{ route('home') }}" class="nav-link">
+                    <li class="nav-item {{ request()->is('granilya/anasayfa') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.dashboard') }}" class="nav-link">
                             <i class="fas fa-home"></i>
                             <span>Ana Sayfa</span>
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('kullanici/*') ? 'active' : ''}}">
-                        <a href="{{ route('user.index') }}" class="nav-link">
-                            <i class="fas fa-users"></i>
-                            <span>Kullanıcı Yönetimi</span>
+                    <li class="nav-item {{ request()->is('granilya/uretim') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.production') }}" class="nav-link">
+                            <i class="fas fa-industry"></i>
+                            <span>Üretim Girişi</span>
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('barkod/*') ? 'active' : ''}}">
-                        <a href="{{ route('barcode.index') }}" class="nav-link">
-                            <i class="fas fa-qrcode"></i>
-                            <span>Barkod Yönetimi</span>
+                    <li class="nav-item {{ request()->is('granilya/stok') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.stock') }}" class="nav-link">
+                            <i class="fas fa-boxes"></i>
+                            <span>Stok Durumu</span>
                         </a>
                     </li>
 
-                    @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::LAB_PROCESSES))
-                    <li class="nav-item {{ request()->is('laboratuvar/*') ? 'active' : ''}}">
-                        <a href="{{ route('laboratory.dashboard') }}" class="nav-link">
+                    <li class="nav-item {{ request()->is('granilya/laboratuvar') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.laboratory') }}" class="nav-link">
                             <i class="fas fa-flask"></i>
                             <span>Laboratuvar</span>
                         </a>
                     </li>
-                    @endif
 
-                    <li class="nav-item {{ request()->is('stok/*') ? 'active' : ''}}">
-                        <a href="{{ route('stock.index') }}" class="nav-link">
-                            <i class="fas fa-boxes"></i>
-                            <span>Stok Yönetimi</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item {{ request()->is('warehouse/*') ? 'active' : ''}}">
-                        <a href="{{ route('warehouse.index') }}" class="nav-link">
-                            <i class="fas fa-warehouse"></i>
-                            <span>Depo Yönetimi</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item dropdown {{ request()->is('kiln/*') || request()->is('quantity/*') || request()->is('departman/*') ? 'active' : ''}}">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                            <i class="fas fa-archive"></i>
-                            <span>Diğer</span>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="{{ route('company.index') }}">
-                                <i class="fas fa-building"></i> Firma Yönetimi
-                            </a>
-                            <a class="dropdown-item" href="{{ route('kiln.index') }}">
-                                <i class="fas fa-fire"></i> Fırın Yönetimi
-                            </a>
-                            <a class="dropdown-item" href="{{ route('quantity.index') }}">
-                                <i class="fas fa-calculator"></i> Adet Yönetimi
-                            </a>
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{{ route('dashboard') }}" class="nav-link">
+                    <li class="nav-item {{ request()->is('granilya/rapor') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.report') }}" class="nav-link">
                             <i class="fas fa-chart-bar"></i>
                             <span>Üretim Raporu</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ request()->is('granilya/satis') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.sales') }}" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Satış Ekranı</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item {{ request()->is('granilya/sorgu') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.barcode') }}" class="nav-link">
+                            <i class="fas fa-qrcode"></i>
+                            <span>Palet Sorgu</span>
                         </a>
                     </li>
 

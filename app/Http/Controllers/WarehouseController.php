@@ -41,7 +41,8 @@ class WarehouseController extends Controller
                 $query->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ]);
             },
             'barcodes as waiting_count' => function($query) {
@@ -75,7 +76,8 @@ class WarehouseController extends Controller
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ])
                 ->with('quantity')
                 ->get()
@@ -127,12 +129,21 @@ class WarehouseController extends Controller
                     return $barcode->quantity ? $barcode->quantity->quantity : 0;
                 });
             
+            $warehouse->transferred_to_granilya_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
             // Son işlem tarihi (depoda bulunan barkodlardan)
             $lastBarcode = $warehouse->barcodes()
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ])
                 ->latest('created_at')
                 ->first();
@@ -143,7 +154,8 @@ class WarehouseController extends Controller
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ])
                 ->where('created_at', '>=', now()->subDays(90))
                 ->count();
@@ -340,7 +352,8 @@ class WarehouseController extends Controller
                 $query->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ]);
             },
             'barcodes as waiting_count' => function($query) {
@@ -366,7 +379,8 @@ class WarehouseController extends Controller
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ])
                 ->with('quantity')
                 ->get()
@@ -417,11 +431,20 @@ class WarehouseController extends Controller
                     return $barcode->quantity ? $barcode->quantity->quantity : 0;
                 });
             
+            $warehouse->transferred_to_granilya_kg = $warehouse->barcodes()
+                ->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+                ->with('quantity')
+                ->get()
+                ->sum(function($barcode) {
+                    return $barcode->quantity ? $barcode->quantity->quantity : 0;
+                });
+            
             $lastBarcode = $warehouse->barcodes()
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ])
                 ->latest('created_at')
                 ->first();
@@ -431,7 +454,8 @@ class WarehouseController extends Controller
                 ->whereNotIn('status', [
                     \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER,
                     \App\Models\Barcode::STATUS_DELIVERED,
-                    \App\Models\Barcode::STATUS_MERGED
+                    \App\Models\Barcode::STATUS_MERGED,
+                    \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ])
                 ->where('created_at', '>=', now()->subDays(90))
                 ->count();

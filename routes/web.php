@@ -38,7 +38,27 @@ Auth::routes();
 
 Route::middleware('auth')
     ->group(function () {
-        Route::get('/anasayfa', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+        
+        // Sistem Seçim Ekranı Route'ları
+        Route::get('/sistem-secimi', [App\Http\Controllers\SystemSelectionController::class, 'index'])->name('system.selection.index');
+        Route::post('/sistem-secimi', [App\Http\Controllers\SystemSelectionController::class, 'store'])->name('system.selection.store');
+        Route::get('/sistem-degistir', [App\Http\Controllers\SystemSelectionController::class, 'change'])->name('system.selection.change');
+        
+        // Granilya Sistemi Route'ları
+        Route::prefix('granilya')->as('granilya.')->group(function () {
+            Route::get('/anasayfa', [App\Http\Controllers\Granilya\DashboardController::class, 'index'])->name('dashboard');
+            Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
+            Route::get('/stok', [App\Http\Controllers\Granilya\PageController::class, 'stock'])->name('stock');
+            Route::get('/laboratuvar', [App\Http\Controllers\Granilya\PageController::class, 'laboratory'])->name('laboratory');
+            Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
+            Route::get('/satis', [App\Http\Controllers\Granilya\PageController::class, 'sales'])->name('sales');
+            Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
+        });
+
+        // Bu routes grubuna giren her şey ayrıyeten system.selection middleware istiyor
+        Route::middleware('system.selection')->group(function () {
+            
+            Route::get('/anasayfa', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
         Route::as('user.')->prefix('kullanici')->group(function () {
             Route::post('/', [UserController::class, 'store'])->name('store');
@@ -90,6 +110,7 @@ Route::middleware('auth')
             Route::put('/{barkod}', [BarcodeController::class, 'update'])->name('update');
             Route::get('/{barkod}', [BarcodeController::class, 'show'])->name('show');
             Route::delete('/{barkod}', [BarcodeController::class, 'destroy'])->name('destroy');
+            Route::post('/transfer-to-granilya/{barkod}', [BarcodeController::class, 'transferToGranilya'])->name('transferToGranilya');
             Route::get('/{barkod}/duzenle', [BarcodeController::class, 'edit'])->name('edit');
             Route::get('/qr/scan', [BarcodeController::class, 'qrRead'])->name('qr-read');
             Route::get('/rapor/barcode/hareketler', [BarcodeController::class, 'historyIndex'])->name('historyIndex');
@@ -181,5 +202,7 @@ Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadCom
             Route::get('/', [DynamicStockController::class, 'index'])->name('index');
             Route::put('/update', [DynamicStockController::class, 'update'])->name('update');
             Route::get('/total', [DynamicStockController::class, 'getTotal'])->name('total');
-        });
-});
+        }); 
+
+    }); // End of system.selection middleware group
+}); // End of auth middleware group

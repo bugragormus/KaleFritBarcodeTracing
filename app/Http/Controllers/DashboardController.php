@@ -252,6 +252,16 @@ class DashboardController extends Controller
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
 
+        // Granilya'ya Aktarılan miktar (ton)
+        $transferredQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status = ?
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate, Barcode::STATUS_TRANSFERRED_TO_GRANILYA])[0]->total_quantity ?? 0;
+
         // Toplam barkod sayısı
         $totalBarcodes = DB::select('
             SELECT COUNT(*) as total_count
@@ -314,6 +324,7 @@ class DashboardController extends Controller
             'testing_quantity' => $testingQuantity,
             'delivery_quantity' => $deliveryQuantity,
             'rejected_quantity' => $rejectedQuantity,
+            'transferred_quantity' => $transferredQuantity,
             'with_correction_output' => $correctionOutputQuantity,
             'without_correction_output' => $nonCorrectionOutputQuantity,
             'correction_input_used' => $correctionInputUsed,
@@ -486,6 +497,16 @@ class DashboardController extends Controller
             AND barcodes.deleted_at IS NULL
         ', [$startDate, $endDate, Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])[0]->total_quantity ?? 0;
 
+        // Granilya'ya Aktarılan miktar (ton)
+        $transferredQuantity = DB::select('
+            SELECT COALESCE(SUM(quantities.quantity), 0) as total_quantity
+            FROM barcodes
+            LEFT JOIN quantities ON quantities.id = barcodes.quantity_id
+            WHERE barcodes.created_at BETWEEN ? AND ?
+            AND barcodes.status = ?
+            AND barcodes.deleted_at IS NULL
+        ', [$startDate, $endDate, Barcode::STATUS_TRANSFERRED_TO_GRANILYA])[0]->total_quantity ?? 0;
+
         // Düzeltme faaliyeti ile oluşturulan üretim çıktısı (ton)
         $correctionOutputQuantity = DB::select('
             SELECT COALESCE(SUM(q.quantity), 0) as total_quantity
@@ -541,6 +562,7 @@ class DashboardController extends Controller
             'testing_quantity' => $testingQuantity,
             'delivery_quantity' => $deliveryQuantity,
             'rejected_quantity' => $rejectedQuantity,
+            'transferred_quantity' => $transferredQuantity,
             // Düzeltme faaliyeti detayları
             'with_correction_output' => $correctionOutputQuantity,
             'without_correction_output' => $nonCorrectionOutputQuantity,
@@ -551,6 +573,9 @@ class DashboardController extends Controller
                 ->count(),
             'rejected_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', [Barcode::STATUS_REJECTED, Barcode::STATUS_MERGED])
+                ->count(),
+            'transferred_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
                 ->count(),
             'testing_barcodes' => Barcode::whereBetween('created_at', [$startDate, $endDate])
                 ->whereIn('status', [Barcode::STATUS_WAITING, Barcode::STATUS_CONTROL_REPEAT])
@@ -614,6 +639,11 @@ class DashboardController extends Controller
                 ])
                 ->sum('quantities.quantity') ?? 0;
 
+            // Granilya'ya Aktarılan miktar (ton)
+            $transferredQuantity = (clone $baseQuery)
+                ->where('barcodes.status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+                ->sum('quantities.quantity') ?? 0;
+
             // Test sürecinde olan miktar (ton)
             $testingQuantity = (clone $baseQuery)
                 ->whereIn('barcodes.status', [
@@ -642,6 +672,7 @@ class DashboardController extends Controller
                 'testing_quantity' => $testingQuantity,
                 'delivery_quantity' => $deliveryQuantity,
                 'rejected_quantity' => $rejectedQuantity,
+                'transferred_quantity' => $transferredQuantity,
                 'accepted_count' => (clone $baseCountQuery)
                     ->whereIn('status', [
                         Barcode::STATUS_PRE_APPROVED,
@@ -655,6 +686,9 @@ class DashboardController extends Controller
                         Barcode::STATUS_REJECTED,
                         Barcode::STATUS_MERGED,
                     ])
+                    ->count(),
+                'transferred_count' => (clone $baseCountQuery)
+                    ->where('status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
                     ->count(),
                 'testing_count' => (clone $baseCountQuery)
                     ->whereIn('status', [
@@ -709,6 +743,8 @@ class DashboardController extends Controller
             Barcode::STATUS_REJECTED,
             Barcode::STATUS_MERGED,
         ]);
+
+        $transferredStatus = Barcode::STATUS_TRANSFERRED_TO_GRANILYA;
         
         $sql = "
             SELECT 
@@ -721,10 +757,12 @@ class DashboardController extends Controller
                 COALESCE(SUM(CASE WHEN barcodes.status IN ($testingStatuses) THEN quantities.quantity ELSE 0 END), 0) as testing_quantity,
                 COALESCE(SUM(CASE WHEN barcodes.status IN ($deliveryStatuses) THEN quantities.quantity ELSE 0 END), 0) as delivery_quantity,
                 COALESCE(SUM(CASE WHEN barcodes.status IN ($rejectedStatuses) THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status = $transferredStatus THEN quantities.quantity ELSE 0 END), 0) as transferred_quantity,
                 COUNT(CASE WHEN barcodes.status IN ($acceptedStatuses) THEN 1 END) as accepted_count,
                 COUNT(CASE WHEN barcodes.status IN ($testingStatuses) THEN 1 END) as testing_count,
                 COUNT(CASE WHEN barcodes.status IN ($deliveryStatuses) THEN 1 END) as delivery_count,
-                COUNT(CASE WHEN barcodes.status IN ($rejectedStatuses) THEN 1 END) as rejected_count
+                COUNT(CASE WHEN barcodes.status IN ($rejectedStatuses) THEN 1 END) as rejected_count,
+                COUNT(CASE WHEN barcodes.status = $transferredStatus THEN 1 END) as transferred_count
             FROM kilns
             LEFT JOIN barcodes ON kilns.id = barcodes.kiln_id 
                 AND barcodes.created_at BETWEEN ? AND ?
@@ -819,6 +857,8 @@ class DashboardController extends Controller
             Barcode::STATUS_MERGED,
         ]);
 
+        $transferredStatus = Barcode::STATUS_TRANSFERRED_TO_GRANILYA;
+
         $sql = "
             SELECT 
                 stocks.id as stock_id,
@@ -832,10 +872,12 @@ class DashboardController extends Controller
                 COALESCE(SUM(CASE WHEN barcodes.status IN ($testingStatuses) THEN quantities.quantity ELSE 0 END), 0) as testing_quantity,
                 COALESCE(SUM(CASE WHEN barcodes.status IN ($deliveryStatuses) THEN quantities.quantity ELSE 0 END), 0) as delivery_quantity,
                 COALESCE(SUM(CASE WHEN barcodes.status IN ($rejectedStatuses) THEN quantities.quantity ELSE 0 END), 0) as rejected_quantity,
+                COALESCE(SUM(CASE WHEN barcodes.status = $transferredStatus THEN quantities.quantity ELSE 0 END), 0) as transferred_quantity,
                 COUNT(CASE WHEN barcodes.status IN ($acceptedStatuses) THEN 1 END) as accepted_count,
                 COUNT(CASE WHEN barcodes.status IN ($testingStatuses) THEN 1 END) as testing_count,
                 COUNT(CASE WHEN barcodes.status IN ($deliveryStatuses) THEN 1 END) as delivery_count,
                 COUNT(CASE WHEN barcodes.status IN ($rejectedStatuses) THEN 1 END) as rejected_count,
+                COUNT(CASE WHEN barcodes.status = $transferredStatus THEN 1 END) as transferred_count,
                 ROUND(
                     (COUNT(CASE WHEN barcodes.status IN ($acceptedStatuses) THEN 1 END) * 100.0 / NULLIF(COUNT(barcodes.id), 0)), 2
                 ) as acceptance_rate

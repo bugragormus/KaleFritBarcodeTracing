@@ -58,6 +58,11 @@ class BarcodeStatusManager
             unset($statuses[Barcode::STATUS_SHIPMENT_APPROVED]);
         }
 
+        // Granilya'ya Aktar seçeneğini sadece Lab veya Yönetim yetkisi olanlar görebilsin
+        if ($permissions->whereIn('id', [Permission::LAB_PROCESSES, Permission::MANAGEMENT])->isEmpty()) {
+            unset($statuses[Barcode::STATUS_TRANSFERRED_TO_GRANILYA]);
+        }
+
         // Müşteri transfer işlemleri yetkisine sahip değilse
         if ($permissions->where('id', Permission::CUSTOMER_TRANSFER)->isEmpty()) {
             unset(
@@ -117,20 +122,23 @@ class BarcodeStatusManager
             case Barcode::STATUS_PRE_APPROVED:
                 return in_array($newStatus, [
                     Barcode::STATUS_SHIPMENT_APPROVED,
-                    Barcode::STATUS_REJECTED
+                    Barcode::STATUS_REJECTED,
+                    Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ]);
 
             case Barcode::STATUS_SHIPMENT_APPROVED:
                 return in_array($newStatus, [
                     Barcode::STATUS_CUSTOMER_TRANSFER,
-                    Barcode::STATUS_DELIVERED
+                    Barcode::STATUS_DELIVERED,
+                    Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ]);
 
             case Barcode::STATUS_REJECTED:
                 return in_array($newStatus, [
                     Barcode::STATUS_CORRECTED,
                     Barcode::STATUS_CUSTOMER_TRANSFER,
-                    Barcode::STATUS_DELIVERED
+                    Barcode::STATUS_DELIVERED,
+                    Barcode::STATUS_TRANSFERRED_TO_GRANILYA
                 ]);
 
             case Barcode::STATUS_CUSTOMER_TRANSFER:

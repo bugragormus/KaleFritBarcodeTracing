@@ -86,6 +86,7 @@ class GeneralInfoSheet implements FromArray, WithTitle, WithStyles
             $data[] = ['Müşteri Transfer', number_format($this->stockDetails->customer_transfer_quantity, 0)];
             $data[] = ['Teslim Edildi', number_format($this->stockDetails->delivered_quantity, 0)];
             $data[] = ['Reddedildi', number_format($this->stockDetails->rejected_quantity, 0)];
+            $data[] = ['Granilyaya Aktarılan', number_format($this->stockDetails->transferred_to_granilya_quantity, 0)];
             $data[] = ['Birleştirildi', number_format($this->stockDetails->merged_quantity, 0)];
         }
 

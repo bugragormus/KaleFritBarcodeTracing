@@ -56,6 +56,9 @@ class LaboratoryController extends Controller
             'rejected' => Barcode::where('status', Barcode::STATUS_REJECTED)
                 ->whereBetween('created_at', [$startDateTime, $endDateTime])
                 ->count(),
+            'transferred_to_granilya' => Barcode::where('status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+                ->whereBetween('created_at', [$startDateTime, $endDateTime])
+                ->count(),
             'total_processed' => Barcode::whereNotNull('lab_at')
                 ->whereBetween('lab_at', [$startDateTime, $endDateTime])
                 ->count(),
@@ -407,7 +410,7 @@ class LaboratoryController extends Controller
         $request->validate([
             'barcode_ids' => 'required|array',
             'barcode_ids.*' => 'exists:barcodes,id',
-            'action' => 'required|in:pre_approved,control_repeat,shipment_approved,reject',
+            'action' => 'required|in:pre_approved,control_repeat,shipment_approved,reject,transfer_to_granilya',
             'note' => 'nullable|string|max:500',
             'rejection_reasons' => 'required_if:action,reject|array',
             'rejection_reasons.*' => 'exists:rejection_reasons,id'
@@ -423,6 +426,29 @@ class LaboratoryController extends Controller
                 // İş akışı kontrolü
                 $canProcess = true;
                 $errorMessage = '';
+                
+                if ($request->action === 'transfer_to_granilya') {
+                    $statusManager = app(\App\Services\BarcodeStatusManager::class);
+                    if (!$statusManager->canTransition($barcode, Barcode::STATUS_TRANSFERRED_TO_GRANILYA)) {
+                        $errors[] = "Barkod #{$barcodeId}: Bu barkod durumu Granilya'ya aktarım için uygun değil.";
+                        continue;
+                    }
+                    
+                    $barcode->transitionTo(Barcode::STATUS_TRANSFERRED_TO_GRANILYA);
+                    $barcode->lab_note = $request->note;
+                    $barcode->save();
+                    
+                    \App\Models\BarcodeHistory::create([
+                        'barcode_id' => $barcode->id,
+                        'status' => $barcode->status,
+                        'user_id' => Auth::id(),
+                        'description' => Barcode::EVENT_UPDATED,
+                        'changes' => $barcode->getChanges(),
+                    ]);
+                    
+                    $processed++;
+                    continue; // Skip the rest of the loop for this barcode
+                }
                 
                 // Beklemede (1) durumundaki barkodlar için
                 if ($barcode->status === Barcode::STATUS_WAITING) {
@@ -601,6 +627,8 @@ class LaboratoryController extends Controller
                 ->where('status', Barcode::STATUS_PRE_APPROVED)->count(),
             'rejected' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_REJECTED)->count(),
+            'transferred_to_granilya' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)->count(),
             'waiting' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_WAITING)->count(),
             'control_repeat' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
@@ -659,6 +687,8 @@ class LaboratoryController extends Controller
                 ->where('status', Barcode::STATUS_SHIPMENT_APPROVED)->count(),
             'rejected' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
                 ->where('status', Barcode::STATUS_REJECTED)->count(),
+            'transferred_to_granilya' => Barcode::whereBetween('lab_at', [$startDate, $endDate])
+                ->where('status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)->count(),
         ];
 
         // Red sebepleri analizi
