@@ -128,6 +128,11 @@
             color: white;
         }
         
+        .status-transferred-to-granilya {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        
         .status-delivered {
             background: linear-gradient(135deg, #20c997, #17a2b8);
             color: white;
@@ -321,6 +326,9 @@
                                                 break;
                                             case \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER: 
                                                 $statusClass = 'status-customer-transfer'; 
+                                                break;
+                                            case \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA: 
+                                                $statusClass = 'status-transferred-to-granilya'; 
                                                 break;
                                             case \App\Models\Barcode::STATUS_DELIVERED: 
                                                 $statusClass = 'status-delivered'; 

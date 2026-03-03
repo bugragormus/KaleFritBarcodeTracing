@@ -462,13 +462,13 @@
                             </a>
                         </div>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="{{ route('barcode.historyIndex') }}" class="quick-action-item">
+                            <a href="{{ route('dashboard') }}" class="quick-action-item">
                                 <div class="quick-action-icon bg-success">
-                                    <i class="fas fa-history"></i>
+                                    <i class="fas fa-chart-pie"></i>
                                 </div>
                                 <div class="quick-action-text">
-                                    <h6>Barkod Hareketleri</h6>
-                                    <small>Hareket geçmişi</small>
+                                    <h6>Üretim Raporu</h6>
+                                    <small>Üretim verileri</small>
                                 </div>
                             </a>
                         </div>
