@@ -213,7 +213,7 @@
                         @csrf
                         @method('PUT')
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <div class="form-group-modern">
                                     <label class="form-label-modern">
                                         Firma Adı <span class="required-field">*</span>
@@ -231,34 +231,6 @@
                                             {{ $errors->first('name') }}
                                         </span>
                                     @endif
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6">
-                                <div class="form-group-modern">
-                                    <label class="form-label-modern">
-                                        Firma Kodu
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        name="code" 
-                                        id="code" 
-                                        class="form-control-modern" 
-                                        placeholder="Firma kodu giriniz (isteğe bağlı)" 
-                                        value="{{ old('code', $firma->code) }}"
-                                    />
-                                    @if($errors->has('code'))
-                                        <span class="error-message">
-                                            {{ $errors->first('code') }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                            
-                            <div class="col-lg-6 mt-2">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="customCheck1" name="is_active" value="1" {{ $firma->is_active ? 'checked' : '' }}>
-                                    <label class="custom-control-label font-weight-bold ml-1" for="customCheck1">Aktif</label>
                                 </div>
                             </div>
                         </div>

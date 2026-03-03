@@ -212,7 +212,7 @@
                     <form class="form" method="POST" action="{{ route('granilya.miktar.store') }}">
                         @csrf
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <div class="form-group-modern">
                                     <label class="form-label-modern">
                                         Miktar (KG) <span class="required-field">*</span>

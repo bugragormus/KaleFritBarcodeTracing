@@ -371,8 +371,7 @@
                         @else performance-poor
                         @endif">
                     </div>
-                    <div class="company-name">{{ $company->name }} <small>({{ $company->code ?? '-' }})</small></div>
-                    <div class="company-address">Durum: {{ $company->is_active ? 'Aktif' : 'Pasif' }}</div>
+                    <div class="company-name">{{ $company->name }}</div>
                 </div>
                 
                 <div class="company-body">

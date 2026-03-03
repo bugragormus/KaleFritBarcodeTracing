@@ -168,7 +168,6 @@
                     <thead>
                         <tr>
                             <th>Miktar</th>
-                            <th>Durum</th>
                             <th class="text-right">İşlemler</th>
                         </tr>
                     </thead>
@@ -176,13 +175,6 @@
                         @foreach($quantities as $quantity)
                             <tr>
                                 <td><strong>{{ $quantity->quantity }} KG</strong></td>
-                                <td>
-                                    @if($quantity->is_active)
-                                        <span class="badge badge-modern badge-success-modern">Aktif</span>
-                                    @else
-                                        <span class="badge badge-modern badge-danger-modern">Pasif</span>
-                                    @endif
-                                </td>
                                 <td class="text-right action-btns">
                                     <a href="{{ route('granilya.miktar.edit', $quantity->id) }}" class="btn btn-sm btn-primary shadow-sm mr-1">
                                         <i class="fas fa-edit"></i>

@@ -168,7 +168,6 @@
                     <thead>
                         <tr>
                             <th>Adı</th>
-                            <th>Durum</th>
                             <th class="text-right">İşlemler</th>
                         </tr>
                     </thead>
@@ -176,13 +175,6 @@
                         @foreach($sizes as $size)
                             <tr>
                                 <td><strong>{{ $size->name }}</strong></td>
-                                <td>
-                                    @if($size->is_active)
-                                        <span class="badge badge-modern badge-success-modern">Aktif</span>
-                                    @else
-                                        <span class="badge badge-modern badge-danger-modern">Pasif</span>
-                                    @endif
-                                </td>
                                 <td class="text-right action-btns">
                                     <a href="{{ route('granilya.boyut.edit', $size->id) }}" class="btn btn-sm btn-primary shadow-sm mr-1">
                                         <i class="fas fa-edit"></i>

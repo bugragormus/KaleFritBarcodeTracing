@@ -167,24 +167,14 @@
                 <table id="datatable" class="table table-modern dt-responsive nowrap">
                     <thead>
                         <tr>
-                            <th>Kod</th>
                             <th>Adı</th>
-                            <th>Durum</th>
                             <th class="text-right">İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($crushers as $crusher)
                             <tr>
-                                <td><span class="font-weight-bold text-secondary">{{ $crusher->code ?? '-' }}</span></td>
                                 <td><strong>{{ $crusher->name }}</strong></td>
-                                <td>
-                                    @if($crusher->is_active)
-                                        <span class="badge badge-modern badge-success-modern">Aktif</span>
-                                    @else
-                                        <span class="badge badge-modern badge-danger-modern">Pasif</span>
-                                    @endif
-                                </td>
                                 <td class="text-right action-btns">
                                     <a href="{{ route('granilya.kirici.edit', $crusher->id) }}" class="btn btn-sm btn-primary shadow-sm mr-1">
                                         <i class="fas fa-edit"></i>

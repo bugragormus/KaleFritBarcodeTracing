@@ -50,14 +50,11 @@ class CompanyController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-            'is_active' => 'boolean'
         ]);
 
         GranilyaCompany::create([
             'name' => $request->name,
-            'code' => $request->code,
-            'is_active' => $request->boolean('is_active', true)
+            'is_active' => true,
         ]);
 
         return redirect()->route('granilya.firma.index')->with('success', 'Firma başarıyla eklendi.');
@@ -86,14 +83,10 @@ class CompanyController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-            'is_active' => 'boolean'
         ]);
 
         $firma->update([
             'name' => $request->name,
-            'code' => $request->code,
-            'is_active' => $request->boolean('is_active', false)
         ]);
 
         return redirect()->route('granilya.firma.index')->with('success', 'Firma başarıyla güncellendi.');

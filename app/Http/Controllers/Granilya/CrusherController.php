@@ -32,14 +32,11 @@ class CrusherController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-            'is_active' => 'boolean'
         ]);
 
         GranilyaCrusher::create([
             'name' => $request->name,
-            'code' => $request->code,
-            'is_active' => $request->boolean('is_active', true)
+            'is_active' => true,
         ]);
 
         return redirect()->route('granilya.kirici.index')->with('success', 'Kırıcı makina başarıyla eklendi.');
@@ -68,14 +65,10 @@ class CrusherController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50',
-            'is_active' => 'boolean'
         ]);
 
         $kirici->update([
             'name' => $request->name,
-            'code' => $request->code,
-            'is_active' => $request->boolean('is_active', false)
         ]);
 
         return redirect()->route('granilya.kirici.index')->with('success', 'Kırıcı makina başarıyla güncellendi.');

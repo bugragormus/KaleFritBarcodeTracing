@@ -31,13 +31,12 @@ class QuantityController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1',
-            'is_active' => 'boolean'
+            'quantity' => 'required|numeric|min:0.01',
         ]);
 
         GranilyaQuantity::create([
             'quantity' => $request->quantity,
-            'is_active' => $request->boolean('is_active', true)
+            'is_active' => true,
         ]);
 
         return redirect()->route('granilya.miktar.index')->with('success', 'Miktar başarıyla eklendi.');
@@ -65,13 +64,11 @@ class QuantityController extends Controller
     public function update(Request $request, GranilyaQuantity $miktar)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1',
-            'is_active' => 'boolean'
+            'quantity' => 'required|numeric|min:0.01',
         ]);
-
+        
         $miktar->update([
             'quantity' => $request->quantity,
-            'is_active' => $request->boolean('is_active', false)
         ]);
 
         return redirect()->route('granilya.miktar.index')->with('success', 'Miktar başarıyla güncellendi.');

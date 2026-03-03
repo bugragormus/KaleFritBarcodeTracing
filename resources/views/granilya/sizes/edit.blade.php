@@ -213,7 +213,7 @@
                         @csrf
                         @method('PUT')
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-12">
                                 <div class="form-group-modern">
                                     <label class="form-label-modern">
                                         Tane Boyutu Adı <span class="required-field">*</span>
@@ -224,20 +224,13 @@
                                         id="name" 
                                         class="form-control-modern" 
                                         placeholder="Tane boyutu adı giriniz" 
-                                        value="{{ old('name', $boyut->name) }}"
+                                        value="{{ old('name', $size->name) }}"
                                     />
                                     @if($errors->has('name'))
                                         <span class="error-message">
                                             {{ $errors->first('name') }}
                                         </span>
                                     @endif
-                                </div>
-                            </div>
-
-                            <div class="col-lg-6 mt-2">
-                                <div class="custom-control custom-checkbox pt-4">
-                                    <input type="checkbox" class="custom-control-input" id="customCheck1" name="is_active" value="1" {{ $boyut->is_active ? 'checked' : '' }}>
-                                    <label class="custom-control-label font-weight-bold ml-1" for="customCheck1">Aktif</label>
                                 </div>
                             </div>
                         </div>
