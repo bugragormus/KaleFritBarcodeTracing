@@ -1285,17 +1285,12 @@
                     
                     <!-- Quick Actions -->
                     <div class="quick-actions d-none d-lg-flex">
-                        <a href="{{ route('granilya.barcode') }}" class="action-btn secondary">
-                            <i class="fas fa-qrcode"></i>
-                            <span>Palet Sorgu</span>
-                        </a>
+                        <!-- Placeholder for future quick actions -->
                     </div>
 
                     <!-- Mobile Quick Actions -->
                     <div class="mobile-quick-actions d-lg-none">
-                        <a href="{{ route('granilya.barcode') }}" class="mobile-action-btn secondary">
-                            <i class="fas fa-qrcode"></i>
-                        </a>
+                        <!-- Placeholder for future mobile quick actions -->
                     </div>
 
                     <!-- User Menu -->
@@ -1417,13 +1412,13 @@
                     <li class="nav-item dropdown {{ request()->is('granilya/kirici*') || request()->is('granilya/boyut*') || request()->is('granilya/miktar*') || request()->is('granilya/firma*') ? 'active' : ''}}">
                         <a href="#" class="nav-link dropdown-toggle" id="definitionsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-cogs"></i>
-                            <span>Tanımlamalar</span>
+                            <span>Diğer</span>
                         </a>
                         <div class="dropdown-menu" aria-labelledby="definitionsDropdown">
-                            <a class="dropdown-item {{ request()->is('granilya/kirici*') ? 'active' : '' }}" href="{{ route('granilya.kirici.index') }}">Kırıcı Makina Tanımları</a>
-                            <a class="dropdown-item {{ request()->is('granilya/boyut*') ? 'active' : '' }}" href="{{ route('granilya.boyut.index') }}">Tane Boyutu Tanımları</a>
-                            <a class="dropdown-item {{ request()->is('granilya/miktar*') ? 'active' : '' }}" href="{{ route('granilya.miktar.index') }}">Miktar (KG) Tanımları</a>
-                            <a class="dropdown-item {{ request()->is('granilya/firma*') ? 'active' : '' }}" href="{{ route('granilya.firma.index') }}">Firma Tanımları</a>
+                            <a class="dropdown-item {{ request()->is('granilya/kirici*') ? 'active' : '' }}" href="{{ route('granilya.kirici.index') }}">Kırıcı Makina</a>
+                            <a class="dropdown-item {{ request()->is('granilya/boyut*') ? 'active' : '' }}" href="{{ route('granilya.boyut.index') }}">Tane Boyutu</a>
+                            <a class="dropdown-item {{ request()->is('granilya/miktar*') ? 'active' : '' }}" href="{{ route('granilya.miktar.index') }}">Miktar (KG)</a>
+                            <a class="dropdown-item {{ request()->is('granilya/firma*') ? 'active' : '' }}" href="{{ route('granilya.firma.index') }}">Firma</a>
                         </div>
                     </li>
 

@@ -14,6 +14,24 @@ class CompanyController extends Controller
     public function index()
     {
         $companies = GranilyaCompany::orderBy('name')->get();
+
+        // Since Granilya barcode tracking is not yet implemented, 
+        // we feed the detailed view with 0/placeholder data for now 
+        // to match the Frit Company UI design exactly as requested.
+        foreach ($companies as $company) {
+            $company->delivery_rate = 0;
+            $company->total_purchase = 0;
+            $company->last_30_days_purchase = 0;
+            $company->barcodes_count = 0;
+            $company->last_purchase_date = null;
+            $company->average_order_size = 0;
+            
+            $company->customer_transfer_kg = 0;
+            $company->delivered_kg = 0;
+            
+            $company->is_active = false;
+        }
+
         return view('granilya.companies.index', compact('companies'));
     }
 
