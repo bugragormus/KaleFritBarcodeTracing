@@ -162,6 +162,7 @@
 <script>
     $(document).ready(function() {
         $('#datatable').DataTable({
+            "destroy": true,
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
             }
