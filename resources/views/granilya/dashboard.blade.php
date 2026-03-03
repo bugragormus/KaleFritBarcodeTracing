@@ -387,6 +387,7 @@
                                 <thead style="background-color: #f8f9fa;">
                                     <tr>
                                         <th style="font-weight: 600; color: #495057;">Hammadde (Frit) Adı</th>
+                                        <th style="font-weight: 600; color: #495057;">Şarj No</th>
                                         <th class="text-center" style="font-weight: 600; color: #495057;">Aktarılan Barkod Sayısı</th>
                                         <th class="text-right" style="font-weight: 600; color: #495057;">Toplam Miktar (KG)</th>
                                     </tr>
@@ -395,6 +396,7 @@
                                     @foreach($rawMaterialStocks as $stock)
                                     <tr>
                                         <td class="align-middle"><strong>{{ $stock->stock_name }}</strong></td>
+                                        <td class="align-middle">{{ $stock->load_number ?? '-' }}</td>
                                         <td class="text-center align-middle">
                                             <span class="badge badge-info badge-pill py-1 px-3" style="font-size: 0.9rem;">
                                                 {{ $stock->barcode_count }} Adet
@@ -518,7 +520,7 @@
                 "order": [[ 0, "asc" ]],
                 "responsive": true,
                 "columnDefs": [
-                    { "orderable": false, "targets": [1, 2] }
+                    { "orderable": false, "targets": [2, 3] }
                 ]
             });
 

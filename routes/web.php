@@ -53,6 +53,12 @@ Route::middleware('auth')
             Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
             Route::get('/satis', [App\Http\Controllers\Granilya\PageController::class, 'sales'])->name('sales');
             Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
+            
+            // Granilya Tanımlama Ekranları
+            Route::resource('kirici', App\Http\Controllers\Granilya\CrusherController::class);
+            Route::resource('boyut', App\Http\Controllers\Granilya\SizeController::class);
+            Route::resource('miktar', App\Http\Controllers\Granilya\QuantityController::class);
+            Route::resource('firma', App\Http\Controllers\Granilya\CompanyController::class);
         });
 
         // Bu routes grubuna giren her şey ayrıyeten system.selection middleware istiyor
