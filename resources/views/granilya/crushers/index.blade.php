@@ -1,81 +1,210 @@
 @extends('layouts.granilya')
 
+@section('styles')
+    <style>
+        body, .main-content, .modern-crusher-management {
+            background: #f8f9fa !important;
+        }
+        .modern-crusher-management {
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .page-header-modern {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .page-title-modern {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title-modern i {
+            margin-right: 1rem;
+            font-size: 2rem;
+        }
+        
+        .page-subtitle-modern {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .card-modern {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .card-body-modern {
+            padding: 2rem;
+        }
+        
+        .btn-modern {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success-modern {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .page-title-modern {
+                font-size: 2rem;
+            }
+        }
+        
+        /* DataTable modern styling */
+        .table-modern {
+            width: 100% !important;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table-modern th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding: 1rem;
+        }
+        .table-modern td {
+            vertical-align: middle;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .table-modern tr:last-child td {
+            border-bottom: none;
+        }
+        .table-modern tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .table-modern tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .badge-modern {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .badge-success-modern {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .badge-danger-modern {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btns .btn {
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+        }
+    </style>
+@endsection
+
 @section('breadcrumb')
     <li class="breadcrumb-item"><a href="{{ route('granilya.dashboard') }}"><i class="fas fa-home"></i> Ana Sayfa</a></li>
     <li class="breadcrumb-item active">Kırıcı Makinalar</li>
 @endsection
 
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col-sm-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <h4 class="page-title mb-0 font-size-18">Kırıcı Makinalar</h4>
-                <div>
-                    <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target="#createModal">
-                        <i class="fas fa-plus mr-1"></i> Yeni Kırıcı Makina Ekle
-                    </button>
+<div class="modern-crusher-management">
+    <div class="container-fluid">
+
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
+        <!-- Modern Page Header -->
+        <div class="page-header-modern">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="page-title-modern">
+                        <i class="fas fa-industry"></i> Kırıcı Makinalar
+                    </h1>
+                    <p class="page-subtitle-modern">Granilya sisteminde kullanılan kırıcı makina tanımlamalarını yönetin</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <a href="{{ route('granilya.kirici.create') }}" class="btn-modern btn-success-modern">
+                        <i class="fas fa-plus"></i> Yeni Makina Ekle
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <table id="datatable" class="table table-bordered dt-responsive nowrap" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead>
+        <div class="card-modern">
+            <div class="card-body-modern">
+                <table id="datatable" class="table table-modern dt-responsive nowrap">
+                    <thead>
+                        <tr>
+                            <th>Kod</th>
+                            <th>Adı</th>
+                            <th>Durum</th>
+                            <th class="text-right">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($crushers as $crusher)
                             <tr>
-                                <th>Kod</th>
-                                <th>Adı</th>
-                                <th>Durum</th>
-                                <th>İşlemler</th>
+                                <td><span class="font-weight-bold text-secondary">{{ $crusher->code ?? '-' }}</span></td>
+                                <td><strong>{{ $crusher->name }}</strong></td>
+                                <td>
+                                    @if($crusher->is_active)
+                                        <span class="badge badge-modern badge-success-modern">Aktif</span>
+                                    @else
+                                        <span class="badge badge-modern badge-danger-modern">Pasif</span>
+                                    @endif
+                                </td>
+                                <td class="text-right action-btns">
+                                    <a href="{{ route('granilya.kirici.edit', $crusher->id) }}" class="btn btn-sm btn-primary shadow-sm mr-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('granilya.kirici.destroy', $crusher->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger shadow-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($crushers as $crusher)
-                                <tr>
-                                    <td>{{ $crusher->code ?? '-' }}</td>
-                                    <td>{{ $crusher->name }}</td>
-                                    <td>
-                                        @if($crusher->is_active)
-                                            <span class="badge badge-success">Aktif</span>
-                                        @else
-                                            <span class="badge badge-danger">Pasif</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('granilya.kirici.edit', $crusher->id) }}" class="btn btn-sm btn-info waves-effect waves-light">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('granilya.kirici.destroy', $crusher->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Silmek istediğinize emin misiniz?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger waves-effect waves-light">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
@@ -85,24 +214,6 @@
             "destroy": true,
             "language": {
                 "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
-            }
-        });
-
-        // Edit Modal Data Binding
-        $('.edit-btn').on('click', function() {
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            var code = $(this).data('code');
-            var active = $(this).data('active');
-
-            $('#editForm').attr('action', '/granilya/kirici/' + id);
-            $('#edit_name').val(name);
-            $('#edit_code').val(code);
-            
-            if(active == 1) {
-                $('#editCheck1').prop('checked', true);
-            } else {
-                $('#editCheck1').prop('checked', false);
             }
         });
     });
