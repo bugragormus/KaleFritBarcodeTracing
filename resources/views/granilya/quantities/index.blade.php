@@ -53,13 +53,9 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-info waves-effect waves-light edit-btn" 
-                                            data-id="{{ $quantity->id }}" 
-                                            data-quantity="{{ $quantity->quantity }}" 
-                                            data-active="{{ $quantity->is_active }}"
-                                            data-toggle="modal" data-target="#editModal">
+                                        <a href="{{ route('granilya.miktar.edit', $quantity->id) }}" class="btn btn-sm btn-info waves-effect waves-light">
                                             <i class="fas fa-edit"></i>
-                                        </button>
+                                        </a>
                                         <form action="{{ route('granilya.miktar.destroy', $quantity->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bu miktarı silmek istediğinize emin misiniz?');">
                                             @csrf
                                             @method('DELETE')
@@ -74,73 +70,6 @@
                     </table>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Modal -->
-<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createModalLabel">Yeni Miktar Ekle</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{{ route('granilya.miktar.store') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Miktar (KG) <span class="text-danger">*</span></label>
-                        <input type="number" name="quantity" class="form-control" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="customCheck1" name="is_active" value="1" checked>
-                            <label class="custom-control-label" for="customCheck1">Aktif</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Modal -->
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editModalLabel">Miktar Düzenle</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="editForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Miktar (KG) <span class="text-danger">*</span></label>
-                        <input type="number" name="quantity" id="edit_quantity" class="form-control" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="editCheck1" name="is_active" value="1">
-                            <label class="custom-control-label" for="editCheck1">Aktif</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                    <button type="submit" class="btn btn-primary">Güncelle</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

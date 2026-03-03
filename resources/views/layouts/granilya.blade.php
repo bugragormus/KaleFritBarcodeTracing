@@ -1285,7 +1285,10 @@
                     
                     <!-- Quick Actions -->
                     <div class="quick-actions d-none d-lg-flex">
-                        <!-- Placeholder for future quick actions -->
+                        <a href="{{ route('granilya.barcode') }}" class="btn action-btn bg-info text-white">
+                            <i class="fas fa-search-plus"></i>
+                            <span>Palet Sorgu</span>
+                        </a>
                     </div>
 
                     <!-- Mobile Quick Actions -->
@@ -1402,12 +1405,6 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('granilya/sorgu') ? 'active' : ''}}">
-                        <a href="{{ route('granilya.barcode') }}" class="nav-link">
-                            <i class="fas fa-qrcode"></i>
-                            <span>Palet Sorgu</span>
-                        </a>
-                    </li>
 
                     <li class="nav-item dropdown {{ request()->is('granilya/kirici*') || request()->is('granilya/boyut*') || request()->is('granilya/miktar*') || request()->is('granilya/firma*') ? 'active' : ''}}">
                         <a href="#" class="nav-link dropdown-toggle" id="definitionsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

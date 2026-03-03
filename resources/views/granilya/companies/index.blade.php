@@ -345,9 +345,9 @@
                     </div>
                     <div class="col-md-4 text-right">
                         <div class="d-flex gap-4 justify-content-end">
-                            <button type="button" class="btn-modern btn-success-modern mr-2" data-toggle="modal" data-target="#createModal">
+                            <a href="{{ route('granilya.firma.create') }}" class="btn-modern btn-success-modern mr-2">
                                 <i class="fas fa-plus"></i> Yeni Firma Ekle
-                            </button>
+                            </a>
                             <!-- Export Button hidden until Granilya Tracking is Implemented 
                             <a href="#" class="btn-modern btn-warning-modern">
                                 <i class="fas fa-file-excel"></i>Excel İndir
@@ -445,14 +445,9 @@
 
                     <!-- İşlem Butonları -->
                     <div class="action-buttons mt-3">
-                        <button type="button" class="btn-modern btn-success-modern btn-xs-modern edit-btn" 
-                                data-id="{{ $company->id }}" 
-                                data-name="{{ $company->name }}" 
-                                data-code="{{ $company->code }}" 
-                                data-active="{{ $company->is_active }}"
-                                data-toggle="modal" data-target="#editModal">
+                        <a href="{{ route('granilya.firma.edit', $company->id) }}" class="btn-modern btn-success-modern btn-xs-modern">
                             <i class="fas fa-edit"></i> Düzenle
-                        </button>
+                        </a>
                         <!-- Analytics & Reports hidden until Granilya Tracking is Implemented 
                         <a href="#" class="btn-modern btn-info-modern btn-xs-modern">
                             <i class="fas fa-chart-bar"></i> Detaylı Analiz
@@ -481,88 +476,13 @@
                     <i class="fas fa-briefcase" style="font-size: 4rem; color: #e9ecef; margin-bottom: 1rem;"></i>
                     <h4>Henüz firma kaydı bulunmuyor</h4>
                     <p class="text-muted">İlk firmayı ekleyerek başlayın</p>
-                    <button type="button" class="btn-modern btn-success-modern" data-toggle="modal" data-target="#createModal">
+                    <a href="{{ route('granilya.firma.create') }}" class="btn-modern btn-success-modern">
                         <i class="fas fa-plus"></i> İlk Firmayı Ekle
-                    </button>
+                    </a>
                 </div>
             </div>
             @endif
 
-        </div>
-    </div>
-
-    <!-- Create Modal -->
-    <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createModalLabel">Yeni Firma Ekle</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('granilya.firma.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Kod</label>
-                            <input type="text" name="code" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Adı <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="customCheck1" name="is_active" value="1" checked>
-                                <label class="custom-control-label" for="customCheck1">Aktif</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                        <button type="submit" class="btn btn-primary">Kaydet</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Firma Düzenle</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="editForm" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Kod</label>
-                            <input type="text" name="code" id="edit_code" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>Adı <span class="text-danger">*</span></label>
-                            <input type="text" name="name" id="edit_name" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="editCheck1" name="is_active" value="1">
-                                <label class="custom-control-label" for="editCheck1">Aktif</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                        <button type="submit" class="btn btn-primary">Güncelle</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 @endsection
@@ -570,23 +490,7 @@
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Edit Modal Data Binding
-        $('.edit-btn').on('click', function() {
-            var id = $(this).data('id');
-            var name = $(this).data('name');
-            var code = $(this).data('code');
-            var active = $(this).data('active');
-
-            $('#editForm').attr('action', '/granilya/firma/' + id);
-            $('#edit_name').val(name);
-            $('#edit_code').val(code);
-            
-            if(active == 1) {
-                $('#editCheck1').prop('checked', true);
-            } else {
-                $('#editCheck1').prop('checked', false);
-            }
-        });
+        // Initialization code if needed
     });
 </script>
 @endsection
