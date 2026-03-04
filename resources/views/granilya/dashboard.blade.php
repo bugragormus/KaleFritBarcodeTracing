@@ -320,7 +320,7 @@
                             </a>
                         </div>
                         <div class="col-lg-3 col-md-6 mb-3">
-                            <a href="{{ route('granilya.stock') }}" class="quick-action-item">
+                            <a href="{{ route('granilya.stock.index') }}" class="quick-action-item">
                                 <div class="quick-action-icon bg-success">
                                     <i class="fas fa-boxes"></i>
                                 </div>

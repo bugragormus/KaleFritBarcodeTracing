@@ -29,6 +29,14 @@ class PageController extends Controller
             ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
             ->where('barcodes.status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
             ->whereNull('barcodes.deleted_at')
+            ->whereNotExists(function ($query) {
+                $query->select(\DB::raw(1))
+                    ->from('granilya_productions')
+                    ->whereColumn('granilya_productions.stock_id', 'barcodes.stock_id')
+                    ->whereColumn('granilya_productions.load_number', 'barcodes.load_number')
+                    ->where('granilya_productions.is_sieve_residue', true)
+                    ->whereNull('granilya_productions.deleted_at');
+            })
             ->groupBy('stocks.id', 'stocks.name', 'stocks.code', 'barcodes.load_number')
             ->orderBy('stocks.name')
             ->orderBy('barcodes.load_number')
@@ -97,6 +105,6 @@ class PageController extends Controller
 
     public function barcode()
     {
-        return view('granilya.placeholder', ['title' => 'Barkod Sorgu']);
+        return view('granilya.stock.query', ['title' => 'Palet Sorgula']);
     }
 }

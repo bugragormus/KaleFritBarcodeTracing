@@ -1531,11 +1531,7 @@
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-envelope"></i>
-                            <span>onurcansahin@kale.com.tr</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Dijital Dönüşüm Ofisi</span>
+                            <span>bugra.gormus@hotmail.com</span>
                         </li>
                     </ul>
                 </div>
@@ -1548,9 +1544,8 @@
                     <div class="copyright">
                         <p>&copy; {{ date('Y') }} Kalefrit - Stok Yönetim Sistemi. Tüm hakları saklıdır.</p>
                         <p class="developer-info">
-                            <i class="fas fa-code"></i>
-                            Dijital Dönüşüm Ofisi'nin Katkılarıyla 
-                            <span class="developer-name">Buğra GÖRMÜŞ</span> tarafından hazırlandı
+                            <i class="fas fa-code"></i> 
+                            <span class="developer-name">Buğra GÖRMÜŞ</span> tarafından hazırlanmıştır
                         </p>
                     </div>
                     <div class="footer-actions">

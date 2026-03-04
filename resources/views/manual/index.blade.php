@@ -426,12 +426,6 @@
                 </div>
             </div>
 
-            <!-- Trend Analysis Highlight -->
-            <div class="trend-analysis-highlight">
-                <h4><i class="fas fa-chart-line"></i> 🚀 Yeni: Gelişmiş İstatistiksel Analiz Sistemi v2.1.1</h4>
-                <p>Kalefrit artık gelişmiş istatistiksel analiz özellikleri ile güçlendirilmiş! Üretim tahminleri, kalite risk analizi, anomali tespiti, veri tabanlı optimizasyon önerileri ve gelişmiş raporlama özellikleri ile işletmenizi bir üst seviyeye taşıyın.</p>
-            </div>
-
             <!-- Hızlı Başlangıç -->
             <div class="quick-start">
                 <h3><i class="fas fa-rocket"></i> Hızlı Başlangıç</h3>
@@ -2200,17 +2194,7 @@
                         </h4>
                         <div class="info-box">
                             <strong><i class="fas fa-info-circle"></i> E-posta Adresi:</strong>
-                            <p style="margin: 0.5rem 0 0 0;">Teknik destek için: onurcansahin@kale.com.tr</p>
-                        </div>
-                    </div>
-
-                    <div class="manual-section">
-                        <h4 class="section-title">
-                            <i class="fas fa-map-marker-alt"></i> İletişim Bilgileri
-                        </h4>
-                        <div class="info-box">
-                            <strong><i class="fas fa-building"></i> Dijital Dönüşüm Ofisi:</strong>
-                            <p style="margin: 0.5rem 0 0 0;">Kale Grubu - Dijital Dönüşüm Ofisi</p>
+                            <p style="margin: 0.5rem 0 0 0;">Teknik destek için: bugra.gormus@hotmail.com</p>
                         </div>
                     </div>
 

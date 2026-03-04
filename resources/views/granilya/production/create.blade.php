@@ -313,7 +313,13 @@
                 <p>Lütfen üretim için gerekli olan tüm alanları (*) doldurun. Tane boyutu "TOZ" seçildiğinde miktar alanını elle değer girilecek şekilde değişecektir.</p>
             </div>
 
-            <form method="POST" action="#">
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('granilya.production.store') }}" id="productionForm">
                 @csrf
                 
                 <div class="form-section">
@@ -420,11 +426,20 @@
                         
                         <div class="form-col">
                             <div class="form-group">
-                                <label class="form-label">
+                                <label class="filter-label">
                                     <i class="fas fa-pallet"></i> Palet Numarası
                                     <span class="required">*</span>
                                 </label>
                                 <input type="text" class="form-control" name="pallet_number" placeholder="Palet numarasını manuel giriniz">
+                            </div>
+                        </div>
+
+                        <div class="form-col" style="flex: 0 0 100%; max-width: 100%;">
+                            <div class="form-group">
+                                <label class="filter-label">
+                                    <i class="fas fa-sticky-note"></i> Genel Not
+                                </label>
+                                <textarea class="form-control" name="general_note" rows="3" placeholder="Palet hakkında not ekleyebilirsiniz..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -457,7 +472,7 @@
 
                 <!-- Submit Button -->
                 <div class="text-center">
-                    <button type="button" class="btn-modern">
+                    <button type="submit" class="btn-modern" id="submitBtn">
                         <i class="fas fa-plus-circle"></i> Üret
                     </button>
                     <!-- Form submission logic is mocked for now as per instructions -->

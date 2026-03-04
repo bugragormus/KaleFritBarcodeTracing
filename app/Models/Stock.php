@@ -31,4 +31,12 @@ class Stock extends Model
     {
         return $this->hasMany(Barcode::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function granilyaProductions(): HasMany
+    {
+        return $this->hasMany(GranilyaProduction::class);
+    }
 }

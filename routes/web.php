@@ -48,12 +48,20 @@ Route::middleware('auth')
         Route::prefix('granilya')->as('granilya.')->group(function () {
             Route::get('/anasayfa', [App\Http\Controllers\Granilya\DashboardController::class, 'index'])->name('dashboard');
             Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
-            Route::get('/stok', [App\Http\Controllers\Granilya\PageController::class, 'stock'])->name('stock');
             Route::get('/laboratuvar', [App\Http\Controllers\Granilya\PageController::class, 'laboratory'])->name('laboratory');
             Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
             Route::get('/satis', [App\Http\Controllers\Granilya\PageController::class, 'sales'])->name('sales');
             Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
             
+            // Granilya Production Operations
+            Route::post('/uretim-islem', [App\Http\Controllers\Granilya\ProductionController::class, 'store'])->name('production.store');
+            Route::get('/stok-durumu', [App\Http\Controllers\Granilya\ProductionController::class, 'index'])->name('stock.index');
+            Route::get('/palet/{pallet_number}', [App\Http\Controllers\Granilya\ProductionController::class, 'show'])->name('production.show');
+            Route::get('/palet/{id}/duzenle', [App\Http\Controllers\Granilya\ProductionController::class, 'edit'])->name('production.edit');
+            Route::put('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'update'])->name('production.update');
+            Route::get('/palet/{id}/hareketler', [App\Http\Controllers\Granilya\ProductionController::class, 'history'])->name('production.history');
+            Route::delete('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'destroy'])->name('production.destroy');
+
             // Granilya Tanımlama Ekranları
             Route::resource('kirici', App\Http\Controllers\Granilya\CrusherController::class);
             Route::resource('boyut', App\Http\Controllers\Granilya\SizeController::class);

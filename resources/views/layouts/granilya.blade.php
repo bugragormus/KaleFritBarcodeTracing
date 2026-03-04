@@ -1370,15 +1370,10 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('granilya/uretim') ? 'active' : ''}}">
-                        <a href="{{ route('granilya.production') }}" class="nav-link">
-                            <i class="fas fa-industry"></i>
-                            <span>Üretim Girişi</span>
-                        </a>
-                    </li>
 
-                    <li class="nav-item {{ request()->is('granilya/stok') ? 'active' : ''}}">
-                        <a href="{{ route('granilya.stock') }}" class="nav-link">
+
+                    <li class="nav-item {{ request()->is('granilya/stok-durumu') || request()->is('granilya/stok-durumu/*') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.stock.index') }}" class="nav-link">
                             <i class="fas fa-boxes"></i>
                             <span>Stok Durumu</span>
                         </a>
@@ -1508,7 +1503,7 @@
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-envelope"></i>
-                            <span>onurcansahin@kale.com.tr</span>
+                            <span>bugra.gormus@hotmail.com</span>
                         </li>
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
@@ -1526,8 +1521,7 @@
                         <p>&copy; {{ date('Y') }} Kalefrit - Stok Yönetim Sistemi. Tüm hakları saklıdır.</p>
                         <p class="developer-info">
                             <i class="fas fa-code"></i>
-                            Dijital Dönüşüm Ofisi'nin Katkılarıyla 
-                            <span class="developer-name">Buğra GÖRMÜŞ</span> tarafından hazırlandı
+                            <span class="developer-name">Buğra GÖRMÜŞ</span> tarafından hazırlanmıştır
                         </p>
                     </div>
                     <div class="footer-actions">

@@ -321,7 +321,7 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 
 ## 📞 Destek
 
--   **Teknik Destek**: onurcansahin@kale.com.tr
+-   **Teknik Destek**: bugra.gormus@hotmail.com
 -   **Dokümantasyon**: `/resources/views/manual/` klasöründe
 -   **Kurulum Rehberi**: `/talimatlar/` klasöründe
 
@@ -595,7 +595,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## 📞 Support
 
--   **Technical Support**: onurcansahin@kale.com.tr
+-   **Technical Support**: bugra.gormus@hotmail.com
 -   **Documentation**: In `/resources/views/manual/` folder
 -   **Installation Guide**: In `/talimatlar/` folder
 
