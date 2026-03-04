@@ -369,40 +369,49 @@
             <div class="card quick-actions-card">
                 <div class="card-body">
                     @if($rawMaterialStocks->count() > 0)
-                        <div class="row mb-3">
-                            <div class="col-md-6 mt-3 mt-md-0">
-                                <label for="fritFilter" style="font-weight: 600; color: #495057;">
-                                    <i class="fas fa-filter text-info mr-1"></i> Frit Adına Göre Filtrele
-                                </label>
-                                <select id="fritFilter" class="form-control" multiple="multiple" data-placeholder="Filtrelemek için frit seçin...">
-                                    @php
-                                        // Benzersiz frit adlarını çıkar
-                                        $uniqueFrits = $rawMaterialStocks->unique('stock_name')->pluck('stock_name');
-                                    @endphp
-                                    @foreach($uniqueFrits as $stockName)
-                                        <option value="{{ $stockName }}">{{ $stockName }}</option>
-                                    @endforeach
-                                </select>
+                        <!-- Column Filters (Frit Style) -->
+                        <div class="column-filters mb-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.5rem 2rem; border-radius: 15px; border: 1px solid #e9ecef;">
+                            <div class="filter-header d-flex justify-content-between align-items-center mb-3 pb-3" style="border-bottom: 2px solid #e9ecef;">
+                                <h6 style="margin: 0; font-weight: 600; color: #495057; font-size: 1.1rem; display: flex; align-items: center;">
+                                    <i class="fas fa-filter text-info mr-2" style="font-size: 1.2rem;"></i> Sütun Filtreleri
+                                </h6>
+                                <div class="filter-actions d-flex gap-2">
+                                    <button class="btn btn-info text-white mr-2" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; font-weight: 600;" onclick="applyFilters()">
+                                        <i class="fas fa-check"></i> Filtreleri Uygula
+                                    </button>
+                                    <button class="btn btn-secondary text-white" style="background: linear-gradient(135deg, #adb5bd 0%, #6c757d 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; font-weight: 600;" onclick="clearFilters()">
+                                        <i class="fas fa-times"></i> Filtreleri Temizle
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-6 mt-3 mt-md-0">
-                                <label for="loadNumberFilter" style="font-weight: 600; color: #495057;">
-                                    <i class="fas fa-filter text-info mr-1"></i> Şarj No'ya Göre Filtrele
-                                </label>
-                                <select id="loadNumberFilter" class="form-control" multiple="multiple" data-placeholder="Filtrelemek için şarj no seçin...">
-                                    @php
-                                        // Benzersiz şarj numaralarını çıkar ve boş/tire olanları yoksay
-                                        $uniqueLoadNumbers = $rawMaterialStocks->unique('load_number')
-                                                                               ->pluck('load_number')
-                                                                               ->filter(function ($val) { return !empty($val) && $val !== '-'; })
-                                                                               ->values();
-                                    @endphp
-                                    @foreach($uniqueLoadNumbers as $loadNumber)
-                                        <option value="{{ $loadNumber }}">{{ $loadNumber }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                             <div class="col-12">
-                                <small class="form-text text-muted mt-2"><i class="fas fa-info-circle text-primary"></i> Seçim yapmak için kutulara tıklayın. Birden fazla seçim yapabilirsiniz.</small>
+                            <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div class="filter-item d-flex flex-column">
+                                    <label class="filter-label" style="font-weight: 600; color: #495057; margin-bottom: 0.5rem; font-size: 0.875rem; text-transform: uppercase;">Frit Adı</label>
+                                    <select id="fritFilter" class="form-control" multiple="multiple" data-placeholder="Tüm Fritler">
+                                        @php
+                                            // Benzersiz frit adlarını çıkar
+                                            $uniqueFrits = $rawMaterialStocks->unique('stock_name')->pluck('stock_name');
+                                        @endphp
+                                        @foreach($uniqueFrits as $stockName)
+                                            <option value="{{ $stockName }}">{{ $stockName }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="filter-item d-flex flex-column">
+                                    <label class="filter-label" style="font-weight: 600; color: #495057; margin-bottom: 0.5rem; font-size: 0.875rem; text-transform: uppercase;">Şarj No</label>
+                                    <select id="loadNumberFilter" class="form-control" multiple="multiple" data-placeholder="Tüm Şarjlar">
+                                        @php
+                                            // Benzersiz şarj numaralarını çıkar ve boş/tire olanları yoksay
+                                            $uniqueLoadNumbers = $rawMaterialStocks->unique('load_number')
+                                                                                   ->pluck('load_number')
+                                                                                   ->filter(function ($val) { return !empty($val) && $val !== '-'; })
+                                                                                   ->values();
+                                        @endphp
+                                        @foreach($uniqueLoadNumbers as $loadNumber)
+                                            <option value="{{ $loadNumber }}">{{ $loadNumber }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -529,10 +538,7 @@
                 "pageLength": 10,
                 "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Tümü"]],
                 "order": [[ 0, "asc" ]],
-                "responsive": true,
-                "columnDefs": [
-                    { "orderable": false, "targets": [2, 3] }
-                ]
+                "responsive": true
             });
 
             // Initialize Select2
@@ -574,8 +580,15 @@
                 table.draw();
             }
 
-            $('#fritFilter').on('change', applyFilters);
-            $('#loadNumberFilter').on('change', applyFilters);
+            // Buton tıklamaları için window objesine ekle (global scope)
+            window.applyFilters = applyFilters;
+
+            // Filtreleri temizle fonksiyonu
+            window.clearFilters = function() {
+                $('#fritFilter').val(null).trigger('change');
+                $('#loadNumberFilter').val(null).trigger('change');
+                table.search('').columns().search('').draw();
+            };
         }
     });
 </script>
