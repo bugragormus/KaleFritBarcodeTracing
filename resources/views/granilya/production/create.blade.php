@@ -430,6 +430,31 @@
                     </div>
                 </div>
 
+                <!-- Elek Altı / İşlem Sonucu -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-filter"></i> İşlem Sonucu
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-col" style="flex: 0 0 100%; max-width: 100%;">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-check-square"></i> Elek Altı (Sieve Residue)
+                                </label>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" name="is_sieve_residue" id="is_sieve_residue" value="1" style="transform: scale(1.2); margin-right: 8px;"/>
+                                    <label for="is_sieve_residue" style="font-weight: 500; cursor: pointer; margin-bottom: 0;">Bu şarjdan kalan miktarı elek altına gönder (Stoktan düşülecek)</label>
+                                </div>
+                                <small class="form-text text-muted mt-2">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i> 
+                                    Bu seçeneği işaretlerseniz, üretimde kullanılan miktar düşüldükten sonra bu şarja ait <strong>kalan tüm hammadde</strong> "Elek Altı" olarak işaretlenecek ve bir sonraki üretimde kullanılamayacaktır.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Submit Button -->
                 <div class="text-center">
                     <button type="button" class="btn-modern">

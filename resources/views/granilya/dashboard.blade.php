@@ -420,6 +420,10 @@
                                     <tr>
                                         <th style="font-weight: 600; color: #495057;">Hammadde (Frit) Adı</th>
                                         <th style="font-weight: 600; color: #495057;">Şarj No</th>
+                                        <th style="font-weight: 600; color: #495057;" class="text-right">Toplam Gelen</th>
+                                        <th style="font-weight: 600; color: #eebb55;" class="text-right">Üretimde Kullanılan</th>
+                                        <th style="font-weight: 600; color: #dc3545;" class="text-right">Elek Altı</th>
+                                        <th style="font-weight: 600; color: #28a745;" class="text-right">Kalan Stok</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -427,6 +431,10 @@
                                     <tr>
                                         <td class="align-middle"><strong>{{ $stock->stock_name }}</strong></td>
                                         <td class="align-middle">{{ $stock->load_number ?? '-' }}</td>
+                                        <td class="align-middle text-right">{{ number_format($stock->total_quantity, 2, ',', '.') }} KG</td>
+                                        <td class="align-middle text-right text-warning"><strong>{{ number_format($stock->used_quantity, 2, ',', '.') }} KG</strong></td>
+                                        <td class="align-middle text-right text-danger"><strong>{{ number_format($stock->sieve_residue_quantity, 2, ',', '.') }} KG</strong></td>
+                                        <td class="align-middle text-right text-success"><strong>{{ number_format($stock->remaining_quantity, 2, ',', '.') }} KG</strong></td>
                                     </tr>
                                     @endforeach
                                 </tbody>
