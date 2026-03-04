@@ -440,7 +440,7 @@
                         <div class="form-col" style="flex: 0 0 100%; max-width: 100%;">
                             <div class="form-group">
                                 <label class="form-label">
-                                    <i class="fas fa-check-square"></i> Elek Altı (Sieve Residue)
+                                    <i class="fas fa-cogs"></i> Elek Altı
                                 </label>
                                 <div class="checkbox-container">
                                     <input type="checkbox" name="is_sieve_residue" id="is_sieve_residue" value="1" style="transform: scale(1.2); margin-right: 8px;"/>
