@@ -370,16 +370,39 @@
                 <div class="card-body">
                     @if($rawMaterialStocks->count() > 0)
                         <div class="row mb-3">
-                            <div class="col-md-12">
+                            <div class="col-md-6 mt-3 mt-md-0">
                                 <label for="fritFilter" style="font-weight: 600; color: #495057;">
-                                    <i class="fas fa-filter text-info mr-1"></i> Frit Adına Göre Çoklu Filtreleme
+                                    <i class="fas fa-filter text-info mr-1"></i> Frit Adına Göre Filtrele
                                 </label>
                                 <select id="fritFilter" class="form-control" multiple="multiple" data-placeholder="Filtrelemek için frit seçin...">
-                                    @foreach($rawMaterialStocks as $stock)
-                                        <option value="{{ $stock->stock_name }}">{{ $stock->stock_name }}</option>
+                                    @php
+                                        // Benzersiz frit adlarını çıkar
+                                        $uniqueFrits = $rawMaterialStocks->unique('stock_name')->pluck('stock_name');
+                                    @endphp
+                                    @foreach($uniqueFrits as $stockName)
+                                        <option value="{{ $stockName }}">{{ $stockName }}</option>
                                     @endforeach
                                 </select>
-                                <small class="form-text text-muted mt-2"><i class="fas fa-info-circle text-primary"></i> Seçim yapmak için kutuya tıklayın. Birden fazla seçim yapabilirsiniz.</small>
+                            </div>
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <label for="loadNumberFilter" style="font-weight: 600; color: #495057;">
+                                    <i class="fas fa-filter text-info mr-1"></i> Şarj No'ya Göre Filtrele
+                                </label>
+                                <select id="loadNumberFilter" class="form-control" multiple="multiple" data-placeholder="Filtrelemek için şarj no seçin...">
+                                    @php
+                                        // Benzersiz şarj numaralarını çıkar ve boş/tire olanları yoksay
+                                        $uniqueLoadNumbers = $rawMaterialStocks->unique('load_number')
+                                                                               ->pluck('load_number')
+                                                                               ->filter(function ($val) { return !empty($val) && $val !== '-'; })
+                                                                               ->values();
+                                    @endphp
+                                    @foreach($uniqueLoadNumbers as $loadNumber)
+                                        <option value="{{ $loadNumber }}">{{ $loadNumber }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                             <div class="col-12">
+                                <small class="form-text text-muted mt-2"><i class="fas fa-info-circle text-primary"></i> Seçim yapmak için kutulara tıklayın. Birden fazla seçim yapabilirsiniz.</small>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -388,8 +411,6 @@
                                     <tr>
                                         <th style="font-weight: 600; color: #495057;">Hammadde (Frit) Adı</th>
                                         <th style="font-weight: 600; color: #495057;">Şarj No</th>
-                                        <th class="text-center" style="font-weight: 600; color: #495057;">Aktarılan Barkod Sayısı</th>
-                                        <th class="text-right" style="font-weight: 600; color: #495057;">Toplam Miktar (KG)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -397,16 +418,6 @@
                                     <tr>
                                         <td class="align-middle"><strong>{{ $stock->stock_name }}</strong></td>
                                         <td class="align-middle">{{ $stock->load_number ?? '-' }}</td>
-                                        <td class="text-center align-middle">
-                                            <span class="badge badge-info badge-pill py-1 px-3" style="font-size: 0.9rem;">
-                                                {{ $stock->barcode_count }} Adet
-                                            </span>
-                                        </td>
-                                        <td class="text-right align-middle">
-                                            <span class="text-success font-weight-bold" style="font-size: 1.1rem;">
-                                                {{ number_format($stock->total_quantity, 2, ',', '.') }} KG
-                                            </span>
-                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -529,23 +540,42 @@
                 width: '100%',
                 allowClear: true
             });
+            
+            $('#loadNumberFilter').select2({
+                width: '100%',
+                allowClear: true
+            });
 
-            // Özel çoklu filtreleme işlemi
-            $('#fritFilter').on('change', function() {
-                var selectedValues = $(this).val();
+            // Özel çoklu filtreleme fonksiyonu
+            function applyFilters() {
+                var fritValues = $('#fritFilter').val();
+                var loadNumberValues = $('#loadNumberFilter').val();
                 
-                if (selectedValues && selectedValues.length > 0) {
-                    // Seçilen değerleri regex 'veya' (|) formatında birleştiriyoruz
-                    var regexStr = selectedValues.map(function(val) {
+                // Frit Filter
+                if (fritValues && fritValues.length > 0) {
+                    var fritRegex = fritValues.map(function(val) {
                         return '^' + $.fn.dataTable.util.escapeRegex(val) + '$';
                     }).join('|');
-                    
-                    table.column(0).search(regexStr, true, false).draw();
+                    table.column(0).search(fritRegex, true, false);
                 } else {
-                    // Hiçbir şey seçilmediyse filtreyi temizle
-                    table.column(0).search('').draw();
+                    table.column(0).search('');
                 }
-            });
+                
+                // Load Number Filter
+                if (loadNumberValues && loadNumberValues.length > 0) {
+                    var loadRegex = loadNumberValues.map(function(val) {
+                        return '^' + $.fn.dataTable.util.escapeRegex(val) + '$';
+                    }).join('|');
+                    table.column(1).search(loadRegex, true, false);
+                } else {
+                    table.column(1).search('');
+                }
+                
+                table.draw();
+            }
+
+            $('#fritFilter').on('change', applyFilters);
+            $('#loadNumberFilter').on('change', applyFilters);
         }
     });
 </script>

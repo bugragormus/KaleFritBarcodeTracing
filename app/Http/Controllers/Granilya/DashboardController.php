@@ -29,12 +29,9 @@ class DashboardController extends Controller
         // Frit tarafından Granilya'ya aktarılan hammaddeleri getir
         $rawMaterialStocks = Barcode::select(
                 'stocks.name as stock_name',
-                'barcodes.load_number',
-                DB::raw('SUM(quantities.quantity) as total_quantity'),
-                DB::raw('COUNT(barcodes.id) as barcode_count')
+                'barcodes.load_number'
             )
             ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
-            ->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
             ->where('barcodes.status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
             ->whereNull('barcodes.deleted_at')
             ->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
