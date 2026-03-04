@@ -1604,10 +1604,6 @@
                             </h1>
                             <p class="page-subtitle-modern">Sistemdeki tüm granilya üretimlerini (paletleri) ve stok durumlarını görüntüleyin</p>
                         </div>
-                        <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                            <a href="{{ route('granilya.production') }}" class="btn btn-light btn-lg shadow-sm" style="border-radius: 12px; font-weight: 600; color: #667eea;">
-                                <i class="fas fa-plus-circle mr-2"></i> Yeni Palet Üret
-                            </a>
                         </div>
                     </div>
                 </div>

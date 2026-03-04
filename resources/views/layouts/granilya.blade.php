@@ -583,10 +583,23 @@
             transition: all 0.3s ease;
         }
 
+        /* Mobil için buton grupları */
+        @media (max-width: 768px) {
+            .nav-menu-list {
+                flex-direction: column;
+                width: 100%;
+                gap: 0;
+            }
+            .nav-menu {
+                justify-content: flex-start;
+            }
+        }
+        
         .nav-menu {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            width: 100%;
         }
 
         .nav-menu-list {
@@ -595,6 +608,7 @@
             margin: 0;
             padding: 0;
             gap: 8px;
+            justify-content: center;
         }
 
         .nav-item {
@@ -1285,6 +1299,10 @@
                     
                     <!-- Quick Actions -->
                     <div class="quick-actions d-none d-lg-flex">
+                        <a href="{{ route('granilya.production') }}" class="btn action-btn bg-success text-white">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Üretim Girişi</span>
+                        </a>
                         <a href="{{ route('granilya.barcode') }}" class="btn action-btn bg-info text-white">
                             <i class="fas fa-search-plus"></i>
                             <span>Palet Sorgu</span>

@@ -26,7 +26,7 @@
         content: '';
         position: absolute;
         top: 0;
-        left: 50px;
+        left: 20px; /* Adjusted from 50px */
         height: 100%;
         width: 4px;
         background: #e9ecef;
@@ -36,15 +36,15 @@
     .timeline-item {
         position: relative;
         margin-bottom: 30px;
-        padding-left: 100px;
+        padding-left: 60px; /* Adjusted from 100px */
     }
     
     .timeline-icon {
         position: absolute;
-        left: 32px;
+        left: 0; /* Adjusted from 32px to align with before line */
         top: 0;
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         background: white;
         border: 4px solid #667eea;
         border-radius: 50%;
@@ -53,6 +53,7 @@
         justify-content: center;
         z-index: 2;
         color: #667eea;
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
     }
     
     .timeline-content {
@@ -61,6 +62,12 @@
         border-radius: 15px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-content:hover {
+        transform: translateX(5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     }
     
     .timeline-date {
@@ -77,12 +84,47 @@
     
     .changes-table {
         margin-top: 1rem;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #dee2e6;
+    }
+
+    .changes-table table {
+        margin-bottom: 0;
+    }
+
+    .changes-table thead th {
+        background-color: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .changes-table tbody tr:nth-of-type(odd) {
+        background-color: rgba(0,0,0,.02);
     }
     
     .change-arrow {
         color: #667eea;
         margin: 0 10px;
+    }
+
+    @media (max-width: 768px) {
+        .timeline::before {
+            left: 15px;
+        }
+        .timeline-item {
+            padding-left: 45px;
+        }
+        .timeline-icon {
+            width: 34px;
+            height: 34px;
+            border-width: 3px;
+        }
     }
 </style>
 @endsection

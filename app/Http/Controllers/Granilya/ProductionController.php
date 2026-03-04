@@ -173,8 +173,14 @@ class ProductionController extends Controller
         if (!$pallet) {
             return redirect()->route('granilya.barcode')->with('error', 'Girilen numaraya ait palet bulunamadı: ' . $pallet_number);
         }
+
+        $stocks = Stock::all();
+        $sizes = \App\Models\GranilyaSize::all();
+        $crushers = \App\Models\GranilyaCrusher::all();
+        $companies = \App\Models\GranilyaCompany::all();
+        $quantities = GranilyaQuantity::all();
         
-        return view('granilya.stock.show', compact('pallet'));
+        return view('granilya.stock.show', compact('pallet', 'stocks', 'sizes', 'crushers', 'companies', 'quantities'));
     }
 
     public function edit($id)
