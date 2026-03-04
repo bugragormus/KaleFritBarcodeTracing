@@ -254,259 +254,227 @@
                 <div class="row align-items-center">
                     <div class="col-md-7">
                         <h1 class="page-title-modern">
-                            <i class="fas fa-box"></i> Palet Detayları
+                            <i class="fas fa-barcode"></i> Palet Detay/Düzenle
                         </h1>
-                        <p class="page-subtitle-modern">Granilya üretimlerine ait detaylı palet bilgilerini görüntüleyin</p>
+                        <p class="page-subtitle-modern">Palet bilgilerini görüntüleyin ve düzenleyin</p>
                     </div>
                     <div class="col-md-5 text-md-right mt-3 mt-md-0">
                         <div class="action-buttons justify-content-md-end">
-                            <button class="btn-modern btn-primary-modern" id="toggleEditBtn">
-                                <i class="fas fa-edit"></i> Düzenle
-                            </button>
-                            <a href="{{ route('granilya.production.history', $pallet->id) }}" class="btn-modern btn-secondary-modern" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white;">
-                                <i class="fas fa-history"></i> Hareketler
+                            <a href="{{ route('granilya.production.history', $pallet->id) }}" class="btn-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <i class="fas fa-list"></i> Hareketler
+                            </a>
+                            <a href="{{ route('granilya.stock.index') }}" class="btn-modern btn-secondary-modern">
+                                <i class="fas fa-arrow-left"></i> Geri Dön
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="container-fluid">
-            <div id="readOnlyContainer">
-                <div class="card-modern">
-                    <div class="section-header">
-                        <i class="fas fa-info-circle"></i>
-                        Genel Bilgiler
-                    </div>
-                    <div class="form-section">
-                        <div class="info-grid">
-                            <div class="info-card">
-                                <div class="info-label">Palet Numarası</div>
-                                <div class="info-value"><strong>{{ $pallet->pallet_number }}</strong></div>
-                            </div>
-                            
-                            <div class="info-card">
-                                <div class="info-label">Durum</div>
-                                <div class="info-value">{!! $pallet->status_badge !!}</div>
-                            </div>
-
-                            <div class="info-card">
-                                <div class="info-label"><i class="fas fa-user-edit"></i> Oluşturan</div>
-                                <div class="info-value">{{ $pallet->user ? $pallet->user->name : '-' }}</div>
-                            </div>
-                            
-                            <div class="info-card">
-                                <div class="info-label">Üretim Tarihi</div>
-                                <div class="info-value">{{ $pallet->created_at->format('d.m.Y H:i') }}</div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Edit Form Card -->
+            <div class="card-modern">
+                <div class="section-header">
+                    <i class="fas fa-edit"></i>
+                    Düzenleme Formu
                 </div>
+                <div class="form-section p-4">
+                    <form action="{{ route('granilya.production.update', $pallet->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
 
-                <div class="card-modern">
-                    <div class="section-header">
-                        <i class="fas fa-clipboard"></i>
-                        Frit ve Üretim Detayları
-                    </div>
-                    <div class="form-section">
-                        <div class="info-grid">
-                            <div class="info-card">
-                                <div class="info-label">Frit Kodu (Stok)</div>
-                                <div class="info-value">{{ $pallet->stock ? $pallet->stock->name : 'Bulunamadı' }}</div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Frit Kodu</label>
+                                    <select name="stock_id" class="custom-select shadow-sm" required>
+                                        @foreach($stocks as $stock)
+                                            <option value="{{ $stock->id }}" {{ $pallet->stock_id == $stock->id ? 'selected' : '' }}>
+                                                {{ $stock->code }} - {{ $stock->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
-                            
-                            <div class="info-card">
-                                <div class="info-label">Şarj Numarası</div>
-                                <div class="info-value">{{ $pallet->load_number }}</div>
-                            </div>
-                            
-                            <div class="info-card">
-                                <div class="info-label">Tane Boyutu</div>
-                                <div class="info-value">{{ $pallet->size ? $pallet->size->name : 'Bulunamadı' }}</div>
-                            </div>
-                            
-                            <div class="info-card">
-                                <div class="info-label">Kırıcı Makina</div>
-                                <div class="info-value">{{ $pallet->crusher ? $pallet->crusher->name : 'Bulunamadı' }}</div>
-                            </div>
-
-                            <div class="info-card">
-                                <div class="info-label">Kullanılan Miktar</div>
-                                <div class="info-value">{{ $pallet->used_quantity }} KG</div>
-                            </div>
-
-                            <div class="info-card">
-                                <div class="info-label">Firma</div>
-                                <div class="info-value">{{ $pallet->company ? $pallet->company->name : 'Belirtilmemiş' }}</div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Şarj No</label>
+                                    <input type="text" name="load_number" class="form-control" value="{{ $pallet->load_number }}" required>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="info-card mt-3" style="width: 100%;">
-                            <div class="info-label"><i class="fas fa-sticky-note"></i> Genel Not</div>
-                            <div class="info-value">{{ $pallet->general_note ?: 'Not eklenmemiş' }}</div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Tane Boyutu</label>
+                                    <select name="size_id" class="custom-select" id="size_id" required>
+                                        @foreach($sizes as $size)
+                                            <option value="{{ $size->id }}" {{ $pallet->size_id == $size->id ? 'selected' : '' }}>
+                                                {{ $size->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Kırıcı Makina</label>
+                                    <select name="crusher_id" class="custom-select" required>
+                                        @foreach($crushers as $crusher)
+                                            <option value="{{ $crusher->id }}" {{ $pallet->crusher_id == $crusher->id ? 'selected' : '' }}>
+                                                {{ $crusher->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Firma</label>
+                                    <select name="company_id" class="custom-select" required>
+                                        @foreach($companies as $company)
+                                            <option value="{{ $company->id }}" {{ $pallet->company_id == $company->id ? 'selected' : '' }}>
+                                                {{ $company->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div id="quantity_select_div" style="{{ optional($pallet->size)->name == 'TOZ' ? 'display:none' : '' }}">
+                                    <div class="form-group">
+                                        <label>Miktar (KG)</label>
+                                        <select name="quantity_id" class="custom-select" id="quantity_id">
+                                            <option value="">Seçiniz</option>
+                                            @foreach($quantities as $quantity)
+                                                <option value="{{ $quantity->id }}" {{ $pallet->quantity_id == $quantity->id ? 'selected' : '' }}>
+                                                    {{ $quantity->quantity }} KG
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="quantity_input_div" style="{{ optional($pallet->size)->name == 'TOZ' ? '' : 'display:none' }}">
+                                    <div class="form-group">
+                                        <label>Miktar (KG - Serbest Giriş)</label>
+                                        <input type="number" step="0.01" name="custom_quantity" class="form-control" value="{{ $pallet->custom_quantity }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Palet No</label>
+                                    <input type="text" name="pallet_number" class="form-control" value="{{ $pallet->pallet_number }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Durum</label>
+                                    <select name="status" class="custom-select">
+                                        @foreach(\App\Models\GranilyaProduction::getStatusList() as $key => $value)
+                                            <option value="{{ $key }}" {{ $pallet->status == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Genel Not</label>
+                                    <input type="text" name="general_note" class="form-control" value="{{ $pallet->general_note }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons mt-4">
+                            <button type="submit" class="btn-modern btn-save-modern" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+                                <i class="fas fa-save"></i> Kaydet
+                            </button>
+                            <a href="{{ route('granilya.stock.index') }}" class="btn-modern btn-secondary-modern">
+                                <i class="fas fa-times"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Status Overview Card -->
+            <div class="card-modern">
+                <div class="section-header">
+                    <i class="fas fa-info-circle"></i>
+                    Durum Bilgileri
+                </div>
+                <div class="form-section">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-label">Palet Numarası</div>
+                            <div class="info-value"><strong>{{ $pallet->pallet_number }}</strong></div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-label">Durum</div>
+                            <div class="info-value">{!! $pallet->status_badge !!}</div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-label"><i class="fas fa-user-edit"></i> Oluşturan</div>
+                            <div class="info-value">{{ $pallet->user ? $pallet->user->name : '-' }}</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-label">Üretim Tarihi</div>
+                            <div class="info-value">{{ $pallet->created_at->format('d.m.Y H:i') }}</div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-label">Frit Kodu (Stok)</div>
+                            <div class="info-value">{{ $pallet->stock ? $pallet->stock->name : 'Bulunamadı' }}</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-label">Şarj Numarası</div>
+                            <div class="info-value">{{ $pallet->load_number }}</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-label">Tane Boyutu</div>
+                            <div class="info-value">{{ $pallet->size ? $pallet->size->name : 'Bulunamadı' }}</div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <div class="info-label">Kırıcı Makina</div>
+                            <div class="info-value">{{ $pallet->crusher ? $pallet->crusher->name : 'Bulunamadı' }}</div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-label">Kullanılan Miktar</div>
+                            <div class="info-value">{{ $pallet->used_quantity }} KG</div>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-label">Firma</div>
+                            <div class="info-value">{{ $pallet->company ? $pallet->company->name : 'Belirtilmemiş' }}</div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div id="editFormContainer">
-                <div class="card-modern">
-                    <div class="section-header">
-                        <i class="fas fa-edit"></i>
-                        Palet Bilgilerini Düzenle
-                    </div>
-                    <div class="form-section p-4">
-                        <form action="{{ route('granilya.production.update', $pallet->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Frit Kodu</label>
-                                        <select name="stock_id" class="custom-select shadow-sm" required>
-                                            @foreach($stocks as $stock)
-                                                <option value="{{ $stock->id }}" {{ $pallet->stock_id == $stock->id ? 'selected' : '' }}>
-                                                    {{ $stock->code }} - {{ $stock->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Şarj No</label>
-                                        <input type="text" name="load_number" class="form-control" value="{{ $pallet->load_number }}" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Tane Boyutu</label>
-                                        <select name="size_id" class="custom-select" id="size_id" required>
-                                            @foreach($sizes as $size)
-                                                <option value="{{ $size->id }}" {{ $pallet->size_id == $size->id ? 'selected' : '' }}>
-                                                    {{ $size->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Kırıcı Makina</label>
-                                        <select name="crusher_id" class="custom-select" required>
-                                            @foreach($crushers as $crusher)
-                                                <option value="{{ $crusher->id }}" {{ $pallet->crusher_id == $crusher->id ? 'selected' : '' }}>
-                                                    {{ $crusher->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Firma</label>
-                                        <select name="company_id" class="custom-select" required>
-                                            @foreach($companies as $company)
-                                                <option value="{{ $company->id }}" {{ $pallet->company_id == $company->id ? 'selected' : '' }}>
-                                                    {{ $company->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div id="quantity_select_div" style="{{ optional($pallet->size)->name == 'TOZ' ? 'display:none' : '' }}">
-                                        <div class="form-group">
-                                            <label>Miktar (KG)</label>
-                                            <select name="quantity_id" class="custom-select" id="quantity_id">
-                                                <option value="">Seçiniz</option>
-                                                @foreach($quantities as $quantity)
-                                                    <option value="{{ $quantity->id }}" {{ $pallet->quantity_id == $quantity->id ? 'selected' : '' }}>
-                                                        {{ $quantity->quantity }} KG
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div id="quantity_input_div" style="{{ optional($pallet->size)->name == 'TOZ' ? '' : 'display:none' }}">
-                                        <div class="form-group">
-                                            <label>Miktar (KG - Serbest Giriş)</label>
-                                            <input type="number" step="0.01" name="custom_quantity" class="form-control" value="{{ $pallet->custom_quantity }}">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Palet No</label>
-                                        <input type="text" name="pallet_number" class="form-control" value="{{ $pallet->pallet_number }}" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Durum</label>
-                                        <select name="status" class="custom-select">
-                                            @foreach(\App\Models\GranilyaProduction::getStatusList() as $key => $value)
-                                                <option value="{{ $key }}" {{ $pallet->status == $key ? 'selected' : '' }}>{{ $value }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Genel Not</label>
-                                        <input type="text" name="general_note" class="form-control" value="{{ $pallet->general_note }}">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="action-buttons mt-4">
-                                <button type="submit" class="btn-modern btn-save-modern">
-                                    <i class="fas fa-save"></i> Değişiklikleri Kaydet
-                                </button>
-                                <button type="button" class="btn-modern btn-cancel-modern" id="cancelEditBtn">
-                                    İptal
-                                </button>
-                            </div>
-                        </form>
+                    <div class="info-card mt-3" style="width: 100%;">
+                        <div class="info-label"><i class="fas fa-sticky-note"></i> Genel Not</div>
+                        <div class="info-value">{{ $pallet->general_note ?: 'Not eklenmemiş' }}</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="mt-4">
-                <a href="{{ route('granilya.stock.index') }}" class="btn-modern btn-secondary-modern">
-                    <i class="fas fa-arrow-left"></i> Listeye Dön
-                </a>
-            </div>
-
         </div>
     </div>
+@endsection
+
 @section('scripts')
 <script>
     $(document).ready(function() {
-        // Toggle Edit Form
-        $('#toggleEditBtn').click(function() {
-            $('#readOnlyContainer').hide();
-            $('#editFormContainer').fadeIn();
-            $(this).hide();
-        });
-
-        $('#cancelEditBtn').click(function() {
-            $('#editFormContainer').hide();
-            $('#readOnlyContainer').fadeIn();
-            $('#toggleEditBtn').show();
-        });
-
         // Quantity logic (same as create)
         $('#size_id').change(function() {
             var sizeText = $(this).find('option:selected').text().trim();
@@ -523,3 +491,4 @@
     });
 </script>
 @endsection
+

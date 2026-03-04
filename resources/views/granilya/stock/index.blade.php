@@ -1604,7 +1604,6 @@
                             </h1>
                             <p class="page-subtitle-modern">Sistemdeki tüm granilya üretimlerini (paletleri) ve stok durumlarını görüntüleyin</p>
                         </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1746,11 +1745,8 @@
                                                 <a href="{{ route('granilya.production.show', $prod->pallet_number) }}" class="btn-modern btn-info-modern btn-xs-modern">
                                                     <i class="fas fa-eye"></i> Detay
                                                 </a>
-                                                <a href="{{ route('granilya.production.history', $prod->id) }}" class="btn-modern btn-history btn-xs-modern">
+                                                <a href="{{ route('granilya.production.history', $prod->id) }}" class="btn-modern btn-xs-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; margin: 0 5px;">
                                                     <i class="fas fa-history"></i> Hareketler
-                                                </a>
-                                                <a href="{{ route('granilya.production.edit', $prod->id) }}" class="btn-modern btn-edit btn-xs-modern">
-                                                    <i class="fas fa-edit"></i> Düzenle
                                                 </a>
                                                 <button type="button" class="btn-modern btn-danger-modern btn-xs-modern" onclick="deletePallet({{ $prod->id }})">
                                                     <i class="fas fa-trash"></i> Sil

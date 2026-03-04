@@ -183,17 +183,7 @@ class ProductionController extends Controller
         return view('granilya.stock.show', compact('pallet', 'stocks', 'sizes', 'crushers', 'companies', 'quantities'));
     }
 
-    public function edit($id)
-    {
-        $pallet = GranilyaProduction::findOrFail($id);
-        $stocks = Stock::all();
-        $sizes = \App\Models\GranilyaSize::all();
-        $crushers = \App\Models\GranilyaCrusher::all();
-        $companies = \App\Models\GranilyaCompany::all();
-        $quantities = GranilyaQuantity::all();
-        
-        return view('granilya.stock.edit', compact('pallet', 'stocks', 'sizes', 'crushers', 'companies', 'quantities'));
-    }
+// Redundant as editing is now integrated into show view
 
     public function update(Request $request, $id)
     {
@@ -232,7 +222,7 @@ class ProductionController extends Controller
             ]);
         }
 
-        return redirect()->route('granilya.stock.index')->with('success', 'Palet başarıyla güncellendi.');
+        return redirect()->route('granilya.production.show', $pallet->pallet_number)->with('success', 'Palet başarıyla güncellendi.');
     }
 
     public function history($id)

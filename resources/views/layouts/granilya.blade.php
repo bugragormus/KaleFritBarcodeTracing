@@ -1523,10 +1523,6 @@
                             <i class="fas fa-envelope"></i>
                             <span>bugra.gormus@hotmail.com</span>
                         </li>
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Dijital Dönüşüm Ofisi</span>
-                        </li>
                     </ul>
                 </div>
 
