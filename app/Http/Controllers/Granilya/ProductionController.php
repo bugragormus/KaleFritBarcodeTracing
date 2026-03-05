@@ -42,8 +42,8 @@ class ProductionController extends Controller
             $query->where('load_number', 'like', '%' . $request->load_number . '%');
         }
 
-        if ($request->filled('company_id')) {
-            $query->whereIn('company_id', $request->company_id);
+        if ($request->filled('customer_type')) {
+            $query->whereIn('customer_type', $request->customer_type);
         }
         
         if ($request->filled('created_date_start')) {
@@ -65,11 +65,10 @@ class ProductionController extends Controller
         $stocks = Stock::whereHas('granilyaProductions')->get();
         $sizes = \App\Models\GranilyaSize::all();
         $crushers = \App\Models\GranilyaCrusher::all();
-        $companies = \App\Models\GranilyaCompany::all();
         $statuses = GranilyaProduction::getStatusList();
         $users = \App\Models\User::all();
 
-        return view('granilya.stock.index', compact('productions', 'stocks', 'sizes', 'crushers', 'companies', 'statuses', 'users'));
+        return view('granilya.stock.index', compact('productions', 'stocks', 'sizes', 'crushers', 'statuses', 'users'));
     }
 
     public function store(Request $request)
@@ -79,7 +78,7 @@ class ProductionController extends Controller
             'load_number' => 'required|string',
             'size_id' => 'required|exists:granilya_sizes,id',
             'crusher_id' => 'required|exists:granilya_crushers,id',
-            'company_id' => 'required|exists:granilya_companies,id',
+            'customer_type' => 'required|in:İç Müşteri,Dış Müşteri',
             'pallet_number' => 'required|string',
         ]);
 
@@ -110,38 +109,38 @@ class ProductionController extends Controller
             return back()->with('error', 'Geçerli bir üretim miktarı girmediniz!')->withInput();
         }
 
+        // --- STOK KONTROLÜ (TÜM ÜRETİMLER İÇİN ZORUNLU) ---
+        // Frit'ten Granilya'ya bu şarjdan gelen toplam miktar 
+        $totalImported = \App\Models\Barcode::where('stock_id', $request->stock_id)
+            ->where('load_number', $request->load_number)
+            ->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+            ->leftJoin('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
+            ->sum('quantities.quantity');
+
+        // Bugüne kadar bu şarjdan KULLANILMIŞ toplam miktar 
+        // ve ELEK ALTINA gönderilmiş toplam miktar (biz eklemeden önce)
+        $previouslyUsed = GranilyaProduction::where('stock_id', $request->stock_id)
+            ->where('load_number', $request->load_number)
+            ->sum('used_quantity');
+
+        $previouslySieved = GranilyaProduction::where('stock_id', $request->stock_id)
+            ->where('load_number', $request->load_number)
+            ->sum('sieve_residue_quantity');
+
+        // Geriye kalan "Stoktaki Miktar" üzerinden güncel kullanımı düş
+        $remainingStock = $totalImported - $previouslyUsed - $previouslySieved;
+        
+        // EĞER kalan stoktan daha fazla kullandıysak hata döndür (sistem eksiye düşmemeli)
+        if ($usedQuantity > $remainingStock) {
+            return back()->with('error', 'Stokta yeterli miktar bulunmuyor (Kalan Miktar: ' . $remainingStock . ' KG, Girmek İstediğiniz: ' . $usedQuantity . ' KG).')->withInput();
+        }
+
         // Elek Altı (Sieve Residue) işaretlendiyse ek işlem
         $isSieveResidue = $request->has('is_sieve_residue') && $request->is_sieve_residue == 1;
         $sieveResidueQuantity = 0;
 
-        // EĞER elek altı işaretlendiyse, kalan stok miktarını hesapla ve sieve_residue_quantity kolonuna koy
+        // EĞER elek altı işaretlendiyse, geriye kalan tüm stoğu elek altına atıyoruz.
         if ($isSieveResidue) {
-            // Frit'ten Granilya'ya bu şarjdan gelen toplam miktar (hesaplamıştık)
-            $totalImported = \App\Models\Barcode::where('stock_id', $request->stock_id)
-                ->where('load_number', $request->load_number)
-                ->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
-                ->leftJoin('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
-                ->sum('quantities.quantity');
-
-            // Bugüne kadar bu şarjdan KULLANILMIŞ toplam miktar 
-            // ve ELEK ALTINA gönderilmiş toplam miktar (biz eklemeden önce)
-            $previouslyUsed = GranilyaProduction::where('stock_id', $request->stock_id)
-                ->where('load_number', $request->load_number)
-                ->sum('used_quantity');
-
-            $previouslySieved = GranilyaProduction::where('stock_id', $request->stock_id)
-                ->where('load_number', $request->load_number)
-                ->sum('sieve_residue_quantity');
-
-            // Geriye kalan "Stoktaki Miktar" üzerinden güncel kullanımı düş
-            $remainingStock = $totalImported - $previouslyUsed - $previouslySieved;
-            
-            // Eğer kalan stoktan daha fazla kullandıysak hata dönebiliriz.
-            if ($usedQuantity > $remainingStock) {
-                return back()->with('error', 'Stokta yeterli miktar bulunmuyor (Kalan: ' . $remainingStock . ' KG).')->withInput();
-            }
-
-            // Geriye ne kaldıysa elek altına atıyoruz.
             $sieveResidueQuantity = $remainingStock - $usedQuantity;
         }
 
@@ -154,7 +153,7 @@ class ProductionController extends Controller
             'quantity_id' => $request->quantity_id,
             'custom_quantity' => $request->custom_quantity,
             'used_quantity' => $usedQuantity,
-            'company_id' => $request->company_id,
+            'customer_type' => $request->customer_type,
             'pallet_number' => $request->pallet_number,
             'status' => GranilyaProduction::STATUS_WAITING, // Varsayılan: Beklemede
             'is_sieve_residue' => $isSieveResidue,
@@ -188,12 +187,9 @@ class ProductionController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'stock_id' => 'required|exists:stocks,id',
-            'load_number' => 'required|string',
-            'size_id' => 'required|exists:granilya_sizes,id',
-            'crusher_id' => 'required|exists:granilya_crushers,id',
-            'company_id' => 'required|exists:granilya_companies,id',
-            'pallet_number' => 'required|string',
+            'customer_type' => 'required|in:İç Müşteri,Dış Müşteri',
+            // Other fields (stock_id, size_id, crusher_id, load_number, quantities) are omitted from validation 
+            // because they are disabled in the view and shouldn't be mutable.
         ]);
 
         $pallet = GranilyaProduction::findOrFail($id);

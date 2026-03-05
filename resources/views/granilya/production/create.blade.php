@@ -412,14 +412,13 @@
                         <div class="form-col">
                             <div class="form-group">
                                 <label class="form-label">
-                                    <i class="fas fa-building"></i> Firma
+                                    <i class="fas fa-users"></i> Müşteri Tipi
                                     <span class="required">*</span>
                                 </label>
-                                <select class="form-control selectpicker" name="company_id" data-live-search="true">
-                                    <option value="" disabled selected>Firma seçiniz</option>
-                                    @foreach($companies as $company)
-                                        <option value="{{$company->id}}">{{$company->name}}</option>
-                                    @endforeach
+                                <select class="form-control selectpicker" name="customer_type" data-live-search="false">
+                                    <option value="" disabled selected>Müşteri Tipi seçiniz</option>
+                                    <option value="İç Müşteri">İç Müşteri (Fabrika İçi Kullanım)</option>
+                                    <option value="Dış Müşteri">Dış Müşteri (Satış)</option>
                                 </select>
                             </div>
                         </div>

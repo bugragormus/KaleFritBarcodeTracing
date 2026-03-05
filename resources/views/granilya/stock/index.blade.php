@@ -1647,11 +1647,10 @@
                                 </select>
                             </div>
                             <div class="filter-item">
-                                <label class="filter-label">Firma</label>
-                                <select class="filter-select select2" id="company_idFilter" multiple="multiple" data-placeholder="Tüm Firmalar">
-                                    @foreach($companies as $company)
-                                        <option value="{{ $company->id }}">{{ $company->name }}</option>
-                                    @endforeach
+                                <label class="filter-label">Müşteri Tipi</label>
+                                <select class="filter-select select2" id="customer_typeFilter" multiple="multiple" data-placeholder="Tüm Tipler">
+                                    <option value="İç Müşteri">İç Müşteri</option>
+                                    <option value="Dış Müşteri">Dış Müşteri</option>
                                 </select>
                             </div>
                             <div class="filter-item">
@@ -1801,7 +1800,7 @@
 
             // Populate filters from URL
             const urlParams = new URLSearchParams(window.location.search);
-            const fields = ['stock_id', 'load_number', 'status', 'company_id', 'size_id', 'crusher_id', 'user_id', 'created_date_start', 'created_date_end'];
+            const fields = ['stock_id', 'load_number', 'status', 'customer_type', 'size_id', 'crusher_id', 'user_id', 'created_date_start', 'created_date_end'];
             
             fields.forEach(field => {
                 const values = urlParams.getAll(field + '[]');
@@ -1827,7 +1826,7 @@
             let url = new URL(window.location.href);
             let params = new URLSearchParams();
 
-            const multiFields = ['stock_id', 'status', 'company_id', 'size_id', 'crusher_id', 'user_id'];
+            const multiFields = ['stock_id', 'status', 'customer_type', 'size_id', 'crusher_id', 'user_id'];
             multiFields.forEach(field => {
                 let selections = $('#' + field + 'Filter').val();
                 if(selections && selections.length > 0) {

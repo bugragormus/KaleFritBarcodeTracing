@@ -286,7 +286,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Frit Kodu</label>
-                                    <select name="stock_id" class="custom-select shadow-sm" required>
+                                    <select name="stock_id" class="custom-select shadow-sm" disabled>
                                         @foreach($stocks as $stock)
                                             <option value="{{ $stock->id }}" {{ $pallet->stock_id == $stock->id ? 'selected' : '' }}>
                                                 {{ $stock->code }} - {{ $stock->name }}
@@ -298,7 +298,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Şarj No</label>
-                                    <input type="text" name="load_number" class="form-control" value="{{ $pallet->load_number }}" required>
+                                    <input type="text" name="load_number" class="form-control" value="{{ $pallet->load_number }}" disabled>
                                 </div>
                             </div>
                         </div>
@@ -307,7 +307,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Tane Boyutu</label>
-                                    <select name="size_id" class="custom-select" id="size_id" required>
+                                    <select name="size_id" class="custom-select" id="size_id" disabled>
                                         @foreach($sizes as $size)
                                             <option value="{{ $size->id }}" {{ $pallet->size_id == $size->id ? 'selected' : '' }}>
                                                 {{ $size->name }}
@@ -319,7 +319,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Kırıcı Makina</label>
-                                    <select name="crusher_id" class="custom-select" required>
+                                    <select name="crusher_id" class="custom-select" disabled>
                                         @foreach($crushers as $crusher)
                                             <option value="{{ $crusher->id }}" {{ $pallet->crusher_id == $crusher->id ? 'selected' : '' }}>
                                                 {{ $crusher->name }}
@@ -330,13 +330,10 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Firma</label>
-                                    <select name="company_id" class="custom-select" required>
-                                        @foreach($companies as $company)
-                                            <option value="{{ $company->id }}" {{ $pallet->company_id == $company->id ? 'selected' : '' }}>
-                                                {{ $company->name }}
-                                            </option>
-                                        @endforeach
+                                    <label>Müşteri Tipi</label>
+                                    <select name="customer_type" class="custom-select" required>
+                                        <option value="İç Müşteri" {{ $pallet->customer_type == 'İç Müşteri' ? 'selected' : '' }}>İç Müşteri (Fabrika İçi Kullanım)</option>
+                                        <option value="Dış Müşteri" {{ $pallet->customer_type == 'Dış Müşteri' ? 'selected' : '' }}>Dış Müşteri (Satış)</option>
                                     </select>
                                 </div>
                             </div>
@@ -347,7 +344,7 @@
                                 <div id="quantity_select_div" style="{{ optional($pallet->size)->name == 'TOZ' ? 'display:none' : '' }}">
                                     <div class="form-group">
                                         <label>Miktar (KG)</label>
-                                        <select name="quantity_id" class="custom-select" id="quantity_id">
+                                        <select name="quantity_id" class="custom-select" id="quantity_id" disabled>
                                             <option value="">Seçiniz</option>
                                             @foreach($quantities as $quantity)
                                                 <option value="{{ $quantity->id }}" {{ $pallet->quantity_id == $quantity->id ? 'selected' : '' }}>
@@ -360,7 +357,7 @@
                                 <div id="quantity_input_div" style="{{ optional($pallet->size)->name == 'TOZ' ? '' : 'display:none' }}">
                                     <div class="form-group">
                                         <label>Miktar (KG - Serbest Giriş)</label>
-                                        <input type="number" step="0.01" name="custom_quantity" class="form-control" value="{{ $pallet->custom_quantity }}">
+                                        <input type="number" step="0.01" name="custom_quantity" class="form-control" value="{{ $pallet->custom_quantity }}" disabled>
                                     </div>
                                 </div>
                             </div>

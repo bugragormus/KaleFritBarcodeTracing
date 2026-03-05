@@ -65,6 +65,7 @@ class GranilyaProduction extends Model
         'custom_quantity',
         'used_quantity',
         'company_id',
+        'customer_type',
         'pallet_number',
         'is_sieve_residue',
         'sieve_residue_quantity',
