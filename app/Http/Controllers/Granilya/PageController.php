@@ -29,40 +29,53 @@ class PageController extends Controller
             ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
             ->where('barcodes.status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
             ->whereNull('barcodes.deleted_at')
-            ->whereNotExists(function ($query) {
-                $query->select(\DB::raw(1))
-                    ->from('granilya_productions')
-                    ->whereColumn('granilya_productions.stock_id', 'barcodes.stock_id')
-                    ->whereColumn('granilya_productions.load_number', 'barcodes.load_number')
-                    ->where('granilya_productions.is_sieve_residue', true)
-                    ->whereNull('granilya_productions.deleted_at');
-            })
             ->groupBy('stocks.id', 'stocks.name', 'stocks.code', 'barcodes.load_number')
             ->orderBy('stocks.name')
             ->orderBy('barcodes.load_number')
             ->get();
 
-        // Stok bazlı şarj numaralarını JS için grupla
+        // Stok bazlı şarj numaralarını JS için grupla ve stok kalanını doğrula
         $stockLoadNumbers = [];
         $uniqueStocks = [];
         
         foreach ($transferredBarcodes as $item) {
             $stockId = $item->stock_id;
-            
-            if (!isset($uniqueStocks[$stockId])) {
-                $uniqueStocks[$stockId] = [
-                    'id' => $stockId,
-                    'name' => $item->stock_name,
-                    'code' => $item->stock_code
-                ];
-            }
-            
-            if (!empty($item->load_number) && $item->load_number !== '-') {
-                if (!isset($stockLoadNumbers[$stockId])) {
-                    $stockLoadNumbers[$stockId] = [];
+            $loadNumber = $item->load_number;
+
+            // Kalan stoğu hesapla
+            $totalImported = \App\Models\Barcode::where('stock_id', $stockId)
+                ->where('load_number', $loadNumber)
+                ->where('status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+                ->leftJoin('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
+                ->sum('quantities.quantity');
+
+            $previouslyUsed = \App\Models\GranilyaProduction::where('stock_id', $stockId)
+                ->where('load_number', $loadNumber)
+                ->sum('used_quantity');
+
+            $previouslySieved = \App\Models\GranilyaProduction::where('stock_id', $stockId)
+                ->where('load_number', $loadNumber)
+                ->sum('sieve_residue_quantity');
+
+            $remainingStock = $totalImported - $previouslyUsed - $previouslySieved;
+
+            // Sadece içinde yeterli miktar kalanları (Float hatalarına karşı 0.01'den büyük) listele
+            if ($remainingStock > 0.01) {
+                if (!isset($uniqueStocks[$stockId])) {
+                    $uniqueStocks[$stockId] = [
+                        'id' => $stockId,
+                        'name' => $item->stock_name,
+                        'code' => $item->stock_code
+                    ];
                 }
-                if (!in_array($item->load_number, $stockLoadNumbers[$stockId])) {
-                    $stockLoadNumbers[$stockId][] = $item->load_number;
+                
+                if (!empty($loadNumber) && $loadNumber !== '-') {
+                    if (!isset($stockLoadNumbers[$stockId])) {
+                        $stockLoadNumbers[$stockId] = [];
+                    }
+                    if (!in_array($loadNumber, $stockLoadNumbers[$stockId])) {
+                        $stockLoadNumbers[$stockId][] = $loadNumber;
+                    }
                 }
             }
         }

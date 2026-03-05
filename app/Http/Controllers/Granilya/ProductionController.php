@@ -145,7 +145,7 @@ class ProductionController extends Controller
         }
 
         // Üretimi (Paleti) kaydet
-        GranilyaProduction::create([
+        $pallet = GranilyaProduction::create([
             'stock_id' => $request->stock_id,
             'load_number' => $request->load_number,
             'size_id' => $request->size_id,
@@ -160,6 +160,13 @@ class ProductionController extends Controller
             'sieve_residue_quantity' => $sieveResidueQuantity,
             'user_id' => auth()->id(),
             'general_note' => $request->general_note,
+        ]);
+
+        \App\Models\GranilyaProductionHistory::create([
+            'production_id' => $pallet->id,
+            'status' => $pallet->status,
+            'user_id' => auth()->id(),
+            'description' => 'Palet oluşturuldu: Beklemede',
         ]);
 
         return redirect()->route('granilya.stock.index')->with('success', 'Palet (Üretim) başarıyla oluşturuldu.');
@@ -196,29 +203,198 @@ class ProductionController extends Controller
         
         // Track changes
         $oldData = $pallet->getRawOriginal();
-        $pallet->update($request->all());
+        $input = $request->all();
+
+        // Customer type change handling
+        $isCustomerTypeChanged = false;
+        if ($request->filled('customer_type') && $request->customer_type !== $pallet->customer_type) {
+            $isCustomerTypeChanged = true;
+            $oldCustomerType = $pallet->customer_type;
+            $newCustomerType = $request->customer_type;
+
+            $input['status'] = GranilyaProduction::STATUS_WAITING;
+            $input['sieve_test_result'] = null;
+            $input['surface_test_result'] = null;
+            $input['arge_test_result'] = null;
+            $input['sieve_reject_reason'] = null;
+            $input['surface_reject_reason'] = null;
+
+            $note = "\n[SİSTEM BİLGİSİ - " . now()->format('d.m.Y H:i') . "]: Müşteri tipi '{$oldCustomerType}' -> '{$newCustomerType}' olarak değiştirildiği için testler sıfırlanmış ve palet Bekliyor durumuna alınmıştır.\n";
+            $note .= "Önceki Test Sonuçları: Elek: " . ($pallet->sieve_test_result ?? 'Bilinmiyor') . 
+                     ", Yüzey: " . ($pallet->surface_test_result ?? 'Bilinmiyor') . 
+                     ", Arge: " . ($pallet->arge_test_result ?? 'Bilinmiyor');
+
+            $input['system_note'] = ($request->system_note ?? $pallet->system_note) . $note;
+        }
+
+        // Status transition validation
+        if (!$isCustomerTypeChanged && $request->filled('status') && (int)$request->status !== (int)$pallet->status) {
+            $currentStatus = (int)$pallet->status;
+            $newStatus = (int)$request->status;
+
+            // Rule: Terminal States cannot be changed
+            if ($currentStatus == GranilyaProduction::STATUS_SHIPMENT_APPROVED) {
+                 return back()->with('error', 'Sevk onaylı paletlerin durumu değiştirilemez.')->withInput();
+            }
+
+            // --- VALID TRANSITIONS ---
+            
+            // 1. Waiting -> Pre-Approved (AUTO-APPROVE Sieve & Surface)
+            if ($currentStatus == GranilyaProduction::STATUS_WAITING && $newStatus == GranilyaProduction::STATUS_PRE_APPROVED) {
+                $input['sieve_test_result'] = 'Onay';
+                $input['surface_test_result'] = 'Onay';
+            }
+            // 2. Waiting -> Rejected (Requires Reason from Request)
+            elseif ($currentStatus == GranilyaProduction::STATUS_WAITING && $newStatus == GranilyaProduction::STATUS_REJECTED) {
+                $this->handleManualRejection($request, $pallet, $input);
+            }
+            // 3. Pre-Approved -> Shipment Approved (AUTO-APPROVE Arge)
+            elseif ($currentStatus == GranilyaProduction::STATUS_PRE_APPROVED && $newStatus == GranilyaProduction::STATUS_SHIPMENT_APPROVED) {
+                $input['arge_test_result'] = 'Onay';
+            }
+            // 4. Pre-Approved -> Rejected (Requires Reason from Request)
+            elseif ($currentStatus == GranilyaProduction::STATUS_PRE_APPROVED && $newStatus == GranilyaProduction::STATUS_REJECTED) {
+                $this->handleManualRejection($request, $pallet, $input);
+            }
+            // 5. Rejected -> Shipment Approved (Exceptional Approval)
+            elseif ($currentStatus == GranilyaProduction::STATUS_REJECTED && $newStatus == GranilyaProduction::STATUS_SHIPMENT_APPROVED) {
+                if (!$pallet->isExceptionalAllowed()) {
+                    return back()->with('error', 'Bu palet için istisnai onay verilemez. Sadece Arge testi sebebiyle reddedilen (elek ve yüzey onaylı) paletler istisnai onay alabilir.')->withInput();
+                }
+                $input['is_exceptionally_approved'] = true;
+                $input['status'] = GranilyaProduction::STATUS_SHIPMENT_APPROVED;
+            }
+            // 6. Direct to Shipment Approved from Waiting (AUTO-APPROVE ALL)
+            elseif ($currentStatus == GranilyaProduction::STATUS_WAITING && $newStatus == GranilyaProduction::STATUS_SHIPMENT_APPROVED) {
+                $input['sieve_test_result'] = 'Onay';
+                $input['surface_test_result'] = 'Onay';
+                $input['arge_test_result'] = 'Onay';
+            }
+            // Illegal Transitions
+            else {
+                return back()->with('error', 'Bu durumdan hedeflenen duruma doğrudan geçiş yapılamaz.')->withInput();
+            }
+
+            // Ensure status is integer in input
+            $input['status'] = $newStatus;
+        }
+
+        $pallet->update($input);
         $newData = $pallet->getChanges();
         
         if (!empty($newData)) {
             $formattedChanges = [];
+            $statusList = GranilyaProduction::getStatusList();
+
             foreach ($newData as $field => $newValue) {
                 if ($field == 'updated_at') continue;
+                
+                $fromValue = $oldData[$field] ?? null;
+                $toValue = $newValue;
+
+                // Format status labels for history
+                if ($field == 'status') {
+                    $fromValue = $statusList[$fromValue] ?? $fromValue;
+                    $toValue = $statusList[$toValue] ?? $toValue;
+                }
+
                 $formattedChanges[$field] = [
-                    'from' => $oldData[$field] ?? null,
-                    'to' => $newValue
+                    'from' => $fromValue,
+                    'to' => $toValue
                 ];
             }
             
+            // Ana durum güncelleme geçmişi
+            $description = 'Palet bilgileri güncellendi.';
+            if (isset($newData['status'])) {
+                $statusList = GranilyaProduction::getStatusList();
+                $newStatusLabel = $statusList[$newData['status']] ?? 'Bilinmiyor';
+                $description = 'Durum Değişikliği: ' . $newStatusLabel;
+                if ($newData['status'] == GranilyaProduction::STATUS_EXCEPTIONAL) {
+                    $description = 'İstisnai Onay verildi.';
+                }
+            }
+
             \App\Models\GranilyaProductionHistory::create([
                 'production_id' => $pallet->id,
                 'status' => $pallet->status,
                 'user_id' => auth()->id(),
-                'description' => 'Palet bilgileri güncellendi.',
+                'description' => $description,
                 'changes' => $formattedChanges
             ]);
+
+            // Test sonuçları için ayrı laboratuvar geçmişi kayıtları (Görünüm için gerekli)
+            if (isset($newData['sieve_test_result'])) {
+                \App\Models\GranilyaProductionHistory::create([
+                    'production_id' => $pallet->id,
+                    'status' => $pallet->status,
+                    'user_id' => auth()->id(),
+                    'description' => 'Elek Testi: ' . $newData['sieve_test_result'],
+                ]);
+            }
+            if (isset($newData['surface_test_result'])) {
+                \App\Models\GranilyaProductionHistory::create([
+                    'production_id' => $pallet->id,
+                    'status' => $pallet->status,
+                    'user_id' => auth()->id(),
+                    'description' => 'Yüzey Testi: ' . $newData['surface_test_result'],
+                ]);
+            }
+            if (isset($newData['arge_test_result'])) {
+                \App\Models\GranilyaProductionHistory::create([
+                    'production_id' => $pallet->id,
+                    'status' => $pallet->status,
+                    'user_id' => auth()->id(),
+                    'description' => 'Arge Testi: ' . $newData['arge_test_result'],
+                ]);
+            }
         }
 
         return redirect()->route('granilya.production.show', $pallet->pallet_number)->with('success', 'Palet başarıyla güncellendi.');
+    }
+
+    /**
+     * Manuel durum değişikliğinde red detaylarını işler.
+     */
+    private function handleManualRejection(Request $request, $pallet, &$input)
+    {
+        $currentStatus = (int)$pallet->status;
+
+        // Ön Onaylı'dan Reddedildi'ye geçişte Arge testi otomatik olarak Red sayılır, soru sorulmaz.
+        if ($currentStatus == GranilyaProduction::STATUS_PRE_APPROVED) {
+            $input['arge_test_result'] = 'Red';
+            // Arge için Ön Onaylı'yken zaten elek/yüzey onaylıdır
+            $input['sieve_test_result'] = 'Onay';
+            $input['surface_test_result'] = 'Onay';
+            return;
+        }
+
+        // Beklemede'den Reddedildi'ye geçişte sebep ve test zorunludur.
+        $request->validate([
+            'rejected_test' => 'required|in:Elek,Yüzey,Arge',
+            'reject_reason' => 'required|string|max:500',
+        ]);
+
+        $test = $request->rejected_test;
+        $reason = $request->reject_reason;
+
+        // Geçerli nedenleri kontrol et
+        if ($test == 'Elek') {
+            if (!in_array($reason, GranilyaProduction::getSieveRejectionReasons())) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['reject_reason' => 'Geçersiz elek red sebebi.']);
+            }
+            $input['sieve_test_result'] = 'Red';
+            $input['sieve_reject_reason'] = $reason;
+        } elseif ($test == 'Yüzey') {
+            if (!in_array($reason, GranilyaProduction::getSurfaceRejectionReasons())) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['reject_reason' => 'Geçersiz yüzey red sebebi.']);
+            }
+            $input['surface_test_result'] = 'Red';
+            $input['surface_reject_reason'] = $reason;
+        } elseif ($test == 'Arge') {
+            $input['arge_test_result'] = 'Red';
+            $input['general_note'] = ($input['general_note'] ?? $pallet->general_note) . "\n[Arge Red Nedeni]: " . $reason;
+        }
     }
 
     public function history($id)

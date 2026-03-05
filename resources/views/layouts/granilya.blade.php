@@ -1397,8 +1397,8 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('granilya/laboratuvar') ? 'active' : ''}}">
-                        <a href="{{ route('granilya.laboratory') }}" class="nav-link">
+                    <li class="nav-item {{ request()->is('granilya/laboratuvar*') ? 'active' : ''}}">
+                        <a href="{{ route('granilya.laboratory.index') }}" class="nav-link">
                             <i class="fas fa-flask"></i>
                             <span>Laboratuvar</span>
                         </a>

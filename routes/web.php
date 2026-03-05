@@ -48,7 +48,16 @@ Route::middleware('auth')
         Route::prefix('granilya')->as('granilya.')->group(function () {
             Route::get('/anasayfa', [App\Http\Controllers\Granilya\DashboardController::class, 'index'])->name('dashboard');
             Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
-            Route::get('/laboratuvar', [App\Http\Controllers\Granilya\PageController::class, 'laboratory'])->name('laboratory');
+            Route::prefix('laboratuvar')->as('laboratory.')->group(function () {
+                Route::get('/', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('index'); // Dahboard is the index
+                Route::get('/dashboard', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('dashboard');
+                Route::get('/barkod-listesi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode-list');
+                Route::get('/toplu-islem', [App\Http\Controllers\Granilya\LaboratoryController::class, 'bulkView'])->name('bulk-process');
+                Route::get('/barkod-detay/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'getPalletDetail'])->name('barcode-detail');
+                Route::post('/test-guncelle/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'updateTest'])->name('test.update');
+                Route::post('/istisnai-onay/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'exceptionalApprove'])->name('exceptional.approve');
+                Route::post('/toplu-onay', [App\Http\Controllers\Granilya\LaboratoryController::class, 'processBulk'])->name('bulk');
+            });
             Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
             Route::get('/satis', [App\Http\Controllers\Granilya\PageController::class, 'sales'])->name('sales');
             Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
