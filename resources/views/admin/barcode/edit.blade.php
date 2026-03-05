@@ -435,6 +435,17 @@
                     <div class="col-md-8">
                         <h1 class="page-title-modern">
                             <i class="fas fa-barcode"></i> Barkod Detay/Düzenle
+                            <span class="barcode-id ml-3">#{{ $barcode->id }}</span>
+                            @if($barcode->is_sieve_residue)
+                                <span class="badge ml-2" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 6px 12px; font-size: 14px; border-radius: 20px;">
+                                    <i class="fas fa-filter"></i> Elek Altı Stok Sonu
+                                </span>
+                            @endif
+                            @if($barcode->has_sieve_residue)
+                                <span class="badge ml-2" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529; border: none; padding: 6px 12px; font-size: 14px; border-radius: 20px;">
+                                    <i class="fas fa-recycle"></i> Elek Altı Karışımı
+                                </span>
+                            @endif
                         </h1>
                         <p class="page-subtitle-modern">Barkod bilgilerini görüntüleyin ve düzenleyin</p>
                     </div>

@@ -925,6 +925,11 @@
                                 <div class="correction-header">
                                     <div class="correction-info">
                                         <strong>Şarj: #{{ $rejectedBarcode->load_number }} | Barkod: #{{ $rejectedBarcode->id }} | Parti: #{{ $rejectedBarcode->party_number}}</strong>
+                                        @if($rejectedBarcode->is_sieve_residue)
+                                            <span class="badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; margin-top: 4px;">
+                                                <i class="fas fa-filter"></i> Elek Altı Stok Sonu
+                                            </span>
+                                        @endif
                                         <span class="correction-details">
                                             {{ $rejectedBarcode->stock->name }} - 
                                             {{ $rejectedBarcode->quantity->quantity }} KG - 

@@ -36,6 +36,11 @@ class CreateBarcodeAction
                         $sourceBarcode = Barcode::findOrFail($sourceBarcodeId);
                         $correctionQuantity = (int) $correctionQuantities[$index];
                         
+                        $hasSieveResidue = false;
+                        if ($sourceBarcode->is_sieve_residue) {
+                            $hasSieveResidue = true;
+                        }
+                        
                         $correctionBarcode = Barcode::create([
                             'stock_id' => $data['stock_id'],
                             'kiln_id' => $data['kiln_id'],
@@ -49,7 +54,8 @@ class CreateBarcodeAction
                             'correction_source_barcode_id' => $sourceBarcodeId,
                             'correction_quantity' => $correctionQuantity,
                             'correction_note' => "Düzeltme faaliyeti: {$sourceBarcode->stock->name} stoğundan {$sourceBarcode->load_number} şarjından {$correctionQuantity} KG",
-                            'note' => $data['note'] ?? ''
+                            'note' => $data['note'] ?? '',
+                            'has_sieve_residue' => $hasSieveResidue,
                         ]);
 
                         $barcodeIds[] = $correctionBarcode->id;

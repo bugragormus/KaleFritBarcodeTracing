@@ -105,6 +105,8 @@
                 {data: 'labNote', name: 'lab_note', searchable: false},
                 {data: 'isMerged', name: 'is_merged', searchable: false},
                 {data: 'isCorrection', name: 'is_correction', searchable: false},
+                {data: 'isSieveResidue', name: 'is_sieve_residue', searchable: false},
+                {data: 'hasSieveResidue', name: 'has_sieve_residue', searchable: false},
                 {data: 'processingTime', name: 'processing_time', searchable: false},
             ]
         });

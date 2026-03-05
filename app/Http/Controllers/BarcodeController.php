@@ -466,6 +466,22 @@ class BarcodeController extends Controller
                         return '<span class="badge badge-secondary">Hayır</span>';
                     }
                 })
+                ->addColumn('isSieveResidue', function ($barcode) {
+                    if ($barcode->is_sieve_residue) {
+                        return '<span class="badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                            <i class="fas fa-filter"></i> Elek Altı Stok Sonu
+                        </span>';
+                    }
+                    return '<span class="badge badge-secondary">Hayır</span>';
+                })
+                ->addColumn('hasSieveResidue', function ($barcode) {
+                    if ($barcode->has_sieve_residue) {
+                        return '<span class="badge" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #212529;">
+                            <i class="fas fa-recycle"></i> Elek Altı Karışımı
+                        </span>';
+                    }
+                    return '<span class="badge badge-secondary">Hayır</span>';
+                })
                 ->addColumn('processingTime', function ($barcode) {
                     if ($barcode->lab_at && $barcode->created_at) {
                         $diffInSeconds = $barcode->lab_at->diffInSeconds($barcode->created_at);
@@ -522,7 +538,7 @@ class BarcodeController extends Controller
                     
                     return $actionHtml;
                 })
-                ->rawColumns(['action', 'status', 'isMerged', 'isCorrection', 'barcodeId', 'loadNumber'])
+                ->rawColumns(['action', 'status', 'isMerged', 'isCorrection', 'isSieveResidue', 'hasSieveResidue', 'barcodeId', 'loadNumber', 'exceptionallyApproved'])
                 ->make(true);
         }
 

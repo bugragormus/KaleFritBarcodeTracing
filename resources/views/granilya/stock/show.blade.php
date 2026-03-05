@@ -112,8 +112,10 @@
                         {{ $pallet->stock->name ?? '-' }} &nbsp;|&nbsp; Şarj No: {{ $pallet->load_number }}
                     </p>
                     @if($pallet->is_exceptionally_approved)
-                    <div class="mt-2 text-warning d-flex align-items-center" style="font-weight: 700; font-size: 0.95rem;">
-                        <i class="fas fa-star mr-2"></i> İstisnai onay ile redden sevke döndü
+                    <div class="mt-2">
+                        <span class="badge badge-warning" style="background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529; padding: 6px 12px; font-size: 13px; font-weight: 700; border-radius: 20px;">
+                            <i class="fas fa-exclamation-triangle"></i> İstisnai onay ile redden sevke döndü
+                        </span>
                     </div>
                     @endif
                 </div>

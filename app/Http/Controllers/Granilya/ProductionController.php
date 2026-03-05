@@ -162,6 +162,64 @@ class ProductionController extends Controller
             'general_note' => $request->general_note,
         ]);
 
+        if ($isSieveResidue && $sieveResidueQuantity > 0) {
+            // Frit tarafında Düzeltme Faaliyeti için Elek Altı barkodu oluştur.
+            try {
+                // 1. Orijinal Stock'un Elek Altı versiyonunu bul veya oluştur
+                $originalStock = \App\Models\Stock::find($request->stock_id);
+                if ($originalStock) {
+                    $elekAltiStockName = $originalStock->name . ' - Elek Altı';
+                    $elekAltiStockCode = $originalStock->code . '-EA';
+                    
+                    $elekAltiStock = \App\Models\Stock::firstOrCreate(
+                        ['name' => $elekAltiStockName],
+                        ['code' => $elekAltiStockCode]
+                    );
+
+                    // 2. Frit Quantity'sini bul veya oluştur
+                    $fritQuantity = \App\Models\Quantity::firstOrCreate(
+                        ['quantity' => $sieveResidueQuantity]
+                    );
+
+                    // 3. Varsayılan Kiln, Warehouse ve Load Number belirle
+                    $defaultKiln = \App\Models\Kiln::first();
+                    $defaultWarehouse = \App\Models\Warehouse::first();
+                    $maxLoadNumber = \App\Models\Barcode::max('load_number') ?? 0;
+                    $nextLoadNumber = $maxLoadNumber + 1;
+
+                    // 4. Frit Barkodunu Oluştur (Düzeltme Faaliyetinde kullanılmak üzere REJECTED durumda)
+                    $fritBarcode = \App\Models\Barcode::create([
+                        'stock_id' => $elekAltiStock->id,
+                        'kiln_id' => $defaultKiln ? $defaultKiln->id : 1,
+                        'quantity_id' => $fritQuantity->id,
+                        'party_number' => 0, // Elek altı için özel parti mantığı eklenebilir
+                        'load_number' => $nextLoadNumber,
+                        'rejected_load_number' => null,
+                        'status' => \App\Models\Barcode::STATUS_REJECTED,
+                        'warehouse_id' => $defaultWarehouse ? $defaultWarehouse->id : 1,
+                        'created_by' => auth()->id(),
+                        'note' => 'Granilya üretiminden elek altı (Stok sonu) olarak ayrıldı. Palet: ' . $request->pallet_number,
+                        'is_sieve_residue' => true,
+                        'has_sieve_residue' => false,
+                    ]);
+
+                    // Fırın şarj numarasını güncelle
+                    if ($defaultKiln) {
+                         $defaultKiln->update(['load_number' => $nextLoadNumber]);
+                    }
+
+                    \App\Models\BarcodeHistory::create([
+                        'barcode_id' => $fritBarcode->id,
+                        'status' => $fritBarcode->status,
+                        'user_id' => auth()->id(),
+                        'description' => 'Granilya üretiminden kalan elek altı ürünü oluşturuldu.',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::error('Elek Altı (Sieve Residue) Frit barkodu oluşturulurken hata: ' . $e->getMessage());
+            }
+        }
+
         \App\Models\GranilyaProductionHistory::create([
             'production_id' => $pallet->id,
             'status' => $pallet->status,

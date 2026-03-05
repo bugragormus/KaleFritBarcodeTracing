@@ -1669,6 +1669,8 @@
                                 <th>Lab Notu</th>
                                 <th>Birleştirilme Durumu</th>
                                 <th>Düzeltme Durumu</th>
+                                <th>Elek Altı Stok Sonu</th>
+                                <th>Elek Altı Karışımı</th>
                                 <th>İşlem Süresi</th>
                             </tr>
                         </thead>
