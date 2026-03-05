@@ -327,7 +327,8 @@ class LaboratoryController extends Controller
             }
 
             $oldStatus = $production->status;
-            $production->status = GranilyaProduction::STATUS_EXCEPTIONAL; // İstisnai Onaylı (12)
+            $production->status = GranilyaProduction::STATUS_SHIPMENT_APPROVED;
+            $production->is_exceptionally_approved = true;
             $production->save();
             $newStatus = $production->status;
 
@@ -337,7 +338,7 @@ class LaboratoryController extends Controller
                 'production_id' => $production->id,
                 'status'        => $newStatus,
                 'user_id'       => $user->id,
-                'description'   => 'İstisnai Onay verildi.',
+                'description'   => 'İstisnai Onay ile Sevk Onaylı.',
                 'changes'       => [
                     'old_status'       => $oldStatus,
                     'new_status'       => $newStatus,

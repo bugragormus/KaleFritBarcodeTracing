@@ -310,8 +310,8 @@ class ProductionController extends Controller
                 $statusList = GranilyaProduction::getStatusList();
                 $newStatusLabel = $statusList[$newData['status']] ?? 'Bilinmiyor';
                 $description = 'Durum Değişikliği: ' . $newStatusLabel;
-                if ($newData['status'] == GranilyaProduction::STATUS_EXCEPTIONAL) {
-                    $description = 'İstisnai Onay verildi.';
+                if (!empty($newData['is_exceptionally_approved'])) {
+                    $description = 'İstisnai Onay ile Sevk Onaylı.';
                 }
             }
 
