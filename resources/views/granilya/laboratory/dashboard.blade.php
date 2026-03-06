@@ -13,15 +13,15 @@
 
     /* ---- Header ---- */
     .page-header-modern {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        padding: 2rem 2.5rem;
-        margin-bottom: 2rem;
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
     .page-title-modern { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.2rem; display: flex; align-items: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .page-title-modern i { margin-right: 1.2rem; font-size: 2.2rem; color: #fff; }
     .page-subtitle-modern { font-size: 1.1rem; opacity: 0.9; margin-bottom: 0; font-weight: 500; }
@@ -103,7 +103,6 @@
     .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); outline: none; }
 </style>
 @endsection
-@endsection
 
 @section('content')
 <div class="modern-lab-dashboard">
@@ -164,12 +163,8 @@
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
                         {{-- Quick Date Buttons --}}
-                        <div class="mt-2">
+                        <div class="mt-3">
                             <small class="text-muted">Hızlı seçim: </small>
                             <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('today')">Bugün</button>
                             <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('yesterday')">Dün</button>
