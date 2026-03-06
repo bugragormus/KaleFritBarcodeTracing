@@ -573,7 +573,7 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($productionData['total_barcodes']) }}</div>
-                        <div class="stat-label">Toplam Barkod</div>
+                        <div class="stat-label">Toplam Palet</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ number_format($productionData['total_quantity'], 1) }}</div>
@@ -665,7 +665,7 @@
                     </div>
                     <div class="summary-item">
                         <i class="fas fa-barcode"></i>
-                        <span>Toplam Barkod: {{ array_sum(array_column($shiftReport, 'barcode_count')) ?? 0 }}</span>
+                        <span>Toplam Palet: {{ array_sum(array_column($shiftReport, 'barcode_count')) ?? 0 }}</span>
                     </div>
                     <div class="summary-item">
                         <i class="fas fa-weight-hanging"></i>
@@ -688,9 +688,9 @@
                                 @endif
                             </div>
                             <div class="shift-stats">
-                                <div class="shift-stat" title="Toplam Barkod Sayısı">
+                                <div class="shift-stat" title="Toplam Palet Sayısı">
                                     <div class="shift-stat-value">{{ number_format($shiftData['barcode_count'] ?? 0) }}</div>
-                                    <div class="shift-stat-label">Barkod</div>
+                                    <div class="shift-stat-label">Palet</div>
                                 </div>
                                 <div class="shift-stat" title="Toplam Miktar (ton)">
                                     <div class="shift-stat-value">{{ number_format($shiftData['total_quantity'] ?? 0, 1) }}</div>
@@ -737,7 +737,7 @@
                         <thead>
                             <tr>
                                 <th>Kırıcı Adı</th>
-                                <th>Barkod Sayısı</th>
+                                <th>Palet Sayısı</th>
                                 <th>Toplam Miktar (ton)</th>
                                 <th>Kabul Edilen (ton)</th>
                                 <th>Reddedilen (ton)</th>
@@ -813,6 +813,8 @@
                 </div>
             </div>
         </div>
+        @include('granilya.production.partials_stock_age')
+        @include('granilya.production.partials_ai_insights')
 
         <!-- Monthly Comparison -->
         <div class="card-modern">
