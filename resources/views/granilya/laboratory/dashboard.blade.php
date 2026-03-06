@@ -1,407 +1,307 @@
-@extends('layouts.granilya')
+@extends('layouts.app')
 
 @section('styles')
-<style>
-    /* ---- Glassmorphism Base ---- */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
+    <style>
+        /* ---- Header Sync ---- */
+        .page-header-granilya {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header-granilya h1 { font-size: 2.2rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .page-header-granilya p { opacity: 0.9; font-weight: 500; }
+        
+        /* ---- Stat Cards Sync ---- */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 200px;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+        .stat-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .stat-number { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.4rem; }
+        .stat-label { font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 0; }
+        .stat-subtext { font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem; }
 
-    /* ---- Page Header ---- */
-    .page-header-modern {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px;
-        padding: 2.5rem;
-        margin-bottom: 2.5rem;
-        color: white;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        position: relative;
-        overflow: hidden;
-    }
-    .page-header-modern h1 { font-size: 2.2rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .page-title-modern { font-weight: 800; display: flex; align-items: center; }
-    .page-title-modern i { margin-right: 1.2rem; font-size: 2.4rem; color: #fff; }
-    .page-subtitle-modern { font-size: 1.1rem; opacity: 0.9; margin-bottom: 0; font-weight: 500; }
+        /* ---- Colors ---- */
+        .text-clean { color: #22c55e !important; }
+        .text-exceptional { color: #f59e0b !important; }
+        .text-corrected { color: #6366f1 !important; }
+        .text-rejected { color: #ef4444 !important; }
+        .text-pending { color: #94a3b8 !important; }
 
-    /* ---- Stat Cards ---- */
-    .stat-card-modern {
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.98);
-        padding: 2rem 1.5rem;
-        margin-bottom: 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        min-height: 240px; /* Standardized height */
-    }
-    .stat-card-modern:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
-    .stat-icon-modern { font-size: 2.8rem; margin-bottom: 1rem; }
-    .stat-number-modern { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.4rem; color: #1a202c; }
-    .stat-label-modern { color: #64748b; font-size: 0.9rem; margin-bottom: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
-    
-    /* Stats Colors Sync */
-    .text-clean { color: #22c55e !important; }
-    .text-exceptional { color: #f59e0b !important; }
-    .text-corrected { color: #6366f1 !important; }
-    .text-pending { color: #94a3b8 !important; }
+        /* ---- Containers ---- */
+        .card-granilya {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .card-header-granilya {
+            background: rgba(0, 0, 0, 0.02);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-header-granilya h5 { margin: 0; font-weight: 800; color: #1a202c; display: flex; align-items: center; }
+        .card-header-granilya h5 i { color: #667eea; margin-right: 12px; }
 
-    /* ---- Quick Action Buttons ---- */
-    .quick-action-btn-modern {
-        border-radius: 12px;
-        padding: 1.2rem;
-        font-weight: 700;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        width: 100%;
-    }
-    .quick-action-btn-modern i { font-size: 1.3rem; }
-    .quick-action-btn-modern:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        /* Quick Action Buttons */
+        .btn-quick-action {
+            border-radius: 12px;
+            padding: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+        .btn-quick-action:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .btn-quick-action i { font-size: 1.3rem; }
 
-    /* ---- Cards & Layout ---- */
-    .card-modern {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(8px);
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-    .card-header-modern {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    .card-title-modern {
-        font-size: 1.3rem; font-weight: 800; color: #1a202c; margin-bottom: 0;
-        display: flex; align-items: center;
-    }
-    .card-title-modern i { margin-right: 0.8rem; color: #667eea; font-size: 1.4rem; }
-
-    /* ---- Form Controls ---- */
-    .form-control {
-        border-radius: 12px;
-        border: 2px solid #e2e8f0;
-        padding: 0.7rem 1rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); outline: none; }
-</style>
+        /* Table */
+        .table-granilya thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border: none;
+        }
+        .table-granilya tbody td { padding: 1rem; border-top: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        .activity-item { padding: 1rem; border-bottom: 1px solid #f1f5f9; }
+        .activity-item:last-child { border-bottom: none; }
+    </style>
 @endsection
 
 @section('content')
-<div class="modern-lab-dashboard">
-    <div class="container py-4"> {{-- Changed container-fluid to container to prevent stretching --}}
+<div class="container py-4">
+    {{-- Header Section --}}
+    <div class="page-header-granilya">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="font-weight-bold"><i class="fas fa-atom mr-3"></i> Granilya Laboratuvar Paneli</h1>
+                <p class="mb-0">Yüksek hassasiyetli veri takibi ve kalite güvence analitiği</p>
+            </div>
+            <div class="col-md-4 text-md-right mt-3 mt-md-0">
+                <div class="badge badge-light px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.9rem; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <i class="far fa-clock mr-2"></i> {{ now()->format('d.m.Y H:i') }}
+                </div>
+            </div>
+        </div>
+    </div>
 
-        {{-- ========================== --}}
-        {{-- PAGE HEADER --}}
-        {{-- ========================== --}}
-        <div class="page-header-modern">
+    {{-- Date Filter Card --}}
+    <div class="card-granilya mb-4">
+        <div class="card-body p-4">
             <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="page-title-modern">
-                        <i class="fas fa-atom"></i> Granilya Lab Paneli
-                    </h1>
-                    <p class="page-subtitle-modern">Yüksek hassasiyetli laboratuvar veri yönetimi</p>
+                <div class="col-xl-5">
+                    <h5 class="mb-1 font-weight-bold"><i class="fas fa-calendar-alt text-primary mr-2"></i> Analiz Zaman Aralığı</h5>
+                    <p class="text-muted small mb-0">Seçilen tarih aralığındaki veriler KPI'lara yansıtılır.</p>
                 </div>
-                <div class="col-md-4 text-md-right">
-                    <div class="badge badge-glass" style="font-size:1.1rem; padding:1rem 1.5rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border-radius: 15px; color:white; border: 1px solid rgba(255,255,255,0.3);">
-                        <i class="far fa-clock mr-2"></i> {{ now()->setTimezone('Europe/Istanbul')->format('d.m.Y H:i') }}
+                <div class="col-xl-7 mt-3 mt-xl-0">
+                    <form id="kpi-date-filter" action="{{ route('granilya.laboratory.dashboard') }}" method="GET" class="row align-items-end">
+                        <div class="col-md-5 mb-2 mb-md-0">
+                            <label class="text-muted small font-weight-bold uppercase mb-1">Başlangıç</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ $startDate }}">
+                        </div>
+                        <div class="col-md-5 mb-2 mb-md-0">
+                            <label class="text-muted small font-weight-bold uppercase mb-1">Bitiş</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ $endDate }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-block" style="height: calc(1.5em + 1.5rem + 2px);">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-3">
+                        <small class="text-muted font-weight-bold mr-2">HIZLI SEÇİM:</small>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3 mr-1" onclick="setDateRange('today')">Bugün</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3 mr-1" onclick="setDateRange('yesterday')">Dün</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3 mr-1" onclick="setDateRange('week')">Bu Hafta</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary px-3 mr-1" onclick="setDateRange('month')">Bu Ay</button>
+                        <button type="button" class="btn btn-sm btn-outline-warning px-3" onclick="resetDateFilter()">Sıfırla</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Top Metrics Rows --}}
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon text-success"><i class="fas fa-percentage"></i></div>
+                <div class="stat-number text-clean">{{ $stats['acceptance_rate'] }}%</div>
+                <div class="stat-label">Kabul Oranı</div>
+                <div class="stat-subtext">Hatasız Onay + İstisnai Onay / Toplam</div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon text-primary"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-number text-primary">{{ $stats['clean_approved'] }}</div>
+                <div class="stat-label">Hatasız Onay</div>
+                <div class="stat-subtext">Doğrudan laboratuvar onayı alanlar</div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon text-exceptional"><i class="fas fa-star"></i></div>
+                <div class="stat-number text-exceptional">{{ $stats['exceptional_approved'] }}</div>
+                <div class="stat-label">İstisnai Onay</div>
+                <div class="stat-subtext">Limit dışı değerlendirilip onaylananlar</div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card" style="min-height: 160px;">
+                <div class="stat-icon text-corrected" style="font-size: 1.8rem;"><i class="fas fa-wrench"></i></div>
+                <div class="stat-label">Düzeltme Faaliyeti</div>
+                <div class="stat-number text-corrected" style="font-size: 1.8rem;">{{ $stats['corrected'] }}</div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card" style="min-height: 160px;">
+                <div class="stat-icon text-rejected" style="font-size: 1.8rem;"><i class="fas fa-times-circle"></i></div>
+                <div class="stat-label">Reddedilen</div>
+                <div class="stat-number text-rejected" style="font-size: 1.8rem;">{{ $stats['rejected'] }}</div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card" style="min-height: 160px;">
+                <div class="stat-icon text-pending" style="font-size: 1.8rem;"><i class="fas fa-vials"></i></div>
+                <div class="stat-label">Test Aşamasında</div>
+                <div class="stat-number text-pending" style="font-size: 1.8rem;">{{ $stats['pending_total'] }}</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Quick Access Section --}}
+    <h5 class="mb-3 font-weight-bold ml-1 text-muted uppercase" style="letter-spacing: 1px;">Analiz ve Rapor Modülleri</h5>
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-2">
+            <a href="{{ route('granilya.laboratory.report') }}" class="btn btn-info btn-block btn-quick-action">
+                <i class="fas fa-file-invoice"></i> Lab Raporu
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-2">
+            <a href="{{ route('granilya.laboratory.stock_analysis') }}" class="btn btn-secondary btn-block btn-quick-action" style="background: #1e293b; color: white;">
+                <i class="fas fa-cubes"></i> Stok Analizi
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-2">
+            <a href="{{ route('granilya.laboratory.crusher_performance') }}" class="btn btn-success btn-block btn-quick-action">
+                <i class="fas fa-chart-bar"></i> Kırıcı Analizi
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-2">
+            <a href="{{ route('granilya.laboratory.bulk-process') }}" class="btn btn-warning btn-block btn-quick-action text-white">
+                <i class="fas fa-tasks"></i> Toplu İşlem
+            </a>
+        </div>
+    </div>
+
+    {{-- Lists Section --}}
+    <div class="row mt-4">
+        {{-- Pending Pallets --}}
+        <div class="col-lg-7">
+            <div class="card-granilya">
+                <div class="card-header-granilya">
+                    <h5><i class="fas fa-hourglass-half"></i> Bekleyen İşlemler (Son 20)</h5>
+                    <a href="{{ route('granilya.laboratory.barcode-list') }}" class="btn btn-sm btn-link text-primary font-weight-bold">Tümünü Gör</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-granilya mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Stok</th>
+                                    <th>Şarj / Palet No</th>
+                                    <th>Miktar</th>
+                                    <th>Durum</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($pendingPallets as $p)
+                                <tr>
+                                    <td><strong>{{ $p->stock->name ?? '-' }}</strong></td>
+                                    <td>{{ $p->load_number }} / <small>{{ $p->pallet_number }}</small></td>
+                                    <td>{{ $p->quantity->quantity ?? '-' }} KG</td>
+                                    <td>{!! $p->status_badge !!}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="openPalletDetail({{ $p->id }})">
+                                            İncele
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted italic">Kayıt bulunamadı.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- ========================== --}}
-        {{-- KPI DATE FILTER --}}
-        {{-- ========================== --}}
-        <div class="card-modern glass-card mb-4">
-            <div class="card-body-modern">
-                <div class="row align-items-center">
-                    <div class="col-xl-6">
-                        <h4 class="mb-2 font-weight-bold">
-                            <i class="fas fa-calendar-check text-primary mr-3"></i>Analiz Zaman Aralığı
-                        </h4>
-                        <p class="text-muted mb-0">
-                            <strong>Aktif Filtre:</strong> 
-                            <span class="badge badge-soft-primary px-3 py-2" style="font-size: 0.9rem;">
-                                {{ \Carbon\Carbon::parse($startDate)->format('d.m.Y') }} — 
-                                {{ \Carbon\Carbon::parse($endDate)->format('d.m.Y') }}
-                            </span>
-                        </p>
-                    </div>
-                    <div class="col-xl-6">
-                        <form id="kpi-date-filter" action="{{ route('granilya.laboratory.dashboard') }}" method="GET" class="row g-3">
-                            <div class="col-md-5">
-                                <label for="start_date" class="form-label">Başlangıç</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date"
-                                       value="{{ $startDate }}">
+        {{-- Recent Activity --}}
+        <div class="col-lg-5">
+            <div class="card-granilya">
+                <div class="card-header-granilya">
+                    <h5><i class="fas fa-history"></i> Son İşlemler</h5>
+                </div>
+                <div class="card-body p-0" style="max-height: 500px; overflow-y: auto;">
+                    @forelse($recentActivities as $activity)
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div style="flex: 1;">
+                                <div class="font-weight-bold">{{ $activity->stock->name ?? '-' }}</div>
+                                <div class="text-muted small">Palet: {{ $activity->pallet_number }} | {{ $activity->quantity->quantity ?? '-' }} KG</div>
+                                <div class="text-muted small mt-1"><i class="fas fa-user mr-1"></i> {{ $activity->user->name ?? '-' }}</div>
                             </div>
-                            <div class="col-md-5">
-                                <label for="end_date" class="form-label">Bitiş</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date"
-                                       value="{{ $endDate }}">
+                            <div class="text-right">
+                                <div class="mb-1">{!! $activity->status_badge !!}</div>
+                                <div class="small text-muted">{{ $activity->updated_at->format('H:i') }}</div>
                             </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary btn-block h-100" style="min-height: 48px;">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
-                            </div>
-                        </form>
-                        {{-- Quick Date Buttons --}}
-                        <div class="mt-3">
-                            <small class="text-muted">Hızlı seçim: </small>
-                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('today')">Bugün</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('yesterday')">Dün</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('week')">Bu Hafta</button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm mx-1" onclick="setDateRange('month')">Bu Ay</button>
-                            <button type="button" class="btn btn-outline-warning btn-sm mx-1" onclick="resetDateFilter()">Sıfırla</button>
                         </div>
                     </div>
+                    @empty
+                    <div class="py-5 text-center text-muted">Henüz işlem yapılmamış.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
-
-        {{-- ========================== --}}
-        {{-- KPI STATS --}}
-        {{-- ========================== --}}
-        <div class="row">
-            {{-- Kabul Oranı --}}
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm">
-                    <div class="stat-icon-modern text-success">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                    <div class="stat-number-modern text-clean">{{ $stats['acceptance_rate'] }}%</div>
-                    <div class="stat-label-modern">Kabul Oranı</div>
-                    <p class="text-muted small mt-2 mb-0">Hatasız + İstisnai Oranı</p>
-                </div>
-            </div>
-
-            {{-- Hatasız Onaylanan --}}
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm">
-                    <div class="stat-icon-modern text-primary">
-                        <i class="fas fa-certificate"></i>
-                    </div>
-                    <div class="stat-number-modern text-primary">{{ $stats['clean_approved'] }}</div>
-                    <div class="stat-label-modern">Hatasız Onay</div>
-                    <p class="text-muted small mt-2 mb-0">Doğrudan onay alanlar</p>
-                </div>
-            </div>
-
-            {{-- İstisnai Onay --}}
-            <div class="col-xl-4 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm">
-                    <div class="stat-icon-modern text-exceptional">
-                        <i class="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div class="stat-number-modern text-exceptional">{{ $stats['exceptional_approved'] }}</div>
-                    <div class="stat-label-modern">İstisnai Onay</div>
-                    <p class="text-muted small mt-2 mb-0">Limit dışı onaylananlar</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            {{-- Düzeltme Faaliyeti --}}
-            <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm">
-                    <div class="stat-icon-modern text-corrected">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <div class="stat-number-modern text-corrected">{{ $stats['corrected'] }}</div>
-                    <div class="stat-label-modern">Düzeltme Faaliyeti</div>
-                </div>
-            </div>
-
-            {{-- Reddedilen --}}
-            <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm">
-                    <div class="stat-icon-modern text-danger">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="stat-number-modern text-danger">{{ $stats['rejected'] }}</div>
-                    <div class="stat-label-modern">Reddedilen</div>
-                </div>
-            </div>
-
-            {{-- Test Aşamasında --}}
-            <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm">
-                    <div class="stat-icon-modern text-pending">
-                        <i class="fas fa-vial"></i>
-                    </div>
-                    <div class="stat-number-modern text-pending">{{ $stats['pending_total'] }}</div>
-                    <div class="stat-label-modern">Test Aşamasında</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ========================== --}}
-        {{-- QUICK ACTIONS CARD --}}
-        {{-- ========================== --}}
-        <div class="row">
-            <div class="col-12">
-                <div class="card-modern">
-                    <div class="card-header-modern">
-                        <h3 class="card-title-modern"><i class="fas fa-bolt"></i> Analiz ve Raporlar</h3>
-                    </div>
-                    <div class="card-body-modern">
-                        <div class="row">
-                            <div class="col-md-3 mb-2">
-                                <a href="{{ route('granilya.laboratory.report') }}"
-                                   class="btn btn-info btn-block quick-action-btn-modern">
-                                    <i class="fas fa-file-alt mr-2"></i> Lab Raporu
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{{ route('granilya.laboratory.stock_analysis') }}"
-                                   class="btn btn-dark btn-block quick-action-btn-modern">
-                                    <i class="fas fa-boxes mr-2"></i> Stok Analizi
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{{ route('granilya.laboratory.crusher_performance') }}"
-                                   class="btn btn-success btn-block quick-action-btn-modern">
-                                    <i class="fas fa-tools mr-2"></i> Kırıcı Analizi
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{{ route('granilya.laboratory.bulk-process') }}"
-                                   class="btn btn-warning btn-block quick-action-btn-modern text-white">
-                                    <i class="fas fa-layer-group mr-2"></i> Toplu İşlem
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ========================== --}}
-        {{-- PENDING PALLETS + RECENT ACTIVITIES --}}
-        {{-- ========================== --}}
-        <div class="row">
-            {{-- Pending Pallets --}}
-            <div class="col-lg-6">
-                <div class="card-modern">
-                    <div class="card-header-modern">
-                        <h3 class="card-title-modern">
-                            <i class="fas fa-clock text-warning"></i>Laboratuvar İşlemleri (Son 20)
-                        </h3>
-                    </div>
-                    <div class="card-body-modern">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Stok</th>
-                                        <th>Şarj / Palet</th>
-                                        <th>Miktar</th>
-                                        <th>Oluşturan</th>
-                                        <th>İşlem</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($pendingPallets as $p)
-                                    <tr>
-                                        <td>
-                                            <strong>{{ $p->stock->name ?? '-' }}</strong><br>
-                                            {!! $p->status_badge !!}
-                                        </td>
-                                        <td>
-                                            Şarj: {{ $p->load_number }}<br>
-                                            <small>{{ $p->pallet_number }}</small>
-                                        </td>
-                                        <td>{{ $p->quantity->quantity ?? '-' }} KG</td>
-                                        <td>
-                                            {{ $p->user->name ?? '-' }}<br>
-                                            <small>{{ $p->created_at->format('d.m.Y H:i') }}</small>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="openPalletDetail({{ $p->id }})">
-                                                <i class="fas fa-eye"></i> İncele
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted">
-                                            <i class="fas fa-check-circle text-success mr-2"></i>
-                                            Bekleyen palet bulunmuyor!
-                                        </td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        @if($pendingPallets->count() > 0)
-                        <div class="text-center mt-3">
-                            <a href="{{ route('granilya.laboratory.barcode-list') }}"
-                               class="btn btn-outline-primary btn-sm">Tümünü Görüntüle</a>
-                        </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            {{-- Recent Activities --}}
-            <div class="col-lg-6">
-                <div class="card-modern">
-                    <div class="card-header-modern">
-                        <h3 class="card-title-modern">
-                            <i class="fas fa-history text-info"></i>Son İşlemler
-                        </h3>
-                    </div>
-                    <div class="card-body-modern">
-                        <div class="activity-list">
-                            @forelse($recentActivities as $activity)
-                            <div class="activity-item">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>{{ $activity->stock->name ?? '-' }}</strong><br>
-                                        <small class="text-muted">
-                                            Palet: {{ $activity->pallet_number }} | {{ $activity->quantity->quantity ?? '-' }} KG
-                                        </small>
-                                    </div>
-                                    <div class="text-right">
-                                        {!! $activity->status_badge !!}<br>
-                                        <small class="text-muted">{{ $activity->updated_at->format('H:i') }}</small>
-                                    </div>
-                                </div>
-                                <div class="mt-1">
-                                    <small class="text-muted">
-                                        <i class="fas fa-user mr-1"></i>{{ $activity->user->name ?? '-' }}
-                                    </small>
-                                </div>
-                            </div>
-                            @empty
-                            <div class="text-center text-muted py-4">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                Henüz işlem yapılmamış
-                            </div>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
@@ -410,7 +310,6 @@
 
 @section('scripts')
 <script>
-// Quick date range helpers (mirrors Frit lab-dashboard.js)
 function setDateRange(range) {
     var today = new Date();
     var start, end;
