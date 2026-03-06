@@ -58,19 +58,23 @@ class PageController extends Controller
         $today = Carbon::today('Europe/Istanbul');
         
         if ($startDate && $endDate) {
-            $start = Carbon::parse($startDate)->setTimezone('Europe/Istanbul')->startOfDay();
-            $end = Carbon::parse($endDate)->setTimezone('Europe/Istanbul')->endOfDay();
-            if ($end->isAfter($today->copy()->endOfDay())) $end = $today->copy()->endOfDay();
-            
-            return [
-                'name' => 'Özel Tarih Aralığı',
-                'range' => $start->format('d.m.Y') . ' - ' . $end->format('d.m.Y'),
-                'start_date' => $start,
-                'end_date' => $end,
-                'start_date_formatted' => $start->format('d.m.Y'),
-                'end_date_formatted' => $end->format('d.m.Y'),
-                'is_custom' => true
-            ];
+            try {
+                $start = Carbon::parse($startDate)->setTimezone('Europe/Istanbul')->startOfDay();
+                $end = Carbon::parse($endDate)->setTimezone('Europe/Istanbul')->endOfDay();
+                if ($end->isAfter($today->copy()->endOfDay())) $end = $today->copy()->endOfDay();
+                
+                return [
+                    'name' => 'Özel Tarih Aralığı',
+                    'range' => $start->format('d.m.Y') . ' - ' . $end->format('d.m.Y'),
+                    'start_date' => $start,
+                    'end_date' => $end,
+                    'start_date_formatted' => $start->format('d.m.Y'),
+                    'end_date_formatted' => $end->format('d.m.Y'),
+                    'is_custom' => true
+                ];
+            } catch (\Exception $e) {
+                // Fallback to default behavior if invalid dates are given
+            }
         }
         
         $startDate = $date->copy();
