@@ -1,87 +1,133 @@
 @extends('layouts.granilya')
 
 @section('styles')
-<style>
-    body, .main-content, .modern-lab-dashboard { background: #f8f9fa !important; }
-    .modern-lab-dashboard { background: #ffffff; min-height: 100vh; padding: 2rem 0; }
+    /* ---- Glassmorphism Base ---- */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
     /* ---- Header ---- */
     .page-header-modern {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px; padding: 2rem; margin-bottom: 2rem;
-        color: white; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
-    .page-title-modern { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; }
-    .page-title-modern i { margin-right: 1rem; font-size: 2rem; }
-    .page-subtitle-modern { font-size: 1.1rem; opacity: 0.9; margin-bottom: 0; }
+    .page-title-modern { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .page-title-modern i { margin-right: 1.5rem; font-size: 2.5rem; color: #fff; }
+    .page-subtitle-modern { font-size: 1.2rem; opacity: 0.95; margin-bottom: 0; font-weight: 500; }
 
     /* ---- Stat Cards ---- */
     .stat-card-modern {
-        border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.08);
-        transition: transform 0.2s; background: #fff;
-        padding: 2rem 1.5rem; margin-bottom: 1.5rem; border: 1px solid #e9ecef; text-align: center;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 2.5rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
     }
-    .stat-card-modern:hover { transform: translateY(-2px); }
-    .stat-icon-modern { font-size: 2.5rem; opacity: 0.8; margin-bottom: 0.5rem; }
-    .stat-number-modern { font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .stat-label-modern { color: #6c757d; font-size: 1rem; margin-bottom: 0; font-weight: 600; }
+    .stat-card-modern:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
+    .stat-icon-modern { font-size: 3rem; margin-bottom: 1rem; }
+    .stat-number-modern { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a202c; }
+    .stat-label-modern { color: #4a5568; font-size: 1.1rem; margin-bottom: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
     /* ---- Quick Action Buttons ---- */
     .quick-action-btn-modern {
-        border-radius: 10px; padding: 15px; margin: 10px 0;
-        transition: all 0.3s; font-weight: 600; font-size: 1rem; display: block;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 10px 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    .quick-action-btn-modern:hover { transform: scale(1.05); }
+    .quick-action-btn-modern i { font-size: 1.4rem; }
+    .quick-action-btn-modern:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
 
     /* ---- Cards ---- */
     .card-modern {
-        background: #ffffff; border-radius: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e9ecef; overflow: hidden; margin-bottom: 2rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin-bottom: 2rem;
     }
     .card-header-modern {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 1.5rem 2rem; border-bottom: 1px solid #e9ecef;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1.8rem 2.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
     .card-title-modern {
-        font-size: 1.3rem; font-weight: 600; color: #495057; margin-bottom: 0;
+        font-size: 1.5rem; font-weight: 800; color: #1a202c; margin-bottom: 0;
         display: flex; align-items: center;
     }
-    .card-title-modern i { margin-right: 0.5rem; color: #667eea; }
-    .card-subtitle-modern { color: #6c757d; margin-bottom: 0; }
-    .card-body-modern { padding: 2rem; }
+    .card-title-modern i { margin-right: 1rem; color: #667eea; font-size: 1.6rem; }
 
-    /* ---- Activity List ---- */
-    .activity-item {
-        border-left: 3px solid #007bff; padding-left: 15px; margin-bottom: 10px;
+    .card-body-modern { padding: 2.5rem; }
+
+    /* ---- Table Styles ---- */
+    .table-modern {
+        border-radius: 15px;
+        overflow: hidden;
+        border: none;
     }
-    .pending-item {
-        background: #f8f9fa; border-radius: 8px; padding: 10px;
-        margin-bottom: 8px; border-left: 4px solid #ffc107;
+    .table-modern thead th {
+        background: #f7fafc;
+        border: none;
+        color: #4a5568;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        padding: 1.2rem;
+    }
+    .table-modern tbody td {
+        padding: 1.2rem;
+        vertical-align: middle;
+        border-top: 1px solid #edf2f7;
     }
 
     /* ---- Date Filter ---- */
-    .form-label { font-weight: 600; color: #495057; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .form-label { font-weight: 700; color: #2d3748; font-size: 0.95rem; margin-bottom: 0.6rem; }
     .form-control {
-        border-radius: 8px; border: 1px solid #ced4da; transition: all 0.3s ease;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 0.8rem 1.2rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
     }
-    .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); }
+    .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); outline: none; }
+    
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none; border-radius: 8px; transition: all 0.3s ease;
+        border: none;
+        border-radius: 12px;
+        padding: 0.8rem 1.5rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
 
     /* ---- Responsive ---- */
     @media (max-width: 768px) {
-        .page-title-modern { font-size: 2rem; }
-        .stat-card-modern { padding: 1.2rem 1rem; margin-bottom: 1rem; }
-        .card-body-modern { padding: 1.2rem; }
-    }
-    @media (max-width: 576px) {
+        .page-header-modern { padding: 1.5rem; }
         .page-title-modern { font-size: 1.8rem; }
-        .stat-card-modern { padding: 1rem 0.8rem; }
-        .card-body-modern { padding: 1rem; }
+        .stat-card-modern { padding: 1.5rem 1rem; }
     }
 </style>
 @endsection
@@ -97,14 +143,14 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="page-title-modern">
-                        <i class="fas fa-flask"></i> Granilya Laboratuvar Paneli
+                        <i class="fas fa-atom"></i> Granilya Lab Paneli
                     </h1>
-                    <p class="page-subtitle-modern">Hoş geldiniz, {{ auth()->user()->name }}!</p>
+                    <p class="page-subtitle-modern">Yüksek hassasiyetli laboratuvar veri yönetimi</p>
                 </div>
-                <div class="col-md-4 text-right">
-                    <span class="badge badge-info" style="font-size:1rem; padding:0.75rem 1.25rem; background: rgba(255,255,255,0.15); border:none; color:white;">
-                        {{ now()->setTimezone('Europe/Istanbul')->format('d.m.Y H:i') }}
-                    </span>
+                <div class="col-md-4 text-md-right">
+                    <div class="badge badge-glass" style="font-size:1.1rem; padding:1rem 1.5rem; background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border-radius: 15px; color:white; border: 1px solid rgba(255,255,255,0.3);">
+                        <i class="far fa-clock mr-2"></i> {{ now()->setTimezone('Europe/Istanbul')->format('d.m.Y H:i') }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -112,40 +158,43 @@
         {{-- ========================== --}}
         {{-- KPI DATE FILTER --}}
         {{-- ========================== --}}
-        <div class="card-modern mb-3">
+        <div class="card-modern glass-card mb-4">
             <div class="card-body-modern">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h5 class="mb-0">
-                            <i class="fas fa-calendar-alt text-primary mr-2"></i>
-                            KPI Tarih Filtresi
-                        </h5>
-                        <small class="text-muted">
-                            Tüm KPI'lar seçilen tarih aralığında oluşturulan paletleri gösterir |
-                            <strong>Aktif Tarih:
-                                {{ \Carbon\Carbon::parse($startDate)->format('d.m.Y') }} -
+                    <div class="col-xl-6">
+                        <h4 class="mb-2 font-weight-bold">
+                            <i class="fas fa-calendar-check text-primary mr-3"></i>Analiz Zaman Aralığı
+                        </h4>
+                        <p class="text-muted mb-0">
+                            <strong>Aktif Filtre:</strong> 
+                            <span class="badge badge-soft-primary px-3 py-2" style="font-size: 0.9rem;">
+                                {{ \Carbon\Carbon::parse($startDate)->format('d.m.Y') }} — 
                                 {{ \Carbon\Carbon::parse($endDate)->format('d.m.Y') }}
-                            </strong>
-                        </small>
+                            </span>
+                        </p>
                     </div>
-                    <div class="col-md-6">
-                        <form id="kpi-date-filter" action="{{ route('granilya.laboratory.dashboard') }}" method="GET" class="row g-2">
+                    <div class="col-xl-6">
+                        <form id="kpi-date-filter" action="{{ route('granilya.laboratory.dashboard') }}" method="GET" class="row g-3">
                             <div class="col-md-5">
-                                <label for="start_date" class="form-label">Başlangıç Tarihi</label>
+                                <label for="start_date" class="form-label">Başlangıç</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date"
                                        value="{{ $startDate }}">
                             </div>
                             <div class="col-md-5">
-                                <label for="end_date" class="form-label">Bitiş Tarihi</label>
+                                <label for="end_date" class="form-label">Bitiş</label>
                                 <input type="date" class="form-control" id="end_date" name="end_date"
                                        value="{{ $endDate }}">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-filter"></i>
+                                <button type="submit" class="btn btn-primary btn-block h-100" style="min-height: 48px;">
+                                    <i class="fas fa-sync-alt"></i>
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
                         {{-- Quick Date Buttons --}}
                         <div class="mt-2">
                             <small class="text-muted">Hızlı seçim: </small>

@@ -3,42 +3,71 @@
 @section('styles')
     <style>
         .page-header-granilya {
-            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
-            border-radius: 15px;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2.5rem;
             margin-bottom: 2rem;
             color: white;
-            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         .quality-card {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
             margin-bottom: 2rem;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
         }
-        .quality-card:hover { transform: translateY(-5px); }
+        .quality-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
         .rate-circle {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin: 0 auto 1rem;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
         }
         .rejection-reason {
-            font-size: 0.85rem;
-            background: #f1f5f9;
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            background: #f8fafc;
+            padding: 0.5rem 0.8rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            border: 1px solid #edf2f7;
         }
-        .rejection-count { font-weight: 700; color: #ef4444; }
+        .rejection-count { font-weight: 800; color: #ef4444; }
+
+        /* Premium Excel Button */
+        .btn-excel-premium {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            color: white !important;
+            border: none;
+            border-radius: 12px;
+            padding: 0.8rem 1.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-excel-premium:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+            filter: brightness(1.1);
+        }
     </style>
 @endsection
 
@@ -47,12 +76,12 @@
     <div class="page-header-granilya">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="h2 mb-1"><i class="fas fa-check-shield mr-2"></i> Stok Kalite Analizi</h1>
-                <p class="mb-0 opacity-75">Ürün bazlı kalite istatistikleri ve red sebepleri</p>
+                <h1 class="h2 mb-1 font-weight-bold"><i class="fas fa-microscope mr-3"></i> Stok Kalite Analizi</h1>
+                <p class="mb-0 opacity-90 font-weight-500">Ürün bazlı kalite istatistikleri ve red sebepleri</p>
             </div>
             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                <a href="{{ route('granilya.laboratory.stock_analysis_excel', ['start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}" class="btn btn-light">
-                    <i class="fas fa-file-excel mr-1 text-success"></i> Excel İndir
+                <a href="{{ route('granilya.laboratory.stock_analysis_excel', ['start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}" class="btn-excel-premium">
+                    <i class="fas fa-file-excel"></i> Excel Olarak İndir
                 </a>
             </div>
         </div>

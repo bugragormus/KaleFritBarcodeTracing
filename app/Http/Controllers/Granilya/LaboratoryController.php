@@ -26,14 +26,26 @@ class LaboratoryController extends Controller
         $startDateTime = Carbon::parse($startDate)->startOfDay();
         $endDateTime   = Carbon::parse($endDate)->endOfDay();
 
+        $acceptedStatuses = [
+            GranilyaProduction::STATUS_PRE_APPROVED,
+            GranilyaProduction::STATUS_SHIPMENT_APPROVED,
+            6, // Shipped
+            9, // Customer Transfer
+            10 // Delivered
+        ];
+
         $waiting           = GranilyaProduction::where('status', GranilyaProduction::STATUS_WAITING)
                                 ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
+        
         $preApproved       = GranilyaProduction::where('status', GranilyaProduction::STATUS_PRE_APPROVED)
                                 ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
-        $shipmentApproved  = GranilyaProduction::where('status', GranilyaProduction::STATUS_SHIPMENT_APPROVED)
+        
+        $shipmentApproved  = GranilyaProduction::whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10])
                                 ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
+        
         $rejected          = GranilyaProduction::where('status', GranilyaProduction::STATUS_REJECTED)
                                 ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
+        
         $exceptional       = GranilyaProduction::where('is_exceptionally_approved', true)
                                 ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
                                 
@@ -56,7 +68,8 @@ class LaboratoryController extends Controller
             ->whereIn('status', [
                 GranilyaProduction::STATUS_PRE_APPROVED,
                 GranilyaProduction::STATUS_SHIPMENT_APPROVED,
-                GranilyaProduction::STATUS_REJECTED
+                GranilyaProduction::STATUS_REJECTED,
+                6, 9, 10
             ])
             ->orderByDesc('updated_at')
             ->limit(10)
@@ -413,7 +426,8 @@ class LaboratoryController extends Controller
             ->whereIn('status', [
                 GranilyaProduction::STATUS_PRE_APPROVED,
                 GranilyaProduction::STATUS_SHIPMENT_APPROVED,
-                GranilyaProduction::STATUS_REJECTED
+                GranilyaProduction::STATUS_REJECTED,
+                6, 9, 10
             ])
             ->selectRaw('
                 stock_id,
@@ -428,11 +442,11 @@ class LaboratoryController extends Controller
 
         $summary = [
             'total_processed' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->whereIn('status', [GranilyaProduction::STATUS_PRE_APPROVED, GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_REJECTED])->count(),
+                ->whereIn('status', [GranilyaProduction::STATUS_PRE_APPROVED, GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_REJECTED, 6, 9, 10])->count(),
             'pre_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
                 ->where('status', GranilyaProduction::STATUS_PRE_APPROVED)->count(),
             'shipment_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->where('status', GranilyaProduction::STATUS_SHIPMENT_APPROVED)->count(),
+                ->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10])->count(),
             'rejected' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
                 ->where('status', GranilyaProduction::STATUS_REJECTED)->count(),
             'exceptional_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
@@ -458,7 +472,8 @@ class LaboratoryController extends Controller
             ->whereIn('status', [
                 GranilyaProduction::STATUS_PRE_APPROVED,
                 GranilyaProduction::STATUS_SHIPMENT_APPROVED,
-                GranilyaProduction::STATUS_REJECTED
+                GranilyaProduction::STATUS_REJECTED,
+                6, 9, 10
             ])
             ->orderBy('updated_at', 'desc')
             ->get();
@@ -511,7 +526,7 @@ class LaboratoryController extends Controller
         }])->get()->map(function($stock) {
             $productions = $stock->granilyaProductions;
             $total = $productions->count();
-            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
             $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
             
             $reasons = [];
@@ -564,7 +579,7 @@ class LaboratoryController extends Controller
             foreach ($stockQualityData as $stock) {
                 $productions = $stock->granilyaProductions;
                 $total = $productions->count();
-                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
                 $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
                 
                 $reasons = [];
@@ -608,7 +623,7 @@ class LaboratoryController extends Controller
         }])->get()->map(function($crusher) {
             $productions = $crusher->granilyaProductions;
             $total = $productions->count();
-            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
             $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
 
             return [
@@ -651,7 +666,7 @@ class LaboratoryController extends Controller
             foreach ($crusherData as $crusher) {
                 $productions = $crusher->granilyaProductions;
                 $total = $productions->count();
-                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
                 $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
 
                 fputcsv($file, [

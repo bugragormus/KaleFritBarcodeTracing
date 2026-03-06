@@ -12,4 +12,9 @@ class GranilyaCrusher extends Model
     use HasFactory, SoftDeletes;
     
     protected $fillable = ['name', 'code', 'is_active'];
+
+    public function granilyaProductions()
+    {
+        return $this->hasMany(GranilyaProduction::class, 'crusher_id');
+    }
 }

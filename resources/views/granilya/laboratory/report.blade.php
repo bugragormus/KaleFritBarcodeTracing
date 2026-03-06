@@ -4,38 +4,74 @@
     <link href="{{ asset('assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
     <style>
         .page-header-granilya {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            border-radius: 15px;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2.5rem;
             margin-bottom: 2rem;
             color: white;
-            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
         .card-granilya {
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
             margin-bottom: 2rem;
         }
         .stat-card {
             text-align: center;
-            padding: 1.5rem;
-            border-radius: 12px;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 1.5rem;
         }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-number { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.2rem; }
-        .stat-label { color: #64748b; font-size: 0.9rem; text-transform: uppercase; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
+        .stat-number { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.3rem; }
+        .stat-label { color: #4a5568; font-size: 0.95rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+        
         .table-granilya thead th {
-            background-color: #f8fafc;
-            color: #475569;
-            font-weight: 600;
+            background-color: #f7fafc;
+            color: #4a5568;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             letter-spacing: 0.05em;
+            padding: 1.2rem;
+            border: none;
         }
+        .table-granilya tbody td {
+            padding: 1.2rem;
+            vertical-align: middle;
+            border-top: 1px solid #edf2f7;
+        }
+
+        /* Premium Excel Button */
+        .btn-excel-premium {
+            background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+            color: white !important;
+            border: none;
+            border-radius: 12px;
+            padding: 0.8rem 1.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-excel-premium:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+            filter: brightness(1.1);
+        }
+        .btn-excel-premium i { font-size: 1.2rem; }
     </style>
 @endsection
 
@@ -44,12 +80,12 @@
     <div class="page-header-granilya">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h1 class="h2 mb-1"><i class="fas fa-microscope mr-2"></i> Granilya Lab Raporu</h1>
-                <p class="mb-0 opacity-75">Laboratuvar analiz sonuçları ve genel istatistikler</p>
+                <h1 class="h2 mb-1 font-weight-bold"><i class="fas fa-chart-line mr-3"></i> Granilya Lab Raporu</h1>
+                <p class="mb-0 opacity-90 font-weight-500">Kapsamlı laboratuvar analiz ve işlem verileri</p>
             </div>
             <div class="col-md-4 text-md-right mt-3 mt-md-0">
-                <a href="{{ route('granilya.laboratory.export_report', ['start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}" class="btn btn-light">
-                    <i class="fas fa-file-excel mr-1 text-success"></i> Excel İndir
+                <a href="{{ route('granilya.laboratory.export_report', ['start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}" class="btn-excel-premium">
+                    <i class="fas fa-file-excel"></i> Excel Olarak İndir
                 </a>
             </div>
         </div>
