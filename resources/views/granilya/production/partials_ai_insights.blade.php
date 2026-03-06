@@ -313,7 +313,7 @@
                     </h3>
                     <div class="d-flex gap-2">
                         @if($period === 'custom')
-                            <a href="{{ route('dashboard.export', ['date' => $selectedDate, 'period' => $period, 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
+                            <a href="{{ route('dashboard.export', ['date' => $selectedDate, 'period' => $period, 'start_date' => $startDateStr ?? '', 'end_date' => $endDateStr ?? '']) }}" 
                                class="btn btn-warning btn-m" 
                                title="Detaylı Excel Raporu İndir">
                                 <i class="fas fa-file-excel"></i>
