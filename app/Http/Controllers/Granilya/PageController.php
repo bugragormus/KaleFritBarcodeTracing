@@ -582,7 +582,7 @@ class PageController extends Controller
         $startDate = $periodInfo['start_date'];
         $endDate = $periodInfo['end_date'];
 
-        $baseQuery = GranilyaProduction::whereBetween('created_at', [$startDate, $endDate])->whereNull('deleted_at');
+        $baseQuery = GranilyaProduction::whereBetween('granilya_productions.created_at', [$startDate, $endDate])->whereNull('granilya_productions.deleted_at');
         
         $totalCount = (clone $baseQuery)->count();
         if ($totalCount == 0) {
