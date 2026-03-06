@@ -308,10 +308,7 @@ class PageController extends Controller
             $reasonsCount = count($reasonNames);
             if ($reasonsCount == 0) {
                 $reasonNames[] = 'Diğer Sebepler';
-                $reasonsCount = 1;
             }
-
-            $kgPerReason = $qty / $reasonsCount;
 
             foreach ($reasonNames as $reason) {
                 if (!isset($analysis[$reason])) {
@@ -322,7 +319,7 @@ class PageController extends Controller
                     ];
                 }
                 $analysis[$reason]['count']++;
-                $analysis[$reason]['total_quantity'] += $kgPerReason;
+                $analysis[$reason]['total_quantity'] += $qty;
             }
         }
 
@@ -415,7 +412,12 @@ class PageController extends Controller
             $totalQuantity = (clone $baseQuery)->sum('granilya_quantities.quantity') ?? 0;
             if($totalQuantity == 0) continue;
 
-            $rejectedQuantity = (clone $baseQuery)->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)->sum('granilya_quantities.quantity') ?? 0;
+            $rejectedQuantity = (clone $baseQuery)->where(function($q) {
+                $q->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)
+                  ->orWhere('granilya_productions.sieve_test_result', 'Red')
+                  ->orWhere('granilya_productions.surface_test_result', 'Red')
+                  ->orWhere('granilya_productions.arge_test_result', 'Red');
+            })->sum('granilya_quantities.quantity') ?? 0;
             
             $rates[] = (object) [
                 'crusher_name' => $crusher->name,
