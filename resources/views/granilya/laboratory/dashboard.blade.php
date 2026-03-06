@@ -11,19 +11,20 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    /* ---- Header ---- */
+    /* ---- Page Header ---- */
     .page-header-modern {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin-bottom: 2.5rem;
-            color: white;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-    .page-title-modern { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.2rem; display: flex; align-items: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .page-title-modern i { margin-right: 1.2rem; font-size: 2.2rem; color: #fff; }
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    .page-header-modern h1 { font-size: 2.2rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .page-title-modern { font-weight: 800; display: flex; align-items: center; }
+    .page-title-modern i { margin-right: 1.2rem; font-size: 2.4rem; color: #fff; }
     .page-subtitle-modern { font-size: 1.1rem; opacity: 0.9; margin-bottom: 0; font-weight: 500; }
 
     /* ---- Stat Cards ---- */
@@ -39,14 +40,14 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        min-height: 220px;
+        min-height: 240px; /* Standardized height */
     }
     .stat-card-modern:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
     .stat-icon-modern { font-size: 2.8rem; margin-bottom: 1rem; }
-    .stat-number-modern { font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem; color: #1a202c; }
-    .stat-label-modern { color: #4a5568; font-size: 0.95rem; margin-bottom: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-number-modern { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.4rem; color: #1a202c; }
+    .stat-label-modern { color: #64748b; font-size: 0.9rem; margin-bottom: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
     
-    /* Stats Colors */
+    /* Stats Colors Sync */
     .text-clean { color: #22c55e !important; }
     .text-exceptional { color: #f59e0b !important; }
     .text-corrected { color: #6366f1 !important; }
@@ -54,24 +55,21 @@
 
     /* ---- Quick Action Buttons ---- */
     .quick-action-btn-modern {
-        border-radius: 15px;
-        padding: 18px;
-        margin: 5px 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 12px;
+        padding: 1.2rem;
         font-weight: 700;
-        font-size: 1rem;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         width: 100%;
     }
     .quick-action-btn-modern i { font-size: 1.3rem; }
-    .quick-action-btn-modern:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+    .quick-action-btn-modern:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
 
-    /* ---- Card Refinement ---- */
+    /* ---- Cards & Layout ---- */
     .card-modern {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(8px);
@@ -82,7 +80,7 @@
         margin-bottom: 2rem;
     }
     .card-header-modern {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
         padding: 1.5rem 2rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
@@ -221,7 +219,7 @@
         <div class="row">
             {{-- Düzeltme Faaliyeti --}}
             <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm" style="min-height: 180px;">
+                <div class="stat-card-modern glass-card shadow-sm">
                     <div class="stat-icon-modern text-corrected">
                         <i class="fas fa-tools"></i>
                     </div>
@@ -232,7 +230,7 @@
 
             {{-- Reddedilen --}}
             <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm" style="min-height: 180px;">
+                <div class="stat-card-modern glass-card shadow-sm">
                     <div class="stat-icon-modern text-danger">
                         <i class="fas fa-times-circle"></i>
                     </div>
@@ -243,7 +241,7 @@
 
             {{-- Test Aşamasında --}}
             <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card shadow-sm" style="min-height: 180px;">
+                <div class="stat-card-modern glass-card shadow-sm">
                     <div class="stat-icon-modern text-pending">
                         <i class="fas fa-vial"></i>
                     </div>
