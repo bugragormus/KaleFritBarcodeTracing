@@ -3,15 +3,17 @@
 @section('styles')
     <style>
         .page-header-granilya {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             border-radius: 20px;
-            padding: 2.5rem;
+            padding: 2rem 2.5rem;
             margin-bottom: 2rem;
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+        .page-header-granilya h1 { font-size: 2.2rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
         .crusher-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
@@ -23,38 +25,40 @@
             transition: all 0.3s ease;
         }
         .crusher-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
+        
         .acceptance-bar {
-            height: 12px;
-            border-radius: 6px;
-            background: #e2e8f0;
+            height: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            margin: 1.5rem 0;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+            margin: 1rem 0;
         }
         .acceptance-fill {
             height: 100%;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 1s ease-in-out;
         }
-
-        /* Premium Excel Button */
+        
+        /* Premium Excel Button Sync */
         .btn-excel-premium {
             background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
             color: white !important;
             border: none;
             border-radius: 12px;
-            padding: 0.8rem 1.8rem;
+            padding: 0.7rem 1.5rem;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-            transition: all 0.3s ease;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+            transition: transform 0.3s ease;
         }
-        .btn-excel-premium:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
-            filter: brightness(1.1);
-        }
+        .btn-excel-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3); text-decoration: none; }
+        
+        /* Stats Colors Sync */
+        .text-clean { color: #22c55e !important; }
+        .text-exceptional { color: #f59e0b !important; }
+        .text-corrected { color: #6366f1 !important; }
+        .text-pending { color: #94a3b8 !important; }
     </style>
 @endsection
 
@@ -117,15 +121,15 @@
                             <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Toplam</div>
                         </div>
                         <div class="col-4 border-right mb-3">
-                            <div class="h4 mb-0 font-weight-bold text-success">{{ $data['clean'] }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-clean">{{ $data['clean'] }}</div>
                             <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Hatasız</div>
                         </div>
                         <div class="col-4 mb-3">
-                            <div class="h4 mb-0 font-weight-bold text-warning">{{ $data['exceptional'] }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-exceptional">{{ $data['exceptional'] }}</div>
                             <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">İstisnai</div>
                         </div>
                         <div class="col-4 border-right">
-                            <div class="h4 mb-0 font-weight-bold" style="color: #6366f1;">{{ $data['corrected'] }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-corrected">{{ $data['corrected'] }}</div>
                             <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Düzeltme</div>
                         </div>
                         <div class="col-4 border-right">
@@ -133,7 +137,7 @@
                             <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Reddedilen</div>
                         </div>
                         <div class="col-4">
-                            <div class="h4 mb-0 font-weight-bold text-secondary">{{ $data['pending'] }}</div>
+                            <div class="h4 mb-0 font-weight-bold text-pending">{{ $data['pending'] }}</div>
                             <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Bekleyen</div>
                         </div>
                     </div>

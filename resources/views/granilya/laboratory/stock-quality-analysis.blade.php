@@ -3,15 +3,17 @@
 @section('styles')
     <style>
         .page-header-granilya {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             border-radius: 20px;
-            padding: 2.5rem;
+            padding: 2rem 2.5rem;
             margin-bottom: 2rem;
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+        .page-header-granilya h1 { font-size: 2.2rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
         .quality-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
@@ -23,51 +25,45 @@
             transition: all 0.3s ease;
         }
         .quality-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
+        
         .rate-circle {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.5rem;
-            margin: 0 auto 1.5rem;
+            font-size: 1.4rem;
+            margin: 0 auto;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
         }
-        .rejection-reason {
-            font-size: 0.9rem;
-            background: #f8fafc;
-            padding: 0.5rem 0.8rem;
-            border-radius: 10px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #edf2f7;
-        }
-        .rejection-count { font-weight: 800; color: #ef4444; }
+        
+        /* Stats Colors Sync */
+        .bg-light-success { background-color: rgba(34, 197, 94, 0.1) !important; }
+        .text-success { color: #22c55e !important; }
+        .bg-light-warning { background-color: rgba(245, 158, 11, 0.1) !important; }
+        .text-warning { color: #f59e0b !important; }
+        .bg-light-danger { background-color: rgba(239, 68, 68, 0.1) !important; }
+        .text-danger { color: #ef4444 !important; }
+        .text-corrected { color: #6366f1 !important; }
+        .text-pending { color: #94a3b8 !important; }
 
-        /* Premium Excel Button */
         .btn-excel-premium {
             background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
             color: white !important;
             border: none;
             border-radius: 12px;
-            padding: 0.8rem 1.8rem;
+            padding: 0.7rem 1.5rem;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-            transition: all 0.3s ease;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+            transition: transform 0.3s ease;
         }
-        .btn-excel-premium:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
-            filter: brightness(1.1);
-        }
+        .btn-excel-premium:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3); text-decoration: none; }
     </style>
 @endsection
 
@@ -140,7 +136,7 @@
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-muted small">Düzeltme:</span>
-                                <span class="font-weight-bold" style="color: #6366f1;">{{ $data['corrected'] }}</span>
+                                <span class="font-weight-bold text-corrected">{{ $data['corrected'] }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-muted small">Red:</span>
@@ -148,7 +144,7 @@
                             </div>
                             <div class="d-flex justify-content-between border-top pt-1 mt-1">
                                 <span class="text-muted small font-italic">Bekleyen:</span>
-                                <span class="font-weight-bold text-secondary">{{ $data['pending'] }}</span>
+                                <span class="font-weight-bold text-pending">{{ $data['pending'] }}</span>
                             </div>
                         </div>
                     </div>

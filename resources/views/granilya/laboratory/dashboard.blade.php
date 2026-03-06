@@ -13,18 +13,18 @@
 
     /* ---- Header ---- */
     .page-header-modern {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(12px);
         border-radius: 20px;
-        padding: 2.5rem;
+        padding: 2rem 2.5rem;
         margin-bottom: 2rem;
         color: white;
         border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
-    .page-title-modern { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .page-title-modern i { margin-right: 1.5rem; font-size: 2.5rem; color: #fff; }
-    .page-subtitle-modern { font-size: 1.2rem; opacity: 0.95; margin-bottom: 0; font-weight: 500; }
+    .page-title-modern { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.2rem; display: flex; align-items: center; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .page-title-modern i { margin-right: 1.2rem; font-size: 2.2rem; color: #fff; }
+    .page-subtitle-modern { font-size: 1.1rem; opacity: 0.9; margin-bottom: 0; font-weight: 500; }
 
     /* ---- Stat Cards ---- */
     .stat-card-modern {
@@ -32,35 +32,46 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
         background: rgba(255, 255, 255, 0.98);
-        padding: 2.5rem 1.5rem;
+        padding: 2rem 1.5rem;
         margin-bottom: 1.5rem;
         border: 1px solid rgba(255, 255, 255, 0.2);
         text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 220px;
     }
     .stat-card-modern:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
-    .stat-icon-modern { font-size: 3rem; margin-bottom: 1rem; }
-    .stat-number-modern { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #1a202c; }
-    .stat-label-modern { color: #4a5568; font-size: 1.1rem; margin-bottom: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-icon-modern { font-size: 2.8rem; margin-bottom: 1rem; }
+    .stat-number-modern { font-size: 2.4rem; font-weight: 800; margin-bottom: 0.4rem; color: #1a202c; }
+    .stat-label-modern { color: #4a5568; font-size: 0.95rem; margin-bottom: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* Stats Colors */
+    .text-clean { color: #22c55e !important; }
+    .text-exceptional { color: #f59e0b !important; }
+    .text-corrected { color: #6366f1 !important; }
+    .text-pending { color: #94a3b8 !important; }
 
     /* ---- Quick Action Buttons ---- */
     .quick-action-btn-modern {
         border-radius: 15px;
-        padding: 20px;
-        margin: 10px 0;
+        padding: 18px;
+        margin: 5px 0;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 700;
-        font-size: 1.1rem;
+        font-size: 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
         border: none;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        width: 100%;
     }
-    .quick-action-btn-modern i { font-size: 1.4rem; }
+    .quick-action-btn-modern i { font-size: 1.3rem; }
     .quick-action-btn-modern:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
 
-    /* ---- Cards ---- */
+    /* ---- Card Refinement ---- */
     .card-modern {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(8px);
@@ -72,65 +83,26 @@
     }
     .card-header-modern {
         background: rgba(255, 255, 255, 0.1);
-        padding: 1.8rem 2.5rem;
+        padding: 1.5rem 2rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
     .card-title-modern {
-        font-size: 1.5rem; font-weight: 800; color: #1a202c; margin-bottom: 0;
+        font-size: 1.3rem; font-weight: 800; color: #1a202c; margin-bottom: 0;
         display: flex; align-items: center;
     }
-    .card-title-modern i { margin-right: 1rem; color: #667eea; font-size: 1.6rem; }
+    .card-title-modern i { margin-right: 0.8rem; color: #667eea; font-size: 1.4rem; }
 
-    .card-body-modern { padding: 2.5rem; }
-
-    /* ---- Table Styles ---- */
-    .table-modern {
-        border-radius: 15px;
-        overflow: hidden;
-        border: none;
-    }
-    .table-modern thead th {
-        background: #f7fafc;
-        border: none;
-        color: #4a5568;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        padding: 1.2rem;
-    }
-    .table-modern tbody td {
-        padding: 1.2rem;
-        vertical-align: middle;
-        border-top: 1px solid #edf2f7;
-    }
-
-    /* ---- Date Filter ---- */
-    .form-label { font-weight: 700; color: #2d3748; font-size: 0.95rem; margin-bottom: 0.6rem; }
+    /* ---- Form Controls ---- */
     .form-control {
         border-radius: 12px;
         border: 2px solid #e2e8f0;
-        padding: 0.8rem 1.2rem;
+        padding: 0.7rem 1rem;
         font-weight: 500;
         transition: all 0.3s ease;
     }
-    .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); outline: none; }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 12px;
-        padding: 0.8rem 1.5rem;
-        font-weight: 700;
-        transition: all 0.3s ease;
-    }
-
-    /* ---- Responsive ---- */
-    @media (max-width: 768px) {
-        .page-header-modern { padding: 1.5rem; }
-        .page-title-modern { font-size: 1.8rem; }
-        .stat-card-modern { padding: 1.5rem 1rem; }
-    }
+    .form-control:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); outline: none; }
 </style>
+@endsection
 @endsection
 
 @section('content')
@@ -216,37 +188,37 @@
         <div class="row">
             {{-- Kabul Oranı --}}
             <div class="col-xl-4 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card" style="height: 100%;">
+                <div class="stat-card-modern glass-card shadow-sm">
                     <div class="stat-icon-modern text-success">
                         <i class="fas fa-chart-pie"></i>
                     </div>
-                    <div class="stat-number-modern">{{ $stats['acceptance_rate'] }}%</div>
+                    <div class="stat-number-modern text-clean">{{ $stats['acceptance_rate'] }}%</div>
                     <div class="stat-label-modern">Kabul Oranı</div>
-                    <p class="text-muted small mt-2 mb-0">Hatasız + İstisnai Onayların Oranı</p>
+                    <p class="text-muted small mt-2 mb-0">Hatasız + İstisnai Oranı</p>
                 </div>
             </div>
 
             {{-- Hatasız Onaylanan --}}
             <div class="col-xl-4 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card" style="height: 100%;">
+                <div class="stat-card-modern glass-card shadow-sm">
                     <div class="stat-icon-modern text-primary">
                         <i class="fas fa-certificate"></i>
                     </div>
                     <div class="stat-number-modern text-primary">{{ $stats['clean_approved'] }}</div>
                     <div class="stat-label-modern">Hatasız Onay</div>
-                    <p class="text-muted small mt-2 mb-0">Doğrudan onay alan paletler</p>
+                    <p class="text-muted small mt-2 mb-0">Doğrudan onay alanlar</p>
                 </div>
             </div>
 
             {{-- İstisnai Onay --}}
             <div class="col-xl-4 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card" style="height: 100%;">
-                    <div class="stat-icon-modern text-warning">
+                <div class="stat-card-modern glass-card shadow-sm">
+                    <div class="stat-icon-modern text-exceptional">
                         <i class="fas fa-exclamation-circle"></i>
                     </div>
-                    <div class="stat-number-modern text-warning">{{ $stats['exceptional_approved'] }}</div>
+                    <div class="stat-number-modern text-exceptional">{{ $stats['exceptional_approved'] }}</div>
                     <div class="stat-label-modern">İstisnai Onay</div>
-                    <p class="text-muted small mt-2 mb-0">Limit dışı değerlerle onaylanan</p>
+                    <p class="text-muted small mt-2 mb-0">Limit dışı onaylananlar</p>
                 </div>
             </div>
         </div>
@@ -254,34 +226,34 @@
         <div class="row">
             {{-- Düzeltme Faaliyeti --}}
             <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card" style="padding: 1.5rem;">
-                    <div class="stat-icon-modern" style="color: #6366f1; font-size: 2rem;">
+                <div class="stat-card-modern glass-card shadow-sm" style="min-height: 180px;">
+                    <div class="stat-icon-modern text-corrected">
                         <i class="fas fa-tools"></i>
                     </div>
-                    <div class="stat-number-modern" style="font-size: 2rem;">{{ $stats['corrected'] }}</div>
-                    <div class="stat-label-modern" style="font-size: 0.9rem;">Düzeltme Faaliyeti</div>
+                    <div class="stat-number-modern text-corrected">{{ $stats['corrected'] }}</div>
+                    <div class="stat-label-modern">Düzeltme Faaliyeti</div>
                 </div>
             </div>
 
             {{-- Reddedilen --}}
             <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card" style="padding: 1.5rem;">
-                    <div class="stat-icon-modern text-danger" style="font-size: 2rem;">
+                <div class="stat-card-modern glass-card shadow-sm" style="min-height: 180px;">
+                    <div class="stat-icon-modern text-danger">
                         <i class="fas fa-times-circle"></i>
                     </div>
-                    <div class="stat-number-modern text-danger" style="font-size: 2rem;">{{ $stats['rejected'] }}</div>
-                    <div class="stat-label-modern" style="font-size: 0.9rem;">Reddedilen</div>
+                    <div class="stat-number-modern text-danger">{{ $stats['rejected'] }}</div>
+                    <div class="stat-label-modern">Reddedilen</div>
                 </div>
             </div>
 
             {{-- Test Aşamasında --}}
             <div class="col-xl-4 col-md-4 mb-4">
-                <div class="stat-card-modern glass-card" style="padding: 1.5rem;">
-                    <div class="stat-icon-modern" style="color: #94a3b8; font-size: 2rem;">
+                <div class="stat-card-modern glass-card shadow-sm" style="min-height: 180px;">
+                    <div class="stat-icon-modern text-pending">
                         <i class="fas fa-vial"></i>
                     </div>
-                    <div class="stat-number-modern" style="font-size: 2rem; color: #64748b;">{{ $stats['pending_total'] }}</div>
-                    <div class="stat-label-modern" style="font-size: 0.9rem;">Test Aşamasında</div>
+                    <div class="stat-number-modern text-pending">{{ $stats['pending_total'] }}</div>
+                    <div class="stat-label-modern">Test Aşamasında</div>
                 </div>
             </div>
         </div>

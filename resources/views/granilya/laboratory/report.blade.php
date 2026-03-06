@@ -3,16 +3,44 @@
 @section('styles')
     <link href="{{ asset('assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
     <style>
+        /* ---- Header Sync ---- */
         .page-header-granilya {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(12px);
             border-radius: 20px;
-            padding: 2.5rem;
+            padding: 2rem 2.5rem;
             margin-bottom: 2rem;
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
+        .page-header-granilya h1 { font-size: 2.2rem; margin-bottom: 0.2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        /* ---- Stat Cards Sync ---- */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 18px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-number { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.3rem; }
+        .stat-label { font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ---- Colors ---- */
+        .text-clean { color: #22c55e !important; }
+        .text-exceptional { color: #f59e0b !important; }
+        .text-corrected { color: #6366f1 !important; }
+        .text-pending { color: #94a3b8 !important; }
+
+        /* ---- Card Refinement ---- */
         .card-granilya {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
@@ -22,19 +50,6 @@
             overflow: hidden;
             margin-bottom: 2rem;
         }
-        .stat-card {
-            text-align: center;
-            padding: 2rem 1.5rem;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 1.5rem;
-        }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
-        .stat-number { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.3rem; }
-        .stat-label { color: #4a5568; font-size: 0.95rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
         
         .table-granilya thead th {
             background-color: #f7fafc;
@@ -116,7 +131,7 @@
     <div class="row mb-2">
         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-number text-success">{{ $summary['acceptance_rate'] }}%</div>
+                <div class="stat-number text-clean">{{ $summary['acceptance_rate'] }}%</div>
                 <div class="stat-label">Kabul Oranı</div>
             </div>
         </div>
@@ -128,13 +143,13 @@
         </div>
         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-number text-warning">{{ $summary['exceptional_approved'] }}</div>
+                <div class="stat-number text-exceptional">{{ $summary['exceptional_approved'] }}</div>
                 <div class="stat-label">İstisnai Onay</div>
             </div>
         </div>
         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-number" style="color: #6366f1;">{{ $summary['corrected'] }}</div>
+                <div class="stat-number text-corrected">{{ $summary['corrected'] }}</div>
                 <div class="stat-label">Düzeltme</div>
             </div>
         </div>
@@ -146,7 +161,7 @@
         </div>
         <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-number text-secondary">{{ $summary['waiting'] + $summary['pre_approved'] }}</div>
+                <div class="stat-number text-pending">{{ $summary['waiting'] + $summary['pre_approved'] }}</div>
                 <div class="stat-label">Testte</div>
             </div>
         </div>
