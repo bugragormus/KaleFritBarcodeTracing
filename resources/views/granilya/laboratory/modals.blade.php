@@ -329,29 +329,42 @@ function populatePalletModal(res) {
     $('#mDetailStatus').html(res.status_badge || '');
 
     // Area Visibility
-    var isExceptionalPossible = (p.status == 5 && p.sieve_test_result != 'Red' && p.surface_test_result != 'Red' && p.arge_test_result == 'Red');
+    var allTestsCompleted = (p.sieve_test_result !== 'Bekliyor' && p.surface_test_result !== 'Bekliyor' && p.arge_test_result !== 'Bekliyor');
+    var isExceptionalPossible = (p.status == 5 && allTestsCompleted);
     $('#exceptionalArea').toggle(isExceptionalPossible); 
-    $('#terminalArea').toggle(p.status == 4 || p.status == 12); // 4 = Shipment Approved, 12 = Exceptional
+    $('#terminalArea').toggle(p.status == 4 || p.status == 12 || p.status == 6 || p.status == 9 || p.status == 10 || p.status == 8); 
 
     // Test cards state
-    // STATUS_WAITING = 1, STATUS_PRE_APPROVED = 3, STATUS_REJECTED = 5, ...
-    var terminal = (p.status == 4 || p.status == 12);
+    var terminal = (p.status == 4 || p.status == 6 || p.status == 8 || p.status == 9 || p.status == 10 || p.status == 12 || p.is_exceptionally_approved);
     
     // Enable/Disable buttons based on status
-    if (terminal) {
-        $('.btn-group').hide();
-    } else if (p.status == 5) {
+    if (terminal || (p.status == 5 && allTestsCompleted)) {
         $('.btn-group').hide();
     } else {
         $('.btn-group').show();
-        // Waiting state: only sieve and surface enabled. Arge should wait for pre-approved.
-        if (p.status == 1) {
+        
+        // Hide/Disable what's already done
+        if (p.sieve_test_result !== 'Bekliyor') {
+            $('#btnGroupSieve').css('opacity', '0.5').css('pointer-events', 'none');
+        } else {
+            $('#btnGroupSieve').css('opacity', '1').css('pointer-events', 'auto');
+        }
+
+        if (p.surface_test_result !== 'Bekliyor') {
+            $('#btnGroupSurface').css('opacity', '0.5').css('pointer-events', 'none');
+        } else {
+            $('#btnGroupSurface').css('opacity', '1').css('pointer-events', 'auto');
+        }
+
+        // Arge is only unlocked if Sieve and Surface both have results
+        if (p.sieve_test_result !== 'Bekliyor' && p.surface_test_result !== 'Bekliyor') {
+            if (p.arge_test_result !== 'Bekliyor') {
+                $('#btnGroupArge').css('opacity', '0.5').css('pointer-events', 'none');
+            } else {
+                $('#btnGroupArge').css('opacity', '1').css('pointer-events', 'auto');
+            }
+        } else {
             $('#btnGroupArge').css('opacity', '0.5').css('pointer-events', 'none');
-            $('#btnGroupSieve, #btnGroupSurface').css('opacity', '1').css('pointer-events', 'auto');
-        } else if (p.status == 3) {
-            $('#btnGroupArge').css('opacity', '1').css('pointer-events', 'auto');
-            // Once pre-approved, sieve and surface are done
-            $('#btnGroupSieve, #btnGroupSurface').css('opacity', '0.5').css('pointer-events', 'none');
         }
     }
 

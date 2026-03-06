@@ -122,12 +122,23 @@
     <div class="card-modern shadow-sm" style="border-left: 5px solid #3b82f6; background: #fdfdfe;">
         <div class="card-body p-4">
             <div class="row align-items-center">
-                <div class="col-lg-5 mb-4 mb-lg-0 border-right-lg">
+                <div class="col-lg-4 mb-4 mb-lg-0 border-right-lg">
                     <div class="d-flex align-items-start">
-                        <div class="step-num mr-3 shadow-sm">1</div>
+                        <div class="step-num mr-3 shadow-sm bg-primary">1</div>
+                        <div class="flex-grow-1">
+                            <h6 class="font-weight-bold mb-1" style="color: #1e293b;">Hızlı Seçim</h6>
+                            <p class="text-muted small mb-2">Barkod okutarak listeye ekleyin</p>
+                            <input type="number" id="quick-scanner" class="form-control border-primary" placeholder="Barkod No okutun..." autofocus>
+                            <small class="text-success mt-2 d-block"><i class="fas fa-check-circle"></i> Seçilen: <strong id="selected-count" style="font-size: 1.1rem;">0</strong> adet</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4 mb-lg-0 border-right-lg">
+                    <div class="d-flex align-items-start pl-lg-3">
+                        <div class="step-num mr-3 shadow-sm" style="background: #8b5cf6;">2</div>
                         <div class="flex-grow-1">
                             <h6 class="font-weight-bold mb-1" style="color: #1e293b;">Firma Seçimi</h6>
-                            <p class="text-muted small mb-3">Satış yapılacak müşteriyi listeden belirleyin</p>
+                            <p class="text-muted small mb-3">Satış yapılacak müşteriyi belirleyin</p>
                             <select id="sale-company" class="form-control select2">
                                 <option value="">Firma Seçiniz...</option>
                                 @foreach($companies as $company)
@@ -137,18 +148,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-7">
-                    <div class="d-flex align-items-start pl-lg-4">
-                        <div class="step-num mr-3 shadow-sm" style="background: #10b981;">2</div>
+                <div class="col-lg-4">
+                    <div class="d-flex align-items-start pl-lg-3">
+                        <div class="step-num mr-3 shadow-sm" style="background: #10b981;">3</div>
                         <div class="flex-grow-1">
                             <h6 class="font-weight-bold mb-1" style="color: #1e293b;">İşlem Seçimi</h6>
-                            <p class="text-muted small mb-3">Seçili olan barkodların durumunu güncelleyin</p>
-                            <div class="d-flex gap-3 flex-wrap">
-                                <button type="button" class="btn btn-warning btn-modern btn-sale shadow-sm px-4" data-status="{{ \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER }}" style="background: #f59e0b; border: none;">
-                                    <i class="fas fa-truck mr-2"></i> Müşteri Transfer
+                            <p class="text-muted small mb-3">Seçili barkodların durumunu güncelleyin</p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-warning btn-modern btn-sale shadow-sm px-3" data-status="{{ \App\Models\Barcode::STATUS_CUSTOMER_TRANSFER }}" style="background: #f59e0b; border: none; font-size: 0.9rem;">
+                                    <i class="fas fa-truck mr-1"></i> Transfer
                                 </button>
-                                <button type="button" class="btn btn-success btn-modern btn-sale shadow-sm px-4" data-status="{{ \App\Models\Barcode::STATUS_DELIVERED }}" style="background: #10b981; border: none;">
-                                    <i class="fas fa-check-double mr-2"></i> Teslim Edildi
+                                <button type="button" class="btn btn-success btn-modern btn-sale shadow-sm px-3" data-status="{{ \App\Models\Barcode::STATUS_DELIVERED }}" style="background: #10b981; border: none; font-size: 0.9rem;">
+                                    <i class="fas fa-check-double mr-1"></i> Teslim
+                                </button>
+                                <button type="button" id="btn-clear-selection" class="btn btn-light btn-sm w-100 mt-2 border text-muted">
+                                    <i class="fas fa-times mr-1"></i> Seçimleri Temizle
                                 </button>
                             </div>
                         </div>
@@ -229,7 +243,85 @@
                 ],
                 order: [[1, 'desc']],
                 pageLength: 25,
-                language: { url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json" }
+                language: { url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json" },
+                drawCallback: function(settings) {
+                    // Sayfa değiştiğinde seçili olanları işaretle
+                    $('.barcode-checkbox').each(function() {
+                        if (selectedBarcodes.has($(this).val())) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                }
+            });
+
+            // Seçili barkodları tutan Set
+            let selectedBarcodes = new Set();
+
+            function updateSelectedCount() {
+                $('#selected-count').text(selectedBarcodes.size);
+            }
+
+            // Hızlı Barkod Okutma (Enter'a basınca)
+            $('#quick-scanner').on('keypress', function(e) {
+                if(e.which == 13) {
+                    e.preventDefault();
+                    let val = $(this).val().trim();
+                    if(val) {
+                        if(!selectedBarcodes.has(val)) {
+                            selectedBarcodes.add(val);
+                            // Sadece bilgilendirme için toast
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: val + ' eklendi.',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                            
+                            // Checkbox'ı ekranda bul ve işaretle
+                            $('.barcode-checkbox[value="'+val+'"]').prop('checked', true);
+                        } else {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'info',
+                                title: val + ' zaten ekli.',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        }
+                        $(this).val(''); // Input'u temizle
+                        updateSelectedCount();
+                    }
+                }
+            });
+
+            // Tablodaki checkbox'lar değiştiğinde Set'i güncelle
+            $('#sales-table').on('change', '.barcode-checkbox', function() {
+                let val = $(this).val();
+                if(this.checked) {
+                    selectedBarcodes.add(val);
+                } else {
+                    selectedBarcodes.delete(val);
+                }
+                updateSelectedCount();
+            });
+
+            // Seçimleri Temizle
+            $('#btn-clear-selection').click(function() {
+                selectedBarcodes.clear();
+                $('.barcode-checkbox').prop('checked', false);
+                $('#check-all').prop('checked', false);
+                updateSelectedCount();
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Seçimler temizlendi.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             });
 
             $('#btn-filter').click(() => table.draw());
@@ -239,16 +331,26 @@
             });
 
             $('#check-all').click(function() {
-                $('.barcode-checkbox').prop('checked', this.checked);
+                let isChecked = this.checked;
+                $('.barcode-checkbox').each(function() {
+                    $(this).prop('checked', isChecked);
+                    let val = $(this).val();
+                    if(isChecked) {
+                        selectedBarcodes.add(val);
+                    } else {
+                        selectedBarcodes.delete(val);
+                    }
+                });
+                updateSelectedCount();
             });
 
             $('.btn-sale').click(function() {
                 const targetStatus = $(this).data('status');
                 const companyId = $('#sale-company').val();
-                const selectedIds = $('.barcode-checkbox:checked').map(function() { return $(this).val(); }).get();
+                const selectedIds = Array.from(selectedBarcodes);
 
                 if (selectedIds.length === 0) {
-                    Swal.fire('Uyarı', 'Lütfen en az bir barkod seçin.', 'warning');
+                    Swal.fire('Uyarı', 'Lütfen en az bir barkod seçin veya okutun.', 'warning');
                     return;
                 }
 
@@ -281,6 +383,8 @@
                             success: function(response) {
                                 if (response.success) {
                                     Swal.fire('Başarılı', response.message, 'success');
+                                    selectedBarcodes.clear();
+                                    updateSelectedCount();
                                     table.draw();
                                     $('#check-all').prop('checked', false);
                                 } else {

@@ -444,7 +444,7 @@ class PageController extends Controller
     private function getStockAgeAnalysis()
     {
         // Gerçek bekleme sürelerini hesaplama (Status is null or 'Bekliyor')
-        $waitingStocks = GranilyaProduction::with(['quantity', 'stock'])
+        $waitingStocks = GranilyaProduction::with(['quantity', 'stock', 'company'])
             ->where(function($q) {
                 $q->whereNull('status')
                   ->orWhere('sieve_test_result', 'Bekliyor')
@@ -475,33 +475,72 @@ class PageController extends Controller
         foreach ($waitingStocks as $p) {
             $qty = $p->quantity ? $p->quantity->quantity : 0;
             $stockName = $p->stock ? $p->stock->name : 'Bilinmeyen Ürün';
+            $stockCode = $p->stock ? $p->stock->code : 'N/A';
             
-            // Frit's age analysis looks at hours waiting
-            $hoursWaiting = $p->created_at ? $p->created_at->diffInHours($now) : 0;
+            // Frit's age analysis looks at days waiting
+            $daysOld = $p->created_at ? $p->created_at->diffInDays($now) : 0;
+            $status = $p->status ?: 'waiting';
             
             $item = (object) [
                 'barcode' => $p->base_pallet_number ? $p->base_pallet_number.'-'.$p->pallet_number : 'N/A',
-                'product_name' => $stockName,
-                'waiting_time' => $p->created_at ? $p->created_at->diffForHumans($now, true) : 'Bilinmiyor',
+                'stock_name' => $stockName,
+                'stock_code' => $stockCode,
                 'quantity' => $qty,
-                'hours_waiting' => $hoursWaiting
+                'status' => $status,
+                'company_name' => $p->company ? $p->company->name : '-',
+                'warehouse_name' => 'Granilya Depo',
+                'kiln_name' => '-', // Granilya doesn't use kilns for this
+                'days_old' => $daysOld,
+                'lab_at' => $p->laboratory_user_id ? $p->updated_at : null,
+                'shipment_at' => null,
+                'created_at' => $p->created_at
             ];
 
-            if (!isset($productGroups[$stockName])) {
-                $productGroups[$stockName] = ['count' => 0, 'quantity' => 0];
+            // Product Group Analysis
+            $productKey = $stockName . ' (' . $stockCode . ')';
+            if (!isset($productGroups[$productKey])) {
+                $productGroups[$productKey] = [
+                    'stock_name' => $stockName,
+                    'stock_code' => $stockCode,
+                    'count' => 0,
+                    'quantity' => 0,
+                    'avg_age' => 0,
+                    'oldest_age' => 0,
+                    'critical_count' => 0,
+                    'warning_count' => 0
+                ];
             }
-            $productGroups[$stockName]['count']++;
-            $productGroups[$stockName]['quantity'] += $qty;
+            $productGroups[$productKey]['count']++;
+            $productGroups[$productKey]['quantity'] += $qty;
+            $productGroups[$productKey]['avg_age'] += $daysOld;
+            $productGroups[$productKey]['oldest_age'] = max($productGroups[$productKey]['oldest_age'], $daysOld);
 
-            if ($hoursWaiting > 48) {
+            // Status Analysis
+            if (!isset($analysis['status_analysis'][$status])) {
+                $analysis['status_analysis'][$status] = [
+                    'count' => 0,
+                    'quantity' => 0,
+                    'avg_age' => 0,
+                    'oldest_age' => 0
+                ];
+            }
+            $analysis['status_analysis'][$status]['count']++;
+            $analysis['status_analysis'][$status]['quantity'] += $qty;
+            $analysis['status_analysis'][$status]['avg_age'] += $daysOld;
+            $analysis['status_analysis'][$status]['oldest_age'] = max($analysis['status_analysis'][$status]['oldest_age'], $daysOld);
+
+            // Time Categories
+            if ($daysOld >= 30) {
                 $analysis['summary']['critical_count']++;
                 $analysis['summary']['critical_quantity'] += $qty;
                 $analysis['categorized_stock']['critical'][] = $item;
-            } elseif ($hoursWaiting > 24) {
+                $productGroups[$productKey]['critical_count']++;
+            } elseif ($daysOld >= 15) {
                 $analysis['summary']['warning_count']++;
                 $analysis['summary']['warning_quantity'] += $qty;
                 $analysis['categorized_stock']['warning'][] = $item;
-            } elseif ($hoursWaiting > 12) {
+                $productGroups[$productKey]['warning_count']++;
+            } elseif ($daysOld >= 7) {
                 $analysis['summary']['attention_count']++;
                 $analysis['summary']['attention_quantity'] += $qty;
                 $analysis['categorized_stock']['attention'][] = $item;
@@ -513,16 +552,23 @@ class PageController extends Controller
         }
         
         // Product analysis sorting
-        foreach ($productGroups as $name => $data) {
-            $analysis['product_analysis'][] = (object) [
-                'product_name' => $name,
-                'count' => $data['count'],
-                'quantity' => $data['quantity']
-            ];
+        foreach ($productGroups as $productKey => $data) {
+            if ($data['count'] > 0) {
+                $data['avg_age'] = round($data['avg_age'] / $data['count'], 1);
+            }
+            $analysis['product_analysis'][] = $data; // As array
         }
+        
         usort($analysis['product_analysis'], function($a, $b) {
-            return $b->quantity <=> $a->quantity;
+            return ($b['critical_count'] + $b['warning_count']) <=> ($a['critical_count'] + $a['warning_count']);
         });
+        
+        // Status analysis calculations
+        foreach ($analysis['status_analysis'] as $status => $data) {
+            if ($data['count'] > 0) {
+                $analysis['status_analysis'][$status]['avg_age'] = round($data['avg_age'] / $data['count'], 1);
+            }
+        }
         
         // Limit Top 10 critical stocks for display safety
         $analysis['categorized_stock']['critical'] = array_slice($analysis['categorized_stock']['critical'], 0, 10);

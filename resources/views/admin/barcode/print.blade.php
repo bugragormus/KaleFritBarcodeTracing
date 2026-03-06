@@ -191,7 +191,7 @@
                                             </div>
                                             <div class="col-6">
                                                 <span style="font-size: 40px;"> {{ $barcode->created_at->tz('Europe/Istanbul')->format('d.m.Y H:i') }}</span><br/>
-                                                <span> {{ $barcode->stock->name}}</span><br/>
+                                                <span> {{ trim(str_replace(['- Elek Altı', 'Elek Altı'], '', $barcode->stock->name)) }}</span><br/>
                                                 <span> {{ $barcode->stock->code}}</span><br/>
                                                 <span> {{ $barcode->kiln->name}}</span><br/>
                                                 <span> {{ $barcode->party_number}}</span><br/>

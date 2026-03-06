@@ -59,7 +59,17 @@ class LaboratoryController extends Controller
             ->get();
 
         $pendingPallets = GranilyaProduction::with(['stock', 'quantity', 'user'])
-            ->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])
+            ->where(function ($q) {
+                $q->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])
+                  ->orWhere(function ($q2) {
+                      $q2->where('status', GranilyaProduction::STATUS_REJECTED)
+                         ->where(function ($q3) {
+                             $q3->where('sieve_test_result', 'Bekliyor')
+                                ->orWhere('surface_test_result', 'Bekliyor')
+                                ->orWhere('arge_test_result', 'Bekliyor');
+                         });
+                  });
+            })
             ->orderBy('created_at')
             ->limit(20)
             ->get();
@@ -104,7 +114,17 @@ class LaboratoryController extends Controller
     public function bulkView()
     {
         $pendingPallets = GranilyaProduction::with(['stock', 'quantity', 'user'])
-            ->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])
+            ->where(function ($q) {
+                $q->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])
+                  ->orWhere(function ($q2) {
+                      $q2->where('status', GranilyaProduction::STATUS_REJECTED)
+                         ->where(function ($q3) {
+                             $q3->where('sieve_test_result', 'Bekliyor')
+                                ->orWhere('surface_test_result', 'Bekliyor')
+                                ->orWhere('arge_test_result', 'Bekliyor');
+                         });
+                  });
+            })
             ->get();
 
         return view('granilya.laboratory.bulk-process', compact('pendingPallets'));
@@ -331,7 +351,7 @@ class LaboratoryController extends Controller
             if (!$production->isExceptionalAllowed()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Bu palet için istisnai onay verilemez. Sadece Arge testi sebebiyle reddedilen (elek ve yüzey onaylı) paletler istisnai onay alabilir.'
+                    'message' => 'Bu palet için istisnai onay verilemez. Tüm laboratuvar testlerinin (Elek, Yüzey, Arge) tamamlanmış ve paletin reddedilmiş olması gereklidir.'
                 ], 422);
             }
 

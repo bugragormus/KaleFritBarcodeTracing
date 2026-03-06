@@ -203,7 +203,7 @@
             <div class="page-header d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="page-title">
-                        <i class="fas fa-shopping-cart"></i> Satış Ekranı
+                        <i class="fas fa-shopping-cart"></i> Granilya Satış Ekranı
                     </h1>
                     <p class="text-muted">Sevkiyat için hazır olan palet gruplarını listeleyin ve satışını gerçekleştirin.</p>
                 </div>

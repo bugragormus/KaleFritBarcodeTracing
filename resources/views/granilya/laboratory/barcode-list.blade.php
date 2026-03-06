@@ -84,9 +84,9 @@
             columns: [
                 { data: 'id', name: 'id' },
                 { data: 'pallet_number', name: 'pallet_number' },
-                { data: 'stock.name', name: 'stock.name' },
-                { data: 'load_number', name: 'load_number' },
-                { data: 'quantity.quantity', name: 'quantity.quantity' },
+                { data: 'stock.name', name: 'stock.name', defaultContent: '-' },
+                { data: 'load_number', name: 'load_number', defaultContent: '-' },
+                { data: 'quantity.quantity', name: 'quantity.quantity', defaultContent: '-' },
                 { data: 'test_sieve', name: 'test_sieve', orderable: false, searchable: false },
                 { data: 'test_surface', name: 'test_surface', orderable: false, searchable: false },
                 { data: 'test_arge', name: 'test_arge', orderable: false, searchable: false },

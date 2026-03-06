@@ -181,46 +181,40 @@ class GranilyaProduction extends Model
      */
     public function evaluateTestStatus()
     {
-        $currentStatus = $this->status;
-
-        // Sevk Onaylı durumu artık değişemez (terminal state)
-        if ($currentStatus == self::STATUS_SHIPMENT_APPROVED) {
+        // Terminal states cannot be changed by tests
+        if (in_array($this->status, [
+            self::STATUS_SHIPMENT_APPROVED, 
+            self::STATUS_CUSTOMER_TRANSFER, 
+            self::STATUS_DELIVERED,
+            self::STATUS_CORRECTED,
+            self::STATUS_SHIPPED
+        ])) {
             return;
         }
 
-        // 1. BEKLEMEDE DURUMU:
-        // Beklemeden SADECE Ön Onaylı veya Reddedildi durumuna geçebilir.
-        if ($currentStatus == self::STATUS_WAITING) {
-            // Elek veya Yüzey testlerinden biri reddedilirse -> Reddedildi
-            if ($this->sieve_test_result == 'Red' || $this->surface_test_result == 'Red') {
-                $this->status = self::STATUS_REJECTED;
-                return;
-            }
-            // Elek ve Yüzey ikisi de onaylanırsa -> Ön Onaylı
-            if ($this->sieve_test_result == 'Onay' && $this->surface_test_result == 'Onay') {
-                $this->status = self::STATUS_PRE_APPROVED;
-                return;
-            }
-        }
+        // Check if ALL tests have results (not 'Bekliyor')
+        $allTestsCompleted = ($this->sieve_test_result !== 'Bekliyor' && $this->surface_test_result !== 'Bekliyor' && $this->arge_test_result !== 'Bekliyor');
+        
+        $hasRejection = ($this->sieve_test_result === 'Red' || $this->surface_test_result === 'Red' || $this->arge_test_result === 'Red');
 
-        // 2. ÖN ONAYLI DURUMU:
-        // Ön Onaylıdan SADECE Sevk Onaylı veya Reddedildi durumuna geçebilir.
-        if ($currentStatus == self::STATUS_PRE_APPROVED) {
-            // Arge reddedilirse -> Reddedildi
-            if ($this->arge_test_result == 'Red') {
+        if ($allTestsCompleted) {
+            // If all tests are done, status is final based on rejection presence
+            if ($hasRejection) {
                 $this->status = self::STATUS_REJECTED;
-                return;
-            }
-            // Arge onaylanırsa -> Sevk Onaylı
-            if ($this->arge_test_result == 'Onay') {
+            } else {
                 $this->status = self::STATUS_SHIPMENT_APPROVED;
-                return;
+            }
+        } else {
+            // Not all tests are done yet. Determine intermediate status.
+            if ($hasRejection) {
+                // Show as rejected in UI, but tests can still be entered because not all are done
+                $this->status = self::STATUS_REJECTED; 
+            } elseif ($this->sieve_test_result === 'Onay' && $this->surface_test_result === 'Onay') {
+                $this->status = self::STATUS_PRE_APPROVED; // Ready for Arge
+            } else {
+                $this->status = self::STATUS_WAITING; // Still waiting for sieve/surface
             }
         }
-
-        // 3. REDDEDİLDİ DURUMU:
-        // Reddedildi durumundan sadece "İstisnai Onay" işlemi ile Sevk Onaylı durumuna geçilebilir.
-        // Bu işlem evaluateTestStatus içinde değil, doğrudan controller üzerinden tetiklenmelidir.
     }
 
     /**
@@ -232,13 +226,13 @@ class GranilyaProduction extends Model
         // Palet reddedilmiş olmalı
         if ($this->status != self::STATUS_REJECTED) return false;
 
-        // Elek veya Yüzey reddi varsa istisnai onay OLAMAZ
-        if ($this->sieve_test_result == 'Red' || $this->surface_test_result == 'Red') return false;
+        // Tüm testlerin (Elek, Yüzey, Arge) sonucunun girilmiş olması şartı
+        $allTestsCompleted = ($this->sieve_test_result !== 'Bekliyor' && $this->surface_test_result !== 'Bekliyor' && $this->arge_test_result !== 'Bekliyor');
 
-        // Arge reddi varsa istisnai onay olabilir
-        if ($this->arge_test_result == 'Red') return true;
+        if (!$allTestsCompleted) return false;
 
-        return false;
+        // Red sebebi ne olursa olsun istisnai onay verilebilir
+        return true;
     }
 
     /**
