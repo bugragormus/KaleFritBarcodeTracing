@@ -194,18 +194,22 @@
             </div>
         </div>
 
-        {{-- ========================== --}}
-        {{-- KPI ROW 2 --}}
-        {{-- ========================== --}}
         <div class="row mt-3">
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-4 col-md-6">
                 <div class="stat-card-modern" title="Sevk onaylı paletler">
                     <div class="stat-icon-modern text-dark"><i class="fas fa-shipping-fast"></i></div>
                     <div class="stat-number-modern">{{ $stats['shipment_approved'] }}</div>
                     <div class="stat-label-modern">Sevk Onaylı</div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card-modern" title="İstisnai onay verilen paletler">
+                    <div class="stat-icon-modern text-warning"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-number-modern">{{ $stats['exceptional_approved'] ?? 0 }}</div>
+                    <div class="stat-label-modern">İstisnai Onay</div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
                 <div class="stat-card-modern" title="Sevk onaylı oranı">
                     <div class="stat-icon-modern text-success"><i class="fas fa-percentage"></i></div>
                     <div class="stat-number-modern">{{ $stats['acceptance_rate'] }}%</div>
@@ -221,14 +225,26 @@
             <div class="col-12">
                 <div class="card-modern">
                     <div class="card-header-modern">
-                        <h3 class="card-title-modern"><i class="fas fa-bolt"></i> Hızlı İşlemler</h3>
+                        <h3 class="card-title-modern"><i class="fas fa-bolt"></i> Analiz ve Raporlar</h3>
                     </div>
                     <div class="card-body-modern">
                         <div class="row">
                             <div class="col-md-3 mb-2">
-                                <a href="{{ route('granilya.laboratory.barcode-list') }}"
-                                   class="btn btn-primary btn-block quick-action-btn-modern">
-                                    <i class="fas fa-list mr-2"></i> Barkod Listesi
+                                <a href="{{ route('granilya.laboratory.report') }}"
+                                   class="btn btn-info btn-block quick-action-btn-modern">
+                                    <i class="fas fa-file-alt mr-2"></i> Lab Raporu
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="{{ route('granilya.laboratory.stock_analysis') }}"
+                                   class="btn btn-dark btn-block quick-action-btn-modern">
+                                    <i class="fas fa-boxes mr-2"></i> Stok Analizi
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="{{ route('granilya.laboratory.crusher_performance') }}"
+                                   class="btn btn-success btn-block quick-action-btn-modern">
+                                    <i class="fas fa-tools mr-2"></i> Kırıcı Analizi
                                 </a>
                             </div>
                             <div class="col-md-3 mb-2">
@@ -236,18 +252,6 @@
                                    class="btn btn-warning btn-block quick-action-btn-modern text-white">
                                     <i class="fas fa-layer-group mr-2"></i> Toplu İşlem
                                 </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{{ route('granilya.report') }}"
-                                   class="btn btn-info btn-block quick-action-btn-modern">
-                                    <i class="fas fa-chart-bar mr-2"></i> Raporlar
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <button class="btn btn-success btn-block quick-action-btn-modern"
-                                        onclick="location.reload()">
-                                    <i class="fas fa-sync-alt mr-2"></i> Yenile
-                                </button>
                             </div>
                         </div>
                     </div>

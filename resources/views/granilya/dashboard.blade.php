@@ -390,7 +390,7 @@
                             @endif
                         </form>
                         
-                        <a href="{{ route('granilya.dashboard.raw_materials.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}" class="btn btn-warning text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-weight: 700; box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);">
+                        <a href="{{ route('granilya.dashboard.raw_materials.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}" class="btn btn-warning text-white" style="border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-weight: 700; box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);">
                             <i class="fas fa-file-excel mr-2"></i> Excel İndir
                         </a>
                     </div>

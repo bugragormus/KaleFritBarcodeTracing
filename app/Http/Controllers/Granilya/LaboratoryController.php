@@ -29,11 +29,14 @@ class LaboratoryController extends Controller
         $waiting           = GranilyaProduction::where('status', GranilyaProduction::STATUS_WAITING)
                                 ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
         $preApproved       = GranilyaProduction::where('status', GranilyaProduction::STATUS_PRE_APPROVED)
-                                ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
+                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
         $shipmentApproved  = GranilyaProduction::where('status', GranilyaProduction::STATUS_SHIPMENT_APPROVED)
-                                ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
+                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
         $rejected          = GranilyaProduction::where('status', GranilyaProduction::STATUS_REJECTED)
-                                ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
+                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
+        $exceptional       = GranilyaProduction::where('is_exceptionally_approved', true)
+                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
+                                
         $totalProcessed    = $preApproved + $shipmentApproved + $rejected;
         $acceptanceRate    = $totalProcessed > 0
                                 ? round(($shipmentApproved / $totalProcessed) * 100, 1)
@@ -44,6 +47,7 @@ class LaboratoryController extends Controller
             'pre_approved'      => $preApproved,
             'shipment_approved' => $shipmentApproved,
             'rejected'          => $rejected,
+            'exceptional_approved' => $exceptional,
             'total_processed'   => $totalProcessed,
             'acceptance_rate'   => $acceptanceRate,
         ];
@@ -391,5 +395,276 @@ class LaboratoryController extends Controller
                 'message' => $e->getMessage()
             ], 422);
         }
+    }
+
+    /**
+     * Laboratuvar raporu
+     */
+    public function report(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subDays(30)->startOfDay());
+        $endDate = $request->get('end_date', now()->endOfDay());
+
+        if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
+        if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
+
+        $report = GranilyaProduction::with(['stock', 'user'])
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->whereIn('status', [
+                GranilyaProduction::STATUS_PRE_APPROVED,
+                GranilyaProduction::STATUS_SHIPMENT_APPROVED,
+                GranilyaProduction::STATUS_REJECTED
+            ])
+            ->selectRaw('
+                stock_id,
+                status,
+                user_id,
+                COUNT(*) as count,
+                DATE(updated_at) as lab_date
+            ')
+            ->groupBy('stock_id', 'status', 'user_id', 'lab_date')
+            ->orderBy('lab_date', 'desc')
+            ->get();
+
+        $summary = [
+            'total_processed' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
+                ->whereIn('status', [GranilyaProduction::STATUS_PRE_APPROVED, GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_REJECTED])->count(),
+            'pre_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
+                ->where('status', GranilyaProduction::STATUS_PRE_APPROVED)->count(),
+            'shipment_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
+                ->where('status', GranilyaProduction::STATUS_SHIPMENT_APPROVED)->count(),
+            'rejected' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
+                ->where('status', GranilyaProduction::STATUS_REJECTED)->count(),
+            'exceptional_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
+                ->where('is_exceptionally_approved', true)->count(),
+        ];
+
+        return view('granilya.laboratory.report', compact('report', 'summary', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Laboratuvar raporu Excel Export
+     */
+    public function exportReport(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subDays(30)->startOfDay());
+        $endDate = $request->get('end_date', now()->endOfDay());
+
+        if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
+        if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
+
+        $data = GranilyaProduction::with(['stock', 'user', 'quantity'])
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->whereIn('status', [
+                GranilyaProduction::STATUS_PRE_APPROVED,
+                GranilyaProduction::STATUS_SHIPMENT_APPROVED,
+                GranilyaProduction::STATUS_REJECTED
+            ])
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        $filename = "granilya_laboratuvar_raporu_" . date('Ymd_His') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($data) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+            fputcsv($file, ['Tarih', 'Palet No', 'Ürün', 'Miktar (KG)', 'Elek Testi', 'Yüzey Testi', 'Arge Testi', 'Durum', 'İşlem Yapan']);
+
+            foreach ($data as $p) {
+                fputcsv($file, [
+                    $p->updated_at->format('d.m.Y H:i'),
+                    $p->pallet_number,
+                    $p->stock->name,
+                    $p->used_quantity,
+                    $p->sieve_test_result,
+                    $p->surface_test_result,
+                    $p->arge_test_result,
+                    $p->status_label,
+                    $p->user->name ?? '-'
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Stok Kalite Analizi
+     */
+    public function stockQualityAnalysis(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
+        $endDate = $request->get('end_date', now()->endOfDay());
+
+        if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
+        if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
+
+        $stockQualityData = \App\Models\Stock::whereHas('granilyaProductions', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        })->with(['granilyaProductions' => function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        }])->get()->map(function($stock) {
+            $productions = $stock->granilyaProductions;
+            $total = $productions->count();
+            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+            $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
+            
+            $reasons = [];
+            foreach ($productions->where('status', GranilyaProduction::STATUS_REJECTED) as $p) {
+                if ($p->sieve_test_result == 'Red') $reasons['Elek: ' . $p->sieve_reject_reason] = ($reasons['Elek: ' . $p->sieve_reject_reason] ?? 0) + 1;
+                if ($p->surface_test_result == 'Red') $reasons['Yüzey: ' . $p->surface_reject_reason] = ($reasons['Yüzey: ' . $p->surface_reject_reason] ?? 0) + 1;
+                if ($p->arge_test_result == 'Red') $reasons['Arge'] = ($reasons['Arge'] ?? 0) + 1;
+            }
+
+            return [
+                'stock' => $stock,
+                'total' => $total,
+                'accepted' => $accepted,
+                'rejected' => $rejected,
+                'acceptance_rate' => $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
+                'rejection_reasons' => $reasons,
+                'top_reason' => collect($reasons)->sortByDesc(function($v) { return $v; })->keys()->first()
+            ];
+        })->sortBy('acceptance_rate');
+
+        return view('granilya.laboratory.stock-quality-analysis', compact('stockQualityData', 'startDate', 'endDate'));
+    }
+
+    public function stockQualityAnalysisExcel(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
+        $endDate = $request->get('end_date', now()->endOfDay());
+
+        if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
+        if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
+
+        // Similar logic to above but return CSV stream
+        $stockQualityData = \App\Models\Stock::whereHas('granilyaProductions', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        })->with(['granilyaProductions' => function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        }])->get();
+
+        $filename = "granilya_stok_kalite_analizi_" . date('Ymd_His') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($stockQualityData) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+            fputcsv($file, ['Ürün Adı', 'Toplam İşlem', 'Kabul', 'Red', 'Kabul Oranı (%)', 'En Sık Red Sebebi']);
+
+            foreach ($stockQualityData as $stock) {
+                $productions = $stock->granilyaProductions;
+                $total = $productions->count();
+                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+                $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
+                
+                $reasons = [];
+                foreach ($productions->where('status', GranilyaProduction::STATUS_REJECTED) as $p) {
+                    if ($p->sieve_test_result == 'Red') $reasons['Elek: ' . $p->sieve_reject_reason] = ($reasons['Elek: ' . $p->sieve_reject_reason] ?? 0) + 1;
+                    if ($p->surface_test_result == 'Red') $reasons['Yüzey: ' . $p->surface_reject_reason] = ($reasons['Yüzey: ' . $p->surface_reject_reason] ?? 0) + 1;
+                    if ($p->arge_test_result == 'Red') $reasons['Arge'] = ($reasons['Arge'] ?? 0) + 1;
+                }
+                $topReason = collect($reasons)->sortByDesc(function($v) { return $v; })->keys()->first() ?? '-';
+
+                fputcsv($file, [
+                    $stock->name,
+                    $total,
+                    $accepted,
+                    $rejected,
+                    $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
+                    $topReason
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Kırıcı Performans Analizi
+     */
+    public function crusherPerformance(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
+        $endDate = $request->get('end_date', now()->endOfDay());
+
+        if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
+        if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
+
+        $crusherData = \App\Models\GranilyaCrusher::whereHas('granilyaProductions', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        })->with(['granilyaProductions' => function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        }])->get()->map(function($crusher) {
+            $productions = $crusher->granilyaProductions;
+            $total = $productions->count();
+            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+            $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
+
+            return [
+                'crusher' => $crusher,
+                'total' => $total,
+                'accepted' => $accepted,
+                'rejected' => $rejected,
+                'acceptance_rate' => $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
+            ];
+        })->sortByDesc('acceptance_rate');
+
+        return view('granilya.laboratory.crusher-performance', compact('crusherData', 'startDate', 'endDate'));
+    }
+
+    public function crusherPerformanceExcel(Request $request)
+    {
+        $startDate = $request->get('start_date', now()->subMonths(3)->startOfMonth());
+        $endDate = $request->get('end_date', now()->endOfDay());
+
+        if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
+        if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
+
+        $crusherData = \App\Models\GranilyaCrusher::whereHas('granilyaProductions', function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        })->with(['granilyaProductions' => function($q) use ($startDate, $endDate) {
+            $q->whereBetween('updated_at', [$startDate, $endDate]);
+        }])->get();
+
+        $filename = "granilya_kirici_analizi_" . date('Ymd_His') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($crusherData) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF");
+            fputcsv($file, ['Kırıcı Adı', 'Toplam İşlem', 'Kabul', 'Red', 'Kabul Oranı (%)']);
+
+            foreach ($crusherData as $crusher) {
+                $productions = $crusher->granilyaProductions;
+                $total = $productions->count();
+                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED])->count();
+                $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
+
+                fputcsv($file, [
+                    $crusher->name,
+                    $total,
+                    $accepted,
+                    $rejected,
+                    $total > 0 ? round(($accepted / $total) * 100, 1) : 0
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

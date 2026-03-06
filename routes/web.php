@@ -51,6 +51,13 @@ Route::middleware('auth')
             Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
             Route::prefix('laboratuvar')->as('laboratory.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('index'); // Dahboard is the index
+                Route::get('/rapor', [App\Http\Controllers\Granilya\LaboratoryController::class, 'report'])->name('report');
+                Route::get('/rapor/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'exportReport'])->name('export_report');
+                Route::get('/stok-analizi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'stockQualityAnalysis'])->name('stock_analysis');
+                Route::get('/stok-analizi/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'stockQualityAnalysisExcel'])->name('stock_analysis_excel');
+                Route::get('/kirici-analizi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'crusherPerformance'])->name('crusher_performance');
+                Route::get('/kirici-analizi/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'crusherPerformanceExcel'])->name('crusher_performance_excel');
+                Route::get('/barcode-list', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode_list');
                 Route::get('/dashboard', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('dashboard');
                 Route::get('/barkod-listesi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode-list');
                 Route::get('/toplu-islem', [App\Http\Controllers\Granilya\LaboratoryController::class, 'bulkView'])->name('bulk-process');
