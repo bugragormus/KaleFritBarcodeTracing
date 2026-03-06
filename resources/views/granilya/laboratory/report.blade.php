@@ -76,7 +76,7 @@
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4"> {{-- Changed container-fluid to container --}}
     <div class="page-header-granilya">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -91,57 +91,63 @@
         </div>
     </div>
 
-    <!-- Filtreler -->
-    <div class="card card-granilya">
-        <div class="card-body">
+    {{-- Filtreler --}}
+    <div class="card-granilya mb-4">
+        <div class="card-body p-4">
             <form action="{{ route('granilya.laboratory.report') }}" method="GET" class="row align-items-end">
                 <div class="col-md-4">
-                    <label class="small font-weight-bold text-muted">Başlangıç Tarihi</label>
+                    <label class="form-label text-muted small font-weight-bold uppercase">Başlangıç Tarihi</label>
                     <input type="date" name="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}">
                 </div>
                 <div class="col-md-4">
-                    <label class="small font-weight-bold text-muted">Bitiş Tarihi</label>
+                    <label class="form-label text-muted small font-weight-bold uppercase">Bitiş Tarihi</label>
                     <input type="date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}">
                 </div>
-                <div class="col-md-4 mt-3 mt-md-0">
-                    <button type="submit" class="btn btn-primary btn-block">
-                        <i class="fas fa-filter mr-1"></i> Filtrele
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary btn-block" style="padding: 0.8rem;">
+                        <i class="fas fa-filter mr-1"></i> Filtrele ve Raporla
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Özetler -->
-    <div class="row mb-4">
-        <div class="col-md-3">
+    {{-- Özet Kartları --}}
+    <div class="row mb-2">
+        <div class="col-xl-2 col-md-4 col-sm-6">
             <div class="stat-card">
-                <div class="stat-number text-primary">{{ $summary['total_processed'] }}</div>
-                <div class="stat-label">Toplam İşlenen</div>
+                <div class="stat-number text-success">{{ $summary['acceptance_rate'] }}%</div>
+                <div class="stat-label">Kabul Oranı</div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-xl-2 col-md-4 col-sm-6">
             <div class="stat-card">
-                <div class="stat-number text-success">{{ $summary['shipment_approved'] }}</div>
-                <div class="stat-label">Sevk Onaylı</div>
+                <div class="stat-number text-primary">{{ $summary['shipment_approved'] }}</div>
+                <div class="stat-label">Onaylanan</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-xl-2 col-md-4 col-sm-6">
             <div class="stat-card">
                 <div class="stat-number text-danger">{{ $summary['rejected'] }}</div>
-                <div class="stat-label">Reddedildi</div>
+                <div class="stat-label">Reddedilen</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-number text-warning">{{ $summary['waiting'] }}</div>
+                <div class="stat-label">Bekleyen</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6">
             <div class="stat-card">
                 <div class="stat-number text-info">{{ $summary['pre_approved'] }}</div>
                 <div class="stat-label">Ön Onaylı</div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-xl-2 col-md-4 col-sm-6">
             <div class="stat-card">
-                <div class="stat-number text-warning">{{ $summary['exceptional_approved'] }}</div>
-                <div class="stat-label">İstisnai Onay</div>
+                <div class="stat-number text-dark">{{ $summary['total_items'] }}</div>
+                <div class="stat-label">Toplam Kayıt</div>
             </div>
         </div>
     </div>

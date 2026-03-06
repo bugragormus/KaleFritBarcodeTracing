@@ -1,6 +1,7 @@
 @extends('layouts.granilya')
 
 @section('styles')
+<style>
     /* ---- Glassmorphism Base ---- */
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
@@ -134,7 +135,7 @@
 
 @section('content')
 <div class="modern-lab-dashboard">
-    <div class="container-fluid">
+    <div class="container py-4"> {{-- Changed container-fluid to container to prevent stretching --}}
 
         {{-- ========================== --}}
         {{-- PAGE HEADER --}}
@@ -210,59 +211,54 @@
         </div>
 
         {{-- ========================== --}}
-        {{-- KPI ROW 1 --}}
+        {{-- KPI STATS --}}
         {{-- ========================== --}}
         <div class="row">
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern" title="Seçilen tarih aralığında bekleyen paletler">
-                    <div class="stat-icon-modern text-warning"><i class="fas fa-clock"></i></div>
-                    <div class="stat-number-modern">{{ $stats['waiting'] }}</div>
-                    <div class="stat-label-modern">Bekleyen Palet</div>
+            {{-- Kabul Oranı --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card">
+                    <div class="stat-icon-modern text-success">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['acceptance_rate'] }}%</div>
+                    <div class="stat-label-modern">Kabul Oranı</div>
+                    <p class="text-muted small mt-2 mb-0">Sonuçlanan testler üzerinden</p>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern" title="Seçilen tarih aralığında ön onaylı paletler">
-                    <div class="stat-icon-modern text-success"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-number-modern">{{ $stats['pre_approved'] }}</div>
-                    <div class="stat-label-modern">Ön Onaylı</div>
+
+            {{-- Onaylanan --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card">
+                    <div class="stat-icon-modern text-primary">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['shipment_approved'] }}</div>
+                    <div class="stat-label-modern">Onaylanan</div>
+                    <p class="text-muted small mt-2 mb-0">Sevk Onaylı & İstisnai</p>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern" title="Seçilen tarih aralığında reddedilen paletler">
-                    <div class="stat-icon-modern text-danger"><i class="fas fa-times-circle"></i></div>
+
+            {{-- Reddedilen --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card">
+                    <div class="stat-icon-modern text-danger">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
                     <div class="stat-number-modern">{{ $stats['rejected'] }}</div>
                     <div class="stat-label-modern">Reddedilen</div>
+                    <p class="text-muted small mt-2 mb-0">Hatalı üretimler</p>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="stat-card-modern" title="Toplam işlenen palet sayısı">
-                    <div class="stat-icon-modern text-info"><i class="fas fa-tasks"></i></div>
-                    <div class="stat-number-modern">{{ $stats['total_processed'] }}</div>
-                    <div class="stat-label-modern">Toplam İşlenen</div>
-                </div>
-            </div>
-        </div>
 
-        <div class="row mt-3">
-            <div class="col-xl-4 col-md-6">
-                <div class="stat-card-modern" title="Sevk onaylı paletler">
-                    <div class="stat-icon-modern text-dark"><i class="fas fa-shipping-fast"></i></div>
-                    <div class="stat-number-modern">{{ $stats['shipment_approved'] }}</div>
-                    <div class="stat-label-modern">Sevk Onaylı</div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-6">
-                <div class="stat-card-modern" title="İstisnai onay verilen paletler">
-                    <div class="stat-icon-modern text-warning"><i class="fas fa-exclamation-triangle"></i></div>
-                    <div class="stat-number-modern">{{ $stats['exceptional_approved'] ?? 0 }}</div>
-                    <div class="stat-label-modern">İstisnai Onay</div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-6">
-                <div class="stat-card-modern" title="Sevk onaylı oranı">
-                    <div class="stat-icon-modern text-success"><i class="fas fa-percentage"></i></div>
-                    <div class="stat-number-modern">{{ $stats['acceptance_rate'] }}%</div>
-                    <div class="stat-label-modern">Sevk Oranı</div>
+            {{-- Bekleyen/Testte --}}
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card">
+                    <div class="stat-icon-modern text-warning">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <div class="stat-number-modern">{{ $stats['pending_total'] }}</div>
+                    <div class="stat-label-modern">Test Aşamasında</div>
+                    <p class="text-muted small mt-2 mb-0">Bekleyen & Ön Onaylı</p>
                 </div>
             </div>
         </div>

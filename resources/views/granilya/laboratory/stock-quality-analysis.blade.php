@@ -72,7 +72,7 @@
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4"> {{-- Changed container-fluid to container --}}
     <div class="page-header-granilya">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -87,20 +87,20 @@
         </div>
     </div>
 
-    <!-- Filtreler -->
+    {{-- Filtreler --}}
     <div class="card quality-card">
         <div class="card-body">
             <form action="{{ route('granilya.laboratory.stock_analysis') }}" method="GET" class="row align-items-end">
                 <div class="col-md-4">
-                    <label class="small font-weight-bold text-muted">Başlangıç Tarihi</label>
+                    <label class="small font-weight-bold text-muted uppercase">Başlangıç Tarihi</label>
                     <input type="date" name="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}">
                 </div>
                 <div class="col-md-4">
-                    <label class="small font-weight-bold text-muted">Bitiş Tarihi</label>
+                    <label class="small font-weight-bold text-muted uppercase">Bitiş Tarihi</label>
                     <input type="date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}">
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-dark btn-block mt-3 mt-md-0">
+                    <button type="submit" class="btn btn-dark btn-block mt-3 mt-md-0" style="padding: 0.8rem;">
                         <i class="fas fa-filter mr-1"></i> Analiz Et
                     </button>
                 </div>
@@ -110,28 +110,38 @@
 
     <div class="row">
         @forelse($stockQualityData as $data)
-        <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+        <div class="col-xl-4 col-lg-6 mb-4"> {{-- Adjusted grid for better spacing --}}
             <div class="card h-100 quality-card">
-                <div class="card-body text-center p-4">
-                    <h5 class="mb-3 font-weight-bold">{{ $data['stock']->name }}</h5>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="mb-0 font-weight-bold">{{ $data['stock']->name }}</h5>
+                        <span class="badge badge-soft-dark px-2 py-1">Toplam: {{ $data['total'] }}</span>
+                    </div>
                     
                     @php
                         $color = $data['acceptance_rate'] >= 95 ? 'success' : ($data['acceptance_rate'] >= 85 ? 'warning' : 'danger');
                     @endphp
                     
-                    <div class="rate-circle bg-light-{{ $color }} text-{{ $color }} border border-{{ $color }}">
-                        {{ $data['acceptance_rate'] }}%
-                    </div>
-                    <p class="small text-muted mb-4 uppercase font-weight-bold">Kabul Oranı</p>
-                    
-                    <div class="row mb-3">
-                        <div class="col-6 border-right">
-                            <div class="h5 mb-0 font-weight-bold">{{ $data['accepted'] }}</div>
-                            <div class="small text-muted">Kabul</div>
+                    <div class="row align-items-center mb-4">
+                        <div class="col-5 text-center">
+                            <div class="rate-circle bg-light-{{ $color }} text-{{ $color }} border border-{{ $color }} mb-0">
+                                {{ $data['acceptance_rate'] }}%
+                            </div>
+                            <p class="small text-muted mt-2 mb-0 uppercase font-weight-bold">Başarı</p>
                         </div>
-                        <div class="col-6">
-                            <div class="h5 mb-0 font-weight-bold text-danger">{{ $data['rejected'] }}</div>
-                            <div class="small text-muted">Red</div>
+                        <div class="col-7">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Kabul:</span>
+                                <span class="font-weight-bold text-success">{{ $data['accepted'] }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">Red:</span>
+                                <span class="font-weight-bold text-danger">{{ $data['rejected'] }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-top pt-2">
+                                <span class="text-muted small font-italic">Bekleyen:</span>
+                                <span class="font-weight-bold text-warning">{{ $data['pending'] }}</span>
+                            </div>
                         </div>
                     </div>
 

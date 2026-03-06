@@ -26,14 +26,6 @@ class LaboratoryController extends Controller
         $startDateTime = Carbon::parse($startDate)->startOfDay();
         $endDateTime   = Carbon::parse($endDate)->endOfDay();
 
-        $acceptedStatuses = [
-            GranilyaProduction::STATUS_PRE_APPROVED,
-            GranilyaProduction::STATUS_SHIPMENT_APPROVED,
-            6, // Shipped
-            9, // Customer Transfer
-            10 // Delivered
-        ];
-
         $waiting           = GranilyaProduction::where('status', GranilyaProduction::STATUS_WAITING)
                                 ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
         
@@ -49,18 +41,23 @@ class LaboratoryController extends Controller
         $exceptional       = GranilyaProduction::where('is_exceptionally_approved', true)
                                 ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
                                 
-        $totalProcessed    = $preApproved + $shipmentApproved + $rejected;
-        $acceptanceRate    = $totalProcessed > 0
-                                ? round(($shipmentApproved / $totalProcessed) * 100, 1)
+        // Logic: Total Processed = Finalized Results (Accepted + Rejected + Exceptional)
+        // Note: ShipmentApproved already includes 6, 9, 10 in this scope
+        $finalizedTotal    = $shipmentApproved + $rejected; 
+        $pendingTotal      = $waiting + $preApproved;
+        
+        $acceptanceRate    = $finalizedTotal > 0
+                                ? round(($shipmentApproved / $finalizedTotal) * 100, 1)
                                 : 0;
 
         $stats = [
             'waiting'           => $waiting,
             'pre_approved'      => $preApproved,
+            'pending_total'     => $pendingTotal,
             'shipment_approved' => $shipmentApproved,
             'rejected'          => $rejected,
             'exceptional_approved' => $exceptional,
-            'total_processed'   => $totalProcessed,
+            'total_processed'   => $finalizedTotal,
             'acceptance_rate'   => $acceptanceRate,
         ];
 
@@ -441,8 +438,7 @@ class LaboratoryController extends Controller
             ->get();
 
         $summary = [
-            'total_processed' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->whereIn('status', [GranilyaProduction::STATUS_PRE_APPROVED, GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_REJECTED, 6, 9, 10])->count(),
+            'total_items' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])->count(),
             'pre_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
                 ->where('status', GranilyaProduction::STATUS_PRE_APPROVED)->count(),
             'shipment_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
@@ -451,7 +447,14 @@ class LaboratoryController extends Controller
                 ->where('status', GranilyaProduction::STATUS_REJECTED)->count(),
             'exceptional_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
                 ->where('is_exceptionally_approved', true)->count(),
+            'waiting' => GranilyaProduction::whereBetween('created_at', [$startDate, $endDate])
+                ->where('status', GranilyaProduction::STATUS_WAITING)->count(),
         ];
+        
+        $summary['finalized'] = $summary['shipment_approved'] + $summary['rejected'];
+        $summary['acceptance_rate'] = $summary['finalized'] > 0 
+            ? round(($summary['shipment_approved'] / $summary['finalized']) * 100, 1) 
+            : 0;
 
         return view('granilya.laboratory.report', compact('report', 'summary', 'startDate', 'endDate'));
     }
@@ -528,6 +531,9 @@ class LaboratoryController extends Controller
             $total = $productions->count();
             $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
             $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
+            $pending = $productions->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])->count();
+            
+            $finalized = $accepted + $rejected;
             
             $reasons = [];
             foreach ($productions->where('status', GranilyaProduction::STATUS_REJECTED) as $p) {
@@ -541,7 +547,8 @@ class LaboratoryController extends Controller
                 'total' => $total,
                 'accepted' => $accepted,
                 'rejected' => $rejected,
-                'acceptance_rate' => $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
+                'pending' => $pending,
+                'acceptance_rate' => $finalized > 0 ? round(($accepted / $finalized) * 100, 1) : 0,
                 'rejection_reasons' => $reasons,
                 'top_reason' => collect($reasons)->sortByDesc(function($v) { return $v; })->keys()->first()
             ];
@@ -625,13 +632,17 @@ class LaboratoryController extends Controller
             $total = $productions->count();
             $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
             $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
+            $pending = $productions->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])->count();
+            
+            $finalized = $accepted + $rejected;
 
             return [
                 'crusher' => $crusher,
                 'total' => $total,
                 'accepted' => $accepted,
                 'rejected' => $rejected,
-                'acceptance_rate' => $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
+                'pending' => $pending,
+                'acceptance_rate' => $finalized > 0 ? round(($accepted / $finalized) * 100, 1) : 0,
             ];
         })->sortByDesc('acceptance_rate');
 

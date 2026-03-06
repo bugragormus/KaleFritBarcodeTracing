@@ -59,7 +59,7 @@
 @endsection
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container py-4"> {{-- Changed container-fluid to container --}}
     <div class="page-header-granilya">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -74,20 +74,20 @@
         </div>
     </div>
 
-    <!-- Filtreler -->
+    {{-- Filtreler --}}
     <div class="card crusher-card">
         <div class="card-body">
             <form action="{{ route('granilya.laboratory.crusher_performance') }}" method="GET" class="row align-items-end">
                 <div class="col-md-4">
-                    <label class="small font-weight-bold text-muted">Başlangıç Tarihi</label>
+                    <label class="small font-weight-bold text-muted uppercase">Başlangıç Tarihi</label>
                     <input type="date" name="start_date" class="form-control" value="{{ $startDate->format('Y-m-d') }}">
                 </div>
                 <div class="col-md-4">
-                    <label class="small font-weight-bold text-muted">Bitiş Tarihi</label>
+                    <label class="small font-weight-bold text-muted uppercase">Bitiş Tarihi</label>
                     <input type="date" name="end_date" class="form-control" value="{{ $endDate->format('Y-m-d') }}">
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-success btn-block mt-3 mt-md-0">
+                    <button type="submit" class="btn btn-success btn-block mt-3 mt-md-0" style="padding: 0.8rem;">
                         <i class="fas fa-search mr-1"></i> Analiz Et
                     </button>
                 </div>
@@ -102,7 +102,7 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h4 class="mb-0 font-weight-bold text-success">{{ $data['crusher']->name }}</h4>
-                        <div class="badge badge-soft-success px-3 py-2 h5 mb-0">
+                        <div class="badge badge-soft-success px-3 py-2 h5 mb-0" style="border-radius: 10px;">
                             {{ $data['acceptance_rate'] }}% Başarı
                         </div>
                     </div>
@@ -112,17 +112,21 @@
                     </div>
 
                     <div class="row text-center mt-4">
-                        <div class="col-4 border-right">
+                        <div class="col-3 border-right">
                             <div class="h3 mb-0 font-weight-bold text-dark">{{ $data['total'] }}</div>
-                            <div class="small text-muted uppercase">Toplam Palet</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Toplam</div>
                         </div>
-                        <div class="col-4 border-right">
+                        <div class="col-3 border-right">
                             <div class="h3 mb-0 font-weight-bold text-success">{{ $data['accepted'] }}</div>
-                            <div class="small text-muted uppercase">Onaylanan</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Onaylanan</div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-3 border-right">
                             <div class="h3 mb-0 font-weight-bold text-danger">{{ $data['rejected'] }}</div>
-                            <div class="small text-muted uppercase">Reddedilen</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Reddedilen</div>
+                        </div>
+                        <div class="col-3">
+                            <div class="h3 mb-0 font-weight-bold text-warning">{{ $data['pending'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Bekleyen</div>
                         </div>
                     </div>
                 </div>
