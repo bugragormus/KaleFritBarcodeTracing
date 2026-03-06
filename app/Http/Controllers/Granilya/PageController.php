@@ -171,6 +171,14 @@ class PageController extends Controller
               ->orWhere('granilya_productions.arge_test_result', 'Red');
         })->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
+        $exceptionalQuantity = (clone $baseQuery)->where('granilya_productions.is_exceptionally_approved', 1)
+            ->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
+
+        $correctionQuantity = (clone $baseQuery)->where(function($q) {
+            $q->where('granilya_productions.is_correction', 1)
+              ->orWhere('granilya_productions.status', GranilyaProduction::STATUS_CORRECTED);
+        })->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
+
         return [
             'total_barcodes'    => $totalCount,
             'total_quantity'    => $totalQuantity,
@@ -178,7 +186,9 @@ class PageController extends Controller
             'testing_quantity'  => $testingQuantity,
             'delivery_quantity' => $deliveryQuantity,
             'rejected_quantity' => $rejectedQuantity,
-            'without_correction_output' => $totalQuantity // Dummy logic unless correction exists
+            'exceptional_quantity' => $exceptionalQuantity,
+            'correction_quantity' => $correctionQuantity,
+            'without_correction_output' => $totalQuantity - $correctionQuantity
         ];
     }
 
@@ -215,11 +225,19 @@ class PageController extends Controller
                   ->orWhere('granilya_productions.arge_test_result', 'Red');
             })->sum('granilya_quantities.quantity') ?? 0;
 
+            $exceptionalQuantity = (clone $baseQuery)->where('granilya_productions.is_exceptionally_approved', 1)->sum('granilya_quantities.quantity') ?? 0;
+            $correctionQuantity = (clone $baseQuery)->where(function($q) {
+                $q->where('granilya_productions.is_correction', 1)
+                  ->orWhere('granilya_productions.status', GranilyaProduction::STATUS_CORRECTED);
+            })->sum('granilya_quantities.quantity') ?? 0;
+
             $shiftData[$shiftName] = [
                 'barcode_count' => (clone $baseQuery)->count(),
                 'total_quantity' => $totalQuantity,
                 'accepted_quantity' => $acceptedQuantity,
                 'rejected_quantity' => $rejectedQuantity,
+                'exceptional_quantity' => $exceptionalQuantity,
+                'correction_quantity' => $correctionQuantity,
             ];
         }
 
@@ -256,12 +274,20 @@ class PageController extends Controller
                   ->orWhere('granilya_productions.arge_test_result', 'Red');
             })->sum('granilya_quantities.quantity') ?? 0;
 
+            $exceptionalQuantity = (clone $baseQtyQuery)->where('granilya_productions.is_exceptionally_approved', 1)->sum('granilya_quantities.quantity') ?? 0;
+            $correctionQuantity = (clone $baseQtyQuery)->where(function($q) {
+                $q->where('granilya_productions.is_correction', 1)
+                  ->orWhere('granilya_productions.status', GranilyaProduction::STATUS_CORRECTED);
+            })->sum('granilya_quantities.quantity') ?? 0;
+
             $performance[] = (object) [
                 'crusher_name' => $crusher->name,
                 'barcode_count' => $productionCount,
                 'total_quantity' => $totalQuantity,
                 'accepted_quantity' => $acceptedQuantity,
                 'rejected_quantity' => $rejectedQuantity,
+                'exceptional_quantity' => $exceptionalQuantity,
+                'correction_quantity' => $correctionQuantity
             ];
         }
 

@@ -313,6 +313,15 @@
                 margin-bottom: 0.5rem;
             }
         }
+
+        /* Filter Styles copied from report */
+        .filters-section { background: white; border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .filter-group { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+        .filter-item { display: flex; align-items: center; gap: 0.5rem; }
+        .filter-item label { margin-bottom: 0; font-weight: 600; color: #495057; white-space: nowrap; }
+        .filter-item .form-control { border-radius: 10px; border: 1px solid #e9ecef; padding: 0.5rem 1rem; height: auto; font-size: 0.9rem; }
+        .filter-info { display: flex; align-items: center; gap: 0.5rem; color: #6c757d; font-size: 0.85rem; }
     </style>
 @endsection
 
@@ -348,12 +357,62 @@
                             <a href="{{ route('granilya.firma.create') }}" class="btn-modern btn-success-modern mr-2">
                                 <i class="fas fa-plus"></i> Yeni Firma Ekle
                             </a>
-                            <!-- Export Button hidden until Granilya Tracking is Implemented 
-                            <a href="#" class="btn-modern btn-warning-modern">
-                                <i class="fas fa-file-excel"></i>Excel İndir
+                            <a href="{{ route('granilya.firma.export', ['period' => $period, 'date' => $dateStr, 'start_date' => $startDateStr, 'end_date' => $endDateStr]) }}" class="btn-modern btn-warning-modern">
+                                <i class="fas fa-file-excel"></i> Excel İndir
                             </a>
-                            -->
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date and Period Filters -->
+            <div class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <form method="GET" action="{{ route('granilya.firma.index') }}" class="d-flex align-items-center">
+                                <label for="date">📅 Tarih:</label>
+                                <input type="date" id="date" name="date" value="{{ $dateStr }}" 
+                                       class="form-control ml-2" onchange="this.form.submit()">
+                            </form>
+                        </div>
+                        
+                        <div class="filter-item">
+                            <form method="GET" action="{{ route('granilya.firma.index') }}" class="d-flex align-items-center">
+                                <label for="period">📊 Periyot:</label>
+                                <select id="period" name="period" class="form-control ml-2" onchange="this.value === 'custom' ? $('#customDateSelector').show() : this.form.submit()">
+                                    <option value="daily" {{ $period === 'daily' ? 'selected' : '' }}>Günlük</option>
+                                    <option value="weekly" {{ $period === 'weekly' ? 'selected' : '' }}>Haftalık</option>
+                                    <option value="monthly" {{ $period === 'monthly' ? 'selected' : '' }}>Aylık</option>
+                                    <option value="quarterly" {{ $period === 'quarterly' ? 'selected' : '' }}>3 Aylık</option>
+                                    <option value="yearly" {{ $period === 'yearly' ? 'selected' : '' }}>Yıllık</option>
+                                    <option value="custom" {{ $period === 'custom' ? 'selected' : '' }}>Özel Tarih Aralığı</option>
+                                </select>
+                            </form>
+                        </div>
+                        
+                        <!-- Custom Date Range Selector -->
+                        <div class="filter-item custom-date-filter" id="customDateSelector" style="display: {{ $period === 'custom' ? 'block' : 'none' }};">
+                            <form method="GET" action="{{ route('granilya.firma.index') }}" class="d-flex align-items-center">
+                                <label for="start_date">📅 Başlangıç:</label>
+                                <input type="date" id="start_date" name="start_date" value="{{ $startDateStr ?? '' }}" 
+                                       class="form-control ml-1 mr-1" max="{{ date('Y-m-d') }}">
+                                <label for="end_date" class="ms-3 ml-2">📅 Bitiş:</label>
+                                <input type="date" id="end_date" name="end_date" value="{{ $endDateStr ?? '' }}" 
+                                       class="form-control ml-1" max="{{ date('Y-m-d') }}">
+                                <input type="hidden" name="period" value="custom">
+                                <button type="submit" class="btn btn-primary btn-sm ms-3 ml-3">
+                                    <i class="fas fa-search"></i> Uygula
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-info">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt"></i> 
+                            Gösterilen veriler: <strong>{{ $periodInfo['range'] }}</strong> periyodu içindir.
+                        </small>
                     </div>
                 </div>
             </div>
@@ -377,17 +436,17 @@
                 <div class="company-body">
                     <!-- Temel İstatistikler -->
                     <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value">{{ number_format($company->total_purchase, 0) }}</div>
-                            <div class="stat-label">Toplam Alım (KG)</div>
+                        <div class="stat-item" title="{{ $periodInfo['name'] }} Miktarı">
+                            <div class="stat-value text-primary">{{ number_format($company->delivered_kg, 0) }}</div>
+                            <div class="stat-label">{{ $periodInfo['name'] }} Alım (KG)</div>
+                        </div>
+                        <div class="stat-item" title="{{ $periodInfo['name'] }} Palet Sayısı">
+                            <div class="stat-value text-info">{{ $company->barcodes_count }}</div>
+                            <div class="stat-label">Palet Sayısı</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">{{ number_format($company->last_30_days_purchase, 0) }}</div>
-                            <div class="stat-label">Son 30 Gün (KG)</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">{{ $company->barcodes_count }}</div>
-                            <div class="stat-label">Toplam Palet</div>
+                            <div class="stat-value">{{ number_format($company->total_purchase_overall, 0) }}</div>
+                            <div class="stat-label">Genel Toplam (KG)</div>
                         </div>
 
                         <div class="stat-item">
@@ -410,8 +469,8 @@
                     <!-- Durum Dağılımı -->
                     <div class="status-distribution" style="grid-template-columns: 1fr;">
                         <div class="status-item status-delivered">
-                            <div>{{ number_format($company->delivered_kg ?? 0, 0) }}</div>
-                            <small>Toplam Teslim Edilen (KG)</small>
+                            <div>{{ number_format($company->delivered_kg ?? 0, 1) }} KG</div>
+                            <small>{{ $periodInfo['range'] }} arası satın alınan miktar</small>
                         </div>
                     </div>
 

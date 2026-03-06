@@ -24,33 +24,39 @@ class GranilyaCompany extends Model
     /**
      * Firmaya teslim edilmiş tekil palet sayısını döner
      */
-    public function getUniquePalletCount()
+    public function getUniquePalletCount($startDate = null, $endDate = null)
     {
-        // Palet numarası '1-1', '1-2' formatında olduğu için '-' karakterinden öncesine göre grupluyoruz
-        return $this->deliveredProductions()
-            ->where('status', GranilyaProduction::STATUS_DELIVERED)
-            ->selectRaw('COUNT(DISTINCT SUBSTRING_INDEX(pallet_number, "-", 1)) as unique_pallets')
+        $query = $this->deliveredProductions()
+            ->where('status', GranilyaProduction::STATUS_DELIVERED);
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('delivered_at', [$startDate, $endDate]);
+        }
+
+        return $query->selectRaw('COUNT(DISTINCT SUBSTRING_INDEX(pallet_number, "-", 1)) as unique_pallets')
             ->value('unique_pallets') ?? 0;
     }
 
     /**
      * Firmaya teslim edilmiş üretimlerin toplam miktarını döner
      */
-    public function getTotalDeliveredWeight()
+    public function getTotalDeliveredWeight($startDate = null, $endDate = null)
     {
-        return $this->deliveredProductions()
-            ->where('status', GranilyaProduction::STATUS_DELIVERED)
-            ->sum('used_quantity');
+        $query = $this->deliveredProductions()
+            ->where('status', GranilyaProduction::STATUS_DELIVERED);
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('delivered_at', [$startDate, $endDate]);
+        }
+
+        return $query->sum('used_quantity');
     }
 
     /**
-     * Son 30 gündeki teslimat miktarını döner
+     * Son 30 gündeki teslimat miktarını döner (Filtrelenmiş toplam varsa ona göre değişebilir ama genelde statik bir gösterge olur)
      */
     public function getLast30DaysWeight()
     {
-        return $this->deliveredProductions()
-            ->where('status', GranilyaProduction::STATUS_DELIVERED)
-            ->where('delivered_at', '>=', now()->subDays(30))
-            ->sum('used_quantity');
+        return $this->getTotalDeliveredWeight(now()->subDays(30), now());
     }
 }

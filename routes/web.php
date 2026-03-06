@@ -81,6 +81,7 @@ Route::middleware('auth')
             Route::resource('kirici', App\Http\Controllers\Granilya\CrusherController::class);
             Route::resource('boyut', App\Http\Controllers\Granilya\SizeController::class);
             Route::resource('miktar', App\Http\Controllers\Granilya\QuantityController::class);
+            Route::get('/firma/export', [App\Http\Controllers\Granilya\CompanyController::class, 'export'])->name('firma.export');
             Route::resource('firma', App\Http\Controllers\Granilya\CompanyController::class);
         });
 

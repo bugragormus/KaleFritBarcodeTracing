@@ -3483,6 +3483,14 @@
                         <div class="stat-label">Teslimat Sürecinde (ton)</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-value text-success">{{ number_format($productionData['exceptional_quantity'], 1) }}</div>
+                        <div class="stat-label">İstisnai Onay (ton)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value text-info">{{ number_format($productionData['correction_quantity'], 1) }}</div>
+                        <div class="stat-label">Düzeltme Faaliyeti (ton)</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-value">{{ number_format($productionData['rejected_quantity'], 1) }}</div>
                         <div class="stat-label">Reddedilen (ton)</div>
                     </div>
@@ -3595,6 +3603,14 @@
                                     <div class="shift-stat-value">{{ number_format($shiftData['rejected_quantity'] ?? 0, 1) }}</div>
                                     <div class="shift-stat-label">Red (ton)</div>
                                 </div>
+                                <div class="shift-stat" title="İstisnai Onay Miktarı (ton)">
+                                    <div class="shift-stat-value text-success">{{ number_format($shiftData['exceptional_quantity'] ?? 0, 1) }}</div>
+                                    <div class="shift-stat-label">İstisnai (ton)</div>
+                                </div>
+                                <div class="shift-stat" title="Düzeltme Faaliyeti Miktarı (ton)">
+                                    <div class="shift-stat-value text-info">{{ number_format($shiftData['correction_quantity'] ?? 0, 1) }}</div>
+                                    <div class="shift-stat-label">Düzeltme (ton)</div>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -3632,6 +3648,8 @@
                                 <th>Toplam Miktar (ton)</th>
                                 <th>Kabul Edilen (ton)</th>
                                 <th>Reddedilen (ton)</th>
+                                <th>İstisnai Onay (ton)</th>
+                                <th>Düzeltme Faaliyeti (ton)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3642,6 +3660,8 @@
                                 <td>{{ number_format($crusher->total_quantity, 1) }}</td>
                                 <td><span class="badge badge-success">{{ number_format($crusher->accepted_quantity, 1) }}</span></td>
                                 <td><span class="badge badge-danger">{{ number_format($crusher->rejected_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-warning">{{ number_format($crusher->exceptional_quantity, 1) }}</span></td>
+                                <td><span class="badge badge-info">{{ number_format($crusher->correction_quantity, 1) }}</span></td>
                             </tr>
                             @endforeach
                             
