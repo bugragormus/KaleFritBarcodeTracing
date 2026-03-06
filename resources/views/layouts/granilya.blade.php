@@ -1411,12 +1411,14 @@
                         </a>
                     </li>
 
+                    @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::CUSTOMER_TRANSFER))
                     <li class="nav-item {{ request()->is('granilya/satis') ? 'active' : ''}}">
                         <a href="{{ route('granilya.sales') }}" class="nav-link">
                             <i class="fas fa-shopping-cart"></i>
                             <span>Satış Ekranı</span>
                         </a>
                     </li>
+                    @endif
 
                     <li class="nav-item {{ request()->is('granilya/firma*') ? 'active' : ''}}">
                         <a href="{{ route('granilya.firma.index') }}" class="nav-link">

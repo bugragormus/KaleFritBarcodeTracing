@@ -59,7 +59,13 @@ Route::middleware('auth')
                 Route::post('/toplu-onay', [App\Http\Controllers\Granilya\LaboratoryController::class, 'processBulk'])->name('bulk');
             });
             Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
-            Route::get('/satis', [App\Http\Controllers\Granilya\PageController::class, 'sales'])->name('sales');
+            
+            Route::middleware(['permission:customer_transfer'])->group(function () {
+                Route::get('/satis', [App\Http\Controllers\Granilya\SalesController::class, 'index'])->name('sales');
+                Route::post('/satis', [App\Http\Controllers\Granilya\SalesController::class, 'store'])->name('sales.store');
+                Route::get('/satis/gecmis', [App\Http\Controllers\Granilya\SalesController::class, 'history'])->name('sales.history');
+            });
+
             Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
             
             // Granilya Production Operations
@@ -130,6 +136,14 @@ Route::middleware('auth')
             Route::get('/', [BarcodeController::class, 'index'])->name('index');
             Route::get('/ekle', [BarcodeController::class, 'create'])->name('create');
             Route::get('/print', [BarcodeController::class, 'print'])->name('print');
+            
+            // Barkod Satış (Frit) - Müşteri İşlemleri Yetkisi
+            Route::middleware(['permission:customer_transfer'])->group(function () {
+                Route::get('/frit-satis/gecmis', [\App\Http\Controllers\FritSalesController::class, 'history'])->name('sales.history');
+                Route::get('/frit-satis', [\App\Http\Controllers\FritSalesController::class, 'index'])->name('sales.index');
+                Route::post('/frit-satis', [\App\Http\Controllers\FritSalesController::class, 'store'])->name('sales.store');
+            });
+
             Route::put('/{barkod}', [BarcodeController::class, 'update'])->name('update');
             Route::get('/{barkod}', [BarcodeController::class, 'show'])->name('show');
             Route::delete('/{barkod}', [BarcodeController::class, 'destroy'])->name('destroy');

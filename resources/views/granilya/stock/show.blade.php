@@ -441,6 +441,32 @@
             </div>
         </div>
 
+        {{-- SALES INFO (If Delivered) --}}
+        @if($pallet->status == \App\Models\GranilyaProduction::STATUS_DELIVERED)
+        <div class="card-modern">
+            <div class="card-header-modern" style="background: #f0fff4; border-bottom: 1px solid #c6f6d5;">
+                <h3 class="card-title-modern" style="color: #276749;"><i class="fas fa-handshake"></i> Satış Bilgileri</h3>
+                <span class="badge badge-success" style="background-color: #276749; color: white; padding: 6px 12px; border-radius: 8px;">TESLİMAT TAMAMLANDI</span>
+            </div>
+            <div class="card-body-modern">
+                <div class="info-row" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="info-block" style="border-left-color: #276749;">
+                        <div class="info-label">Satın Alan Firma</div>
+                        <div class="info-value text-success">{{ $pallet->deliveryCompany->name ?? '-' }}</div>
+                    </div>
+                    <div class="info-block" style="border-left-color: #276749;">
+                        <div class="info-label">Satış Tarihi</div>
+                        <div class="info-value">{{ $pallet->delivered_at ? $pallet->delivered_at->format('d.m.Y H:i') : '-' }}</div>
+                    </div>
+                    <div class="info-block" style="border-left-color: #276749;">
+                        <div class="info-label">Satışı Yapan Personel</div>
+                        <div class="info-value">{{ $pallet->user->name ?? '-' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
     </div>
 </div>
 

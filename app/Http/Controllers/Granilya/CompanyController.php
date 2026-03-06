@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Granilya;
 
 use App\Http\Controllers\Controller;
 use App\Models\GranilyaCompany;
+use App\Models\GranilyaProduction;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
@@ -15,21 +16,22 @@ class CompanyController extends Controller
     {
         $companies = GranilyaCompany::orderBy('name')->get();
 
-        // Since Granilya barcode tracking is not yet implemented, 
-        // we feed the detailed view with 0/placeholder data for now 
-        // to match the Frit Company UI design exactly as requested.
         foreach ($companies as $company) {
-            $company->delivery_rate = 0;
-            $company->total_purchase = 0;
-            $company->last_30_days_purchase = 0;
-            $company->barcodes_count = 0;
-            $company->last_purchase_date = null;
-            $company->average_order_size = 0;
+            $company->delivered_kg = $company->getTotalDeliveredWeight();
             
-            $company->customer_transfer_kg = 0;
-            $company->delivered_kg = 0;
+            $company->total_purchase = $company->delivered_kg;
+            $company->last_30_days_purchase = $company->getLast30DaysWeight();
+            $company->barcodes_count = $company->getUniquePalletCount();
             
-            $company->is_active = false;
+            $company->last_purchase_date = $company->deliveredProductions()
+                ->where('status', GranilyaProduction::STATUS_DELIVERED)
+                ->max('delivered_at');
+            
+            $company->average_order_size = $company->barcodes_count > 0 
+                ? $company->total_purchase / $company->barcodes_count 
+                : 0;
+
+            $company->is_active = $company->is_active; // Already from DB
         }
 
         return view('granilya.companies.index', compact('companies'));
@@ -65,7 +67,17 @@ class CompanyController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $firma = GranilyaCompany::findOrFail($id);
+        
+        // Detailed stats for the company
+        $deliveredProductions = $firma->deliveredProductions()
+            ->with(['stock', 'user', 'size'])
+            ->orderBy('delivered_at', 'desc')
+            ->get();
+            
+        $uniquePalletCount = $firma->getUniquePalletCount();
+
+        return view('granilya.companies.show', compact('firma', 'deliveredProductions', 'uniquePalletCount'));
     }
 
     /**

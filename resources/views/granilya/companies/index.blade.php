@@ -387,13 +387,9 @@
                         </div>
                         <div class="stat-item">
                             <div class="stat-value">{{ $company->barcodes_count }}</div>
-                            <div class="stat-label">Toplam Sipariş</div>
+                            <div class="stat-label">Toplam Palet</div>
                         </div>
 
-                        <div class="stat-item">
-                            <div class="stat-value">{{ $company->delivery_rate }}%</div>
-                            <div class="stat-label">Teslim Oranı</div>
-                        </div>
                         <div class="stat-item">
                             <div class="stat-value">
                                 @if($company->last_purchase_date)
@@ -410,35 +406,12 @@
                         </div>
                     </div>
 
-                    <!-- Performans Göstergeleri -->
-                    <div class="progress-section">
-                        <div class="progress-item">
-                            <div class="progress-label">
-                                <span>Teslim Oranı</span>
-                                <span>{{ $company->delivery_rate }}%</span>
-                            </div>
-                            <div class="progress-bar-custom">
-                                <div class="progress-fill 
-                                    @if($company->delivery_rate >= 90) progress-success
-                                    @elseif($company->delivery_rate >= 75) progress-info
-                                    @elseif($company->delivery_rate >= 50) progress-warning
-                                    @else progress-danger
-                                    @endif"
-                                    style="width: {{ $company->delivery_rate }}%">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Durum Dağılımı -->
-                    <div class="status-distribution">
-                        <div class="status-item status-customer-transfer">
-                            <div>{{ number_format($company->customer_transfer_kg ?? 0, 0) }}</div>
-                            <small>Müşteri Transfer (KG)</small>
-                        </div>
+                    <div class="status-distribution" style="grid-template-columns: 1fr;">
                         <div class="status-item status-delivered">
                             <div>{{ number_format($company->delivered_kg ?? 0, 0) }}</div>
-                            <small>Teslim Edildi (KG)</small>
+                            <small>Toplam Teslim Edilen (KG)</small>
                         </div>
                     </div>
 
@@ -447,14 +420,14 @@
                         <a href="{{ route('granilya.firma.edit', $company->id) }}" class="btn-modern btn-success-modern btn-xs-modern">
                             <i class="fas fa-edit"></i> Düzenle
                         </a>
-                        <!-- Analytics & Reports hidden until Granilya Tracking is Implemented 
-                        <a href="#" class="btn-modern btn-info-modern btn-xs-modern">
-                            <i class="fas fa-chart-bar"></i> Detaylı Analiz
+                        <a href="{{ route('granilya.firma.show', $company->id) }}" class="btn-modern btn-info-modern btn-xs-modern">
+                            <i class="fas fa-chart-bar"></i> Firma Detayları
                         </a>
+                        {{-- Group hidden until requested
                         <a href="#" class="btn-modern btn-warning-modern btn-xs-modern">
                             <i class="fas fa-file-excel"></i> Rapor İndir
                         </a>
-                        -->
+                        --}}
                         <form action="{{ route('granilya.firma.destroy', $company->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bu firmayı silmek istediğinize emin misiniz?');">
                             @csrf
                             @method('DELETE')

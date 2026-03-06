@@ -1,7 +1,7 @@
 @extends('layouts.granilya')
 
 @section('styles')
-    <link href="{{ asset('assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="{{ asset('assets/css/select2.min.css') }}" rel="stylesheet" />
     <style>
         body, .main-content, .modern-barcode-management {
@@ -462,8 +462,8 @@
 @endsection
 
 @section('scripts')
-    <script src="{{ asset('assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.tr.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
     <script src="{{ asset('assets/js/select2.min.js') }}"></script>
     <script>
         $(document).ready(function() {
@@ -473,18 +473,11 @@
                 width: '100%'
             });
 
-            $('.filter-date').datepicker({
-                format: 'dd.mm.yyyy',
-                autoclose: true,
-                todayHighlight: true,
-                language: 'tr',
-                orientation: 'bottom auto',
-                container: 'body',
-                zIndexOffset: 9999,
-                clearBtn: true,
-                todayBtn: 'linked',
-                keyboardNavigation: true,
-                forceParse: false
+            flatpickr(".filter-date", {
+                dateFormat: "d.m.Y",
+                locale: "tr",
+                allowInput: true,
+                disableMobile: true
             });
 
             $('.yajra-datatable').DataTable({

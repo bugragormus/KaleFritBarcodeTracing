@@ -17,6 +17,11 @@ class GranilyaProduction extends Model
     const STATUS_SHIPPED = 6; //'Sevk Edildi'
     const STATUS_CORRECTED = 8; //'Düzeltme Faaliyetinde Kullanıldı'
     const STATUS_CUSTOMER_TRANSFER = 9; //'Müşteri Transfer'
+    const STATUS_DELIVERED = 10; //'Teslim Edildi'
+
+    protected $casts = [
+        'delivered_at' => 'datetime',
+    ];
 
     public static function getStatusList()
     {
@@ -28,6 +33,7 @@ class GranilyaProduction extends Model
             self::STATUS_SHIPPED => 'Sevk Edildi',
             self::STATUS_CORRECTED => 'Düzeltme Faaliyeti',
             self::STATUS_CUSTOMER_TRANSFER => 'Müşteri Transfer',
+            self::STATUS_DELIVERED => 'Teslim Edildi',
         ];
     }
 
@@ -64,6 +70,8 @@ class GranilyaProduction extends Model
                 return '<span class="status-badge status-control-repeat">Düzeltme Faaliyeti</span>';
             case self::STATUS_CUSTOMER_TRANSFER:
                 return '<span class="status-badge" style="background:#e0e7ff; color:#3730a3;">Müşteri Transfer</span>';
+            case self::STATUS_DELIVERED:
+                return '<span class="status-badge" style="background:#065f46; color:#ffffff;">Teslim Edildi</span>';
             default:
                 return '<span class="status-badge">Bilinmiyor</span>';
         }
@@ -94,7 +102,9 @@ class GranilyaProduction extends Model
         'surface_reject_reason',
         'arge_test_result',
         'system_note',
-        'is_exceptionally_approved'
+        'is_exceptionally_approved',
+        'delivery_company_id',
+        'delivered_at'
     ];
 
     public function stock()
@@ -145,6 +155,11 @@ class GranilyaProduction extends Model
     public function triggerProduction()
     {
         return $this->belongsTo(self::class, 'trigger_production_id');
+    }
+
+    public function deliveryCompany()
+    {
+        return $this->belongsTo(GranilyaCompany::class, 'delivery_company_id');
     }
 
     public function triggeredCorrections()
@@ -235,7 +250,7 @@ class GranilyaProduction extends Model
         $available = [$this->status => $all[$this->status]]; // Mevcut durum her zaman olmalı
 
         // Terminal durumlar için başka seçenek yok
-        if ($this->status == self::STATUS_SHIPMENT_APPROVED || $this->status == self::STATUS_CUSTOMER_TRANSFER) {
+        if ($this->status == self::STATUS_SHIPMENT_APPROVED || $this->status == self::STATUS_CUSTOMER_TRANSFER || $this->status == self::STATUS_DELIVERED) {
             return $available;
         }
 

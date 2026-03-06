@@ -1416,12 +1416,14 @@
                         </a>
                     </li>
 
-                    <li class="nav-item {{ request()->is('warehouse/*') ? 'active' : ''}}">
-                        <a href="{{ route('warehouse.index') }}" class="nav-link">
-                            <i class="fas fa-warehouse"></i>
-                            <span>Depo Yönetimi</span>
+                    @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::CUSTOMER_TRANSFER))
+                    <li class="nav-item {{ request()->routeIs('barcode.sales.*') ? 'active' : ''}}">
+                        <a href="{{ route('barcode.sales.index') }}" class="nav-link">
+                            <i class="fas fa-handshake"></i>
+                            <span>Satış Ekranı</span>
                         </a>
                     </li>
+                    @endif
 
                     <li class="nav-item dropdown {{ request()->is('kiln/*') || request()->is('quantity/*') || request()->is('departman/*') ? 'active' : ''}}">
                         <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
@@ -1437,6 +1439,10 @@
                             </a>
                             <a class="dropdown-item" href="{{ route('quantity.index') }}">
                                 <i class="fas fa-calculator"></i> Adet Yönetimi
+                            </a>
+                            <a href="{{ route('warehouse.index') }}" class="dropdown-item">
+                                <i class="fas fa-warehouse"></i>
+                                <span>Depo Yönetimi</span>
                             </a>
                         </div>
                     </li>

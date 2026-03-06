@@ -341,6 +341,7 @@
                                 </div>
                             </a>
                         </div>
+                        @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::CUSTOMER_TRANSFER))
                         <div class="col-lg-3 col-md-6 mb-3">
                             <a href="{{ route('granilya.sales') }}" class="quick-action-item">
                                 <div class="quick-action-icon bg-warning">
@@ -352,6 +353,7 @@
                                 </div>
                             </a>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
