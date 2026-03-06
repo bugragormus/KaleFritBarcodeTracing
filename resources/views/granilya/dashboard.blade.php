@@ -370,6 +370,31 @@
             
             <div class="card quick-actions-card">
                 <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        <form method="GET" action="{{ route('granilya.dashboard') }}" class="d-flex align-items-center flex-wrap gap-2">
+                            <div class="d-flex align-items-center">
+                                <label for="start_date" class="mr-2 mb-0" style="font-weight: 600; color: #495057;">📅 Başlangıç:</label>
+                                <input type="date" id="start_date" name="start_date" value="{{ $startDate ?? '' }}" class="form-control" style="width: auto; border-radius: 10px;">
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <label for="end_date" class="mr-2 ml-2 mb-0" style="font-weight: 600; color: #495057;">📅 Bitiş:</label>
+                                <input type="date" id="end_date" name="end_date" value="{{ $endDate ?? '' }}" class="form-control" style="width: auto; border-radius: 10px;">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; padding: 0.5rem 1.5rem; font-weight: 600;">
+                                <i class="fas fa-search"></i> Filtrele
+                            </button>
+                            @if($startDate || $endDate)
+                                <a href="{{ route('granilya.dashboard') }}" class="btn btn-secondary" style="border-radius: 10px; padding: 0.5rem 1rem;">
+                                    <i class="fas fa-undo"></i> Sıfırla
+                                </a>
+                            @endif
+                        </form>
+                        
+                        <a href="{{ route('granilya.dashboard.raw_materials.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}" class="btn btn-warning text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 10px; padding: 0.75rem 1.5rem; font-weight: 700; box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);">
+                            <i class="fas fa-file-excel mr-2"></i> Excel İndir
+                        </a>
+                    </div>
+
                     @if($rawMaterialStocks->count() > 0)
                         <!-- Column Filters (Frit Style) -->
                         <div class="column-filters mb-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.5rem 2rem; border-radius: 15px; border: 1px solid #e9ecef;">

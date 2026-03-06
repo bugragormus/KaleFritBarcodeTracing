@@ -29,6 +29,7 @@ class PageController extends Controller
         $productCrusherAnalysis = $this->getProductCrusherAnalysis($periodInfo);
         $stockAgeAnalysis = $this->getStockAgeAnalysis();
         $aiInsights = $this->getAiInsights($periodInfo);
+        $transferredMaterials = $this->getTransferredMaterialsData($periodInfo);
 
         // Required charts
         $monthlyComparison = $this->getMonthlyComparison($date);
@@ -49,7 +50,8 @@ class PageController extends Controller
             'aiInsights',
             'crusherRejectionRates',
             'rejectionReasonsAnalysis',
-            'monthlyComparison'
+            'monthlyComparison',
+            'transferredMaterials'
         ));
     }
 
@@ -693,5 +695,27 @@ class PageController extends Controller
             'quality_recommendation' => $riskLevel == 'low' ? 'Mevcut standartları koruyun.' : 'Özellikle elek ve yüzey test aşamalarını inceleyin.',
             'anomalies' => $anomalies
         ];
+    }
+
+    private function getTransferredMaterialsData($periodInfo)
+    {
+        $startDate = $periodInfo['start_date'];
+        $endDate = $periodInfo['end_date'];
+
+        return DB::table('barcodes')
+            ->select(
+                'stocks.name as stock_name',
+                'barcodes.load_number',
+                DB::raw('SUM(quantities.quantity) as total_quantity')
+            )
+            ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
+            ->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
+            ->where('barcodes.status', \App\Models\Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+            ->whereBetween('barcodes.updated_at', [$startDate, $endDate])
+            ->whereNull('barcodes.deleted_at')
+            ->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
+            ->orderBy('stocks.name')
+            ->orderBy('barcodes.load_number')
+            ->get();
     }
 }

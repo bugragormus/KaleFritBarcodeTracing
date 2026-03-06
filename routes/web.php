@@ -47,6 +47,7 @@ Route::middleware('auth')
         // Granilya Sistemi Route'ları
         Route::prefix('granilya')->as('granilya.')->group(function () {
             Route::get('/anasayfa', [App\Http\Controllers\Granilya\DashboardController::class, 'index'])->name('dashboard');
+            Route::get('/anasayfa/raw-materials-export', [App\Http\Controllers\Granilya\DashboardController::class, 'exportRawMaterials'])->name('dashboard.raw_materials.export');
             Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
             Route::prefix('laboratuvar')->as('laboratory.')->group(function () {
                 Route::get('/', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('index'); // Dahboard is the index

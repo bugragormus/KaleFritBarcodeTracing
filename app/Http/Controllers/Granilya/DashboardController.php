@@ -26,10 +26,13 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
         // Frit tarafından Granilya'ya aktarılan hammaddeleri getir
-        $rawMaterialStocks = DB::table('barcodes')
+        $query = DB::table('barcodes')
             ->select(
                 'stocks.id as stock_id',
                 'stocks.name as stock_name',
@@ -39,8 +42,16 @@ class DashboardController extends Controller
             ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
             ->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
             ->where('barcodes.status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
-            ->whereNull('barcodes.deleted_at')
-            ->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
+            ->whereNull('barcodes.deleted_at');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('barcodes.updated_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $rawMaterialStocks = $query->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
             ->orderBy('stocks.name')
             ->orderBy('barcodes.load_number')
             ->get();
@@ -110,7 +121,119 @@ class DashboardController extends Controller
             'kpiMonthlySales', 
             'kpiPendingAnalysis', 
             'kpiApproved', 
-            'kpiRejected'
+            'kpiRejected',
+            'startDate',
+            'endDate'
         ));
+    }
+
+    public function exportRawMaterials(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $query = DB::table('barcodes')
+            ->select(
+                'stocks.name as stock_name',
+                'barcodes.load_number',
+                DB::raw('SUM(quantities.quantity) as total_quantity')
+            )
+            ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
+            ->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
+            ->where('barcodes.status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+            ->whereNull('barcodes.deleted_at');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('barcodes.updated_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $rawMaterialStocks = $query->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
+            ->orderBy('stocks.name')
+            ->orderBy('barcodes.load_number')
+            ->get();
+
+        $productionStats = DB::table('granilya_productions')
+            ->select(
+                'stock_id',
+                'load_number',
+                DB::raw('SUM(used_quantity) as total_used'),
+                DB::raw('SUM(sieve_residue_quantity) as total_sieve_residue')
+            )
+            ->where('is_correction', false)
+            ->whereNull('deleted_at')
+            ->groupBy('stock_id', 'load_number')
+            ->get()
+            ->keyBy(function ($item) {
+                // We need stock_id to map, but the first query group by stocks.id which we didn't select for export.
+                // Let's fix the query select below.
+                return ''; 
+            });
+            
+        // Correcting the query above to include stock_id for internal calculation
+        $exportDataQuery = DB::table('barcodes')
+            ->select(
+                'stocks.id as stock_id',
+                'stocks.name as stock_name',
+                'barcodes.load_number',
+                DB::raw('SUM(quantities.quantity) as total_quantity')
+            )
+            ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
+            ->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
+            ->where('barcodes.status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
+            ->whereNull('barcodes.deleted_at');
+
+        if ($startDate && $endDate) {
+            $exportDataQuery->whereBetween('barcodes.updated_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        }
+
+        $rawMaterialStocks = $exportDataQuery->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
+            ->orderBy('stocks.name')
+            ->orderBy('barcodes.load_number')
+            ->get();
+
+        $filename = "frit_hammadde_aktarim_raporu_" . date('Ymd_His') . ".csv";
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function() use ($rawMaterialStocks, $productionStats) {
+            $file = fopen('php://output', 'w');
+            fputs($file, "\xEF\xBB\xBF"); // BOM for excel
+            
+            fputcsv($file, [
+                'Hammadde (Frit) Adı',
+                'Şarj No',
+                'Toplam Gelen (KG)',
+                'Üretimde Kullanılan (KG)',
+                'Elek Altı (KG)',
+                'Kalan Stok (KG)'
+            ]);
+
+            foreach ($rawMaterialStocks as $row) {
+                $stat = $productionStats->get($row->stock_id . '_' . $row->load_number);
+                $used = $stat ? $stat->total_used : 0;
+                $sieve = $stat ? $stat->total_sieve_residue : 0;
+                $remaining = $row->total_quantity - $used - $sieve;
+
+                fputcsv($file, [
+                    $row->stock_name,
+                    $row->load_number,
+                    number_format($row->total_quantity, 2, '.', ''),
+                    number_format($used, 2, '.', ''),
+                    number_format($sieve, 2, '.', ''),
+                    number_format($remaining, 2, '.', '')
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

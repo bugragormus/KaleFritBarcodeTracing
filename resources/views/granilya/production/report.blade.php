@@ -3676,6 +3676,44 @@
             </div>
         </div>
 
+        <!-- Frit Üretimden Aktarılan Hammaddeler -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <h3 class="card-title-modern">
+                    <i class="fas fa-cubes"></i>
+                    Frit Üretimden Aktarılan Hammaddeler Özeti
+                </h3>
+            </div>
+            <div class="card-body-modern">
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Hammadde (Frit) Adı</th>
+                                <th>Şarj No</th>
+                                <th class="text-right">Aktarılan Miktar (KG)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($transferredMaterials as $material)
+                            <tr>
+                                <td><strong>{{ $material->stock_name }}</strong></td>
+                                <td>{{ $material->load_number ?? '-' }}</td>
+                                <td class="text-right">{{ number_format($material->total_quantity, 1, ',', '.') }} KG</td>
+                            </tr>
+                            @endforeach
+                            
+                            @if(count($transferredMaterials) === 0)
+                            <tr>
+                                <td colspan="3" class="text-center">Bu periyotta aktarılan hammadde bulunmamaktadır.</td>
+                            </tr>
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- Crusher Rejection Rates -->
         <div class="card-modern">
             <div class="card-header-modern">
