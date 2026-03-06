@@ -1,7 +1,15 @@
-@extends('layouts.app')
+@extends('layouts.granilya')
 
 @section('styles')
     <style>
+        /* ---- Global Layout Fixes ---- */
+        * { font-family: 'Poppins', 'Inter', 'Segoe UI', Arial, sans-serif !important; }
+        
+        .container {
+            max-width: 1280px !important;
+            margin: 0 auto !important;
+        }
+
         .page-header-granilya {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
