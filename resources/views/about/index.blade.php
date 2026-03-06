@@ -356,7 +356,11 @@
                             <div class="developer-details">
                                 <div class="developer-detail-item">
                                     <i class="fas fa-user-tie"></i>
-                                    <span>Yapay Zeka Uzmanı - Yazılım Mühendisi</span>
+                                    <span>AI Specialist | Software Engineer</span>
+                                </div>
+                                <div class="developer-detail-item">
+                                    <i class="fas fa-sitemap"></i>
+                                    <span><a style="color: white; text-decoration: underline;" href="https://bugragormus.tech">bugragormus.tech</a></span>
                                 </div>
                                 <div class="developer-detail-item">
                                     <i class="fas fa-envelope"></i>
@@ -387,7 +391,7 @@
                                     <i class="fas fa-code-branch"></i>
                                 </div>
                                 <div class="info-title">Versiyon</div>
-                                <div class="info-description">2.0.0</div>
+                                <div class="info-description">3.0.1</div>
                             </div>
                         </div>
 
