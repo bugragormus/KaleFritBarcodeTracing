@@ -5,6 +5,197 @@
     <!-- Select2 library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" />
     <style>
+    /* Düzeltme Faaliyeti Stilleri (Frit Barcode Style) */
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .checkbox-container input[type="checkbox"] {
+        margin: 0;
+    }
+    .correction-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .correction-item {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    .correction-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+    .correction-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .correction-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    .correction-info strong {
+        color: #495057;
+        font-size: 1.1rem;
+    }
+    .correction-details {
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #dee2e6;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+    .correction-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .correction-toggle input[type="checkbox"] {
+        margin: 0;
+        transform: scale(1.2);
+    }
+    .correction-toggle label {
+        font-weight: 600;
+        color: #667eea;
+        cursor: pointer;
+    }
+    .section-header-collapsible {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 15px;
+        padding: 1rem;
+        margin: -1rem -1rem 1rem -1rem;
+    }
+    .section-header-collapsible:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+    .section-header-collapsible .section-title {
+        margin-bottom: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        color: #f59f00;
+    }
+    .collapse-icon {
+        transition: transform 0.3s ease;
+        color: #f59f00;
+        font-size: 0.9rem;
+    }
+    .section-header-collapsible[aria-expanded="true"] .collapse-icon {
+        transform: rotate(180deg);
+    }
+    .filter-section {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    .filter-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    .filter-title i {
+        margin-right: 0.5rem;
+        color: #667eea;
+    }
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: end;
+    }
+    .filter-col {
+        flex: 1;
+        min-width: 200px;
+    }
+    .filter-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    .select2-filter {
+        width: 100%;
+    }
+    .select2-container--default .select2-selection--single {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+        color: #495057;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .select2-container--default .select2-selection--single:focus,
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    .select2-dropdown {
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: white;
+        background: #6c757d;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+    .correction-item.hidden {
+        display: none;
+    }
+    .selection-info {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+    .selection-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .selection-count, .selection-total {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    .selection-count {
+        color: #28a745;
+        font-weight: 500;
+    }
+    .selection-count strong, .selection-total strong {
+        font-weight: 600;
+        color: #212529;
+    }
+
         .modern-form {
             background: #ffffff;
             min-height: 100vh;
@@ -444,6 +635,105 @@
                     </div>
                 </div>
 
+                <!-- Düzeltme Faaliyeti (Opsiyonel) -->
+                @isset($rejectedProductions)
+                @if($rejectedProductions->count() > 0)
+                <div class="form-section" style="border-left: 4px solid #f59f00;">
+                    <div class="section-header-collapsible" data-toggle="collapse" data-target="#correctionSection" aria-expanded="false" aria-controls="correctionSection">
+                        <h3 class="section-title">
+                            <i class="fas fa-tools"></i> Düzeltme Faaliyeti (Opsiyonel)
+                            <span class="collapse-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </h3>
+                    </div>
+                    
+                    <div class="collapse" id="correctionSection">
+                        <div class="info-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #f59f00 0%, #e67e22 100%);">
+                            <h6><i class="fas fa-info-circle"></i> Düzeltme Faaliyeti Nedir?</h6>
+                            <p>Önceki üretimlerden reddedilen malzemeleri, yeni üretim sırasında düzeltme faaliyeti olarak kullanabilirsiniz. Bu sayede hammadde verimliliğinizi artırabilir ve atık miktarını azaltabilirsiniz. Seçtiğiniz her reddedilmiş palet için, girdiğiniz yeni üretim parametreleriyle ancak aynı palet numarası ve miktar ile geri kazanım sağlayan yeni bir palet üretilecektir.</p>
+                        </div>
+
+                        <!-- Filtreleme Bölümü -->
+                        <div class="filter-section">
+                            <div class="filter-row">
+                                <div class="filter-col">
+                                    <label class="filter-label">
+                                        <i class="fas fa-hashtag"></i> Frit Şarj Numarası
+                                    </label>
+                                    <select class="form-control select2-filter" id="loadNumberFilter" data-placeholder="Şarj numarası seçiniz">
+                                        <option value="">Tümü</option>
+                                        @foreach($rejectedProductions->unique('load_number')->pluck('load_number')->sort() as $loadNumber)
+                                            <option value="{{ $loadNumber }}">{{ $loadNumber }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="filter-col">
+                                    <label class="filter-label">
+                                        <i class="fas fa-box"></i> Frit Kodu
+                                    </label>
+                                    <select class="form-control select2-filter" id="stockNameFilter" data-placeholder="Frit kodu seçiniz">
+                                        <option value="">Tümü</option>
+                                        @foreach($rejectedProductions->unique('stock_id')->pluck('stock.name')->sort() as $stockName)
+                                            <option value="{{ $stockName }}">{{ $stockName }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="filter-col">
+                                    <label class="filter-label">
+                                        <i class="fas fa-times" style="color: transparent;"></i> 
+                                    </label>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" id="clearFilters" style="height: 38px;">
+                                        <i class="fas fa-eraser"></i> Filtreleri Temizle
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Seçim Bilgisi -->
+                            <div class="selection-info">
+                                <div class="selection-summary">
+                                    <span class="selection-count">
+                                        <i class="fas fa-check-circle"></i> 
+                                        <strong id="selectedCount">0</strong> ürün seçildi
+                                    </span>
+                                    <span class="selection-total">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Toplam <strong>{{ $rejectedProductions->count() }}</strong> reddedilen ürün kullanıma uygun
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="correction-items">
+                            @foreach($rejectedProductions as $index => $rejectedProduction)
+                            <div class="correction-item" 
+                                 data-load-number="{{ $rejectedProduction->load_number }}"
+                                 data-stock-name="{{ $rejectedProduction->stock->name ?? '-' }}">
+                                <div class="correction-header">
+                                    <div class="correction-info">
+                                        <strong>Palet: #{{ $rejectedProduction->pallet_number }} | Frit Şarj: #{{ $rejectedProduction->load_number }} | Miktar: {{ number_format($rejectedProduction->used_quantity, 0) }} KG</strong>
+                                        <span class="correction-details" style="margin-top: 5px; padding-top: 5px; color: #495057;">
+                                            {{ $rejectedProduction->stock->name ?? '-' }} ({{ $rejectedProduction->stock->code ?? '-' }}) - 
+                                            {{ $rejectedProduction->size->name ?? '-' }} Boyut - 
+                                            {{ $rejectedProduction->created_at->format('d.m.Y H:i') }}
+                                        </span>
+                                    </div>
+                                    <div class="correction-toggle">
+                                        <!-- Real Checkbox User Interacts With -->
+                                        <input type="checkbox" id="use_correction_{{ $index }}" class="correction-checkbox"/>
+                                        <label for="use_correction_{{ $index }}">Düzeltme olarak kullan</label>
+                                        <!-- Hidden Checkbox that Submits the Form Value ONLY when real checkbox is checked -->
+                                        <input type="checkbox" name="correction_ids[]" value="{{ $rejectedProduction->id }}" class="correction-barcode-hidden" style="display: none;" disabled/>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+                @endisset
+
                 <!-- Elek Altı / İşlem Sonucu -->
                 <div class="form-section">
                     <h3 class="section-title">
@@ -490,18 +780,117 @@
         var stockLoadNumbers = @json($stockLoadNumbers);
 
         $(document).ready(function(){
-            // Initialize bootstrap-select with safe container and events
+            // ... existing selectpicker init ...
             $('.selectpicker').selectpicker({
                 container: 'body',
                 dropupAuto: false,
                 liveSearchNormalize: true
             }).on('shown.bs.select', function () {
-                // Force reposition on show for legacy browsers
                 $(this).data('selectpicker') && $(this).data('selectpicker').$menu
                     && $(this).data('selectpicker').$menu.css('min-width', $(this).closest('.bootstrap-select').outerWidth());
             }).on('loaded.bs.select', function () {
-                // Normalize height after load
                 $(this).closest('.bootstrap-select').find('> .dropdown-toggle').css({ height: '42px', lineHeight: '40px' });
+            });
+
+            // Initialize Select2 for filter dropdowns
+            $('.select2-filter').select2({
+                theme: 'default',
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder');
+                },
+                allowClear: true,
+                dropdownAutoWidth: true
+            }).on('select2:open', function() {
+                const $dropdown = $('.select2-container .select2-dropdown');
+                if ($dropdown && $dropdown.length) {
+                    $dropdown.css('width', 'auto');
+                }
+            });
+
+            // Attach dropdownParent after initialization to nearest section to avoid clipping in legacy browsers
+            $('#loadNumberFilter').select2('destroy').select2({
+                theme: 'default',
+                width: '100%',
+                placeholder: $('#loadNumberFilter').data('placeholder'),
+                allowClear: true,
+                dropdownParent: $('#correctionSection')
+            });
+            $('#stockNameFilter').select2('destroy').select2({
+                theme: 'default',
+                width: '100%',
+                placeholder: $('#stockNameFilter').data('placeholder'),
+                allowClear: true,
+                dropdownParent: $('#correctionSection')
+            });
+
+            // Sayfa yüklendiğinde tüm hidden input'ları devre dışı bırak
+            $('.correction-barcode-hidden').prop('disabled', true);
+            
+            // Seçim miktarını güncelle
+            function updateSelectionCount() {
+                var checkedCount = $('.correction-checkbox:checked').length;
+                $('#selectedCount').text(checkedCount);
+            }
+
+            // Düzeltme faaliyeti checkbox'ları için event listener
+            $('.correction-checkbox').on('change', function() {
+                var isChecked = $(this).is(':checked');
+                var hiddenInputs = $(this).closest('.correction-toggle').find('.correction-barcode-hidden');
+                
+                if (isChecked) {
+                    hiddenInputs.prop('disabled', false);
+                    hiddenInputs.prop('checked', true); // Ensure its also checked to be submitted
+                } else {
+                    hiddenInputs.prop('disabled', true);
+                    hiddenInputs.prop('checked', false);
+                }
+                updateSelectionCount();
+            });
+
+            // Filtreleme fonksiyonu
+            function applyFilters() {
+                var loadNumber = $('#loadNumberFilter').val();
+                var stockName = $('#stockNameFilter').val();
+                
+                $('.correction-item').each(function() {
+                    var itemLoadNumber = String($(this).data('load-number'));
+                    var itemStockName = String($(this).data('stock-name'));
+                    
+                    var matchLoadNumber = !loadNumber || itemLoadNumber === String(loadNumber);
+                    var matchStockName = !stockName || itemStockName === String(stockName);
+                    
+                    if (matchLoadNumber && matchStockName) {
+                        $(this).removeClass('hidden');
+                    } else {
+                        $(this).addClass('hidden');
+                    }
+                });
+            }
+
+            // Filtreleri dinle
+            $('#loadNumberFilter, #stockNameFilter').on('change', applyFilters);
+
+            // Filtreleri temizle
+            $('#clearFilters').on('click', function() {
+                $('#loadNumberFilter').val('').trigger('change');
+                $('#stockNameFilter').val('').trigger('change');
+                applyFilters();
+            });
+
+            // Collapsible accordion UI Toggle
+            $('.section-header-collapsible').on('click', function() {
+                var target = $(this).data('target');
+                var $target = $(target);
+                var isExpanded = $(this).attr('aria-expanded') === 'true';
+                
+                if (isExpanded) {
+                    $target.collapse('hide');
+                    $(this).attr('aria-expanded', 'false');
+                } else {
+                    $target.collapse('show');
+                    $(this).attr('aria-expanded', 'true');
+                }
             });
 
             // Frit Kodu seçildiğinde Frit Şarj No dropdown'unu güncelle
@@ -514,7 +903,6 @@
                 if (selectedStockId && stockLoadNumbers[selectedStockId] && stockLoadNumbers[selectedStockId].length > 0) {
                     loadNumberDropdown.append('<option value="" disabled selected>Şarj No seçiniz</option>');
                     
-                    // Şarj numaralarını ekle
                     $.each(stockLoadNumbers[selectedStockId], function(index, value) {
                         loadNumberDropdown.append('<option value="' + value + '">' + value + '</option>');
                     });
@@ -522,7 +910,6 @@
                     loadNumberDropdown.append('<option value="" disabled selected>Bu frite ait şarj bulunamadı</option>');
                 }
                 
-                // Selectpicker'ı yenile
                 loadNumberDropdown.selectpicker('refresh');
             });
             
@@ -532,11 +919,9 @@
                 var sizeName = selectedOption.data('name');
                 
                 if (sizeName === 'TOZ') {
-                    // Miktar dropdown'unu gizle, input'u göster
                     $('#quantity_select_wrapper').hide();
                     $('#quantity_input_wrapper').show();
                 } else {
-                    // Miktar input'unu gizle, dropdown'u göster
                     $('#quantity_select_wrapper').show();
                     $('#quantity_input_wrapper').hide();
                 }

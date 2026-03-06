@@ -539,11 +539,7 @@
                                             <label for="palletFilter" class="form-label-modern">
                                                 <i class="fas fa-pallet"></i>Palet No
                                             </label>
-                                            <select class="form-control-modern select2init" id="palletFilter" multiple="multiple" data-placeholder="Tüm Paletler">
-                                                @foreach($pendingPallets as $p)
-                                                    <option value="{{ $p->pallet_number }}">{{ $p->pallet_number }}</option>
-                                                @endforeach
-                                            </select>
+                                            <input type="text" class="form-control-modern" id="palletFilter" placeholder="Örn: 1 veya 1,2,5">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -651,6 +647,11 @@ $(document).ready(function() {
     // Select2 Init
     // ========================
     $('.select2init').select2({ width: '100%', allowClear: true });
+    
+    // Palet No için enter basıldığında veya input değiştiğinde filtrele
+    $('#palletFilter').on('keyup change', function() {
+        applyFilters();
+    });
 
     // ========================
     // Selection Logic
@@ -692,18 +693,33 @@ $(document).ready(function() {
     function applyFilters() {
         var stocks  = $('#stockFilter').val() || [];
         var loads   = $('#loadFilter').val() || [];
-        var pallets = $('#palletFilter').val() || [];
+        var palletsText = $('#palletFilter').val().trim();
+        var pallets = palletsText ? palletsText.split(',').map(s => s.trim().toLowerCase()) : [];
         var statuses = $('#statusFilter').val() || [];
 
         $('.pallet-col').each(function() {
             var itemStock = String($(this).data('stock'));
             var itemLoad = String($(this).data('load'));
-            var itemPallet = String($(this).data('pallet'));
+            var itemPallet = String($(this).data('pallet')).toLowerCase();
             var itemStatus = String($(this).data('status'));
 
             var ms = stocks.length === 0 || stocks.includes(itemStock);
             var ml = loads.length === 0 || loads.includes(itemLoad);
-            var mp = pallets.length === 0 || pallets.includes(itemPallet);
+            
+            // Palet No Filtre Mantığı (Base Number veya tam eşleşme)
+            var mp = true;
+            if (pallets.length > 0) {
+                mp = false;
+                var basePallet = itemPallet.split('-')[0];
+                for (var i = 0; i < pallets.length; i++) {
+                    var filterVal = pallets[i];
+                    if (filterVal === itemPallet || filterVal === basePallet) {
+                        mp = true;
+                        break;
+                    }
+                }
+            }
+            
             var mst = statuses.length === 0 || statuses.includes(itemStatus);
             $(this).toggle(ms && ml && mp && mst);
         });
@@ -716,9 +732,11 @@ $(document).ready(function() {
         updateSelectionState();
     }
 
-    $('#stockFilter, #loadFilter, #palletFilter, #statusFilter').on('change', applyFilters);
+    $('#stockFilter, #loadFilter, #statusFilter').on('change', applyFilters);
     $('#clearFilter').on('click', function() {
-        $('#stockFilter, #loadFilter, #palletFilter, #statusFilter').val('').trigger('change');
+        $('#stockFilter, #loadFilter, #statusFilter').val('').trigger('change');
+        $('#palletFilter').val('');
+        applyFilters();
     });
 });
 

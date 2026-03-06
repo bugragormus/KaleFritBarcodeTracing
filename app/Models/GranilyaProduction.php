@@ -16,6 +16,7 @@ class GranilyaProduction extends Model
     const STATUS_REJECTED = 5; //'Reddedildi'
     const STATUS_SHIPPED = 6; //'Sevk Edildi'
     const STATUS_CORRECTED = 8; //'Düzeltme Faaliyetinde Kullanıldı'
+    const STATUS_CUSTOMER_TRANSFER = 9; //'Müşteri Transfer'
 
     public static function getStatusList()
     {
@@ -26,6 +27,7 @@ class GranilyaProduction extends Model
             self::STATUS_REJECTED => 'Reddedildi',
             self::STATUS_SHIPPED => 'Sevk Edildi',
             self::STATUS_CORRECTED => 'Düzeltme Faaliyeti',
+            self::STATUS_CUSTOMER_TRANSFER => 'Müşteri Transfer',
         ];
     }
 
@@ -60,6 +62,8 @@ class GranilyaProduction extends Model
                 return '<span class="status-badge status-shipped">Sevk Edildi</span>';
             case self::STATUS_CORRECTED:
                 return '<span class="status-badge status-control-repeat">Düzeltme Faaliyeti</span>';
+            case self::STATUS_CUSTOMER_TRANSFER:
+                return '<span class="status-badge" style="background:#e0e7ff; color:#3730a3;">Müşteri Transfer</span>';
             default:
                 return '<span class="status-badge">Bilinmiyor</span>';
         }
@@ -79,6 +83,9 @@ class GranilyaProduction extends Model
         'pallet_number',
         'is_sieve_residue',
         'sieve_residue_quantity',
+        'is_correction',
+        'correction_source_id',
+        'trigger_production_id',
         'user_id',
         'general_note',
         'sieve_test_result',
@@ -123,6 +130,35 @@ class GranilyaProduction extends Model
     public function histories()
     {
         return $this->hasMany(GranilyaProductionHistory::class, 'production_id');
+    }
+
+    public function correctionSource()
+    {
+        return $this->belongsTo(self::class, 'correction_source_id');
+    }
+
+    public function correctionChildren()
+    {
+        return $this->hasMany(self::class, 'correction_source_id');
+    }
+
+    public function triggerProduction()
+    {
+        return $this->belongsTo(self::class, 'trigger_production_id');
+    }
+
+    public function triggeredCorrections()
+    {
+        return $this->hasMany(self::class, 'trigger_production_id');
+    }
+
+    /**
+     * Palet numarasından taban numarayı çıkarır. (örn: 1-1 den 1 döner)
+     */
+    public function getBasePalletNumberAttribute()
+    {
+        $parts = explode('-', $this->pallet_number);
+        return $parts[0] ?? $this->pallet_number;
     }
 
     /**
@@ -199,7 +235,7 @@ class GranilyaProduction extends Model
         $available = [$this->status => $all[$this->status]]; // Mevcut durum her zaman olmalı
 
         // Terminal durumlar için başka seçenek yok
-        if ($this->status == self::STATUS_SHIPMENT_APPROVED) {
+        if ($this->status == self::STATUS_SHIPMENT_APPROVED || $this->status == self::STATUS_CUSTOMER_TRANSFER) {
             return $available;
         }
 
@@ -221,5 +257,52 @@ class GranilyaProduction extends Model
         }
 
         return $available;
+    }
+
+    /**
+     * Palet grubunun(1000 KG kuralı) tamamlanıp tamamlanmadığını kontrol eder.
+     * Eğer tamamlandıysa (hepsi Sevk Onaylı ve toplam 1000KG), tüm grubun durumunu "Müşteri Transfer" yapar.
+     */
+    public static function checkAndCompleteGroup($basePalletNumber, $userId = null)
+    {
+        // Reddedilmiş ve Düzeltme faaliyetinde kullanılmış (Status 5 ve 8) iptal edilmiş çuvalları dahil etmiyoruz.
+        $group = self::where('pallet_number', 'LIKE', $basePalletNumber . '-%')
+            ->whereNotIn('status', [self::STATUS_REJECTED, self::STATUS_CORRECTED])
+            ->get();
+            
+        $totalWeight = $group->sum('used_quantity');
+        
+        // 1000 KG değilse tamamlanmamıştır
+        if (round($totalWeight, 4) != 1000) {
+            return false;
+        }
+        
+        // Hepsi Sevk Onaylı mı? (veya zaten Müşteri Transfer mi)
+        $allApproved = $group->every(function ($p) {
+            return in_array($p->status, [self::STATUS_SHIPMENT_APPROVED, self::STATUS_CUSTOMER_TRANSFER]);
+        });
+        
+        // Hepside STATUS_SHIPMENT_APPROVED (Sevk Onaylı) varsa
+        // onları Müşteri Transfer e taşıyalım
+        if ($allApproved) {
+            $hasUpdates = false;
+            foreach ($group as $p) {
+                if ($p->status == self::STATUS_SHIPMENT_APPROVED) {
+                    $p->status = self::STATUS_CUSTOMER_TRANSFER;
+                    $p->save();
+                    
+                    \App\Models\GranilyaProductionHistory::create([
+                        'production_id' => $p->id,
+                        'status'        => $p->status,
+                        'user_id'       => $userId ?? (auth()->id() ?? 1),
+                        'description'   => 'Palet grubu 1000 KG\'a ulaştı ve tamamlandı. Müşteri Transfer (Satışa Hazır) durumuna geçti.',
+                    ]);
+                    $hasUpdates = true;
+                }
+            }
+            return $hasUpdates;
+        }
+        
+        return false;
     }
 }

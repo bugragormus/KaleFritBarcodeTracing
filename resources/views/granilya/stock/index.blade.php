@@ -370,6 +370,10 @@
                             </select>
                         </div>
                         <div class="filter-item">
+                            <label class="filter-label">Palet No</label>
+                            <input type="text" class="filter-input" id="pallet_numberFilter" placeholder="Örn: 1, 2, 3">
+                        </div>
+                        <div class="filter-item">
                             <label class="filter-label">Üretim Tarihi Bşl.</label>
                             <input type="text" class="filter-date" id="created_date_startFilter" placeholder="Başlangıç Tarihi" autocomplete="off">
                         </div>
@@ -400,9 +404,16 @@
                                 @foreach($productions as $prod)
                                 <tr>
                                     <td class="pl-5">
-                                        <a href="{{ route('granilya.production.show', $prod->pallet_number) }}" style="color: #667eea; font-weight: 700;">
-                                            {{ $prod->pallet_number }}
-                                        </a>
+                                        <div class="d-flex align-items-center">
+                                            <a href="{{ route('granilya.production.show', $prod->id) }}" style="color: #667eea; font-weight: 700; font-size: 1.1rem;">
+                                                {{ $prod->pallet_number }}
+                                            </a>
+                                            @if($prod->is_correction)
+                                                <span class="badge badge-info ml-2" style="background-color: #f59f00; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem;">
+                                                    <i class="fas fa-tools" title="Düzeltme"></i>
+                                                </span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>{{ $prod->stock ? $prod->stock->name : '-' }}</td>
                                     <td>{{ $prod->load_number }}</td>
@@ -411,11 +422,24 @@
                                     <td>{{ $prod->user ? $prod->user->name : '-' }}</td>
                                     <td class="text-center">
                                         {!! $prod->status_badge !!}
+                                        @if(!in_array($prod->status, [\App\Models\GranilyaProduction::STATUS_REJECTED, \App\Models\GranilyaProduction::STATUS_CUSTOMER_TRANSFER, \App\Models\GranilyaProduction::STATUS_SHIPPED]))
+                                            @php
+                                                $baseNum = $prod->base_pallet_number;
+                                                $grpWeight = \App\Models\GranilyaProduction::where('pallet_number', 'LIKE', $baseNum . '-%')
+                                                    ->whereNotIn('status', [\App\Models\GranilyaProduction::STATUS_REJECTED, \App\Models\GranilyaProduction::STATUS_CORRECTED])
+                                                    ->sum('used_quantity');
+                                            @endphp
+                                            @if($grpWeight < 1000)
+                                                <small class="text-muted d-block mt-2" style="font-size: 10px; font-weight: 700;">
+                                                    <i class="fas fa-layer-group"></i> {{ round($grpWeight) }}/1000 KG
+                                                </small>
+                                            @endif
+                                        @endif
                                     </td>
                                     <td>{{ $prod->created_at ? $prod->created_at->format('d.m.Y H:i') : '-' }}</td>
                                     <td class="text-center pr-5">
                                         <div class="d-flex justify-content-center">
-                                            <a href="{{ route('granilya.production.show', $prod->pallet_number) }}" class="table-action-btn" title="Detay">
+                                            <a href="{{ route('granilya.production.show', $prod->id) }}" class="table-action-btn" title="Detay">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a href="{{ route('granilya.production.history', $prod->id) }}" class="table-action-btn" title="Hareketler">
@@ -472,7 +496,7 @@
             });
 
             const urlParams = new URLSearchParams(window.location.search);
-            const fields = ['stock_id', 'load_number', 'status', 'customer_type', 'size_id', 'crusher_id', 'user_id', 'created_date_start', 'created_date_end'];
+            const fields = ['stock_id', 'load_number', 'status', 'customer_type', 'size_id', 'crusher_id', 'user_id', 'created_date_start', 'created_date_end', 'pallet_number'];
             
             fields.forEach(field => {
                 const values = urlParams.getAll(field + '[]');
@@ -501,7 +525,7 @@
                 }
             });
 
-            const singleFields = ['load_number', 'created_date_start', 'created_date_end'];
+            const singleFields = ['load_number', 'created_date_start', 'created_date_end', 'pallet_number'];
             singleFields.forEach(field => {
                 let val = $('#' + field + 'Filter').val();
                 if(val) params.append(field, val);

@@ -42,6 +42,15 @@ class ProductionController extends Controller
             $query->where('load_number', 'like', '%' . $request->load_number . '%');
         }
 
+        if ($request->filled('pallet_number')) {
+            $palletNumbers = explode(',', $request->pallet_number);
+            $query->where(function ($q) use ($palletNumbers) {
+                foreach ($palletNumbers as $num) {
+                    $q->orWhere('pallet_number', 'like', trim($num) . '-%');
+                }
+            });
+        }
+
         if ($request->filled('customer_type')) {
             $query->whereIn('customer_type', $request->customer_type);
         }
@@ -79,7 +88,11 @@ class ProductionController extends Controller
             'size_id' => 'required|exists:granilya_sizes,id',
             'crusher_id' => 'required|exists:granilya_crushers,id',
             'customer_type' => 'required|in:İç Müşteri,Dış Müşteri',
-            'pallet_number' => 'required|string',
+            'pallet_number' => ['required', 'string', 'regex:/^\d+-\d+$/'],
+            'correction_ids' => 'nullable|array',
+            'correction_ids.*' => 'exists:granilya_productions,id'
+        ], [
+            'pallet_number.regex' => 'Palet numarası sayı1-sayı2 formatında olmalıdır (Örn: 1-1, 12-3).',
         ]);
 
         // Elek altı durumunda olan şarjlar tekrar kullanılamaz
@@ -109,6 +122,19 @@ class ProductionController extends Controller
             return back()->with('error', 'Geçerli bir üretim miktarı girmediniz!')->withInput();
         }
 
+        // --- PALET GRUP KONTROLÜ (Maksimum 1000 KG Kuralı) ---
+        $parts = explode('-', $request->pallet_number);
+        $basePalletNumber = $parts[0];
+
+        $currentGroupSum = GranilyaProduction::where('pallet_number', 'LIKE', $basePalletNumber . '-%')
+            ->whereNotIn('status', [GranilyaProduction::STATUS_REJECTED, GranilyaProduction::STATUS_CORRECTED])
+            ->sum('used_quantity');
+
+        if (($currentGroupSum + $usedQuantity) > 1000) {
+            $remainingGroupCapacity = 1000 - $currentGroupSum;
+            return back()->with('error', 'Bu palet grubu (' . $basePalletNumber . ' nolu palet) toplamda 1000 KG kapasitelidir. Şu an ' . $currentGroupSum . ' KG dolu. En fazla ' . $remainingGroupCapacity . ' KG daha ekleyebilirsiniz!')->withInput();
+        }
+
         // --- STOK KONTROLÜ (TÜM ÜRETİMLER İÇİN ZORUNLU) ---
         // Frit'ten Granilya'ya bu şarjdan gelen toplam miktar 
         $totalImported = \App\Models\Barcode::where('stock_id', $request->stock_id)
@@ -121,6 +147,7 @@ class ProductionController extends Controller
         // ve ELEK ALTINA gönderilmiş toplam miktar (biz eklemeden önce)
         $previouslyUsed = GranilyaProduction::where('stock_id', $request->stock_id)
             ->where('load_number', $request->load_number)
+            ->where('is_correction', false)
             ->sum('used_quantity');
 
         $previouslySieved = GranilyaProduction::where('stock_id', $request->stock_id)
@@ -227,15 +254,89 @@ class ProductionController extends Controller
             'description' => 'Palet oluşturuldu: Beklemede',
         ]);
 
+        // --- 5. DÜZELTME FAALİYETİ (CORRECTION) İŞLEMLERİ ---
+        if ($request->has('correction_ids') && is_array($request->correction_ids)) {
+            foreach ($request->correction_ids as $rejectedId) {
+                if (empty($rejectedId)) continue;
+                
+                $rejectedPallet = GranilyaProduction::find($rejectedId);
+                if ($rejectedPallet && $rejectedPallet->status == GranilyaProduction::STATUS_REJECTED) {
+                    
+                    // a. Eski reddedilen paleti güncelle (Düzeltme Faaliyetinde Kullanıldı)
+                    $rejectedPallet->status = GranilyaProduction::STATUS_CORRECTED;
+                    $rejectedPallet->system_note = ($rejectedPallet->system_note ? $rejectedPallet->system_note . "\n" : "") . 
+                                                 "[SİSTEM] " . now()->format('d.m.Y H:i') . " tarihinde {$pallet->pallet_number} üretimi sırasında düzeltme faaliyeti olarak kullanıldı.";
+                    $rejectedPallet->save();
+
+                    \App\Models\GranilyaProductionHistory::create([
+                        'production_id' => $rejectedPallet->id,
+                        'status' => GranilyaProduction::STATUS_CORRECTED,
+                        'user_id' => auth()->id(),
+                        'description' => 'Düzeltme faaliyetinde kullanıldı. Yerine yeni üretim (' . $rejectedPallet->pallet_number . ') eklendi.'
+                    ]);
+
+                    // b. Eskisinin yerine tam olarak oturacak YENİ paleti üret (Palet numarası ve miktar eskiyle aynı, diğer fiziksel özellikler yeni girilenle aynı)
+                    $correctionPallet = GranilyaProduction::create([
+                        'stock_id' => $rejectedPallet->stock_id,         // Eskisinden (Heritage)
+                        'load_number' => $rejectedPallet->load_number,   // Eskisinden (Heritage)
+                        'size_id' => $request->size_id,                 // Yeni üretimden
+                        'crusher_id' => $request->crusher_id,           // Yeni üretimden
+                        'quantity_id' => null,                          // Özel miktar gibi düşün
+                        'used_quantity' => $rejectedPallet->used_quantity, // Eskisinden (Boşluğu doldurmak için)
+                        'company_id' => $pallet->company_id,            // Yeni üretimden
+                        'customer_type' => $request->customer_type,     // Yeni üretimden
+                        'pallet_number' => $rejectedPallet->pallet_number, // ESKİSİNDEN (Yerini alıyor)
+                        'status' => GranilyaProduction::STATUS_WAITING, // Yeniden laboratuvara gidiyor
+                        'is_correction' => true,                        // Bu bir düzeltme üretimidir
+                        'correction_source_id' => $rejectedPallet->id,  // Nereden geldi?
+                        'trigger_production_id' => $pallet->id,         // Hangi üretim sırasında tetiklendi?
+                        'user_id' => auth()->id(),
+                    ]);
+
+                    \App\Models\GranilyaProductionHistory::create([
+                        'production_id' => $correctionPallet->id,
+                        'status' => GranilyaProduction::STATUS_WAITING,
+                        'user_id' => auth()->id(),
+                        'description' => 'Düzeltme faaliyeti sonucu oluşturuldu. Kaynak: ID ' . $rejectedPallet->id . ' (' . $rejectedPallet->pallet_number . ')',
+                    ]);
+
+                    // Eğer yeni yaratılan bu palet, ait olduğu grubu 1000kg'ye tamamlıyorsa kontrolü tetikleyelim
+                    GranilyaProduction::checkAndCompleteGroup($correctionPallet->base_pallet_number, auth()->id());
+                }
+            }
+        }
+
+        // Ana üretim için kendi grubu 1000kg oldu mu kontrolü (eğer bekleyen yoksa anında transfer olabilir ihtimaline karşı)
+        GranilyaProduction::checkAndCompleteGroup($pallet->base_pallet_number, auth()->id());
+
         return redirect()->route('granilya.stock.index')->with('success', 'Palet (Üretim) başarıyla oluşturuldu.');
     }
 
-    public function show($pallet_number)
+    public function show($id)
     {
-        $pallet = GranilyaProduction::where('pallet_number', $pallet_number)->first();
-        
+        // 1. Önce ID ile ara (Tam eşleşme)
+        $pallet = GranilyaProduction::find($id);
+
+        // 2. ID ile bulunamadıysa Palet No ile ara
         if (!$pallet) {
-            return redirect()->route('granilya.barcode')->with('error', 'Girilen numaraya ait palet bulunamadı: ' . $pallet_number);
+            $palletsByNumber = GranilyaProduction::where('pallet_number', $id)->get();
+
+            if ($palletsByNumber->count() === 1) {
+                // Tam olarak 1 tane varsa ona git
+                $pallet = $palletsByNumber->first();
+            } elseif ($palletsByNumber->count() > 1) {
+                // Birden fazla varsa listeye yönlendir (filtreli)
+                return redirect()->route('granilya.stock.index', ['pallet_number' => $id])
+                    ->with('info', 'Bu numaraya ait birden fazla kayıt bulundu. Lütfen listeden seçin.');
+            } else {
+                // Hiç yoksa base number olarak dene (örn: 1 girildiyse 1-x ara)
+                $groupPallets = GranilyaProduction::where('pallet_number', 'like', $id . '-%')->exists();
+                if ($groupPallets) {
+                    return redirect()->route('granilya.stock.index', ['pallet_number' => $id]);
+                }
+
+                return redirect()->route('granilya.barcode')->with('error', 'Girilen numaraya ait palet bulunamadı.');
+            }
         }
 
         $stocks = Stock::all();
@@ -408,7 +509,10 @@ class ProductionController extends Controller
             }
         }
 
-        return redirect()->route('granilya.production.show', $pallet->pallet_number)->with('success', 'Palet başarıyla güncellendi.');
+        // Grup kontrolü (Müşteri Transfer için 1000KG ve Sevk Onaylı kuralı)
+        GranilyaProduction::checkAndCompleteGroup($pallet->base_pallet_number, auth()->id());
+
+        return redirect()->route('granilya.production.show', $pallet->id)->with('success', 'Palet başarıyla güncellendi.');
     }
 
     /**

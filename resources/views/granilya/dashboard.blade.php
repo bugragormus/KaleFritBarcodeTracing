@@ -466,8 +466,8 @@
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-industry fa-3x text-primary"></i>
                     </div>
-                    <h3 class="kpi-number">-</h3>
-                    <p class="kpi-label">Günlük Üretim</p>
+                    <h3 class="kpi-number">{{ number_format($kpiDailyProduction, 0, ',', '.') }}</h3>
+                    <p class="kpi-label">Günlük Üretim (KG)</p>
                 </div>
             </div>
         </div>
@@ -478,8 +478,8 @@
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-boxes fa-3x text-success"></i>
                     </div>
-                    <h3 class="kpi-number">-</h3>
-                    <p class="kpi-label">Toplam Stok (KG)</p>
+                    <h3 class="kpi-number">{{ number_format($kpiTotalStock, 0, ',', '.') }}</h3>
+                    <p class="kpi-label">Toplam Hammadde Stok (KG)</p>
                 </div>
             </div>
         </div>
@@ -490,8 +490,8 @@
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-truck fa-3x text-info"></i>
                     </div>
-                    <h3 class="kpi-number">-</h3>
-                    <p class="kpi-label">Satış Hacmi (Aylık)</p>
+                    <h3 class="kpi-number">{{ number_format($kpiMonthlySales, 0, ',', '.') }}</h3>
+                    <p class="kpi-label">Satış Hacmi (Aylık KG)</p>
                 </div>
             </div>
         </div>
@@ -502,8 +502,8 @@
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-flask fa-3x text-warning"></i>
                     </div>
-                    <h3 class="kpi-number">-</h3>
-                    <p class="kpi-label">Bekleyen Analiz</p>
+                    <h3 class="kpi-number">{{ $kpiPendingAnalysis }}</h3>
+                    <p class="kpi-label">Beklemede</p>
                 </div>
             </div>
         </div>
@@ -514,7 +514,7 @@
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-check-circle fa-3x text-success"></i>
                     </div>
-                    <h3 class="kpi-number">-</h3>
+                    <h3 class="kpi-number">{{ $kpiApproved }}</h3>
                     <p class="kpi-label">Onaylı Ürünler</p>
                 </div>
             </div>
@@ -526,7 +526,7 @@
                     <div class="kpi-icon mb-3">
                         <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
                     </div>
-                    <h3 class="kpi-number">-</h3>
+                    <h3 class="kpi-number">{{ $kpiRejected }}</h3>
                     <p class="kpi-label">Reddedilen Ürünler</p>
                 </div>
             </div>

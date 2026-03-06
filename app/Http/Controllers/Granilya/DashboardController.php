@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Granilya;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Barcode;
+use App\Models\GranilyaProduction;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -51,6 +53,7 @@ class DashboardController extends Controller
                 DB::raw('SUM(used_quantity) as total_used'),
                 DB::raw('SUM(sieve_residue_quantity) as total_sieve_residue')
             )
+            ->where('is_correction', false)
             ->whereNull('deleted_at')
             ->groupBy('stock_id', 'load_number')
             ->get()
@@ -58,6 +61,7 @@ class DashboardController extends Controller
                 return $item->stock_id . '_' . $item->load_number;
             });
 
+        $kpiTotalStock = 0;
         // Verileri birleştir ve kalan miktarı hesapla
         foreach ($rawMaterialStocks as $stock) {
             $key = $stock->stock_id . '_' . $stock->load_number;
@@ -66,8 +70,47 @@ class DashboardController extends Controller
             $stock->used_quantity = $stat ? $stat->total_used : 0;
             $stock->sieve_residue_quantity = $stat ? $stat->total_sieve_residue : 0;
             $stock->remaining_quantity = $stock->total_quantity - $stock->used_quantity - $stock->sieve_residue_quantity;
+            $kpiTotalStock += $stock->remaining_quantity;
         }
 
-        return view('granilya.dashboard', compact('rawMaterialStocks'));
+        // --- KPI Hesaplamaları ---
+        $today = Carbon::today();
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        // Günlük Üretim
+        $kpiDailyProduction = GranilyaProduction::whereDate('created_at', $today)
+            ->sum('used_quantity');
+
+        // Satış Hacmi (Aylık) - STATUS_SHIPPED
+        $kpiMonthlySales = GranilyaProduction::where('status', GranilyaProduction::STATUS_SHIPPED)
+            ->whereBetween('updated_at', [$startOfMonth, $endOfMonth])
+            ->sum('used_quantity');
+
+        // Bekleyen Analiz
+        $kpiPendingAnalysis = GranilyaProduction::whereIn('status', [
+            GranilyaProduction::STATUS_WAITING, 
+            GranilyaProduction::STATUS_PRE_APPROVED
+        ])->count();
+
+        // Onaylı Ürünler
+        $kpiApproved = GranilyaProduction::whereIn('status', [
+            GranilyaProduction::STATUS_SHIPMENT_APPROVED,
+            GranilyaProduction::STATUS_CUSTOMER_TRANSFER
+        ])->count();
+
+        // Reddedilen Ürünler
+        $kpiRejected = GranilyaProduction::where('status', GranilyaProduction::STATUS_REJECTED)
+            ->count();
+
+        return view('granilya.dashboard', compact(
+            'rawMaterialStocks', 
+            'kpiTotalStock', 
+            'kpiDailyProduction', 
+            'kpiMonthlySales', 
+            'kpiPendingAnalysis', 
+            'kpiApproved', 
+            'kpiRejected'
+        ));
     }
 }

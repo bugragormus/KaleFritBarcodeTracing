@@ -107,9 +107,26 @@
                 <div class="col-md-8">
                     <h1 class="page-title-modern">
                         <i class="fas fa-pallet"></i> {{ $pallet->pallet_number }}
+                        @if($pallet->is_correction)
+                            <span class="badge badge-info ml-3" style="background-color: #f59f00; border-radius: 8px; padding: 6px 12px; font-size: 0.9rem; align-self: center;">
+                                <i class="fas fa-tools"></i> Düzeltme Ürünü
+                            </span>
+                        @endif
                     </h1>
                     <p class="page-subtitle-modern">
                         {{ $pallet->stock->name ?? '-' }} &nbsp;|&nbsp; Şarj No: {{ $pallet->load_number }}
+                        @if($pallet->is_correction && $pallet->correctionSource)
+                            <br>
+                            <small style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">
+                                <i class="fas fa-level-up-alt fa-rotate-90"></i> Kaynak Palet: <a href="{{ route('granilya.production.show', $pallet->correction_source_id) }}" style="color: white; text-decoration: underline;">{{ $pallet->correctionSource->pallet_number }}</a>'dan geri kazanıldı.
+                            </small>
+                        @endif
+                        @if($pallet->is_correction && $pallet->triggerProduction)
+                            <br>
+                            <small style="color: rgba(255,255,255,0.8); font-size: 0.85rem;">
+                                <i class="fas fa-link"></i> Tetikleyen Üretim: <a href="{{ route('granilya.production.show', $pallet->trigger_production_id) }}" style="color: white; text-decoration: underline;">{{ $pallet->triggerProduction->pallet_number }}</a>
+                            </small>
+                        @endif
                     </p>
                     @if($pallet->is_exceptionally_approved)
                     <div class="mt-2">
@@ -138,9 +155,17 @@
             </div>
         @endif
 
-        @if(session('error'))
-            <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius:15px;">
-                <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
+        @if($pallet->triggeredCorrections->count() > 0)
+            <div class="alert alert-info border-0 shadow-sm mb-4" style="border-radius:15px; background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%); color: #00695c;">
+                <h6 class="font-weight-bold mb-2"><i class="fas fa-tools mr-2"></i> Bu Üretim Sırasındaki Düzeltme Faaliyetleri</h6>
+                <p class="mb-2 small text-muted">Aşağıdaki paletler, bu paletin üretimi sırasında düzeltme faaliyeti olarak sisteme geri kazandırılmıştır:</p>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach($pallet->triggeredCorrections as $corr)
+                        <a href="{{ route('granilya.production.show', $corr->id) }}" class="badge badge-light p-2 shadow-sm" style="border-radius: 8px; border: 1px solid #004d40; color: #004d40;">
+                            <i class="fas fa-pallet mr-1"></i> {{ $corr->pallet_number }} ({{ number_format($corr->used_quantity, 0) }} KG)
+                        </a>
+                    @endforeach
+                </div>
             </div>
         @endif
 
@@ -158,7 +183,22 @@
         <div class="card-modern">
             <div class="card-header-modern">
                 <h3 class="card-title-modern"><i class="fas fa-edit"></i> Palet Düzenleme</h3>
-                <div>{!! $pallet->status_badge !!}</div>
+                <div class="text-right">
+                    {!! $pallet->status_badge !!}
+                    @if(!in_array($pallet->status, [\App\Models\GranilyaProduction::STATUS_REJECTED, \App\Models\GranilyaProduction::STATUS_CUSTOMER_TRANSFER, \App\Models\GranilyaProduction::STATUS_SHIPPED]))
+                        @php
+                            $baseNum = $pallet->base_pallet_number;
+                            $grpWeight = \App\Models\GranilyaProduction::where('pallet_number', 'LIKE', $baseNum . '-%')
+                                ->whereNotIn('status', [\App\Models\GranilyaProduction::STATUS_REJECTED, \App\Models\GranilyaProduction::STATUS_CORRECTED])
+                                ->sum('used_quantity');
+                        @endphp
+                        @if($grpWeight < 1000)
+                            <div class="mt-2 text-muted" style="font-size: 11px; font-weight: 700;">
+                                <i class="fas fa-layer-group"></i> {{ round($grpWeight) }}/1000 KG
+                            </div>
+                        @endif
+                    @endif
+                </div>
             </div>
             <div class="card-body-modern">
                 <form action="{{ route('granilya.production.update', $pallet->id) }}" method="POST">

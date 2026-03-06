@@ -155,7 +155,7 @@
                             </td>
                             <td>{!! $p->status_badge !!}</td>
                             <td>
-                                <a href="{{ route('granilya.production.show', $p->pallet_number) }}" class="btn btn-sm btn-outline-info">
+                                <a href="{{ route('granilya.production.show', $p->id) }}" class="btn btn-sm btn-outline-info">
                                     <i class="fas fa-search"></i>
                                 </a>
                             </td>

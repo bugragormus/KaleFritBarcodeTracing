@@ -51,6 +51,7 @@ class PageController extends Controller
 
             $previouslyUsed = \App\Models\GranilyaProduction::where('stock_id', $stockId)
                 ->where('load_number', $loadNumber)
+                ->where('is_correction', false)
                 ->sum('used_quantity');
 
             $previouslySieved = \App\Models\GranilyaProduction::where('stock_id', $stockId)
@@ -86,13 +87,20 @@ class PageController extends Controller
         $quantities = \App\Models\GranilyaQuantity::orderBy('quantity')->get();
         $companies = \App\Models\GranilyaCompany::orderBy('name')->get();
 
+        // Sadece reddedilen Granilya üretimlerini getir (Düzeltme faaliyeti için)
+        $rejectedProductions = \App\Models\GranilyaProduction::with(['stock', 'size'])
+            ->where('status', \App\Models\GranilyaProduction::STATUS_REJECTED)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('granilya.production.create', compact(
             'uniqueStocks',
             'stockLoadNumbers',
             'sizes',
             'crushers',
             'quantities',
-            'companies'
+            'companies',
+            'rejectedProductions'
         ));
     }
 

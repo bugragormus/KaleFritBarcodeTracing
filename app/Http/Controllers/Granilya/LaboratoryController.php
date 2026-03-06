@@ -202,6 +202,9 @@ class LaboratoryController extends Controller
                 ],
             ]);
 
+            // Grup kontrolü (1000 KG tamamlandı mı?)
+            GranilyaProduction::checkAndCompleteGroup($production->base_pallet_number, $user->id);
+
             return response()->json([
                 'success'  => true,
                 'message'  => $testLabel . ' testi ' . $result . ' olarak kaydedildi.',
@@ -297,6 +300,12 @@ class LaboratoryController extends Controller
                 $count++;
             }
 
+            // Olası her grup için kontrolü çalıştır (unique base pallet numaraları)
+            $basePallets = $productions->map(function($p) { return $p->base_pallet_number; })->unique();
+            foreach ($basePallets as $base) {
+                GranilyaProduction::checkAndCompleteGroup($base, $user->id);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => $count . ' adet palet için ' . $testLabel . ' testi ' . $result . ' olarak kaydedildi.',
@@ -346,6 +355,9 @@ class LaboratoryController extends Controller
                     'new_status_label' => $statusList[$newStatus] ?? $newStatus,
                 ],
             ]);
+
+            // Grup kontrolü (İstisnai onay sonrası 1000 KG kuralı sağlanmış olabilir)
+            GranilyaProduction::checkAndCompleteGroup($production->base_pallet_number, $user->id);
 
             return response()->json([
                 'success' => true,

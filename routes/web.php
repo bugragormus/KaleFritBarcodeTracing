@@ -65,7 +65,7 @@ Route::middleware('auth')
             // Granilya Production Operations
             Route::post('/uretim-islem', [App\Http\Controllers\Granilya\ProductionController::class, 'store'])->name('production.store');
             Route::get('/stok-durumu', [App\Http\Controllers\Granilya\ProductionController::class, 'index'])->name('stock.index');
-            Route::get('/palet/{pallet_number}', [App\Http\Controllers\Granilya\ProductionController::class, 'show'])->name('production.show');
+            Route::get('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'show'])->name('production.show');
             Route::get('/palet/{id}/duzenle', [App\Http\Controllers\Granilya\ProductionController::class, 'edit'])->name('production.edit');
             Route::put('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'update'])->name('production.update');
             Route::get('/palet/{id}/hareketler', [App\Http\Controllers\Granilya\ProductionController::class, 'history'])->name('production.history');
