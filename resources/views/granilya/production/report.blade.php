@@ -3691,7 +3691,10 @@
                             <tr>
                                 <th>Hammadde (Frit) Adı</th>
                                 <th>Şarj No</th>
-                                <th class="text-right">Aktarılan Miktar (KG)</th>
+                                <th class="text-right">Aktarılan (KG)</th>
+                                <th class="text-right">Kullanılan (KG)</th>
+                                <th class="text-right">Elek Altı (KG)</th>
+                                <th class="text-right">Kalan Stok (KG)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3699,13 +3702,16 @@
                             <tr>
                                 <td><strong>{{ $material->stock_name }}</strong></td>
                                 <td>{{ $material->load_number ?? '-' }}</td>
-                                <td class="text-right">{{ number_format($material->total_quantity, 1, ',', '.') }} KG</td>
+                                <td class="text-right">{{ number_format($material->total_quantity, 1, ',', '.') }}</td>
+                                <td class="text-right text-warning"><strong>{{ number_format($material->used_quantity, 1, ',', '.') }}</strong></td>
+                                <td class="text-right text-danger"><strong>{{ number_format($material->sieve_residue_quantity, 1, ',', '.') }}</strong></td>
+                                <td class="text-right text-success"><strong>{{ number_format($material->remaining_quantity, 1, ',', '.') }}</strong></td>
                             </tr>
                             @endforeach
                             
                             @if(count($transferredMaterials) === 0)
                             <tr>
-                                <td colspan="3" class="text-center">Bu periyotta aktarılan hammadde bulunmamaktadır.</td>
+                                <td colspan="6" class="text-center">Bu periyotta aktarılan hammadde bulunmamaktadır.</td>
                             </tr>
                             @endif
                         </tbody>

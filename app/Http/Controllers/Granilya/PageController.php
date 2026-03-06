@@ -702,8 +702,9 @@ class PageController extends Controller
         $startDate = $periodInfo['start_date'];
         $endDate = $periodInfo['end_date'];
 
-        return DB::table('barcodes')
+        $transferredMaterials = DB::table('barcodes')
             ->select(
+                'stocks.id as stock_id',
                 'stocks.name as stock_name',
                 'barcodes.load_number',
                 DB::raw('SUM(quantities.quantity) as total_quantity')
@@ -717,5 +718,32 @@ class PageController extends Controller
             ->orderBy('stocks.name')
             ->orderBy('barcodes.load_number')
             ->get();
+
+        // Üretim kullanımlarını (granilya_productions tablosu) gruplu olarak al
+        $productionStats = DB::table('granilya_productions')
+            ->select(
+                'stock_id',
+                'load_number',
+                DB::raw('SUM(used_quantity) as total_used'),
+                DB::raw('SUM(sieve_residue_quantity) as total_sieve_residue')
+            )
+            ->where('is_correction', false)
+            ->whereNull('deleted_at')
+            ->groupBy('stock_id', 'load_number')
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->stock_id . '_' . $item->load_number;
+            });
+
+        foreach ($transferredMaterials as $material) {
+            $key = $material->stock_id . '_' . $material->load_number;
+            $stat = $productionStats->get($key);
+            
+            $material->used_quantity = $stat ? $stat->total_used : 0;
+            $material->sieve_residue_quantity = $stat ? $stat->total_sieve_residue : 0;
+            $material->remaining_quantity = $material->total_quantity - $material->used_quantity - $material->sieve_residue_quantity;
+        }
+
+        return $transferredMaterials;
     }
 }
