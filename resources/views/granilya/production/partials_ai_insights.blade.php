@@ -1,3 +1,9 @@
+        <!-- Production Efficiency Analysis -->
+        <div class="card-modern">
+            <div class="card-header-modern">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="card-title-modern">
+                        <i class="fas fa-tachometer-alt"></i>
                         Üretim Verimliliği Analizi (OEE) - Güncel Veriler
                     </h3>
                     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#oeeInfoModal">
@@ -328,3 +334,40 @@
                     Dashboard'daki tüm verileri kapsayan detaylı Excel raporu indirin - {{ $periodInfo['name'] }} periyot
                 </small>
             </div>
+            <div class="card-body-modern">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-list"></i> Rapor İçeriği</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Günlük Üretim Özeti</li>
+                            <li><i class="fas fa-check text-success"></i> Vardiya Raporu</li>
+                            <li><i class="fas fa-check text-success"></i> Kırıcı Performansı</li>
+                            <li><i class="fas fa-check text-success"></i> Red Sebepleri Analizi</li>
+                            <li><i class="fas fa-check text-success"></i> Stok Yaşı Analizi</li>
+                            <li><i class="fas fa-check text-success"></i> Aylık Karşılaştırma</li>
+                            <li><i class="fas fa-check text-success"></i> OEE Analizi</li>
+                            <li><i class="fas fa-check text-success"></i> Algoritmik Trend Analizleri</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle"></i> Rapor Özellikleri</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-star text-warning"></i> 8 ayrı sayfa (sheet)</li>
+                            <li><i class="fas fa-star text-warning"></i> 5 farklı periyot seçeneği</li>
+                            <li><i class="fas fa-star text-warning"></i> Profesyonel formatlama</li>
+                            <li><i class="fas fa-star text-warning"></i> Otomatik sütun genişliği</li>
+                            <li><i class="fas fa-star text-warning"></i> Renkli başlıklar</li>
+                            <li><i class="fas fa-star text-warning"></i> Türkçe karakter desteği</li>
+                            <li><i class="fas fa-star text-warning"></i> Anında indirme</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>İpucu:</strong> Bu rapor, dashboard'daki tüm verileri Excel formatında içerir. 
+                    5 farklı periyot seçeneği ile raporlar oluşturabilirsiniz. 
+                    Yönetici raporları, sunumlar veya veri analizi için kullanabilirsiniz.
+                </div>
+            </div>
+        </div>

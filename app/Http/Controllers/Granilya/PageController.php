@@ -145,11 +145,14 @@ class PageController extends Controller
             GranilyaProduction::STATUS_DELIVERED
         ])->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
-        // Waiting statuses in Granilya: empty status or "Bekliyor" test result
         $testingQuantity = (clone $baseQuery)->where(function($q) {
-            $q->whereNull('granilya_productions.status')->orWhere('granilya_productions.sieve_test_result', 'Bekliyor')
-              ->orWhere('granilya_productions.surface_test_result', 'Bekliyor')
-              ->orWhere('granilya_productions.arge_test_result', 'Bekliyor');
+            $q->whereNull('granilya_productions.status')
+              ->orWhereNotIn('granilya_productions.status', [
+                  GranilyaProduction::STATUS_SHIPMENT_APPROVED,
+                  GranilyaProduction::STATUS_CUSTOMER_TRANSFER,
+                  GranilyaProduction::STATUS_DELIVERED,
+                  GranilyaProduction::STATUS_REJECTED
+              ]);
         })->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
         $deliveryQuantity = (clone $baseQuery)->whereIn('granilya_productions.status', [
@@ -158,7 +161,7 @@ class PageController extends Controller
         ])->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
         $rejectedQuantity = (clone $baseQuery)->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)
-        ->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
+            ->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
         return [
             'total_barcodes'    => $totalCount,
@@ -423,7 +426,7 @@ class PageController extends Controller
                 DB::raw('COUNT(granilya_productions.id) as barcode_count'),
                 DB::raw('SUM(granilya_quantities.quantity) as total_quantity'),
                 DB::raw('SUM(CASE WHEN granilya_productions.status IN ("' . GranilyaProduction::STATUS_SHIPMENT_APPROVED . '", "' . GranilyaProduction::STATUS_CUSTOMER_TRANSFER . '", "' . GranilyaProduction::STATUS_DELIVERED . '") THEN granilya_quantities.quantity ELSE 0 END) as accepted_quantity'),
-                DB::raw('SUM(CASE WHEN granilya_productions.status IS NULL OR granilya_productions.sieve_test_result = "Bekliyor" OR granilya_productions.surface_test_result = "Bekliyor" OR granilya_productions.arge_test_result = "Bekliyor" THEN granilya_quantities.quantity ELSE 0 END) as testing_quantity'),
+                DB::raw('SUM(CASE WHEN granilya_productions.status IS NULL OR granilya_productions.status NOT IN ("' . GranilyaProduction::STATUS_SHIPMENT_APPROVED . '", "' . GranilyaProduction::STATUS_CUSTOMER_TRANSFER . '", "' . GranilyaProduction::STATUS_DELIVERED . '", "' . GranilyaProduction::STATUS_REJECTED . '") THEN granilya_quantities.quantity ELSE 0 END) as testing_quantity'),
                 DB::raw('SUM(CASE WHEN granilya_productions.status IN ("' . GranilyaProduction::STATUS_CUSTOMER_TRANSFER . '", "' . GranilyaProduction::STATUS_DELIVERED . '") THEN granilya_quantities.quantity ELSE 0 END) as delivery_quantity'),
                 DB::raw('SUM(CASE WHEN granilya_productions.status = "' . GranilyaProduction::STATUS_REJECTED . '" THEN granilya_quantities.quantity ELSE 0 END) as rejected_quantity'),
                 DB::raw('0 as transferred_quantity')

@@ -618,9 +618,3 @@
             </div>
         </div>
 
-        <!-- Production Efficiency Analysis -->
-        <div class="card-modern">
-            <div class="card-header-modern">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h3 class="card-title-modern">
-                        <i class="fas fa-tachometer-alt"></i>

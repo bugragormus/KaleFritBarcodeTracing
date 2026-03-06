@@ -517,7 +517,7 @@
                     <div class="filter-item">
                         <form method="GET" action="{{ route('granilya.report') }}" class="d-flex align-items-center">
                             <label for="period">📊 Periyot:</label>
-                            <select id="period" name="period" class="form-control ml-2" onchange="this.form.submit()">
+                            <select id="period" name="period" class="form-control ml-2">
                                 <option value="daily" {{ $period === 'daily' ? 'selected' : '' }}>Günlük</option>
                                 <option value="weekly" {{ $period === 'weekly' ? 'selected' : '' }}>Haftalık</option>
                                 <option value="monthly" {{ $period === 'monthly' ? 'selected' : '' }}>Aylık</option>
@@ -910,8 +910,23 @@
                 customDateSelector.style.display = 'block';
             } else {
                 customDateSelector.style.display = 'none';
+                this.form.submit();
             }
         });
+
+        // Custom date range validation
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        if (startDateInput && endDateInput) {
+            startDateInput.addEventListener('change', function() {
+                endDateInput.min = this.value;
+            });
+            
+            endDateInput.addEventListener('change', function() {
+                startDateInput.max = this.value;
+            });
+        }
         
         // Monthly Comparison Line Chart
         const ctxMonthly = document.getElementById('monthlyComparisonChart').getContext('2d');
