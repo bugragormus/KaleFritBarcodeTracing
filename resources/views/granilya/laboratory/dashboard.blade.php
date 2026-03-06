@@ -215,50 +215,73 @@
         {{-- ========================== --}}
         <div class="row">
             {{-- Kabul Oranı --}}
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card">
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card" style="height: 100%;">
                     <div class="stat-icon-modern text-success">
-                        <i class="fas fa-percentage"></i>
+                        <i class="fas fa-chart-pie"></i>
                     </div>
                     <div class="stat-number-modern">{{ $stats['acceptance_rate'] }}%</div>
                     <div class="stat-label-modern">Kabul Oranı</div>
-                    <p class="text-muted small mt-2 mb-0">Sonuçlanan testler üzerinden</p>
+                    <p class="text-muted small mt-2 mb-0">Hatasız + İstisnai Onayların Oranı</p>
                 </div>
             </div>
 
-            {{-- Onaylanan --}}
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card">
+            {{-- Hatasız Onaylanan --}}
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card" style="height: 100%;">
                     <div class="stat-icon-modern text-primary">
-                        <i class="fas fa-check-double"></i>
+                        <i class="fas fa-certificate"></i>
                     </div>
-                    <div class="stat-number-modern">{{ $stats['shipment_approved'] }}</div>
-                    <div class="stat-label-modern">Onaylanan</div>
-                    <p class="text-muted small mt-2 mb-0">Sevk Onaylı & İstisnai</p>
+                    <div class="stat-number-modern text-primary">{{ $stats['clean_approved'] }}</div>
+                    <div class="stat-label-modern">Hatasız Onay</div>
+                    <p class="text-muted small mt-2 mb-0">Doğrudan onay alan paletler</p>
+                </div>
+            </div>
+
+            {{-- İstisnai Onay --}}
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="stat-card-modern glass-card" style="height: 100%;">
+                    <div class="stat-icon-modern text-warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-number-modern text-warning">{{ $stats['exceptional_approved'] }}</div>
+                    <div class="stat-label-modern">İstisnai Onay</div>
+                    <p class="text-muted small mt-2 mb-0">Limit dışı değerlerle onaylanan</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            {{-- Düzeltme Faaliyeti --}}
+            <div class="col-xl-4 col-md-4 mb-4">
+                <div class="stat-card-modern glass-card" style="padding: 1.5rem;">
+                    <div class="stat-icon-modern" style="color: #6366f1; font-size: 2rem;">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-number-modern" style="font-size: 2rem;">{{ $stats['corrected'] }}</div>
+                    <div class="stat-label-modern" style="font-size: 0.9rem;">Düzeltme Faaliyeti</div>
                 </div>
             </div>
 
             {{-- Reddedilen --}}
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card">
-                    <div class="stat-icon-modern text-danger">
+            <div class="col-xl-4 col-md-4 mb-4">
+                <div class="stat-card-modern glass-card" style="padding: 1.5rem;">
+                    <div class="stat-icon-modern text-danger" style="font-size: 2rem;">
                         <i class="fas fa-times-circle"></i>
                     </div>
-                    <div class="stat-number-modern">{{ $stats['rejected'] }}</div>
-                    <div class="stat-label-modern">Reddedilen</div>
-                    <p class="text-muted small mt-2 mb-0">Hatalı üretimler</p>
+                    <div class="stat-number-modern text-danger" style="font-size: 2rem;">{{ $stats['rejected'] }}</div>
+                    <div class="stat-label-modern" style="font-size: 0.9rem;">Reddedilen</div>
                 </div>
             </div>
 
-            {{-- Bekleyen/Testte --}}
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="stat-card-modern glass-card">
-                    <div class="stat-icon-modern text-warning">
+            {{-- Test Aşamasında --}}
+            <div class="col-xl-4 col-md-4 mb-4">
+                <div class="stat-card-modern glass-card" style="padding: 1.5rem;">
+                    <div class="stat-icon-modern" style="color: #94a3b8; font-size: 2rem;">
                         <i class="fas fa-vial"></i>
                     </div>
-                    <div class="stat-number-modern">{{ $stats['pending_total'] }}</div>
-                    <div class="stat-label-modern">Test Aşamasında</div>
-                    <p class="text-muted small mt-2 mb-0">Bekleyen & Ön Onaylı</p>
+                    <div class="stat-number-modern" style="font-size: 2rem; color: #64748b;">{{ $stats['pending_total'] }}</div>
+                    <div class="stat-label-modern" style="font-size: 0.9rem;">Test Aşamasında</div>
                 </div>
             </div>
         </div>

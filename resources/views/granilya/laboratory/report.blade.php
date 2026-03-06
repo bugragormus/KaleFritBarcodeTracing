@@ -114,40 +114,40 @@
 
     {{-- Özet Kartları --}}
     <div class="row mb-2">
-        <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
                 <div class="stat-number text-success">{{ $summary['acceptance_rate'] }}%</div>
                 <div class="stat-label">Kabul Oranı</div>
             </div>
         </div>
-        <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-number text-primary">{{ $summary['shipment_approved'] }}</div>
-                <div class="stat-label">Onaylanan</div>
+                <div class="stat-number text-primary">{{ $summary['clean_approved'] }}</div>
+                <div class="stat-label">Hatasız Onay</div>
             </div>
         </div>
-        <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-warning">{{ $summary['exceptional_approved'] }}</div>
+                <div class="stat-label">İstisnai Onay</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-number" style="color: #6366f1;">{{ $summary['corrected'] }}</div>
+                <div class="stat-label">Düzeltme</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
                 <div class="stat-number text-danger">{{ $summary['rejected'] }}</div>
                 <div class="stat-label">Reddedilen</div>
             </div>
         </div>
-        <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
             <div class="stat-card">
-                <div class="stat-number text-warning">{{ $summary['waiting'] }}</div>
-                <div class="stat-label">Bekleyen</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-number text-info">{{ $summary['pre_approved'] }}</div>
-                <div class="stat-label">Ön Onaylı</div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-md-4 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-number text-dark">{{ $summary['total_items'] }}</div>
-                <div class="stat-label">Toplam Kayıt</div>
+                <div class="stat-number text-secondary">{{ $summary['waiting'] + $summary['pre_approved'] }}</div>
+                <div class="stat-label">Testte</div>
             </div>
         </div>
     </div>

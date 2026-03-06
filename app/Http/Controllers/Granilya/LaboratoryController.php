@@ -26,39 +26,44 @@ class LaboratoryController extends Controller
         $startDateTime = Carbon::parse($startDate)->startOfDay();
         $endDateTime   = Carbon::parse($endDate)->endOfDay();
 
-        $waiting           = GranilyaProduction::where('status', GranilyaProduction::STATUS_WAITING)
-                                ->whereBetween('created_at', [$startDateTime, $endDateTime])->count();
+        $productionsInPeriod = GranilyaProduction::where(function($q) use ($startDateTime, $endDateTime) {
+            $q->whereBetween('updated_at', [$startDateTime, $endDateTime])
+              ->orWhere(function($subq) use ($startDateTime, $endDateTime) {
+                  $subq->where('status', GranilyaProduction::STATUS_WAITING)
+                       ->whereBetween('created_at', [$startDateTime, $endDateTime]);
+              });
+        })->get();
+
+        $waiting      = $productionsInPeriod->where('status', GranilyaProduction::STATUS_WAITING)->count();
+        $preApproved  = $productionsInPeriod->where('status', GranilyaProduction::STATUS_PRE_APPROVED)->count();
         
-        $preApproved       = GranilyaProduction::where('status', GranilyaProduction::STATUS_PRE_APPROVED)
-                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
+        $cleanApproved = $productionsInPeriod->filter(function($p) {
+            return in_array($p->status, [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10]) && !$p->is_exceptionally_approved;
+        })->count();
+
+        $exceptional   = $productionsInPeriod->where('is_exceptionally_approved', true)->count();
+        $corrected     = $productionsInPeriod->where('status', GranilyaProduction::STATUS_CORRECTED)->count();
+        $rejected      = $productionsInPeriod->where('status', GranilyaProduction::STATUS_REJECTED)->count();
         
-        $shipmentApproved  = GranilyaProduction::whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10])
-                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
+        $finalizedTotal = $cleanApproved + $exceptional + $corrected + $rejected;
+        $pendingTotal   = $waiting + $preApproved;
         
-        $rejected          = GranilyaProduction::where('status', GranilyaProduction::STATUS_REJECTED)
-                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
-        
-        $exceptional       = GranilyaProduction::where('is_exceptionally_approved', true)
-                                ->whereBetween('updated_at', [$startDateTime, $endDateTime])->count();
-                                
-        // Logic: Total Processed = Finalized Results (Accepted + Rejected + Exceptional)
-        // Note: ShipmentApproved already includes 6, 9, 10 in this scope
-        $finalizedTotal    = $shipmentApproved + $rejected; 
-        $pendingTotal      = $waiting + $preApproved;
-        
-        $acceptanceRate    = $finalizedTotal > 0
-                                ? round(($shipmentApproved / $finalizedTotal) * 100, 1)
+        $acceptanceRate = $finalizedTotal > 0
+                                ? round((($cleanApproved + $exceptional) / $finalizedTotal) * 100, 1)
                                 : 0;
 
         $stats = [
-            'waiting'           => $waiting,
-            'pre_approved'      => $preApproved,
-            'pending_total'     => $pendingTotal,
-            'shipment_approved' => $shipmentApproved,
-            'rejected'          => $rejected,
+            'clean_approved' => $cleanApproved,
             'exceptional_approved' => $exceptional,
-            'total_processed'   => $finalizedTotal,
-            'acceptance_rate'   => $acceptanceRate,
+            'corrected'      => $corrected,
+            'rejected'       => $rejected,
+            'pending_total'  => $pendingTotal,
+            'finalized_total' => $finalizedTotal,
+            'acceptance_rate' => $acceptanceRate,
+            // Keep legacy keys for temporary compatibility if needed
+            'waiting'        => $waiting,
+            'pre_approved'   => $preApproved,
+            'shipment_approved' => $cleanApproved + $exceptional,
         ];
 
         $recentActivities = GranilyaProduction::with(['stock', 'quantity', 'user'])
@@ -437,23 +442,29 @@ class LaboratoryController extends Controller
             ->orderBy('lab_date', 'desc')
             ->get();
 
+        $productions = GranilyaProduction::where(function($q) use ($startDate, $endDate) {
+                $q->whereBetween('updated_at', [$startDate, $endDate])
+                  ->orWhere(function($subq) use ($startDate, $endDate) {
+                      $subq->where('status', GranilyaProduction::STATUS_WAITING)
+                           ->whereBetween('created_at', [$startDate, $endDate]);
+                  });
+            })->get();
+
         $summary = [
-            'total_items' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])->count(),
-            'pre_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->where('status', GranilyaProduction::STATUS_PRE_APPROVED)->count(),
-            'shipment_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10])->count(),
-            'rejected' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->where('status', GranilyaProduction::STATUS_REJECTED)->count(),
-            'exceptional_approved' => GranilyaProduction::whereBetween('updated_at', [$startDate, $endDate])
-                ->where('is_exceptionally_approved', true)->count(),
-            'waiting' => GranilyaProduction::whereBetween('created_at', [$startDate, $endDate])
-                ->where('status', GranilyaProduction::STATUS_WAITING)->count(),
+            'total_items' => $productions->count(),
+            'clean_approved' => $productions->filter(function($p) {
+                return in_array($p->status, [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10]) && !$p->is_exceptionally_approved;
+            })->count(),
+            'exceptional_approved' => $productions->where('is_exceptionally_approved', true)->count(),
+            'corrected' => $productions->where('status', GranilyaProduction::STATUS_CORRECTED)->count(),
+            'rejected' => $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count(),
+            'waiting' => $productions->where('status', GranilyaProduction::STATUS_WAITING)->count(),
+            'pre_approved' => $productions->where('status', GranilyaProduction::STATUS_PRE_APPROVED)->count(),
         ];
         
-        $summary['finalized'] = $summary['shipment_approved'] + $summary['rejected'];
+        $summary['finalized'] = $summary['clean_approved'] + $summary['exceptional_approved'] + $summary['corrected'] + $summary['rejected'];
         $summary['acceptance_rate'] = $summary['finalized'] > 0 
-            ? round(($summary['shipment_approved'] / $summary['finalized']) * 100, 1) 
+            ? round((($summary['clean_approved'] + $summary['exceptional_approved']) / $summary['finalized']) * 100, 1) 
             : 0;
 
         return view('granilya.laboratory.report', compact('report', 'summary', 'startDate', 'endDate'));
@@ -529,11 +540,17 @@ class LaboratoryController extends Controller
         }])->get()->map(function($stock) {
             $productions = $stock->granilyaProductions;
             $total = $productions->count();
-            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
+            
+            $clean = $productions->filter(function($p) {
+                return in_array($p->status, [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10]) && !$p->is_exceptionally_approved;
+            })->count();
+            
+            $exceptional = $productions->where('is_exceptionally_approved', true)->count();
+            $corrected = $productions->where('status', GranilyaProduction::STATUS_CORRECTED)->count();
             $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
             $pending = $productions->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])->count();
             
-            $finalized = $accepted + $rejected;
+            $finalized = $clean + $exceptional + $corrected + $rejected;
             
             $reasons = [];
             foreach ($productions->where('status', GranilyaProduction::STATUS_REJECTED) as $p) {
@@ -545,10 +562,12 @@ class LaboratoryController extends Controller
             return [
                 'stock' => $stock,
                 'total' => $total,
-                'accepted' => $accepted,
+                'clean' => $clean,
+                'exceptional' => $exceptional,
+                'corrected' => $corrected,
                 'rejected' => $rejected,
                 'pending' => $pending,
-                'acceptance_rate' => $finalized > 0 ? round(($accepted / $finalized) * 100, 1) : 0,
+                'acceptance_rate' => $finalized > 0 ? round((($clean + $exceptional) / $finalized) * 100, 1) : 0,
                 'rejection_reasons' => $reasons,
                 'top_reason' => collect($reasons)->sortByDesc(function($v) { return $v; })->keys()->first()
             ];
@@ -630,19 +649,27 @@ class LaboratoryController extends Controller
         }])->get()->map(function($crusher) {
             $productions = $crusher->granilyaProductions;
             $total = $productions->count();
-            $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
+            
+            $clean = $productions->filter(function($p) {
+                return in_array($p->status, [GranilyaProduction::STATUS_SHIPMENT_APPROVED, 6, 9, 10]) && !$p->is_exceptionally_approved;
+            })->count();
+            
+            $exceptional = $productions->where('is_exceptionally_approved', true)->count();
+            $corrected = $productions->where('status', GranilyaProduction::STATUS_CORRECTED)->count();
             $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
             $pending = $productions->whereIn('status', [GranilyaProduction::STATUS_WAITING, GranilyaProduction::STATUS_PRE_APPROVED])->count();
             
-            $finalized = $accepted + $rejected;
+            $finalized = $clean + $exceptional + $corrected + $rejected;
 
             return [
                 'crusher' => $crusher,
                 'total' => $total,
-                'accepted' => $accepted,
+                'clean' => $clean,
+                'exceptional' => $exceptional,
+                'corrected' => $corrected,
                 'rejected' => $rejected,
                 'pending' => $pending,
-                'acceptance_rate' => $finalized > 0 ? round(($accepted / $finalized) * 100, 1) : 0,
+                'acceptance_rate' => $finalized > 0 ? round((($clean + $exceptional) / $finalized) * 100, 1) : 0,
             ];
         })->sortByDesc('acceptance_rate');
 

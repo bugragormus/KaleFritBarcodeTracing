@@ -112,21 +112,29 @@
                     </div>
 
                     <div class="row text-center mt-4">
-                        <div class="col-3 border-right">
-                            <div class="h3 mb-0 font-weight-bold text-dark">{{ $data['total'] }}</div>
-                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Toplam</div>
+                        <div class="col-4 border-right mb-3">
+                            <div class="h4 mb-0 font-weight-bold text-dark">{{ $data['total'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Toplam</div>
                         </div>
-                        <div class="col-3 border-right">
-                            <div class="h3 mb-0 font-weight-bold text-success">{{ $data['accepted'] }}</div>
-                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Onaylanan</div>
+                        <div class="col-4 border-right mb-3">
+                            <div class="h4 mb-0 font-weight-bold text-success">{{ $data['clean'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Hatasız</div>
                         </div>
-                        <div class="col-3 border-right">
-                            <div class="h3 mb-0 font-weight-bold text-danger">{{ $data['rejected'] }}</div>
-                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Reddedilen</div>
+                        <div class="col-4 mb-3">
+                            <div class="h4 mb-0 font-weight-bold text-warning">{{ $data['exceptional'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">İstisnai</div>
                         </div>
-                        <div class="col-3">
-                            <div class="h3 mb-0 font-weight-bold text-warning">{{ $data['pending'] }}</div>
-                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.7rem;">Bekleyen</div>
+                        <div class="col-4 border-right">
+                            <div class="h4 mb-0 font-weight-bold" style="color: #6366f1;">{{ $data['corrected'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Düzeltme</div>
+                        </div>
+                        <div class="col-4 border-right">
+                            <div class="h4 mb-0 font-weight-bold text-danger">{{ $data['rejected'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Reddedilen</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 mb-0 font-weight-bold text-secondary">{{ $data['pending'] }}</div>
+                            <div class="small text-muted uppercase font-weight-bold" style="font-size: 0.65rem;">Bekleyen</div>
                         </div>
                     </div>
                 </div>

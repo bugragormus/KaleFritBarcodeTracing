@@ -130,17 +130,25 @@
                             <p class="small text-muted mt-2 mb-0 uppercase font-weight-bold">Başarı</p>
                         </div>
                         <div class="col-7">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted small">Kabul:</span>
-                                <span class="font-weight-bold text-success">{{ $data['accepted'] }}</span>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Hatasız:</span>
+                                <span class="font-weight-bold text-success">{{ $data['clean'] }}</span>
                             </div>
-                            <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">İstisnai:</span>
+                                <span class="font-weight-bold text-warning">{{ $data['exceptional'] }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Düzeltme:</span>
+                                <span class="font-weight-bold" style="color: #6366f1;">{{ $data['corrected'] }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
                                 <span class="text-muted small">Red:</span>
                                 <span class="font-weight-bold text-danger">{{ $data['rejected'] }}</span>
                             </div>
-                            <div class="d-flex justify-content-between border-top pt-2">
+                            <div class="d-flex justify-content-between border-top pt-1 mt-1">
                                 <span class="text-muted small font-italic">Bekleyen:</span>
-                                <span class="font-weight-bold text-warning">{{ $data['pending'] }}</span>
+                                <span class="font-weight-bold text-secondary">{{ $data['pending'] }}</span>
                             </div>
                         </div>
                     </div>
