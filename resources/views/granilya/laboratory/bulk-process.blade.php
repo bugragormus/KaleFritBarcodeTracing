@@ -713,9 +713,18 @@ $(document).ready(function() {
                 var basePallet = itemPallet.split('-')[0];
                 for (var i = 0; i < pallets.length; i++) {
                     var filterVal = pallets[i];
-                    if (filterVal === itemPallet || filterVal === basePallet) {
-                        mp = true;
-                        break;
+                    if (filterVal.includes('-')) {
+                        // Tam eşleşme kontrolü
+                        if (filterVal === itemPallet) {
+                            mp = true;
+                            break;
+                        }
+                    } else {
+                        // Grup (base number) eşleşme kontrolü
+                        if (filterVal === basePallet) {
+                            mp = true;
+                            break;
+                        }
                     }
                 }
             }

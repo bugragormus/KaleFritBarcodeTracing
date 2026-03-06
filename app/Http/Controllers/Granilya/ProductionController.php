@@ -46,7 +46,14 @@ class ProductionController extends Controller
             $palletNumbers = explode(',', $request->pallet_number);
             $query->where(function ($q) use ($palletNumbers) {
                 foreach ($palletNumbers as $num) {
-                    $q->orWhere('pallet_number', 'like', trim($num) . '-%');
+                    $trimmed = trim($num);
+                    if (str_contains($trimmed, '-')) {
+                        // Tam palet no (örn: 1-1)
+                        $q->orWhere('pallet_number', $trimmed);
+                    } else {
+                        // Grup no (örn: 1)
+                        $q->orWhere('pallet_number', 'like', $trimmed . '-%');
+                    }
                 }
             });
         }
