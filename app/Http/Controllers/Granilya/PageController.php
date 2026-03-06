@@ -134,12 +134,12 @@ class PageController extends Controller
         $startDate = $periodInfo['start_date'];
         $endDate = $periodInfo['end_date'];
 
-        $baseQuery = GranilyaProduction::whereBetween('created_at', [$startDate, $endDate])->whereNull('deleted_at');
+        $baseQuery = GranilyaProduction::whereBetween('granilya_productions.created_at', [$startDate, $endDate])->whereNull('granilya_productions.deleted_at');
 
         $totalCount = (clone $baseQuery)->count();
         $totalQuantity = (clone $baseQuery)->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
-        $acceptedQuantity = (clone $baseQuery)->whereIn('status', [
+        $acceptedQuantity = (clone $baseQuery)->whereIn('granilya_productions.status', [
             GranilyaProduction::STATUS_SHIPMENT_APPROVED,
             GranilyaProduction::STATUS_CUSTOMER_TRANSFER,
             GranilyaProduction::STATUS_DELIVERED
@@ -147,17 +147,17 @@ class PageController extends Controller
 
         // Waiting statuses in Granilya: empty status or "Bekliyor" test result
         $testingQuantity = (clone $baseQuery)->where(function($q) {
-            $q->whereNull('status')->orWhere('sieve_test_result', 'Bekliyor')
-              ->orWhere('surface_test_result', 'Bekliyor')
-              ->orWhere('arge_test_result', 'Bekliyor');
+            $q->whereNull('granilya_productions.status')->orWhere('granilya_productions.sieve_test_result', 'Bekliyor')
+              ->orWhere('granilya_productions.surface_test_result', 'Bekliyor')
+              ->orWhere('granilya_productions.arge_test_result', 'Bekliyor');
         })->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
-        $deliveryQuantity = (clone $baseQuery)->whereIn('status', [
+        $deliveryQuantity = (clone $baseQuery)->whereIn('granilya_productions.status', [
             GranilyaProduction::STATUS_CUSTOMER_TRANSFER,
             GranilyaProduction::STATUS_DELIVERED
         ])->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
-        $rejectedQuantity = (clone $baseQuery)->where('status', GranilyaProduction::STATUS_REJECTED)
+        $rejectedQuantity = (clone $baseQuery)->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)
         ->join('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id')->sum('granilya_quantities.quantity') ?? 0;
 
         return [
@@ -219,9 +219,9 @@ class PageController extends Controller
         $performance = [];
 
         foreach($crushers as $crusher) {
-            $baseQuery = GranilyaProduction::where('crusher_id', $crusher->id)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->whereNull('deleted_at');
+            $baseQuery = GranilyaProduction::where('granilya_productions.crusher_id', $crusher->id)
+                ->whereBetween('granilya_productions.created_at', [$startDate, $endDate])
+                ->whereNull('granilya_productions.deleted_at');
             
             $productionCount = (clone $baseQuery)->count();
             if($productionCount == 0) continue;
@@ -229,11 +229,11 @@ class PageController extends Controller
             $baseQtyQuery = (clone $baseQuery)->leftJoin('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id');
             $totalQuantity = (clone $baseQtyQuery)->sum('granilya_quantities.quantity') ?? 0;
 
-            $acceptedQuantity = (clone $baseQtyQuery)->whereIn('status', [
+            $acceptedQuantity = (clone $baseQtyQuery)->whereIn('granilya_productions.status', [
                 GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED
             ])->sum('granilya_quantities.quantity') ?? 0;
 
-            $rejectedQuantity = (clone $baseQtyQuery)->where('status', GranilyaProduction::STATUS_REJECTED)->sum('granilya_quantities.quantity') ?? 0;
+            $rejectedQuantity = (clone $baseQtyQuery)->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)->sum('granilya_quantities.quantity') ?? 0;
 
             $performance[] = (object) [
                 'crusher_name' => $crusher->name,
@@ -257,9 +257,9 @@ class PageController extends Controller
         $endDate = $periodInfo['end_date'];
 
         $rejectedProductions = GranilyaProduction::with(['quantity'])
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->where('status', GranilyaProduction::STATUS_REJECTED)
-            ->whereNull('deleted_at')
+            ->whereBetween('granilya_productions.created_at', [$startDate, $endDate])
+            ->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)
+            ->whereNull('granilya_productions.deleted_at')
             ->get();
 
         $analysis = [];
@@ -379,15 +379,15 @@ class PageController extends Controller
         $rates = [];
 
         foreach($crushers as $crusher) {
-            $baseQuery = GranilyaProduction::where('crusher_id', $crusher->id)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->whereNull('deleted_at')
+            $baseQuery = GranilyaProduction::where('granilya_productions.crusher_id', $crusher->id)
+                ->whereBetween('granilya_productions.created_at', [$startDate, $endDate])
+                ->whereNull('granilya_productions.deleted_at')
                 ->leftJoin('granilya_quantities', 'granilya_productions.quantity_id', '=', 'granilya_quantities.id');
                 
             $totalQuantity = (clone $baseQuery)->sum('granilya_quantities.quantity') ?? 0;
             if($totalQuantity == 0) continue;
 
-            $rejectedQuantity = (clone $baseQuery)->where('status', GranilyaProduction::STATUS_REJECTED)->sum('granilya_quantities.quantity') ?? 0;
+            $rejectedQuantity = (clone $baseQuery)->where('granilya_productions.status', GranilyaProduction::STATUS_REJECTED)->sum('granilya_quantities.quantity') ?? 0;
             
             $rates[] = (object) [
                 'crusher_name' => $crusher->name,
