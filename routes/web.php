@@ -54,10 +54,8 @@ Route::middleware('auth')
                 Route::get('/', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'index'])->name('index');
                 Route::get('/ekle', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'create'])->name('create');
                 Route::post('/', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'store'])->name('store');
-                Route::get('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'show'])->name('show');
-                Route::put('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'update'])->name('update');
-                Route::delete('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'destroy'])->name('destroy');
-                // AJAX: Anlık stok analizi
+                
+                // AJAX: Anlık stok analizi (MUST BE BEFORE /{order})
                 Route::get('/analiz', function (\Illuminate\Http\Request $req) {
                     $available = \App\Models\Order::getFritStock($req->code ?: null);
                     $required  = (float) ($req->qty ?? 0);
@@ -69,6 +67,10 @@ Route::middleware('auth')
                         'is_sufficient' => $available >= $required,
                     ]);
                 })->name('analiz');
+
+                Route::get('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'show'])->name('show');
+                Route::put('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'update'])->name('update');
+                Route::delete('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'destroy'])->name('destroy');
             });
 
             // Granilya Siparişleri
@@ -76,10 +78,8 @@ Route::middleware('auth')
                 Route::get('/', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'index'])->name('index');
                 Route::get('/ekle', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'create'])->name('create');
                 Route::post('/', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'store'])->name('store');
-                Route::get('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'show'])->name('show');
-                Route::put('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'update'])->name('update');
-                Route::delete('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'destroy'])->name('destroy');
-                // AJAX: Anlık stok analizi (code=fritKodu, size=boyutAdı)
+                
+                // AJAX: Anlık stok analizi (code=fritKodu, size=boyutAdı) (MUST BE BEFORE /{order})
                 Route::get('/analiz', function (\Illuminate\Http\Request $req) {
                     $available = \App\Models\Order::getGranilyaStock($req->code ?: null, $req->size ?: null);
                     $required  = (float) ($req->qty ?? 0);
@@ -91,6 +91,10 @@ Route::middleware('auth')
                         'is_sufficient' => $available >= $required,
                     ]);
                 })->name('analiz');
+
+                Route::get('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'show'])->name('show');
+                Route::put('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'update'])->name('update');
+                Route::delete('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'destroy'])->name('destroy');
             });
 
             // Toplu Yönetim

@@ -183,6 +183,7 @@
 
 @section('scripts')
 <script>
+$(document).ready(function() {
 let itemIndex = 1;
 const stockOpts = `{!! collect(\App\Models\Stock::orderBy('code')->get())->map(function($s){ return '<option value="'.$s->code.'">'.e($s->code).'</option>'; })->implode('') !!}`;
 const sizeOpts  = `{!! collect(\App\Models\GranilyaSize::orderBy('name')->get())->map(function($s){ return '<option value="'.e($s->name).'">'.e($s->name).'</option>'; })->implode('') !!}`;
@@ -252,7 +253,7 @@ $('#btnAnaliz').on('click', function () {
     }
 
     const promises = items.map(item =>
-        $.get('/siparis-karsilama/granilya/analiz', { qty: item.qty, code: item.code, size: item.size })
+        $.get("{{ route('orders.granilya.analiz') }}", { qty: item.qty, code: item.code, size: item.size })
     );
 
     Promise.all(promises).then(results => {
@@ -278,10 +279,12 @@ $('#btnAnaliz').on('click', function () {
         box.css({'background': allOk ? '#d1fae5' : '#fee2e2', 'color': allOk ? '#065f46' : '#991b1b', 'border-radius': '10px'});
         $('#analysisContent').html(html);
         $('#analysisResult').show();
-    }).catch(() => {
+    }).catch((error) => {
         $btn.html('<i class="fas fa-search mr-1"></i> Stok Analiz Et').prop('disabled', false);
+        console.error("Analysis error:", error);
         alert('Analiz sırasında hata oluştu.');
     });
 });
+}); // End $(document).ready
 </script>
 @endsection
