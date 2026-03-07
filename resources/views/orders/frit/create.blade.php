@@ -1,12 +1,30 @@
 @extends('layouts.orders')
 
+@section('styles')
+<style>
+.page-title-box {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
+}
+.page-title-box h4 { font-size: 20px; font-weight: 700; margin: 0; color: #fff; }
+.page-title-box p { margin: 4px 0 0; opacity: 0.85; font-size: 14px; }
+.page-title-box .btn { border-radius: 9px; font-weight: 600; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+</style>
+@endsection
+
 @section('content')
-<div class="page-header d-flex align-items-center">
-    <a href="{{ route('orders.frit.index') }}" class="btn btn-light mr-3" style="border-radius:9px;">
+<div class="page-title-box d-flex align-items-center">
+    <a href="{{ route('orders.frit.index') }}" class="btn btn-light text-primary mr-3">
         <i class="fas fa-arrow-left"></i>
     </a>
     <div>
-        <h4><i class="fas fa-plus-circle mr-2" style="color:#667eea;"></i> Yeni Frit Siparişi</h4>
+        <h4><i class="fas fa-plus-circle mr-2" style="opacity:0.9;"></i> Yeni Frit Siparişi</h4>
         <p>Firma seçin, birden fazla ürün satırı ekleyebilirsiniz. Stok analizi anlık yapılır.</p>
     </div>
 </div>
