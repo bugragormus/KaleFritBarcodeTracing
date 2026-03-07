@@ -15,7 +15,7 @@
 
         <div class="row justify-content-center">
             <!-- Frit Üretim Sistemi Kartı -->
-            <div class="col-md-5 mb-4">
+            <div class="col-md-4 mb-4">
                 <div class="card card-custom hover-elevation text-center h-100">
                     <div class="card-body p-5">
                         <div class="icon-circle bg-primary-light mx-auto mb-4">
@@ -23,7 +23,7 @@
                         </div>
                         <h4 class="card-title font-20 mb-3">Frit Üretim Sistemi</h4>
                         <p class="text-muted mb-4">
-                            Barkod oluşturma, stok yönetimi, kalite kontrol ve sevkiyat işlemlerinin yapıldığı ana sistem.
+                            Frit Üretim ve Lojistik Süreçleri, Kalite Kontrol ve Dijital Takip Sistemi
                         </p>
                         
                         <form method="POST" action="{{ route('system.selection.store') }}">
@@ -38,7 +38,7 @@
             </div>
 
             <!-- Granilya Sistemi Kartı -->
-            <div class="col-md-5 mb-4">
+            <div class="col-md-4 mb-4">
                 <div class="card card-custom hover-elevation text-center h-100 border-info">
                     <div class="card-body p-5">
                         <div class="icon-circle bg-info-light mx-auto mb-4">
@@ -56,6 +56,25 @@
                                 Granilya Sistemine Gir <i class="mdi mdi-arrow-right ml-1"></i>
                             </button>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sipariş Karşılama Sistemi Kartı -->
+            <div class="col-md-4 mb-4">
+                <div class="card card-custom hover-elevation text-center h-100" style="border: 2px solid rgba(245,158,11,.2);">
+                    <div class="card-body p-5">
+                        <div class="icon-circle mx-auto mb-4" style="background:rgba(245,158,11,.1);">
+                            <i class="mdi mdi-clipboard-check" style="font-size: 40px; color: #d97706;"></i>
+                        </div>
+                        <h4 class="card-title font-20 mb-3" style="color: #d97706;">Sipariş Karşılama</h4>
+                        <p class="text-muted mb-4">
+                            Frit ve Granilya siparişlerini mevcut stokla karşılaştır, üretim ihtiyacını belirle.
+                        </p>
+                        
+                        <a href="{{ route('orders.home') }}" class="btn btn-lg btn-block waves-effect waves-light mt-auto" style="background: #f59e0b; color: #fff; border: none;">
+                            Sipariş Sistemine Gir <i class="mdi mdi-arrow-right ml-1"></i>
+                        </a>
                     </div>
                 </div>
             </div>

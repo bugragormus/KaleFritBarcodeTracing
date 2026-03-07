@@ -36,8 +36,50 @@
     <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet" type="text/css" />
 
     @toastr_css
-
     @yield('styles')
+
+    <!-- Universal System Styles -->
+    <style>
+        /* Modern Select2 Pill Design & Scrollable Container */
+        .select2-container--bootstrap4 .select2-selection--multiple {
+            min-height: 42px !important;
+            padding: 3px 10px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__rendered {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            max-height: 120px !important;
+            overflow-y: auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 5px !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
+            background: #f0f4ff !important;
+            border: 1px solid #dbeafe !important;
+            color: #4f46e5 !important;
+            border-radius: 20px !important;
+            padding: 2px 10px !important;
+            margin: 0 !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove {
+            color: #4f46e5 !important;
+            border: none !important;
+            background: transparent !important;
+            margin-right: 6px !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+        .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #ef4444 !important;
+        }
+    </style>
     <style>
         .mob-logout {
             display: none!important;
@@ -1341,14 +1383,6 @@
                                         <small>{{ auth()->user() ? auth()->user()->email : 'misafir@example.com' }}</small>
                                     </div>
                                 </div>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="{{ auth()->user() ? route('user.edit', ['user' => auth()->id()]) : '#' }}">
-                                    <i class="fas fa-user-edit"></i> Profili Düzenle
-                                </a>
-                                <a class="dropdown-item" href="{{ route('settings.show') }}">
-                                    <i class="fas fa-cog"></i> Ayarlar
-                                </a>
-                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-primary" href="{{ route('system.selection.change') }}">
                                     <i class="fas fa-exchange-alt"></i> Sistem Değiştir
                                 </a>
@@ -1496,12 +1530,12 @@
 
                 <!-- Quick Links -->
                 <div class="footer-section">
-                    <h6 class="footer-title">Hızlı Erişim</h6>
+                    <h6 class="footer-title">Granilya Sistemi</h6>
                     <ul class="footer-links">
-                        <li><a href="{{ route('home') }}">Ana Sayfa</a></li>
-                        <li><a href="{{ route('barcode.index') }}">Barkod Yönetimi</a></li>
-                        <li><a href="{{ route('stock.index') }}">Stok Yönetimi</a></li>
-                        <li><a href="{{ route('user.index') }}">Kullanıcı Yönetimi</a></li>
+                        <li><a href="{{ route('granilya.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('granilya.stock.index') }}">Stok Durumu</a></li>
+                        <li><a href="{{ route('granilya.sales') }}">Satış İşlemleri</a></li>
+                        <li><a href="{{ route('granilya.laboratory.dashboard') }}">Laboratuvar</a></li>
                     </ul>
                 </div>
 
@@ -1548,9 +1582,9 @@
                         </p>
                     </div>
                     <div class="footer-actions">
-                        <a href="{{ route('settings.show') }}" class="footer-action-btn">
-                            <i class="fas fa-cog"></i>
-                            <span>Ayarlar</span>
+                        <a href="{{ route('system.selection.change') }}" class="footer-action-btn">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Sistem Değiştir</span>
                         </a>
                         <a href="{{ route('about') }}" class="footer-action-btn">
                             <i class="fas fa-info-circle"></i>
@@ -1692,6 +1726,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Universal Delete Button Handler (System-Wide)
+    $(document).on('click', '.btn-delete-order, .btn-cancel-order, #btnCancelOrder', function (e) {
+        e.preventDefault();
+        const $btn = $(this);
+        const url = $btn.data('url');
+        
+        if (!url) return;
+
+        Swal.fire({ 
+            title: 'Emin misiniz?', 
+            text: 'Bu işlem kalıcı olarak silinecek ve geri alınamaz.', 
+            type: 'warning', 
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545', 
+            cancelButtonText: 'Vazgeç', 
+            confirmButtonText: 'Sil'
+        }).then(function(result) {
+            if (result.value || result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+                form.style.display = 'none';
+
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '_token';
+                tokenInput.value = $('meta[name="csrf-token"]').attr('content');
+                form.appendChild(tokenInput);
+
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                form.appendChild(methodInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    });
 });
 </script>
 

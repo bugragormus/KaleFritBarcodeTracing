@@ -44,7 +44,62 @@ Route::middleware('auth')
         Route::get('/sistem-secimi', [App\Http\Controllers\SystemSelectionController::class, 'index'])->name('system.selection.index');
         Route::post('/sistem-secimi', [App\Http\Controllers\SystemSelectionController::class, 'store'])->name('system.selection.store');
         Route::get('/sistem-degistir', [App\Http\Controllers\SystemSelectionController::class, 'change'])->name('system.selection.change');
-        
+
+        // Sipariş Karşılama Sistemi Route'ları — Sadece MANAGEMENT yetkisi
+        Route::prefix('siparis-karsilama')->as('orders.')->middleware(['permission:management'])->group(function () {
+            Route::get('/', [App\Http\Controllers\OrderFulfillment\HomeController::class, 'index'])->name('home');
+
+            // Frit Siparişleri
+            Route::prefix('frit')->as('frit.')->group(function () {
+                Route::get('/', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'index'])->name('index');
+                Route::get('/ekle', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'store'])->name('store');
+                Route::get('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'show'])->name('show');
+                Route::put('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'update'])->name('update');
+                Route::delete('/{order}', [App\Http\Controllers\OrderFulfillment\FritOrderController::class, 'destroy'])->name('destroy');
+                // AJAX: Anlık stok analizi
+                Route::get('/analiz', function (\Illuminate\Http\Request $req) {
+                    $available = \App\Models\Order::getFritStock($req->code ?: null);
+                    $required  = (float) ($req->qty ?? 0);
+                    $deficit   = max(0, $required - $available);
+                    return response()->json([
+                        'available_kg'  => $available,
+                        'required_kg'   => $required,
+                        'deficit_kg'    => $deficit,
+                        'is_sufficient' => $available >= $required,
+                    ]);
+                })->name('analiz');
+            });
+
+            // Granilya Siparişleri
+            Route::prefix('granilya')->as('granilya.')->group(function () {
+                Route::get('/', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'index'])->name('index');
+                Route::get('/ekle', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'create'])->name('create');
+                Route::post('/', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'store'])->name('store');
+                Route::get('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'show'])->name('show');
+                Route::put('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'update'])->name('update');
+                Route::delete('/{order}', [App\Http\Controllers\OrderFulfillment\GranilyaOrderController::class, 'destroy'])->name('destroy');
+                // AJAX: Anlık stok analizi (code=fritKodu, size=boyutAdı)
+                Route::get('/analiz', function (\Illuminate\Http\Request $req) {
+                    $available = \App\Models\Order::getGranilyaStock($req->code ?: null, $req->size ?: null);
+                    $required  = (float) ($req->qty ?? 0);
+                    $deficit   = max(0, $required - $available);
+                    return response()->json([
+                        'available_kg'  => $available,
+                        'required_kg'   => $required,
+                        'deficit_kg'    => $deficit,
+                        'is_sufficient' => $available >= $required,
+                    ]);
+                })->name('analiz');
+            });
+
+            // Toplu Yönetim
+            Route::prefix('toplu-yonetim')->as('bulk.')->group(function () {
+                Route::get('/', [App\Http\Controllers\OrderFulfillment\BulkOrderController::class, 'index'])->name('index');
+                Route::post('/guncelle', [App\Http\Controllers\OrderFulfillment\BulkOrderController::class, 'updateStatus'])->name('update');
+            });
+        });
+
         // Granilya Sistemi Route'ları
         Route::prefix('granilya')->as('granilya.')->group(function () {
 
@@ -274,4 +329,5 @@ Route::get('/{firin}/kapsamli-rapor-indir', [KilnController::class, 'downloadCom
         }); 
 
     }); // End of system.selection middleware group
+
 }); // End of auth middleware group
