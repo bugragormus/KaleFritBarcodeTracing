@@ -2,9 +2,6 @@
 
 @section('styles')
     <style>
-        /* ---- Global Layout Fixes ---- */
-        * { font-family: 'Poppins', 'Inter', 'Segoe UI', Arial, sans-serif !important; }
-        
         body { background-color: #f8fafc !important; }
         
         .container {
@@ -91,6 +88,33 @@
         }
         .btn-quick-action:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
         .btn-quick-action i { font-size: 1.3rem; }
+        
+        /* Quick Actions Menu */
+        .quick-actions-menu {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid #edf2f7;
+            margin-bottom: 2.5rem;
+        }
+        .quick-actions-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .quick-actions-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+            margin-left: 1rem;
+        }
 
         /* Table */
         .table-granilya thead th {
@@ -117,7 +141,7 @@
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h1 class="font-weight-bold"><i class="fas fa-atom mr-3"></i> Granilya Laboratuvar Paneli</h1>
-                <p class="mb-0">Yüksek hassasiyetli veri takibi ve kalite güvence analitiği</p>
+                <p class="mb-0">Granilya Üretim Süreçleri, Kalite Kontrol ve Dijital Takip Sistemi</p>
             </div>
             <div class="col-md-4 text-md-right mt-3 mt-md-0">
                 <div class="badge badge-light px-3 py-2 rounded-pill shadow-sm" style="font-size: 0.9rem; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
@@ -215,27 +239,29 @@
     </div>
 
     {{-- Quick Access Section --}}
-    <h5 class="mb-3 font-weight-bold ml-1 text-muted uppercase" style="letter-spacing: 1px;">Analiz ve Rapor Modülleri</h5>
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-2">
-            <a href="{{ route('granilya.laboratory.report') }}" class="btn btn-info btn-block btn-quick-action">
-                <i class="fas fa-file-invoice"></i> Lab Raporu
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-2">
-            <a href="{{ route('granilya.laboratory.stock_analysis') }}" class="btn btn-secondary btn-block btn-quick-action" style="background: #1e293b; color: white;">
-                <i class="fas fa-cubes"></i> Stok Analizi
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-2">
-            <a href="{{ route('granilya.laboratory.crusher_performance') }}" class="btn btn-success btn-block btn-quick-action">
-                <i class="fas fa-chart-bar"></i> Kırıcı Analizi
-            </a>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-2">
-            <a href="{{ route('granilya.laboratory.bulk-process') }}" class="btn btn-warning btn-block btn-quick-action text-white">
-                <i class="fas fa-tasks"></i> Toplu İşlem
-            </a>
+    <div class="quick-actions-menu">
+        <h5 class="quick-actions-title">Analiz ve Rapor Modülleri</h5>
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-2">
+                <a href="{{ route('granilya.laboratory.report') }}" class="btn btn-info btn-block btn-quick-action">
+                    <i class="fas fa-file-invoice"></i> Lab Raporu
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+                <a href="{{ route('granilya.laboratory.stock_analysis') }}" class="btn btn-secondary btn-block btn-quick-action" style="background: #1e293b; color: white;">
+                    <i class="fas fa-cubes"></i> Stok Analizi
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+                <a href="{{ route('granilya.laboratory.crusher_performance') }}" class="btn btn-success btn-block btn-quick-action">
+                    <i class="fas fa-chart-bar"></i> Kırıcı Analizi
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-2">
+                <a href="{{ route('granilya.laboratory.bulk-process') }}" class="btn btn-warning btn-block btn-quick-action text-white">
+                    <i class="fas fa-tasks"></i> Toplu İşlem
+                </a>
+            </div>
         </div>
     </div>
 

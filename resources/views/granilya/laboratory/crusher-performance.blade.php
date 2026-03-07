@@ -2,9 +2,6 @@
 
 @section('styles')
     <style>
-        /* ---- Global Layout Fixes ---- */
-        * { font-family: 'Poppins', 'Inter', 'Segoe UI', Arial, sans-serif !important; }
-        
         .container {
             max-width: 1280px !important;
             margin: 0 auto !important;

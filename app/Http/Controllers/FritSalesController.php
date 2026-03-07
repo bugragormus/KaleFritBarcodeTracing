@@ -125,11 +125,59 @@ class FritSalesController extends Controller
                 ->make(true);
         }
 
+        // Calculate Stats for KPI Cards
+        $startDate = $request->get('start_date') ? Carbon::createFromFormat('d/m/Y', $request->get('start_date'))->startOfDay() : now()->subDays(30)->startOfDay();
+        $endDate = $request->get('end_date') ? Carbon::createFromFormat('d/m/Y', $request->get('end_date'))->endOfDay() : now()->endOfDay();
+
+        $statsQuery = Barcode::query()
+            ->whereIn('status', [Barcode::STATUS_CUSTOMER_TRANSFER, Barcode::STATUS_DELIVERED])
+            ->whereBetween('delivered_at', [$startDate, $endDate]);
+
+        $totalWeight = (clone $statsQuery)->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')->sum('quantities.quantity');
+        $totalPallets = (clone $statsQuery)->count();
+
+        $topCustomer = (clone $statsQuery)
+            ->select('company_id', \DB::raw('count(*) as count'))
+            ->groupBy('company_id')
+            ->orderByDesc('count')
+            ->with('company')
+            ->first();
+
+        $topProduct = (clone $statsQuery)
+            ->select('stock_id', \DB::raw('count(*) as count'))
+            ->groupBy('stock_id')
+            ->orderByDesc('count')
+            ->with('stock')
+            ->first();
+
         $stocks = Stock::orderBy('name')->get();
         $companies = Company::orderBy('name')->get();
         $users = User::orderBy('name')->get();
 
-        return view('admin.barcode.history', compact('stocks', 'companies', 'users'));
+        return view('admin.barcode.history', compact('stocks', 'companies', 'users', 'totalWeight', 'totalPallets', 'topCustomer', 'topProduct', 'startDate', 'endDate'));
+    }
+
+    public function export(Request $request)
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($startDate) {
+            $startDate = Carbon::createFromFormat('d/m/Y', $startDate)->startOfDay();
+        } else {
+            $startDate = now()->subDays(30)->startOfDay();
+        }
+
+        if ($endDate) {
+            $endDate = Carbon::createFromFormat('d/m/Y', $endDate)->endOfDay();
+        } else {
+            $endDate = now()->endOfDay();
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\FritSalesHistoryExport($startDate, $endDate, $request->all()),
+            'frit_satis_gecmisi_' . date('Ymd_His') . '.xlsx'
+        );
     }
 
     public function store(Request $request)

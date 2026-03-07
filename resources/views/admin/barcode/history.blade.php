@@ -42,6 +42,40 @@
             gap: 0.5rem;
         }
         .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        /* KPI Cards Sync */
+        .stat-card-frit {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card-frit:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+        .stat-card-frit::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 0 0 0 100%;
+        }
+        .stat-frit-icon { font-size: 2.2rem; margin-bottom: 0.8rem; opacity: 0.9; }
+        .stat-frit-number { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 0.2rem; line-height: 1.2; }
+        .stat-frit-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .icon-blue { color: #3b82f6; }
+        .icon-purple { color: #8b5cf6; }
+        .icon-orange { color: #f59e0b; }
+        .icon-emerald { color: #10b981; }
         
             z-index: 9999 !important;
         }
@@ -56,9 +90,50 @@
                 <h1 class="h2 font-weight-bold mb-1"><i class="fas fa-history mr-2"></i> Frit Satış Geçmişi</h1>
                 <p class="mb-0 opacity-75">Yapılan tüm satış ve sevkiyat kayıtlarını buradan inceleyebilirsiniz.</p>
             </div>
-            <a href="{{ route('barcode.sales.index') }}" class="btn btn-light btn-modern">
-                <i class="fas fa-arrow-left"></i> Satış Ekranına Dön
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('barcode.sales.history.export', request()->all()) }}" class="btn btn-success btn-modern mr-2">
+                    <i class="fas fa-file-excel"></i> Excel Olarak İndir
+                </a>
+                <a href="{{ route('barcode.sales.index') }}" class="btn btn-light btn-modern">
+                    <i class="fas fa-arrow-left"></i> Satış Ekranına Dön
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {{-- KPI Cards --}}
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-frit">
+                <div class="stat-frit-icon icon-blue"><i class="fas fa-weight-hanging"></i></div>
+                <div class="stat-frit-number">{{ number_format($totalWeight, 0, ',', '.') }} KG</div>
+                <div class="stat-frit-label">Toplam Satış (KG)</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-frit">
+                <div class="stat-frit-icon icon-purple"><i class="fas fa-boxes"></i></div>
+                <div class="stat-frit-number">{{ $totalPallets }} Adet</div>
+                <div class="stat-frit-label">Toplam Satış (Palet)</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-frit">
+                <div class="stat-frit-icon icon-emerald"><i class="fas fa-building"></i></div>
+                <div class="stat-frit-number" style="font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ $topCustomer->company->name ?? '-' }}
+                </div>
+                <div class="stat-frit-label">En Çok Alım Yapan Firma</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card-frit">
+                <div class="stat-frit-icon icon-orange"><i class="fas fa-cube"></i></div>
+                <div class="stat-frit-number" style="font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ $topProduct->stock->name ?? '-' }}
+                </div>
+                <div class="stat-frit-label">En Çok Satılan Ürün</div>
+            </div>
         </div>
     </div>
 

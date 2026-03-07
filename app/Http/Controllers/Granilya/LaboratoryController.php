@@ -481,45 +481,10 @@ class LaboratoryController extends Controller
         if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
         if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
 
-        $data = GranilyaProduction::with(['stock', 'user', 'quantity'])
-            ->whereBetween('updated_at', [$startDate, $endDate])
-            ->whereIn('status', [
-                GranilyaProduction::STATUS_PRE_APPROVED,
-                GranilyaProduction::STATUS_SHIPMENT_APPROVED,
-                GranilyaProduction::STATUS_REJECTED,
-                6, 9, 10
-            ])
-            ->orderBy('updated_at', 'desc')
-            ->get();
-
-        $filename = "granilya_laboratuvar_raporu_" . date('Ymd_His') . ".csv";
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ];
-
-        $callback = function() use ($data) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-            fputcsv($file, ['Tarih', 'Palet No', 'Ürün', 'Miktar (KG)', 'Elek Testi', 'Yüzey Testi', 'Arge Testi', 'Durum', 'İşlem Yapan']);
-
-            foreach ($data as $p) {
-                fputcsv($file, [
-                    $p->updated_at->format('d.m.Y H:i'),
-                    $p->pallet_number,
-                    $p->stock->name,
-                    $p->used_quantity,
-                    $p->sieve_test_result,
-                    $p->surface_test_result,
-                    $p->arge_test_result,
-                    $p->status_label,
-                    $p->user->name ?? '-'
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Granilya\LaboratoryReportExport($startDate, $endDate),
+            'granilya_laboratuvar_raporu_' . date('Ymd_His') . '.xlsx'
+        );
     }
 
     /**
@@ -584,51 +549,10 @@ class LaboratoryController extends Controller
         if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
         if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
 
-        // Similar logic to above but return CSV stream
-        $stockQualityData = \App\Models\Stock::whereHas('granilyaProductions', function($q) use ($startDate, $endDate) {
-            $q->whereBetween('updated_at', [$startDate, $endDate]);
-        })->with(['granilyaProductions' => function($q) use ($startDate, $endDate) {
-            $q->whereBetween('updated_at', [$startDate, $endDate]);
-        }])->get();
-
-        $filename = "granilya_stok_kalite_analizi_" . date('Ymd_His') . ".csv";
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ];
-
-        $callback = function() use ($stockQualityData) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-            fputcsv($file, ['Ürün Adı', 'Toplam İşlem', 'Kabul', 'Red', 'Kabul Oranı (%)', 'En Sık Red Sebebi']);
-
-            foreach ($stockQualityData as $stock) {
-                $productions = $stock->granilyaProductions;
-                $total = $productions->count();
-                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
-                $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
-                
-                $reasons = [];
-                foreach ($productions->where('status', GranilyaProduction::STATUS_REJECTED) as $p) {
-                    if ($p->sieve_test_result == 'Red') $reasons['Elek: ' . $p->sieve_reject_reason] = ($reasons['Elek: ' . $p->sieve_reject_reason] ?? 0) + 1;
-                    if ($p->surface_test_result == 'Red') $reasons['Yüzey: ' . $p->surface_reject_reason] = ($reasons['Yüzey: ' . $p->surface_reject_reason] ?? 0) + 1;
-                    if ($p->arge_test_result == 'Red') $reasons['Arge'] = ($reasons['Arge'] ?? 0) + 1;
-                }
-                $topReason = collect($reasons)->sortByDesc(function($v) { return $v; })->keys()->first() ?? '-';
-
-                fputcsv($file, [
-                    $stock->name,
-                    $total,
-                    $accepted,
-                    $rejected,
-                    $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
-                    $topReason
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Granilya\StockQualityExport($startDate, $endDate),
+            'granilya_stok_kalite_analizi_' . date('Ymd_His') . '.xlsx'
+        );
     }
 
     /**
@@ -684,40 +608,9 @@ class LaboratoryController extends Controller
         if ($startDate) $startDate = Carbon::parse($startDate)->startOfDay();
         if ($endDate) $endDate = Carbon::parse($endDate)->endOfDay();
 
-        $crusherData = \App\Models\GranilyaCrusher::whereHas('granilyaProductions', function($q) use ($startDate, $endDate) {
-            $q->whereBetween('updated_at', [$startDate, $endDate]);
-        })->with(['granilyaProductions' => function($q) use ($startDate, $endDate) {
-            $q->whereBetween('updated_at', [$startDate, $endDate]);
-        }])->get();
-
-        $filename = "granilya_kirici_analizi_" . date('Ymd_His') . ".csv";
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ];
-
-        $callback = function() use ($crusherData) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
-            fputcsv($file, ['Kırıcı Adı', 'Toplam İşlem', 'Kabul', 'Red', 'Kabul Oranı (%)']);
-
-            foreach ($crusherData as $crusher) {
-                $productions = $crusher->granilyaProductions;
-                $total = $productions->count();
-                $accepted = $productions->whereIn('status', [GranilyaProduction::STATUS_SHIPMENT_APPROVED, GranilyaProduction::STATUS_CUSTOMER_TRANSFER, GranilyaProduction::STATUS_DELIVERED, 6])->count();
-                $rejected = $productions->where('status', GranilyaProduction::STATUS_REJECTED)->count();
-
-                fputcsv($file, [
-                    $crusher->name,
-                    $total,
-                    $accepted,
-                    $rejected,
-                    $total > 0 ? round(($accepted / $total) * 100, 1) : 0
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Granilya\CrusherPerformanceExport($startDate, $endDate),
+            'granilya_kirici_analizi_' . date('Ymd_His') . '.xlsx'
+        );
     }
 }

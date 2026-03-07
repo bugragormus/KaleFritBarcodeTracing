@@ -481,83 +481,88 @@
     <!-- KPI Cards Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <h5 class="section-title mb-4">
+            <h5 class="section-title mb-3">
                 <i class="fas fa-chart-bar text-primary mr-2"></i>
                 Sistem Özet Verileri
+                <small class="ml-2" style="font-size: 0.72rem; font-weight: 500; color: #888; background: #f0f0f5; padding: 3px 10px; border-radius: 20px; vertical-align: middle;">
+                    <i class="fas fa-calendar-alt mr-1"></i> {{ $periodLabel }}
+                </small>
             </h5>
         </div>
-        
+
+        {{-- Üretim / Stok / Satış --}}
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card" style="border-left: 4px solid #667eea;">
                 <div class="card-body text-center">
-                    <div class="kpi-icon mb-3">
-                        <i class="fas fa-industry fa-3x text-primary"></i>
-                    </div>
-                    <h3 class="kpi-number">{{ number_format($kpiDailyProduction, 0, ',', '.') }}</h3>
-                    <p class="kpi-label">Günlük Üretim (KG)</p>
+                    <div class="kpi-icon mb-2" style="color: #667eea;"><i class="fas fa-industry fa-2x"></i></div>
+                    <h3 class="kpi-number">{{ number_format($kpiDailyProduction, 0, ',', '.') }} <small style="font-size:0.9rem; color:#888;">KG</small></h3>
+                    <p class="kpi-label">{{ $filterActive ? 'Dönemde Üretilen' : 'Bugünkü Üretim' }}</p>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card" style="border-left: 4px solid #11998e;">
                 <div class="card-body text-center">
-                    <div class="kpi-icon mb-3">
-                        <i class="fas fa-boxes fa-3x text-success"></i>
-                    </div>
-                    <h3 class="kpi-number">{{ number_format($kpiTotalStock, 0, ',', '.') }}</h3>
-                    <p class="kpi-label">Toplam Hammadde Stok (KG)</p>
+                    <div class="kpi-icon mb-2" style="color: #11998e;"><i class="fas fa-layer-group fa-2x"></i></div>
+                    <h3 class="kpi-number">{{ number_format($kpiReadyStock, 0, ',', '.') }} <small style="font-size:0.9rem; color:#888;">KG</small></h3>
+                    <p class="kpi-label">Sevke Hazır Stok</p>
+                    <small class="text-muted" style="font-size:0.75rem;">Sevk Onaylı — Anlık</small>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card" style="border-left: 4px solid #4facfe;">
                 <div class="card-body text-center">
-                    <div class="kpi-icon mb-3">
-                        <i class="fas fa-truck fa-3x text-info"></i>
-                    </div>
-                    <h3 class="kpi-number">{{ number_format($kpiMonthlySales, 0, ',', '.') }}</h3>
-                    <p class="kpi-label">Satış Hacmi (Aylık KG)</p>
+                    <div class="kpi-icon mb-2" style="color: #4facfe;"><i class="fas fa-handshake fa-2x"></i></div>
+                    <h3 class="kpi-number">{{ number_format($kpiMonthlySales, 0, ',', '.') }} <small style="font-size:0.9rem; color:#888;">KG</small></h3>
+                    <p class="kpi-label">Satış Hacmi</p>
+                    <small class="text-muted" style="font-size:0.75rem;">Teslim Edildi</small>
                 </div>
             </div>
         </div>
-        
+
+        {{-- Kalite Kontrol --}}
+        <div class="col-12 mb-1 mt-1">
+            <p class="mb-2" style="font-size: 0.78rem; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 1px;">
+                <i class="fas fa-flask mr-1"></i> Kalite Kontrol
+            </p>
+        </div>
+
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card" style="border-left: 4px solid #f59e0b;">
                 <div class="card-body text-center">
-                    <div class="kpi-icon mb-3">
-                        <i class="fas fa-flask fa-3x text-warning"></i>
-                    </div>
-                    <h3 class="kpi-number">{{ $kpiPendingAnalysis }}</h3>
-                    <p class="kpi-label">Beklemede</p>
+                    <div class="kpi-icon mb-2" style="color: #f59e0b;"><i class="fas fa-hourglass-half fa-2x"></i></div>
+                    <h3 class="kpi-number">{{ number_format($kpiPendingAnalysis, 0, ',', '.') }} <small style="font-size:0.9rem; color:#888;">KG</small></h3>
+                    <p class="kpi-label">Analiz Bekleyen</p>
+                    <small class="text-muted" style="font-size:0.75rem;">Beklemede + Ön Onaylı — Anlık</small>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card" style="border-left: 4px solid #28a745;">
                 <div class="card-body text-center">
-                    <div class="kpi-icon mb-3">
-                        <i class="fas fa-check-circle fa-3x text-success"></i>
-                    </div>
-                    <h3 class="kpi-number">{{ $kpiApproved }}</h3>
-                    <p class="kpi-label">Onaylı Ürünler</p>
+                    <div class="kpi-icon mb-2" style="color: #28a745;"><i class="fas fa-check-circle fa-2x"></i></div>
+                    <h3 class="kpi-number">{{ $kpiApproved }} <small style="font-size:0.9rem; color:#888;">adet</small></h3>
+                    <p class="kpi-label">Sevk Onaylı Palet</p>
+                    <small class="text-muted" style="font-size:0.75rem;">Dönemde onaylananlar</small>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card kpi-card">
+            <div class="card kpi-card" style="border-left: 4px solid #dc3545;">
                 <div class="card-body text-center">
-                    <div class="kpi-icon mb-3">
-                        <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
-                    </div>
-                    <h3 class="kpi-number">{{ $kpiRejected }}</h3>
-                    <p class="kpi-label">Reddedilen Ürünler</p>
+                    <div class="kpi-icon mb-2" style="color: #dc3545;"><i class="fas fa-times-circle fa-2x"></i></div>
+                    <h3 class="kpi-number">{{ number_format($kpiRejected, 0, ',', '.') }} <small style="font-size:0.9rem; color:#888;">KG</small></h3>
+                    <p class="kpi-label">Reddedilen</p>
+                    <small class="text-muted" style="font-size:0.75rem;">Red + Düzeltme Faaliyeti — Anlık</small>
                 </div>
             </div>
         </div>
+    </div>
 </div>
 @endsection
 

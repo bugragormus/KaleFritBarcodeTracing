@@ -46,7 +46,7 @@
                         </div>
                         <h4 class="card-title font-20 mb-3 text-info">Granilya Sistemi</h4>
                         <p class="text-muted mb-4">
-                            Yeni geliştirilecek olan granilya prosesi yönetim, takip ve raporlama işlemleri modülü.
+                            Granilya Üretim Süreçleri, Kalite Kontrol ve Dijital Takip Sistemi.
                         </p>
                         
                         <form method="POST" action="{{ route('system.selection.store') }}">

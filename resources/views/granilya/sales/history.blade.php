@@ -106,13 +106,82 @@
 @section('content')
 <div class="history-container">
     <div class="container-fluid">
-        <div class="page-header d-flex justify-content-between align-items-center">
+        <div class="page-header d-flex justify-content-between align-items-center mb-4">
             <h1 class="page-title">
                 <i class="fas fa-history text-primary"></i> Satış Geçmişi
             </h1>
-            <a href="{{ route('granilya.sales') }}" class="btn btn-outline-primary rounded-pill px-4">
-                <i class="fas fa-shopping-cart mr-2"></i>Aktif Satış Ekranı
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('granilya.sales.history.export', request()->all()) }}" class="btn btn-success rounded-pill px-4 shadow-sm">
+                    <i class="fas fa-file-excel mr-2"></i>Excel Olarak İndir
+                </a>
+                <a href="{{ route('granilya.sales') }}" class="btn btn-outline-primary rounded-pill px-4 ml-2">
+                    <i class="fas fa-shopping-cart mr-2"></i>Aktif Satış Ekranı
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm rounded-20 bg-primary text-white" style="border-radius: 20px; overflow: hidden; position: relative; height: 100%;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 font-weight-bold mb-2 uppercase" style="letter-spacing: 1px;">TOPLAM SATIŞ</h6>
+                                <h2 class="font-weight-800 mb-0">{{ number_format($stats['total_weight'], 0, ',', '.') }} KG</h2>
+                            </div>
+                            <div class="stat-icon-circle bg-white-20" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-truck-loading"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm rounded-20 bg-info text-white" style="border-radius: 20px; overflow: hidden; position: relative; height: 100%;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 font-weight-bold mb-2 uppercase" style="letter-spacing: 1px;">SATIŞ ADEDİ</h6>
+                                <h2 class="font-weight-800 mb-0">{{ $stats['total_sales'] }} Palet</h2>
+                            </div>
+                            <div class="stat-icon-circle bg-white-20" style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-pallet"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm rounded-20 bg-white" style="border-radius: 20px; overflow: hidden; position: relative; height: 100%; border: 1px solid #e2e8f0;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted font-weight-bold mb-2 uppercase" style="letter-spacing: 1px;">EN ÇOK SATIN ALAN</h6>
+                                <h5 class="font-weight-bold text-dark mb-0 text-truncate" style="max-width: 180px;">{{ $stats['top_customer_name'] }}</h5>
+                            </div>
+                            <div class="stat-icon-circle" style="width: 50px; height: 50px; background: #eff6ff; color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-building"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm rounded-20 bg-white" style="border-radius: 20px; overflow: hidden; position: relative; height: 100%; border: 1px solid #e2e8f0;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted font-weight-bold mb-2 uppercase" style="letter-spacing: 1px;">EN ÇOK SATILAN</h6>
+                                <h5 class="font-weight-bold text-dark mb-0 text-truncate" style="max-width: 180px;">{{ $stats['top_product_name'] }}</h5>
+                            </div>
+                            <div class="stat-icon-circle" style="width: 50px; height: 50px; background: #f0fdf4; color: #22c55e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Filters -->

@@ -85,43 +85,67 @@ class DashboardController extends Controller
         }
 
         // --- KPI Hesaplamaları ---
+        $calcStartDate = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->startOfMonth()->startOfDay();
+        $calcEndDate   = $endDate   ? Carbon::parse($endDate)->endOfDay()     : Carbon::now()->endOfDay();
         $today = Carbon::today();
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
+        $filterActive = ($startDate || $endDate);
 
-        // Günlük Üretim
-        $kpiDailyProduction = GranilyaProduction::whereDate('created_at', $today)
+        // 1. Üretim Toplamı — Seçilen dönemde üretilen toplam KG (is_correction = false)
+        if ($filterActive) {
+            $kpiDailyProduction = GranilyaProduction::where('is_correction', false)
+                ->whereBetween('created_at', [$calcStartDate, $calcEndDate])
+                ->sum('used_quantity');
+        } else {
+            $kpiDailyProduction = GranilyaProduction::where('is_correction', false)
+                ->whereDate('created_at', $today)
+                ->sum('used_quantity');
+        }
+
+        // 2. Satış Hacmi — SADECE Teslim Edildi (STATUS_DELIVERED)
+        $kpiMonthlySales = GranilyaProduction::where('status', GranilyaProduction::STATUS_DELIVERED)
+            ->whereBetween('updated_at', [$calcStartDate, $calcEndDate])
             ->sum('used_quantity');
 
-        // Satış Hacmi (Aylık) - STATUS_SHIPPED
-        $kpiMonthlySales = GranilyaProduction::where('status', GranilyaProduction::STATUS_SHIPPED)
-            ->whereBetween('updated_at', [$startOfMonth, $endOfMonth])
+        // 3. Sevke Hazır Stok — Sevk Onaylı tüm paletlerin KG (is_correction filtresi YOK: düzeltme paletleri de hazır olabilir)
+        $kpiReadyStock = GranilyaProduction::where('status', GranilyaProduction::STATUS_SHIPMENT_APPROVED)
             ->sum('used_quantity');
 
-        // Bekleyen Analiz
+        // 4. Analiz Bekleyenler — Anlık, KG cinsinden (is_correction filtresi YOK)
         $kpiPendingAnalysis = GranilyaProduction::whereIn('status', [
-            GranilyaProduction::STATUS_WAITING, 
-            GranilyaProduction::STATUS_PRE_APPROVED
-        ])->count();
+                GranilyaProduction::STATUS_WAITING,
+                GranilyaProduction::STATUS_PRE_APPROVED,
+            ])
+            ->sum('used_quantity');
 
-        // Onaylı Ürünler
-        $kpiApproved = GranilyaProduction::whereIn('status', [
-            GranilyaProduction::STATUS_SHIPMENT_APPROVED,
-            GranilyaProduction::STATUS_CUSTOMER_TRANSFER
-        ])->count();
-
-        // Reddedilen Ürünler
-        $kpiRejected = GranilyaProduction::where('status', GranilyaProduction::STATUS_REJECTED)
+        // 5. Onaylı Paletler — Dönemde sevk onayı almış palet sayısı (is_correction filtresi YOK)
+        $kpiApproved = GranilyaProduction::where('status', GranilyaProduction::STATUS_SHIPMENT_APPROVED)
+            ->whereBetween('updated_at', [$calcStartDate, $calcEndDate])
             ->count();
+
+        // 6. Reddedilen — STATUS_REJECTED + STATUS_CORRECTED (düzeltmeye gitmiş red'ler) toplamı KG — Anlık
+        $kpiRejected = GranilyaProduction::whereIn('status', [
+                GranilyaProduction::STATUS_REJECTED,
+                GranilyaProduction::STATUS_CORRECTED,
+            ])
+            ->sum('used_quantity');
+
+        // 7. Dönem etiketi
+        $periodLabel = $filterActive
+            ? Carbon::parse($calcStartDate)->format('d.m.Y') . ' – ' . Carbon::parse($calcEndDate)->format('d.m.Y')
+            : 'Bugün / Bu Ay';
+
 
         return view('granilya.dashboard', compact(
             'rawMaterialStocks', 
             'kpiTotalStock', 
             'kpiDailyProduction', 
-            'kpiMonthlySales', 
+            'kpiMonthlySales',
+            'kpiReadyStock',
             'kpiPendingAnalysis', 
             'kpiApproved', 
             'kpiRejected',
+            'periodLabel',
+            'filterActive',
             'startDate',
             'endDate'
         ));
@@ -132,47 +156,6 @@ class DashboardController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        $query = DB::table('barcodes')
-            ->select(
-                'stocks.name as stock_name',
-                'barcodes.load_number',
-                DB::raw('SUM(quantities.quantity) as total_quantity')
-            )
-            ->join('stocks', 'barcodes.stock_id', '=', 'stocks.id')
-            ->join('quantities', 'barcodes.quantity_id', '=', 'quantities.id')
-            ->where('barcodes.status', Barcode::STATUS_TRANSFERRED_TO_GRANILYA)
-            ->whereNull('barcodes.deleted_at');
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('barcodes.updated_at', [
-                Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay()
-            ]);
-        }
-
-        $rawMaterialStocks = $query->groupBy('stocks.id', 'stocks.name', 'barcodes.load_number')
-            ->orderBy('stocks.name')
-            ->orderBy('barcodes.load_number')
-            ->get();
-
-        $productionStats = DB::table('granilya_productions')
-            ->select(
-                'stock_id',
-                'load_number',
-                DB::raw('SUM(used_quantity) as total_used'),
-                DB::raw('SUM(sieve_residue_quantity) as total_sieve_residue')
-            )
-            ->where('is_correction', false)
-            ->whereNull('deleted_at')
-            ->groupBy('stock_id', 'load_number')
-            ->get()
-            ->keyBy(function ($item) {
-                // We need stock_id to map, but the first query group by stocks.id which we didn't select for export.
-                // Let's fix the query select below.
-                return ''; 
-            });
-            
-        // Correcting the query above to include stock_id for internal calculation
         $exportDataQuery = DB::table('barcodes')
             ->select(
                 'stocks.id as stock_id',
@@ -197,43 +180,41 @@ class DashboardController extends Controller
             ->orderBy('barcodes.load_number')
             ->get();
 
-        $filename = "frit_hammadde_aktarim_raporu_" . date('Ymd_His') . ".csv";
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ];
+        $productionStats = DB::table('granilya_productions')
+            ->select(
+                'stock_id',
+                'load_number',
+                DB::raw('SUM(used_quantity) as total_used'),
+                DB::raw('SUM(sieve_residue_quantity) as total_sieve_residue')
+            )
+            ->where('is_correction', false)
+            ->whereNull('deleted_at')
+            ->groupBy('stock_id', 'load_number')
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->stock_id . '_' . $item->load_number;
+            });
 
-        $callback = function() use ($rawMaterialStocks, $productionStats) {
-            $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF"); // BOM for excel
-            
-            fputcsv($file, [
-                'Hammadde (Frit) Adı',
-                'Şarj No',
-                'Toplam Gelen (KG)',
-                'Üretimde Kullanılan (KG)',
-                'Elek Altı (KG)',
-                'Kalan Stok (KG)'
-            ]);
+        $processedData = [];
+        foreach ($rawMaterialStocks as $row) {
+            $stat = $productionStats->get($row->stock_id . '_' . $row->load_number);
+            $used = $stat ? $stat->total_used : 0;
+            $sieve = $stat ? $stat->total_sieve_residue : 0;
+            $remaining = $row->total_quantity - $used - $sieve;
 
-            foreach ($rawMaterialStocks as $row) {
-                $stat = $productionStats->get($row->stock_id . '_' . $row->load_number);
-                $used = $stat ? $stat->total_used : 0;
-                $sieve = $stat ? $stat->total_sieve_residue : 0;
-                $remaining = $row->total_quantity - $used - $sieve;
+            $processedData[] = [
+                'stock_name' => $row->stock_name,
+                'load_number' => $row->load_number,
+                'total_quantity' => $row->total_quantity,
+                'used_quantity' => $used,
+                'sieve_residue_quantity' => $sieve,
+                'remaining_quantity' => $remaining
+            ];
+        }
 
-                fputcsv($file, [
-                    $row->stock_name,
-                    $row->load_number,
-                    number_format($row->total_quantity, 2, '.', ''),
-                    number_format($used, 2, '.', ''),
-                    number_format($sieve, 2, '.', ''),
-                    number_format($remaining, 2, '.', '')
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Granilya\RawMaterialTransferExport($processedData, $startDate, $endDate),
+            'frit_hammadde_aktarim_raporu_' . date('Ymd_His') . '.xlsx'
+        );
     }
 }

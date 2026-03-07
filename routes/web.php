@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FritSalesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,7 @@ Route::middleware('auth')
             Route::middleware(['permission:customer_transfer'])->group(function () {
                 Route::get('/satis', [App\Http\Controllers\Granilya\SalesController::class, 'index'])->name('sales');
                 Route::post('/satis', [App\Http\Controllers\Granilya\SalesController::class, 'store'])->name('sales.store');
+                Route::get('/satis/gecmis/excel', [App\Http\Controllers\Granilya\SalesController::class, 'export'])->name('sales.history.export');
                 Route::get('/satis/gecmis', [App\Http\Controllers\Granilya\SalesController::class, 'history'])->name('sales.history');
             });
 
@@ -148,9 +150,10 @@ Route::middleware('auth')
             
             // Barkod Satış (Frit) - Müşteri İşlemleri Yetkisi
             Route::middleware(['permission:customer_transfer'])->group(function () {
-                Route::get('/frit-satis/gecmis', [\App\Http\Controllers\FritSalesController::class, 'history'])->name('sales.history');
-                Route::get('/frit-satis', [\App\Http\Controllers\FritSalesController::class, 'index'])->name('sales.index');
-                Route::post('/frit-satis', [\App\Http\Controllers\FritSalesController::class, 'store'])->name('sales.store');
+                Route::get('/frit-satis/gecmis', [FritSalesController::class, 'history'])->name('sales.history');
+                Route::get('/frit-satis/gecmis/export', [FritSalesController::class, 'export'])->name('sales.history.export');
+                Route::get('/frit-satis', [FritSalesController::class, 'index'])->name('sales.index');
+                Route::post('/frit-satis', [FritSalesController::class, 'store'])->name('sales.store');
             });
 
             Route::put('/{barkod}', [BarcodeController::class, 'update'])->name('update');

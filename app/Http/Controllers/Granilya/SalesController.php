@@ -129,6 +129,9 @@ class SalesController extends Controller
      */
     public function history(Request $request)
     {
+        $startDate = $request->date_start ?? now()->subDays(30)->format('Y-m-d');
+        $endDate = $request->date_end ?? now()->format('Y-m-d');
+
         $query = GranilyaProduction::where('status', GranilyaProduction::STATUS_DELIVERED)
             ->with(['stock', 'deliveryCompany', 'user', 'size']);
 
@@ -149,13 +152,20 @@ class SalesController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
-        if ($request->date_start) {
-            $query->whereDate('delivered_at', '>=', $request->date_start);
-        }
+        $query->whereDate('delivered_at', '>=', $startDate)
+              ->whereDate('delivered_at', '<=', $endDate);
 
-        if ($request->date_end) {
-            $query->whereDate('delivered_at', '<=', $request->date_end);
-        }
+        // KPI Calculations
+        $allResults = (clone $query)->get();
+        $stats = [
+            'total_weight' => $allResults->sum('used_quantity'),
+            'total_sales'  => $allResults->count(),
+            'top_customer' => $allResults->groupBy('delivery_company_id')->map->count()->sortDesc()->keys()->first(),
+            'top_product'  => $allResults->groupBy('stock_id')->map->count()->sortDesc()->keys()->first(),
+        ];
+
+        $stats['top_customer_name'] = $stats['top_customer'] ? GranilyaCompany::find($stats['top_customer'])->name : '-';
+        $stats['top_product_name'] = $stats['top_product'] ? \App\Models\Stock::find($stats['top_product'])->name : '-';
 
         $sales = $query->orderBy('delivered_at', 'desc')->paginate(50);
 
@@ -163,6 +173,20 @@ class SalesController extends Controller
         $companies = GranilyaCompany::all();
         $users = \App\Models\User::all();
 
-        return view('granilya.sales.history', compact('sales', 'stocks', 'companies', 'users'));
+        return view('granilya.sales.history', compact('sales', 'stocks', 'companies', 'users', 'stats', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Export sales history to Excel.
+     */
+    public function export(Request $request)
+    {
+        $startDate = $request->date_start ?? now()->subDays(30)->format('Y-m-d');
+        $endDate = $request->date_end ?? now()->format('Y-m-d');
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Granilya\SalesHistoryExport($request->all()), 
+            'granilya_satis_gecmisi_' . date('Ymd_His') . '.xlsx'
+        );
     }
 }
