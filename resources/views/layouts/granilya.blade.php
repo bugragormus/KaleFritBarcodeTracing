@@ -1299,14 +1299,18 @@
                     
                     <!-- Quick Actions -->
                     <div class="quick-actions d-none d-lg-flex">
+                        @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::BARCODE_CREATE))
                         <a href="{{ route('granilya.production') }}" class="btn action-btn bg-success text-white">
                             <i class="fas fa-plus-circle"></i>
                             <span>Üretim Girişi</span>
                         </a>
+                        @endif
+                        @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::LAB_PROCESSES))
                         <a href="{{ route('granilya.barcode') }}" class="btn action-btn bg-info text-white">
                             <i class="fas fa-search-plus"></i>
                             <span>Palet Sorgu</span>
                         </a>
+                        @endif
                     </div>
 
                     <!-- Mobile Quick Actions -->
@@ -1397,6 +1401,7 @@
                         </a>
                     </li>
 
+                    @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::LAB_PROCESSES))
                     <li class="nav-item {{ request()->is('granilya/laboratuvar*') ? 'active' : ''}}">
                         <a href="{{ route('granilya.laboratory.index') }}" class="nav-link">
                             <i class="fas fa-flask"></i>
@@ -1410,6 +1415,7 @@
                             <span>Üretim Raporu</span>
                         </a>
                     </li>
+                    @endif
 
                     @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::CUSTOMER_TRANSFER))
                     <li class="nav-item {{ request()->is('granilya/satis') ? 'active' : ''}}">
@@ -1420,13 +1426,13 @@
                     </li>
                     @endif
 
+                    @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::MANAGEMENT))
                     <li class="nav-item {{ request()->is('granilya/firma*') ? 'active' : ''}}">
                         <a href="{{ route('granilya.firma.index') }}" class="nav-link">
                             <i class="fas fa-briefcase"></i>
                             <span>Firmalar</span>
                         </a>
                     </li>
-
 
                     <li class="nav-item dropdown {{ request()->is('granilya/kirici*') || request()->is('granilya/boyut*') || request()->is('granilya/miktar*') ? 'active' : ''}}">
                         <a href="#" class="nav-link dropdown-toggle" id="definitionsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -1439,6 +1445,7 @@
                             <a class="dropdown-item {{ request()->is('granilya/miktar*') ? 'active' : '' }}" href="{{ route('granilya.miktar.index') }}">Miktar (KG)</a>
                         </div>
                     </li>
+                    @endif
 
                 </ul>
 

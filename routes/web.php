@@ -47,28 +47,55 @@ Route::middleware('auth')
         
         // Granilya Sistemi Route'ları
         Route::prefix('granilya')->as('granilya.')->group(function () {
+
+            // ----------------------------------------------------------------
+            // Açık erişim: Dashboard, Stok Durumu, Palet Görüntüleme (sadece auth)
+            // ----------------------------------------------------------------
             Route::get('/anasayfa', [App\Http\Controllers\Granilya\DashboardController::class, 'index'])->name('dashboard');
             Route::get('/anasayfa/raw-materials-export', [App\Http\Controllers\Granilya\DashboardController::class, 'exportRawMaterials'])->name('dashboard.raw_materials.export');
-            Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
-            Route::prefix('laboratuvar')->as('laboratory.')->group(function () {
-                Route::get('/', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('index'); // Dahboard is the index
-                Route::get('/rapor', [App\Http\Controllers\Granilya\LaboratoryController::class, 'report'])->name('report');
-                Route::get('/rapor/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'exportReport'])->name('export_report');
-                Route::get('/stok-analizi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'stockQualityAnalysis'])->name('stock_analysis');
-                Route::get('/stok-analizi/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'stockQualityAnalysisExcel'])->name('stock_analysis_excel');
-                Route::get('/kirici-analizi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'crusherPerformance'])->name('crusher_performance');
-                Route::get('/kirici-analizi/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'crusherPerformanceExcel'])->name('crusher_performance_excel');
-                Route::get('/barcode-list', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode_list');
-                Route::get('/dashboard', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('dashboard');
-                Route::get('/barkod-listesi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode-list');
-                Route::get('/toplu-islem', [App\Http\Controllers\Granilya\LaboratoryController::class, 'bulkView'])->name('bulk-process');
-                Route::get('/barkod-detay/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'getPalletDetail'])->name('barcode-detail');
-                Route::post('/test-guncelle/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'updateTest'])->name('test.update');
-                Route::post('/istisnai-onay/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'exceptionalApprove'])->name('exceptional.approve');
-                Route::post('/toplu-onay', [App\Http\Controllers\Granilya\LaboratoryController::class, 'processBulk'])->name('bulk');
+            Route::get('/stok-durumu', [App\Http\Controllers\Granilya\ProductionController::class, 'index'])->name('stock.index');
+            Route::get('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'show'])->name('production.show');
+            Route::get('/palet/{id}/hareketler', [App\Http\Controllers\Granilya\ProductionController::class, 'history'])->name('production.history');
+
+            // ----------------------------------------------------------------
+            // Üretim İşlemleri — BARCODE_CREATE izni gerekli
+            // ----------------------------------------------------------------
+            Route::middleware(['permission:barcode_create'])->group(function () {
+                Route::get('/uretim', [App\Http\Controllers\Granilya\PageController::class, 'production'])->name('production');
+                Route::post('/uretim-islem', [App\Http\Controllers\Granilya\ProductionController::class, 'store'])->name('production.store');
+                Route::get('/palet/{id}/duzenle', [App\Http\Controllers\Granilya\ProductionController::class, 'edit'])->name('production.edit');
+                Route::put('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'update'])->name('production.update');
+                Route::delete('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'destroy'])->name('production.destroy');
             });
-            Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
-            
+
+            // ----------------------------------------------------------------
+            // Laboratuvar & Raporlama — LAB_PROCESSES izni gerekli
+            // ----------------------------------------------------------------
+            Route::middleware(['permission:lab_processes'])->group(function () {
+                Route::prefix('laboratuvar')->as('laboratory.')->group(function () {
+                    Route::get('/', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('index');
+                    Route::get('/dashboard', [App\Http\Controllers\Granilya\LaboratoryController::class, 'dashboard'])->name('dashboard');
+                    Route::get('/rapor', [App\Http\Controllers\Granilya\LaboratoryController::class, 'report'])->name('report');
+                    Route::get('/rapor/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'exportReport'])->name('export_report');
+                    Route::get('/stok-analizi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'stockQualityAnalysis'])->name('stock_analysis');
+                    Route::get('/stok-analizi/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'stockQualityAnalysisExcel'])->name('stock_analysis_excel');
+                    Route::get('/kirici-analizi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'crusherPerformance'])->name('crusher_performance');
+                    Route::get('/kirici-analizi/excel', [App\Http\Controllers\Granilya\LaboratoryController::class, 'crusherPerformanceExcel'])->name('crusher_performance_excel');
+                    Route::get('/barcode-list', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode_list');
+                    Route::get('/barkod-listesi', [App\Http\Controllers\Granilya\LaboratoryController::class, 'barcodeList'])->name('barcode-list');
+                    Route::get('/toplu-islem', [App\Http\Controllers\Granilya\LaboratoryController::class, 'bulkView'])->name('bulk-process');
+                    Route::get('/barkod-detay/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'getPalletDetail'])->name('barcode-detail');
+                    Route::post('/test-guncelle/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'updateTest'])->name('test.update');
+                    Route::post('/istisnai-onay/{id}', [App\Http\Controllers\Granilya\LaboratoryController::class, 'exceptionalApprove'])->name('exceptional.approve');
+                    Route::post('/toplu-onay', [App\Http\Controllers\Granilya\LaboratoryController::class, 'processBulk'])->name('bulk');
+                });
+                Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
+                Route::get('/rapor', [App\Http\Controllers\Granilya\PageController::class, 'report'])->name('report');
+            });
+
+            // ----------------------------------------------------------------
+            // Satış — CUSTOMER_TRANSFER izni gerekli (zaten vardı)
+            // ----------------------------------------------------------------
             Route::middleware(['permission:customer_transfer'])->group(function () {
                 Route::get('/satis', [App\Http\Controllers\Granilya\SalesController::class, 'index'])->name('sales');
                 Route::post('/satis', [App\Http\Controllers\Granilya\SalesController::class, 'store'])->name('sales.store');
@@ -76,23 +103,16 @@ Route::middleware('auth')
                 Route::get('/satis/gecmis', [App\Http\Controllers\Granilya\SalesController::class, 'history'])->name('sales.history');
             });
 
-            Route::get('/sorgu', [App\Http\Controllers\Granilya\PageController::class, 'barcode'])->name('barcode');
-            
-            // Granilya Production Operations
-            Route::post('/uretim-islem', [App\Http\Controllers\Granilya\ProductionController::class, 'store'])->name('production.store');
-            Route::get('/stok-durumu', [App\Http\Controllers\Granilya\ProductionController::class, 'index'])->name('stock.index');
-            Route::get('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'show'])->name('production.show');
-            Route::get('/palet/{id}/duzenle', [App\Http\Controllers\Granilya\ProductionController::class, 'edit'])->name('production.edit');
-            Route::put('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'update'])->name('production.update');
-            Route::get('/palet/{id}/hareketler', [App\Http\Controllers\Granilya\ProductionController::class, 'history'])->name('production.history');
-            Route::delete('/palet/{id}', [App\Http\Controllers\Granilya\ProductionController::class, 'destroy'])->name('production.destroy');
-
-            // Granilya Tanımlama Ekranları
-            Route::resource('kirici', App\Http\Controllers\Granilya\CrusherController::class);
-            Route::resource('boyut', App\Http\Controllers\Granilya\SizeController::class);
-            Route::resource('miktar', App\Http\Controllers\Granilya\QuantityController::class);
-            Route::get('/firma/export', [App\Http\Controllers\Granilya\CompanyController::class, 'export'])->name('firma.export');
-            Route::resource('firma', App\Http\Controllers\Granilya\CompanyController::class);
+            // ----------------------------------------------------------------
+            // Tanım Ekranları — MANAGEMENT izni gerekli
+            // ----------------------------------------------------------------
+            Route::middleware(['permission:management'])->group(function () {
+                Route::resource('kirici', App\Http\Controllers\Granilya\CrusherController::class);
+                Route::resource('boyut', App\Http\Controllers\Granilya\SizeController::class);
+                Route::resource('miktar', App\Http\Controllers\Granilya\QuantityController::class);
+                Route::get('/firma/export', [App\Http\Controllers\Granilya\CompanyController::class, 'export'])->name('firma.export');
+                Route::resource('firma', App\Http\Controllers\Granilya\CompanyController::class);
+            });
         });
 
         // Bu routes grubuna giren her şey ayrıyeten system.selection middleware istiyor

@@ -308,6 +308,7 @@
                         Hızlı Menü
                     </h5>
                     <div class="row">
+                        @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::BARCODE_CREATE))
                         <div class="col-lg-3 col-md-6 mb-3">
                             <a href="{{ route('granilya.production') }}" class="quick-action-item">
                                 <div class="quick-action-icon bg-primary">
@@ -319,6 +320,7 @@
                                 </div>
                             </a>
                         </div>
+                        @endif
                         <div class="col-lg-3 col-md-6 mb-3">
                             <a href="{{ route('granilya.stock.index') }}" class="quick-action-item">
                                 <div class="quick-action-icon bg-success">
@@ -330,6 +332,7 @@
                                 </div>
                             </a>
                         </div>
+                        @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::LAB_PROCESSES))
                         <div class="col-lg-3 col-md-6 mb-3">
                             <a href="{{ route('granilya.laboratory.index') }}" class="quick-action-item">
                                 <div class="quick-action-icon bg-info">
@@ -341,6 +344,7 @@
                                 </div>
                             </a>
                         </div>
+                        @endif
                         @if(auth()->user() && auth()->user()->hasPermission(\App\Models\Permission::CUSTOMER_TRANSFER))
                         <div class="col-lg-3 col-md-6 mb-3">
                             <a href="{{ route('granilya.sales') }}" class="quick-action-item">
